@@ -2,6 +2,8 @@
 
 A plain HTML/CSS/JavaScript technical portfolio hub for analytics, automation, systems, BI, reporting workflows, and project case studies for **Joe Wisto | Analytics, Automation, Systems & BI**. The homepage still works as a recruiter-friendly professional snapshot and print-to-PDF resume, while `/projects` introduces the first version of a broader case-study hub.
 
+This is the clean active portfolio repository. `PORTFOLIO_ROADMAP.md` is the implementation-status source of truth. Some backend and live-service integrations remain intentionally deferred; fixture-based demos and disabled submission behavior must describe those limits truthfully.
+
 ## Local preview
 
 No build system is required. Run a small static server from the repository root so JSON project data can be fetched correctly:
@@ -61,7 +63,9 @@ Use the **Print / PDF** button or press `Ctrl + P` from the homepage. The print 
 
 ## Deployment: Cloudflare Pages
 
-Suggested Cloudflare Pages settings:
+Cloudflare Pages is connected to this repository. `main` is the production branch, automatic deployments and pull-request previews are enabled, and the `pages.dev` deployment is working. Custom-domain attachment, canonical-host redirect, and final production-route verification remain open; see `PORTFOLIO_ROADMAP.md` for the current completion status.
+
+Repository settings:
 
 - Framework preset: **None**
 - Build command: leave blank or use `exit 0`
@@ -123,5 +127,6 @@ To prevent search-result drift over time, review candidate matches and lock stab
 - Add real project screenshots and OG preview images.
 - Add downloadable resume and project one-pagers under `assets/docs/`.
 - Add richer case-study metrics, diagrams, and links to live demos where appropriate.
-- Replace the `mailto:` contact form with a Cloudflare Worker or form endpoint.
+- Keep fixture-based and disabled behaviors truthful while live Sheets, Forms, Drive, and contact delivery remain deferred.
+- Replace the `mailto:` contact form with a verified Cloudflare Worker or form endpoint when backend work is prioritized.
 - Keep the site build-free until content volume justifies templating or static generation.
