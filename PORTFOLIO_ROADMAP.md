@@ -434,11 +434,30 @@ Acceptance criteria for Pass 07 implementation:
 
 ## Pass 08 - Faithful multi-platform publishing-system integration
 
-`multi-platform-publishing-system-staging/` on clean `main` is the approved, already-anonymized, already-fictional source implementation for this pass. It preserves the fictional **Postcard Atlas** identity and is the source to integrate faithfully, not a quarantine branch or a candidate for further anonymization.
+`multi-platform-publishing-system-staging/` on clean `main` is the approved, already-anonymized, already-fictional source implementation for this pass. It preserves the approved fictional Postcard Atlas identity and is the authoritative source implementation for faithful integration, not a quarantine branch or a candidate for further anonymization.
 
-All local fallback imagery and background-video files currently included in the approved publishing-system staging directory are owned by Joe Wisto and are approved for public portfolio display and redistribution in this repository.
+All local fallback imagery and background-video assets currently committed under the approved publishing-system staging directory are owned by Joe Wisto and are approved for public redistribution within this portfolio repository. These approved assets are part of the intended public portfolio presentation and must not be replaced, removed, or substituted solely for licensing, anonymization, or placeholder purposes.
 
 Start a fresh, focused integration branch from current `main`. Move the final demo into the project-scoped route below; do not expose the registry entry as ready/public until the integration and Cloudflare preview are approved. Privacy scans and route validation remain required verification, but they are not a reason to rewrite approved fictional content, replace approved media, or simplify the source implementation.
+
+> [!IMPORTANT]
+> **Implementation preservation contract**
+>
+> Future Pass 08 implementation is a **structural integration**, not a redesign or reimplementation.
+>
+> Unless a project-scoped route or deployment change makes a modification technically unavoidable, preserve the approved implementation's:
+>
+> - fictional Postcard Atlas identity;
+> - approved fictional copy and local fixtures;
+> - all approved local images and background videos;
+> - fallback imagery and video manifest;
+> - background-video behavior, timing, transitions, and reduced-motion handling;
+> - page structure and navigation;
+> - Home, About, Journal, Photos, Map, and Ask functionality;
+> - deep links, filtering, lightbox behavior, and cross-page interactions;
+> - loading, accessibility, fallback, and responsive behavior.
+>
+> The objective of Pass 08 is to relocate and integrate the approved implementation into its final project structure while preserving its visual character, interaction model, and functionality.
 
 Target public architecture:
 
@@ -461,7 +480,7 @@ Future Pass 08 work must preserve the approved implementation's:
 - Ask UI, accessible validation, and clearly disabled delivery behavior. The initial public demo must state that no message is submitted or collected;
 - responsive, keyboard, focus, loading, fallback, and reduced-motion behavior.
 
-Do not add further anonymization, rewrite already-fictional content, invent replacement identities or locations, replace approved media with placeholders, remove or disable the background-video system, or reduce the demo to a fixture-only redesign. The demo may use its approved local fixtures while live Google Sheets, Forms, and Drive integrations remain deferred.
+Do not perform additional fictionalization, anonymization, simplification, placeholder replacement, media reduction, or identity substitution unless Joe Wisto explicitly authorizes it. Do not rewrite already-fictional content, invent replacement identities or locations, replace approved media with placeholders, remove or disable the background-video system, or reduce the demo to a fixture-only redesign. The demo may continue using its approved local fictional fixtures while live Google Sheets, Forms, and Drive integrations remain deferred.
 
 ### 08.1 Establish the nested project structure
 
