@@ -319,8 +319,9 @@ const initShowcase = (showcaseSnapshots) => {
       return false;
     }
   })();
-  const debugAvailable = localDebugHost || debugParam === "1" || debugWasEnabled;
-  const debugInitiallyEnabled = debugParam === "1" || debugWasEnabled;
+  const explicitDebugAccess = debugParam === "1";
+  const debugAvailable = localDebugHost || explicitDebugAccess;
+  const debugInitiallyEnabled = explicitDebugAccess || (localDebugHost && debugWasEnabled);
 
   const configDescriptors = showcaseConfigDescriptors;
   const labTabs = [

@@ -25,3 +25,13 @@ document.querySelectorAll(".nav-links a:not(.portfolio-return)").forEach((link) 
     link.setAttribute("aria-current", "page");
   }
 });
+
+// Keep the mobile navigation to one scrollable primary row while preserving every link in the DOM.
+const navigation = document.querySelector(".nav-links");
+const portfolioReturn = navigation?.querySelector(".portfolio-return");
+if (navigation && portfolioReturn) {
+  const primaryLinks = document.createElement("div");
+  primaryLinks.className = "nav-primary-links";
+  [...navigation.querySelectorAll("a:not(.portfolio-return)")].forEach((link) => primaryLinks.append(link));
+  navigation.prepend(primaryLinks);
+}
