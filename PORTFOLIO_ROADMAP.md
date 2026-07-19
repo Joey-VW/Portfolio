@@ -60,7 +60,7 @@ These choices remove ambiguity from later implementation work.
 6. **Gravity Fleet work is split into game-flow and analytics passes.** The combined request is too large for one safe, reviewable change.
 7. **Global cleanup happens after prototype extraction.** In particular, keep the looping-animation prototype until the EV animation and any remaining reusable scenes have been integrated.
 8. **Repository-history remediation is complete.** This repository is the clean active replacement, and normal feature work proceeds from clean `main`. Do not add another history-rewrite or repository-replacement task to this roadmap.
-9. **Pass 08 has an approved source.** `multi-platform-publishing-system-staging/` on clean `main` is the already-anonymized, fictional implementation source for the publishing-system demo. Its preservation contract appears in Pass 08.
+9. **Pass 08 has an approved source.** Its already-anonymized, fictional implementation has been relocated to the project-scoped demo route. Its preservation contract appears in Pass 08.
 
 ## Pass 01 - Project governance
 
@@ -434,7 +434,7 @@ Acceptance criteria for Pass 07 implementation:
 
 ## Pass 08 - Faithful multi-platform publishing-system integration
 
-`multi-platform-publishing-system-staging/` on clean `main` is the approved, already-anonymized, already-fictional source implementation for this pass. It preserves the approved fictional Postcard Atlas identity and is the authoritative source implementation for faithful integration, not a quarantine branch or a candidate for further anonymization.
+The approved, already-anonymized, already-fictional source implementation is now located at `projects/multi-platform-publishing-system/demo/`. It preserves the approved fictional Postcard Atlas identity and remains the authoritative implementation for faithful integration, not a quarantine source or a candidate for further anonymization.
 
 All local fallback imagery and background-video assets currently committed under the approved publishing-system staging directory are owned by Joe Wisto and are approved for public redistribution within this portfolio repository. These approved assets are part of the intended public portfolio presentation and must not be replaced, removed, or substituted solely for licensing, anonymization, or placeholder purposes.
 
@@ -462,7 +462,7 @@ Start a fresh, focused integration branch from current `main`. Move the final de
 Target public architecture:
 
 - `/projects/multi-platform-publishing-system.html` - portfolio case study and project entry route.
-- `/projects/multi-platform-publishing-system/` - self-contained live demo, with `index.html`, supporting pages, scripts, styles, fixtures, and media nested beneath this directory.
+- `/projects/multi-platform-publishing-system/demo/` - self-contained live demo, with `index.html`, supporting pages, scripts, styles, fixtures, and media nested beneath this directory.
 - Every demo page includes one clearly labeled `Return to Joe Wisto portfolio` navigation option without otherwise changing the approved site flow.
 
 ### 08.0 Preservation contract
@@ -484,12 +484,12 @@ Do not perform additional fictionalization, anonymization, simplification, place
 
 ### 08.1 Establish the nested project structure
 
-- [ ] Create `projects/multi-platform-publishing-system/` as the final self-contained demo directory.
-- [ ] Preserve the approved page set as `index.html`, `about.html`, `journal.html`, `photos.html`, `map.html`, and `ask.html` unless an equivalent route is intentionally redirected.
-- [ ] Keep `/projects/multi-platform-publishing-system.html` as the portfolio case study rather than overwriting it with the demo homepage.
+- [x] Create `projects/multi-platform-publishing-system/demo/` as the final self-contained demo directory.
+- [x] Preserve the approved page set as `index.html`, `about.html`, `journal.html`, `photos.html`, `map.html`, and `ask.html` unless an equivalent route is intentionally redirected.
+- [x] Keep `/projects/multi-platform-publishing-system.html` as the portfolio case study rather than overwriting it with the demo homepage.
 - [ ] Migrate paths, dynamic URL construction, manifest URLs, and CSS asset URLs to project-scoped paths while preserving deep links, filtering, lightbox behavior, and cross-page interactions.
-- [ ] Add the portfolio-return link to shared navigation, including the not-found experience, without replacing or confusing the demo's Home link.
-- [ ] Scope any necessary root `_headers` work to `/projects/multi-platform-publishing-system/*`; do not change deployment behavior without a verified need.
+- [x] Add the portfolio-return link to shared navigation, including the not-found experience, without replacing or confusing the demo's Home link.
+- [x] Scope any necessary root `_headers` work to `/projects/multi-platform-publishing-system/*`; do not change deployment behavior without a verified need.
 
 Acceptance criteria:
 
@@ -499,11 +499,11 @@ Acceptance criteria:
 
 ### 08.2 Integrate the approved source faithfully
 
-- [ ] Copy the approved source implementation and media into the project-scoped route without content or identity substitution.
-- [ ] Preserve the fallback image, every background-video file, and every manifest entry; verify all nested public URLs resolve.
+- [x] Copy the approved source implementation and media into the project-scoped route without content or identity substitution.
+- [x] Preserve the fallback image, every background-video file, and every manifest entry; verify all nested public URLs resolve.
 - [ ] Preserve background-video behavior, failure recovery, page-visibility behavior, and reduced-motion fallback.
-- [ ] Preserve local fictional CSV fixtures for Journal, Photos, Map, and homepage content; do not require live services for the initial portfolio demo.
-- [ ] Keep Ask delivery disabled, with truthful copy that no message is submitted or collected, while retaining its approved validation and fallback UI.
+- [x] Preserve local fictional CSV fixtures for Journal, Photos, Map, and homepage content; do not require live services for the initial portfolio demo.
+- [x] Keep Ask delivery disabled, with truthful copy that no message is submitted or collected, while retaining its approved validation and fallback UI.
 - [ ] Preserve navigation, page functionality, loading/error states, accessibility behavior, deep links, filtering, lightbox, and cross-page interaction parity.
 - [ ] Keep Leaflet and OpenStreetMap attribution where used and validate external-service behavior without introducing credentials.
 
@@ -518,15 +518,15 @@ Acceptance criteria:
 - [x] Keep the existing project-registry entry `hidden` and `in-progress` during integration.
 - [ ] Expand `/projects/multi-platform-publishing-system.html` into a complete case study.
 - [ ] Explain the portfolio project, publishing workflow, static frontend, fixture-based demo, media handling, accessibility, privacy decisions, and deferred live integrations truthfully.
-- [ ] Add a clear `Open live demo` action and a route back to all projects.
-- [ ] Keep the case study and demo `noindex` while Pass 08 remains incomplete.
+- [x] Add a clear `Open live demo` action and a route back to all projects.
+- [x] Keep the case study and demo `noindex` while Pass 08 remains incomplete.
 - [ ] Change the registry to `public` and `ready` only after faithful integration, responsive/behavior validation, and Cloudflare preview approval. Do not change `data/projects.json` before then.
 
 ### 08.4 Validate, integrate, and release
 
-- [ ] Serve the repository root through HTTP and test the final nested route rather than serving the demo directory as a deployment root.
-- [ ] Run syntax checks for changed project JavaScript and the video-manifest builder, parse the manifest, and verify all listed video and fallback URLs.
-- [ ] Run project-registry validators if registry metadata changes.
+- [x] Serve the repository root through HTTP and test the final nested route rather than serving the demo directory as a deployment root.
+- [x] Run syntax checks for changed project JavaScript and the video-manifest builder, parse the manifest, and verify all listed video and fallback URLs.
+- [x] Run project-registry validators if registry metadata changes.
 - [ ] Validate desktop, tablet, mobile, keyboard, focus, reduced-motion, direct-load, refresh, Back/Forward, and case-study/demo round-trip behavior.
 - [ ] Verify Home, About, Journal, Photos, Map, Ask, cross-page hashes, filtering, lightbox, loading, fallback, and disabled Ask delivery.
 - [ ] Inspect the console and network panel for uncaught errors, failed local requests, missing assets, incorrect paths, and unexpected external dependencies.
@@ -536,7 +536,7 @@ Acceptance criteria:
 
 Final acceptance criteria for Pass 08:
 
-- The complete approved publishing site runs beneath `/projects/multi-platform-publishing-system/` with its visual character and behavior intact, plus a clear portfolio-return option.
+- The complete approved publishing site runs beneath `/projects/multi-platform-publishing-system/demo/` with its visual character and behavior intact, plus a clear portfolio-return option.
 - Approved media, fallback imagery, background videos, manifest, fixtures, and Ask-disabled behavior are all preserved.
 - The registry remains hidden/in-progress until faithful integration and preview approval, then changes to `public` and `ready` only in the reviewed release.
 
