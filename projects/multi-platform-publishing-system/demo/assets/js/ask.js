@@ -85,7 +85,7 @@ async function handleSubmit(event) {
   if (!isValid) return;
 
   if (!enabled) {
-    setFormState(form, "error", "Submissions are paused in this portfolio demo while the sample publishing workflow is being connected.");
+    setFormState(form, "error", "Submissions are paused in this portfolio demo. No message was submitted or collected.");
     return;
   }
 
@@ -123,7 +123,7 @@ function renderCustomForm() {
       <div class="ask-form-intro">
         <p class="panel-kicker">Interactive form preview</p>
         <h2>Send a postcard</h2>
-        <p>Try the validation and form states. Delivery is intentionally paused until the portfolio-owned form is ready.</p>
+        <p>Try the validation and form states. Delivery is intentionally paused, and this preview submits and collects no messages.</p>
       </div>
       <label class="ask-field">
         <span>Name</span>

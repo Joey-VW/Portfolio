@@ -8,3 +8,18 @@
 
 /data/*
   Cache-Control: public, max-age=300
+
+/projects/multi-platform-publishing-system/demo/*
+  X-Robots-Tag: noindex, nofollow
+
+/projects/multi-platform-publishing-system/demo/*.html
+  Cache-Control: public, max-age=300
+
+/projects/multi-platform-publishing-system/demo/data/*
+  Cache-Control: public, max-age=300
+
+/projects/multi-platform-publishing-system/demo/assets/background_image_clean.jpg
+  Cache-Control: public, max-age=31536000
+
+/projects/multi-platform-publishing-system/demo/assets/video-bg/*
+  Cache-Control: public, max-age=31536000
