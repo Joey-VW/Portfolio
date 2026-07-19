@@ -436,9 +436,9 @@ Acceptance criteria for Pass 07 implementation:
 
 The approved, already-anonymized, already-fictional source implementation is now located at `projects/multi-platform-publishing-system/demo/`. It preserves the approved fictional Postcard Atlas identity and remains the authoritative implementation for faithful integration, not a quarantine source or a candidate for further anonymization.
 
-All local fallback imagery and background-video assets currently committed under the approved publishing-system staging directory are owned by Joe Wisto and are approved for public redistribution within this portfolio repository. These approved assets are part of the intended public portfolio presentation and must not be replaced, removed, or substituted solely for licensing, anonymization, or placeholder purposes.
+All local fallback imagery and background-video assets currently committed under `projects/multi-platform-publishing-system/demo/` are owned by Joe Wisto and are approved for public redistribution within this portfolio repository. These approved assets are part of the intended public portfolio presentation and must not be replaced, removed, or substituted solely for licensing, anonymization, or placeholder purposes.
 
-Start a fresh, focused integration branch from current `main`. Move the final demo into the project-scoped route below; do not expose the registry entry as ready/public until the integration and Cloudflare preview are approved. Privacy scans and route validation remain required verification, but they are not a reason to rewrite approved fictional content, replace approved media, or simplify the source implementation.
+The approved implementation has been moved into the project-scoped route below on a focused integration branch. Keep the registry entry hidden/in-progress until faithful integration, behavior validation, and Cloudflare preview review are approved. Privacy scans and route validation remain required verification, but they are not a reason to rewrite approved fictional content, replace approved media, or simplify the source implementation.
 
 > [!IMPORTANT]
 > **Implementation preservation contract**
