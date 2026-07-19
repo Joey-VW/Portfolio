@@ -157,8 +157,8 @@
   {
     "slug": "multi-platform-publishing-system",
     "createdAt": "2026-06-18",
-    "status": "in-progress",
-    "visibility": "hidden",
+    "status": "ready",
+    "visibility": "public",
     "title": "Multi-Platform Publishing System",
     "category": "Static Site + Cloudflare",
     "summary": "Cloudflare-hosted travel journal/photo/map site powered by Google Sheets, Forms, Drive, and Apps Script workflows.",
