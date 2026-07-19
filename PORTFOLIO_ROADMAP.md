@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: July 18, 2026
+- Last reviewed: July 19, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -29,14 +29,24 @@ Status labels:
 | --- | --- | --- | --- |
 | 01. Project governance | DONE | Only ready projects appear publicly and all project ordering has one source of truth. | None |
 | 02. Landing page clarity | DONE | The top-level rÃ©sumÃ© content is polished, the supplied metric-card issue is fixed, and outdated copy is removed. | Pass 01 for project links |
-| 03. Showcase launcher controls | IN PROGRESS | Launcher sizing, polar placement, and the full development lab are easier to tune. | Pass 01 for project order |
+| 03. Showcase launcher controls | DONE | Launcher sizing, polar placement, and the full development lab are easier to tune. | Pass 01 for project order |
 | 04. Shrinkflation reliability | DONE | The hero is tighter, product imagery is resilient, and the weekly Kroger update is automated. | Secrets for automation |
 | 05. EV hero animation | DONE | The EV case study opens with a responsive, purposeful car-and-charger scene. | Preserve the animation prototype until complete |
 | 06. Gravity Fleet game flow | DONE | Match flow, navigation, terminology, level-three fairness, and command states feel intentional. | None |
-| 07. Gravity Fleet analytics | IN PROGRESS | Live and post-match analytics become more useful and spatially meaningful. | Pass 06 |
-| 08. Publishing-system case study | IN PROGRESS | The existing blog system becomes an anonymized, self-contained portfolio project with behavior parity. | Clean staging copy, portfolio-owned Google resources, and privacy review |
-| 09. Production deployment and contact | BLOCKED | The site deploys through Cloudflare and the contact form can submit safely. | Stable main branch and domain access |
-| 10. Cleanup and release QA | BLOCKED | Dead files are removed, mobile and print are polished, and the release has no obvious regressions. | All major visual and content passes |
+| 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 10. | Pass 06 |
+| 08. Publishing-system case study | NEXT | Faithfully integrate the approved, fictional Postcard Atlas source into a project-scoped portfolio demo. | Fresh focused branch from current main |
+| 09. Production deployment and contact | READY | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 08 preview and domain access |
+| 10. Cleanup and release QA | LATER | Complete final repository validation after the remaining front-end and release work. | Remaining front-end completion and production-route release |
+
+The recommended execution order is:
+
+1. Rebaseline documentation and roadmap.
+2. Faithful Pass 08 integration.
+3. Remaining front-end feature completion.
+4. Mobile and bug pass.
+5. Custom-domain and production-route release.
+6. Final repository validation.
+7. Deferred backend and operational automation work.
 
 ## Decisions already made
 
@@ -49,10 +59,12 @@ These choices remove ambiguity from later implementation work.
 5. **The contact form should eventually submit.** Keep the current email-draft fallback until a Cloudflare endpoint is deployed and verified. Do not ship a submit button that silently fails.
 6. **Gravity Fleet work is split into game-flow and analytics passes.** The combined request is too large for one safe, reviewable change.
 7. **Global cleanup happens after prototype extraction.** In particular, keep the looping-animation prototype until the EV animation and any remaining reusable scenes have been integrated.
+8. **Repository-history remediation is complete.** This repository is the clean active replacement, and normal feature work proceeds from clean `main`. Do not add another history-rewrite or repository-replacement task to this roadmap.
+9. **Pass 08 has an approved source.** `multi-platform-publishing-system-staging/` on clean `main` is the already-anonymized, fictional implementation source for the publishing-system demo. Its preservation contract appears in Pass 08.
 
 ## Pass 01 - Project governance
 
-Implemented July 15, 2026. The registry contains four public/ready projects and four hidden/in-progress projects. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. Final visual review remains open on the draft pull request before this pass moves to `DONE`.
+Implemented and verified July 15, 2026. The registry contains four public/ready projects and four hidden/in-progress projects. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
 
 ### 01.1 Add explicit lifecycle metadata
 
@@ -370,18 +382,18 @@ Acceptance criteria for Pass 06:
 - Command dock content always reflects the current game state.
 - All new navigation works with keyboard, reduced motion, and mobile layouts.
 
-## Pass 07 - Gravity Fleet analytics and tuning
+## Pass 07 - Gravity Fleet analytics and tuning - DONE
 
-Subsections 07.1 and 07.2 were implemented July 18, 2026. The live telemetry renderer now uses a configurable 200ms timer outside the gameplay animation loop and skips unchanged chart/DOM work. Run summaries now derive seven evidence-based observations and a level-specific replay suggestion from recorded telemetry. JavaScript syntax and deterministic summary regressions pass; physical laptop and mobile-width frame-pacing measurement remains open because a browser executable was unavailable in the implementation environment.
+Implementation was completed July 18, 2026. Live telemetry uses a configurable 200ms timer outside the gameplay animation loop and skips unchanged chart and DOM work. Run summaries provide evidence-based observations and replay guidance; leaderboard, recent-run, and minimap improvements are implemented. Control-hint mouse icons were enlarged, and `PLANET_MOTION_MULTIPLIER` is 1.2 without changing ship movement constants.
 
-Pass 07.5 received a focused implementation pass on July 18, 2026: main control-hint mouse icons grew from 1.05 by 1.35rem to 1.3 by 1.7rem while the compact supporting text was preserved, and `PLANET_MOTION_MULTIPLIER` is 1.2 in addition to each level's existing `orbitSpeedMultiplier`. Ship movement constants were not changed. Browser-based desktop/mobile layout inspection and all-level fairness testing remain open in this environment because no Chromium, Firefox, or Playwright executable is available; the 200ms telemetry interval therefore also remains provisional pending frame-pacing evidence.
+The remaining laptop/mobile frame-pacing measurements and planet-motion fairness playtesting are deliberately deferred to Pass 10. They have not yet passed and must not be represented as complete physical validation.
 
 ### 07.1 Increase live telemetry cadence safely
 
 - [x] Move the current live telemetry interval from 350ms to a configurable target near 200ms.
 - [x] Avoid rebuilding expensive DOM or charts when underlying values have not changed.
 - [x] Keep gameplay animation on `requestAnimationFrame` and telemetry rendering on its own cadence.
-- [ ] Measure for dropped frames on a typical laptop and a mobile-width emulation before settling on the final value.
+- [ ] Defer dropped-frame measurement on a typical laptop and mobile-width emulation to Pass 10.
 
 ### 07.2 Make run summary insights more specific
 
@@ -406,325 +418,173 @@ Pass 07.5 received a focused implementation pass on July 18, 2026: main control-
 - [x] Add a legend or mode toggle if movement and combat need separate readings.
 - [x] Preserve an accessible text summary of the hottest regions.
 
-Subsections 07.3 and 07.4 were implemented July 18, 2026. Recent local runs are selectable, clearable with confirmation, and rendered with the same level/outcome/score/duration/timestamp fields as explicitly labeled mock benchmarks. The dashboard now reports rank and percentile context. New runs store separate normalized 24-by-15 movement and combat layers plus a level map snapshot; the dashboard renders them as an accessible mode-switchable minimap with orbit and planet landmarks. Legacy 12-by-8 local heat arrays remain readable as movement-only data.
-
 ### 07.5 Improve control hints and planet motion
 
-- [ ] Increase the mouse icons in the control hints while keeping the accompanying text compact.
+- [x] Increase the mouse icons in the control hints while keeping the accompanying text compact.
 - [x] Increase base planet-orbit speed by approximately 15 to 25 percent through a dedicated planet-motion multiplier.
 - [x] Do not change ship orbit, travel, formation, or combat speeds as part of this item.
-- [ ] Verify that faster planets do not make level objectives or wormhole placement unfair.
+- [ ] Defer fairness playtesting of the faster planets, level objectives, and wormhole placement to Pass 10.
 
-Acceptance criteria for Pass 07:
+Acceptance criteria for Pass 07 implementation:
 
-- Live widgets feel close to real time without visible gameplay stutter.
+- Live widgets render close to real time without coupling telemetry work to gameplay animation.
 - Selecting a past run updates the dashboard reliably.
 - The heatmap can be related back to the actual map at a glance.
 - Planet motion is more visible while ship behavior remains unchanged.
 
-## Pass 08 - Anonymized multi-platform publishing system
+## Pass 08 - Faithful multi-platform publishing-system integration
 
-Pass 08 began July 18, 2026 on `multi-platform-publishing-system-staging`. The branch contains a working source copy, the original local background-video set and manifest, a replacement-resource inventory, and links to duplicated Google Drive resources. It remains a private working quarantine branch while client-specific content and identifiers are present. Do not merge this staging branch into `main`.
+`multi-platform-publishing-system-staging/` on clean `main` is the approved, already-anonymized, already-fictional source implementation for this pass. It preserves the fictional **Postcard Atlas** identity and is the source to integrate faithfully, not a quarantine branch or a candidate for further anonymization.
+
+All local fallback imagery and background-video files currently included in the approved publishing-system staging directory are owned by Joe Wisto and are approved for public portfolio display and redistribution in this repository.
+
+Start a fresh, focused integration branch from current `main`. Move the final demo into the project-scoped route below; do not expose the registry entry as ready/public until the integration and Cloudflare preview are approved. Privacy scans and route validation remain required verification, but they are not a reason to rewrite approved fictional content, replace approved media, or simplify the source implementation.
 
 Target public architecture:
 
 - `/projects/multi-platform-publishing-system.html` - portfolio case study and project entry route.
-- `/projects/multi-platform-publishing-system/` - self-contained live demo, with `index.html`, supporting pages, scripts, styles, and media nested beneath this directory.
-- Every demo page includes one clearly labeled `Return to Joe Wisto portfolio` navigation option without otherwise changing the original site flow.
-- The demo preserves the original homepage, About, Journal, Photos, Map, Ask, background-video, loading, filtering, lightbox, and reduced-motion behaviors using fictional content and portfolio-owned Google resources.
+- `/projects/multi-platform-publishing-system/` - self-contained live demo, with `index.html`, supporting pages, scripts, styles, fixtures, and media nested beneath this directory.
+- Every demo page includes one clearly labeled `Return to Joe Wisto portfolio` navigation option without otherwise changing the approved site flow.
 
-### 08.0 Preserve a safe staging boundary
+### 08.0 Preservation contract
 
-- [x] Create `multi-platform-publishing-system-staging/` on the dedicated `multi-platform-publishing-system-staging` branch.
-- [x] Copy the reusable HTML, CSS, JavaScript, tools, fallback background, background videos, and generated video manifest into the staging directory.
-- [x] Add a Drive-resource inventory identifying a portfolio-owned Google Form, Google Sheet, and two replacement media files.
-- [x] Verify the staging directory contains no nested `.git` directory, remote configuration, `.env` file, credentials, cookies, API keys, private deployment configuration, local editor state, or unrelated source history.
-- [ ] Treat `google_drive_repo_pack.txt`, `ASSET_URL_REPLACEMENTS.txt`, and `PASS_08_DUPLICATION_TRACKER.md` as temporary working artifacts, not public project files.
-- [ ] Keep the staging project `hidden` and `in-progress`; do not expose or deploy its direct route while original names, content, domains, coordinates, Google IDs, or client assets remain.
-- [ ] Before final integration, create a fresh implementation branch from the then-current `main` and copy only the sanitized allowlisted project files onto it. Do not merge the staging branch or preserve its unsanitized commits in the public project history.
-- [ ] Delete the remote staging branch only after the sanitized integration branch is complete, reviewed, and independently recoverable.
+Future Pass 08 work must preserve the approved implementation's:
 
-Acceptance criteria:
+- current fictional Postcard Atlas identity, copy, and fixtures;
+- all approved local media and fallback imagery;
+- complete background-video set, manifest entries, enablement, and behavior, including shuffle, crossfade, dwell, autoplay handling, visibility pause/resume, failure recovery, and reduced-motion fallback;
+- local fictional CSV fixtures and their loading, normalization, filtering, empty, and fallback states;
+- navigation, page structure, Home, About, Journal, Photos, Map, and Ask functionality;
+- Journal deep links, sorting/filtering, multi-media rendering, and anchored entries;
+- Photos search, location filtering, grouping, lightbox controls, hash targeting, and cross-page interactions;
+- Map marker grouping, panels, thumbnails, and Journal/Photos cross-links;
+- Ask UI, accessible validation, and clearly disabled delivery behavior. The initial public demo must state that no message is submitted or collected;
+- responsive, keyboard, focus, loading, fallback, and reduced-motion behavior.
 
-- The staging branch is clearly treated as quarantined working material rather than a release candidate.
-- The final integration diff contains only sanitized project files and intentional shared portfolio changes.
-- No nested repository, local secret, source archive, repo pack, resource inventory, or temporary tracker reaches `main`.
+Do not add further anonymization, rewrite already-fictional content, invent replacement identities or locations, replace approved media with placeholders, remove or disable the background-video system, or reduce the demo to a fixture-only redesign. The demo may use its approved local fixtures while live Google Sheets, Forms, and Drive integrations remain deferred.
 
-### 08.1 Inventory, ownership, and cleanup decisions
-
-- [ ] Build one keep, replace, move, or remove inventory for every staging file before reorganizing it.
-- [ ] Record the byte size, duration, dimensions, format, and source or ownership status of the fallback image and all 17 background videos.
-- [ ] Confirm that every retained local image and video is original, licensed for public portfolio redistribution, or replaced with an approved equivalent.
-- [ ] Confirm Leaflet 1.9.4 licensing and preserve required attribution.
-- [ ] Preserve visible OpenStreetMap attribution and verify that demo traffic remains appropriate for the public tile service.
-- [ ] Replace the client-specific family hero/share image and the four omitted farewell-event images with coherent fictional alternatives.
-- [ ] Decide whether all 17 background clips materially improve the demo. Retain exact behavior while removing only clips that are redundant, oversized, unlicensed, broken, or visually inconsistent.
-- [ ] Optimize retained videos for web delivery without changing the shuffle, transition, dwell, fallback, autoplay, visibility-pause, failure-recovery, or reduced-motion behavior.
-- [ ] Regenerate `assets/video-bg/manifest.json` after final filenames and paths are settled.
-- [ ] Consolidate useful setup and maintenance instructions into the final project README; remove duplicate trackers and generated inventories after their actionable information is transferred.
-
-Acceptance criteria:
-
-- Every retained binary asset has a documented public-use basis.
-- The final media set has no missing manifest entry, orphaned file, broken poster, or unexplained duplicate.
-- Temporary audit material and source archives are absent from the public project directory.
-
-### 08.2 Establish the nested project structure
+### 08.1 Establish the nested project structure
 
 - [ ] Create `projects/multi-platform-publishing-system/` as the final self-contained demo directory.
-- [ ] Preserve the current page set as `index.html`, `about.html`, `journal.html`, `photos.html`, `map.html`, and `ask.html` unless a page is intentionally redirected and the behavior remains equivalent.
-- [ ] Keep the existing `/projects/multi-platform-publishing-system.html` route as the portfolio case study rather than overwriting it with the demo homepage.
-- [ ] Replace root-owned paths such as `/assets/...`, `/journal.html`, `/photos.html`, `/map.html`, and `/ask.html` with project-scoped paths that work from the nested directory.
-- [ ] Centralize dynamic URL construction around one validated project base path instead of scattering hard-coded `/projects/multi-platform-publishing-system/` strings through JavaScript.
-- [ ] Update `assets/js/config.js`, all page navigation, dynamic journal/photo/map links, manifest URLs, poster URLs, the video-manifest builder, and any CSS asset URLs to use the nested path consistently.
-- [ ] Preserve hash links between Journal, Photos, and Map pages after the path migration.
-- [ ] Add `Return to Joe Wisto portfolio` to the shared site navigation on every demo page, including the not-found experience, without replacing or confusing the demo's Home link.
-- [ ] Ensure the portfolio-return link points to the canonical portfolio homepage and remains keyboard accessible at desktop and mobile widths.
-- [ ] Remove or repurpose nested deployment-root files that cannot function from a subdirectory:
-  - Move required cache or security rules from the nested `_headers` file into the portfolio root `_headers`, scoped only to `/projects/multi-platform-publishing-system/*`.
-  - Remove the nested `.nojekyll` unless a verified deployment behavior still requires it.
-  - Remove the nested `robots.txt` and `sitemap.xml`; represent public demo routes in the portfolio's root metadata only if indexing is intentional.
-  - Integrate any desired nested 404 behavior with the portfolio's root routing strategy rather than assuming a project-level `404.html` is automatically selected.
-- [ ] Verify that the project does not collide with the portfolio's root `/assets/`, root JavaScript, styles, headers, redirects, service paths, or other project routes.
+- [ ] Preserve the approved page set as `index.html`, `about.html`, `journal.html`, `photos.html`, `map.html`, and `ask.html` unless an equivalent route is intentionally redirected.
+- [ ] Keep `/projects/multi-platform-publishing-system.html` as the portfolio case study rather than overwriting it with the demo homepage.
+- [ ] Migrate paths, dynamic URL construction, manifest URLs, and CSS asset URLs to project-scoped paths while preserving deep links, filtering, lightbox behavior, and cross-page interactions.
+- [ ] Add the portfolio-return link to shared navigation, including the not-found experience, without replacing or confusing the demo's Home link.
+- [ ] Scope any necessary root `_headers` work to `/projects/multi-platform-publishing-system/*`; do not change deployment behavior without a verified need.
 
 Acceptance criteria:
 
-- Loading any demo page directly or refreshing it resolves the correct project-scoped CSS, JavaScript, media, and internal links.
-- No request from the demo accidentally resolves to the portfolio's root `/assets/` directory or root page routes.
-- Demo Home stays inside the demo; `Return to Joe Wisto portfolio` exits it intentionally.
-- The live demo and case-study routes remain distinct and understandable.
+- Direct loads and refreshes resolve project-scoped CSS, JavaScript, fixtures, media, and internal links.
+- Demo Home remains inside the demo, while the portfolio-return link exits it intentionally.
+- The demo and case-study routes remain distinct and understandable.
 
-### 08.3 Choose and apply one fictional publication identity
+### 08.2 Integrate the approved source faithfully
 
-- [ ] Choose one fictional publication name, owner identity, purpose, visual story, and geographic theme before rewriting individual pages.
-- [ ] Define a small editorial fixture with at least three journal entries, six to nine photos, two or more locations, one multi-media entry, and one hidden or draft row.
-- [ ] Use public landmarks or generalized fictional coordinates; do not reproduce private homes, workplaces, travel logistics, or client-specific map positions.
-- [ ] Replace the original farewell story with a fictional sample story that still exercises static-content fallback, multiple media, map grouping, captions, tags, alt text, anchors, and search.
-- [ ] Keep the replacement content internally consistent across the homepage, About, Journal, Photos, Map, Ask, metadata, structured data, fallback content, and Google resources.
-- [ ] Preserve the existing visual design and interaction model unless a client-specific name is embedded in a selector, variable, ID, or label that must be generalized.
-- [ ] Avoid making the fictional publication look like a real person, medical practice, or active organization that visitors could mistake for the original client.
-
-Acceptance criteria:
-
-- The demo feels like one believable fictional publication rather than disconnected placeholder text.
-- Every original behavior has representative content to exercise it.
-- No fictional copy implies a real business, patient relationship, professional endorsement, or live travel schedule.
-
-### 08.4 Complete the portfolio-owned Google resources
-
-External work required for behavior parity:
-
-- [ ] Inspect the duplicated `Portfolio | Blog Site Content Manager` spreadsheet and preserve the field names and tab structures consumed by `normalizePhoto()` and `normalizeJournalPost()`.
-- [ ] Remove original responses, client content, submitter emails, revision-sensitive material, original Drive file IDs, and client-specific locations from the duplicate spreadsheet.
-- [ ] Populate the duplicate `Map Photos` and `Blog Posts` tabs with the fictional editorial fixture.
-- [ ] Replace all Sheet-linked media values with the two duplicated Drive assets or additional portfolio-owned replacements.
-- [ ] Publish the duplicate `Map Photos` and `Blog Posts` tabs as public CSV endpoints and record their new publication URLs and `gid` values.
-- [ ] Verify both CSV URLs load without authentication and return the expected headers before connecting the demo.
-- [ ] Inspect the duplicated `Portfolio | Blog Poster` Google Form and decide whether the public demo will accept sample submissions.
-- [ ] To preserve the original Ask behavior, configure the duplicate Form with name, email, and message fields; record the new `formResponse`, `viewform`, optional prefill URL, and three entry IDs.
-- [ ] Ensure Form responses write only to a portfolio-owned destination and never to the original client workbook or account workflow.
-- [ ] Add clear demo-language and data-minimization copy before accepting public submissions; define how test responses will be reviewed and deleted.
-- [ ] If the Form is intentionally disabled, document that as a behavior-parity exception and provide an honest non-submitting demo state. Do not leave the original endpoint or a silently failing submit action.
-- [ ] Test duplicated Drive image permissions in a signed-out or private browser, including thumbnail and full-size URLs.
-- [ ] Update `assets/js/config.js` only after the duplicate CSV, Form, and Drive endpoints pass independent tests.
-
-Decision: the duplicate spreadsheet is required for live Journal, Photos, Map, and homepage content parity. The duplicate Google Form is required for exact Ask-page submission parity; it may be omitted only if the Ask workflow is explicitly changed to a non-submitting demonstration.
+- [ ] Copy the approved source implementation and media into the project-scoped route without content or identity substitution.
+- [ ] Preserve the fallback image, every background-video file, and every manifest entry; verify all nested public URLs resolve.
+- [ ] Preserve background-video behavior, failure recovery, page-visibility behavior, and reduced-motion fallback.
+- [ ] Preserve local fictional CSV fixtures for Journal, Photos, Map, and homepage content; do not require live services for the initial portfolio demo.
+- [ ] Keep Ask delivery disabled, with truthful copy that no message is submitted or collected, while retaining its approved validation and fallback UI.
+- [ ] Preserve navigation, page functionality, loading/error states, accessibility behavior, deep links, filtering, lightbox, and cross-page interaction parity.
+- [ ] Keep Leaflet and OpenStreetMap attribution where used and validate external-service behavior without introducing credentials.
 
 Acceptance criteria:
 
-- The homepage, Journal, Photos, and Map load only from the portfolio-owned fictional Sheet data.
-- The Ask page either submits successfully to the portfolio-owned duplicate Form or clearly states that submission is disabled.
-- No request is sent to an original client Sheet, Form, Drive file, folder, Apps Script deployment, domain, or analytics property.
+- The final demo retains the approved Postcard Atlas experience and all preservation-contract behavior.
+- Every page remains understandable and usable when a local fixture, image, or video fails.
+- No future integration replaces approved content or media merely to alter the demo's fictional identity.
 
-### 08.5 Complete repository-wide anonymization
-
-- [ ] Replace all personal names, family references, biographies, professions, patient language, business names, addresses, telephone numbers, emails, social links, professional-profile links, and organization-specific wording.
-- [ ] Replace `the original production domain` in canonical links, Open Graph tags, Twitter metadata, JSON-LD, breadcrumbs, robots/sitemap references, README content, comments, and error messages.
-- [ ] Replace Denmark, Copenhagen, Chandler, Arizona, the farewell-event location, Google Maps URLs, precise coordinates, map defaults, tags, slugs, anchors, and searchable text.
-- [ ] Replace client-specific filenames, image alt text, captions, static-content identifiers, DOM IDs, CSS custom properties, CSS class names, JavaScript variable names, and comments where they encode the original identity.
-- [ ] Remove the original Google Sheet publication ID, original tab `gid` values, original Form ID and entry IDs, original Drive folder ID, and every original linked Drive file ID.
-- [ ] Remove unused Google prefill URLs, Apps Script deployment URLs, analytics IDs, Cloudflare identifiers, local filesystem paths, and copied deployment settings.
-- [ ] Replace client-specific screenshots, generated output, ZIP archives, resource packs, fixtures, and metadata rather than relying on their filenames being unlinked.
-- [ ] Run targeted literal searches for all known names, domains, locations, addresses, coordinates, IDs, filenames, and title fragments.
-- [ ] Run broader pattern searches for email addresses, phone numbers, Google resource URLs and IDs, API-key-like strings, localhost paths, Windows paths, and external domains.
-- [ ] Manually review every remaining external URL and classify it as portfolio-owned, required third-party infrastructure, removed, or intentionally retained with attribution.
-
-Acceptance criteria:
-
-- Repository searches find no original client name, family or staff name, practice name, biography, address, telephone number, email, domain, location, coordinates, Google identifier, profile link, media filename, or story fragment.
-- Public metadata, structured data, alt text, search text, comments, and generated files pass the same anonymization standard as visible page copy.
-- The demo has no dependency on the original client's accounts or deployed site.
-
-### 08.6 Preserve original behavior with portfolio-owned content
-
-- [ ] Establish a behavior-parity checklist from the original site before changing implementation details.
-- [ ] Preserve background-video manifest loading, shuffle order, crossfade timing, dwell timing, fallback image, autoplay handling, page-visibility pause/resume, failure recovery, and reduced-motion fallback.
-- [ ] Preserve CSV loading, cache busting, normalization, visibility filtering, loading skeletons, fallback states, and error handling.
-- [ ] Preserve homepage recent-journal and featured-photo rendering with working deep links.
-- [ ] Preserve Journal sorting, filtering/search behavior, multi-media rendering, and anchored entries.
-- [ ] Preserve Photos search, location filtering, grouping, lightbox controls, original-media links, hash targeting, and keyboard close behavior.
-- [ ] Preserve Map marker grouping, photo thumbnails, selected-location panels, Journal/Photos cross-links, map attribution, and responsive behavior.
-- [ ] Preserve Ask validation, accessible error messages, submit state, fallback path, and duplicate-form integration if submission remains enabled.
-- [ ] Preserve current navigation, focus states, skip links, live regions, keyboard interaction, responsive layouts, and touch targets while adding the portfolio-return option.
-- [ ] Preserve the visual composition, background treatment, typography, glass panels, color system, transitions, and loading presentation except where anonymization requires neutral renaming.
-- [ ] Document any unavoidable parity exception with its reason and user-visible impact before marking this subsection complete.
-
-Acceptance criteria:
-
-- Side-by-side review finds no unintended behavioral or visual regression from the original site.
-- Every page remains usable when a CSV request, image, video, or Form request fails.
-- Reduced-motion visitors receive the intended fallback image and no essential information depends on motion.
-
-### 08.7 Build the portfolio case study and registry integration
+### 08.3 Build the portfolio case study and registry integration
 
 - [x] Keep the existing project-registry entry `hidden` and `in-progress` during integration.
-- [ ] Expand `/projects/multi-platform-publishing-system.html` from its placeholder into a complete case study.
-- [ ] Use the public title `Multi-Platform Publishing System` unless a stronger anonymized title is approved.
-- [ ] Explain the client problem in anonymized terms, the system architecture, nontechnical publishing workflow, Google Forms/Sheets/Drive connections, static frontend, Cloudflare delivery, data normalization, media handling, accessibility, privacy decisions, and tradeoffs.
-- [ ] Add a clear `Open live demo` action to the nested demo and retain a route back to all projects.
-- [ ] Include an architecture visual only if it materially improves understanding of the Forms/Sheets/Drive-to-static-site workflow.
-- [ ] Distinguish the production pattern from the fictional demo so visitors understand that the public data is representative rather than client content.
-- [ ] Update the project registry summary, value statement, stack, Showcase metadata, and route only after the final architecture and title are stable.
+- [ ] Expand `/projects/multi-platform-publishing-system.html` into a complete case study.
+- [ ] Explain the portfolio project, publishing workflow, static frontend, fixture-based demo, media handling, accessibility, privacy decisions, and deferred live integrations truthfully.
+- [ ] Add a clear `Open live demo` action and a route back to all projects.
 - [ ] Keep the case study and demo `noindex` while Pass 08 remains incomplete.
-- [ ] Change the registry to `public` and `ready` only after the final privacy, responsive, behavior-parity, content, and deployment-preview gates pass.
+- [ ] Change the registry to `public` and `ready` only after faithful integration, responsive/behavior validation, and Cloudflare preview approval. Do not change `data/projects.json` before then.
 
-Acceptance criteria:
+### 08.4 Validate, integrate, and release
 
-- A visitor can understand what was built, why it mattered, how a nontechnical publisher uses it, and what technical judgment the work demonstrates.
-- The case study links to the demo, the demo returns to the portfolio, and neither route is mistaken for the original client website.
-- Unfinished or unsanitized material never appears in project cards or the Showcase launcher.
-
-### 08.8 Validate, integrate, and release
-
-- [ ] Serve the repository root through HTTP and test the final nested route rather than serving the demo directory as if it were a deployment root.
-- [ ] Run `node --check` on every changed project JavaScript file and the video-manifest builder.
-- [ ] Validate `assets/video-bg/manifest.json` as JSON and verify that every listed file and poster exists at its nested public URL.
-- [ ] Run the project-registry validators after registry metadata changes.
-- [ ] Review the demo and case study at representative desktop, tablet, and mobile widths, including 320, 375, 390, 430, 768, and 1024 CSS pixels where relevant.
-- [ ] Verify keyboard navigation, visible focus, skip links, live regions, lightbox focus/close behavior, form errors, 200 percent zoom, reduced motion, and touch targets.
-- [ ] Test Home, About, Journal, Photos, Map, Ask, all cross-page hashes, direct page loads, refreshes, browser Back/Forward, the portfolio-return link, and the case-study/demo round trip.
-- [ ] Test signed-out access to the two published CSVs, replacement Drive media, and duplicate Google Form.
-- [ ] Inspect the browser console and network panel for uncaught errors, mixed content, CORS failures, original-domain requests, missing assets, incorrect MIME types, and unexpected root-path requests.
-- [ ] Verify project-scoped `_headers` behavior, content-security requirements, caching, Leaflet/OSM access, deep links, metadata, and fallback behavior on a Cloudflare preview deployment.
-- [ ] Run `git diff --check`, inspect `git status --short`, and confirm only intended sanitized files are included.
-- [ ] Perform a final repository-wide privacy search on the clean integration branch, independent of the staging branch review.
-- [ ] Update this roadmap and the project README with only verified completion state and any approved parity exceptions.
-- [ ] Open or update a draft PR from the clean integration branch; do not merge until required external resources and preview checks pass.
+- [ ] Serve the repository root through HTTP and test the final nested route rather than serving the demo directory as a deployment root.
+- [ ] Run syntax checks for changed project JavaScript and the video-manifest builder, parse the manifest, and verify all listed video and fallback URLs.
+- [ ] Run project-registry validators if registry metadata changes.
+- [ ] Validate desktop, tablet, mobile, keyboard, focus, reduced-motion, direct-load, refresh, Back/Forward, and case-study/demo round-trip behavior.
+- [ ] Verify Home, About, Journal, Photos, Map, Ask, cross-page hashes, filtering, lightbox, loading, fallback, and disabled Ask delivery.
+- [ ] Inspect the console and network panel for uncaught errors, failed local requests, missing assets, incorrect paths, and unexpected external dependencies.
+- [ ] Run a final repository privacy scan and route/asset scan on the integration branch, preserving approved fictional content and media.
+- [ ] Verify the project-scoped route, headers as applicable, caching, deep links, metadata, and fallbacks on a Cloudflare pull-request preview.
+- [ ] Open a draft PR and do not merge until the integration and preview are approved.
 
 Final acceptance criteria for Pass 08:
 
-- The complete publishing site runs beneath `/projects/multi-platform-publishing-system/` with its original behavior and visual character intact, plus a clear portfolio-return option.
-- The demo uses only fictional sample content, portfolio-owned Google resources, approved local media, and required attributed third-party services.
-- No client-specific name, content, asset, location, identifier, account dependency, deployment setting, or unsanitized history reaches `main`.
-- Background videos, fallback media, homepage content, Journal, Photos, Map, Ask, cross-links, loading states, error states, keyboard behavior, reduced motion, and responsive layouts work on the Cloudflare preview.
-- The case study accurately explains the system and links cleanly to the demo.
-- The registry remains hidden until every privacy, parity, content, responsive, and preview gate passes, then moves to `public` and `ready` in the same reviewed release.
+- The complete approved publishing site runs beneath `/projects/multi-platform-publishing-system/` with its visual character and behavior intact, plus a clear portfolio-return option.
+- Approved media, fallback imagery, background videos, manifest, fixtures, and Ask-disabled behavior are all preserved.
+- The registry remains hidden/in-progress until faithful integration and preview approval, then changes to `public` and `ready` only in the reviewed release.
 
-## Pass 09 - Production deployment and contact delivery
+## Pass 09 - Production deployment and custom-domain release
 
-### 09.1 Deploy through Cloudflare Pages
+Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the `pages.dev` deployment is working.
 
-- [ ] Connect `Joey-VW/Portfolio` to Cloudflare Pages through the GitHub integration.
-- [ ] Use `main` as the production branch and enable pull-request preview deployments.
-- [ ] Keep the repository root as the site root, with no framework preset and no unnecessary build command.
-- [ ] Attach `joewisto.com`, confirm HTTPS, and choose one canonical hostname with a redirect from the other.
-- [ ] Verify `_headers`, `_redirects`, caching, deep links, JSON fetches, OG metadata, favicon, and 404 behavior in production.
-- [ ] Enable lightweight web analytics only if it does not add a consent or privacy burden that outweighs its value.
+### 09.1 Complete remaining production release work
+
+- [x] Connect `Joey-VW/Portfolio` to Cloudflare Pages.
+- [x] Use `main` as the production branch.
+- [x] Enable automatic deployments and pull-request previews.
+- [ ] Attach `joewisto.com`, confirm HTTPS, choose a canonical hostname, and add the redirect from the other host.
+- [ ] Verify final production routes, `_headers`, `_redirects`, caching, deep links, JSON fetches, metadata, favicon, and 404 behavior.
 
 Acceptance criteria:
 
-- A merge to `main` deploys automatically.
-- Pull requests receive safe preview URLs for visual review.
-- Every public route loads directly and after refresh.
-- No credentials or internal tracking details are present in the deployed output.
+- The custom domain and canonical-host redirect work in production.
+- Every public route loads directly and after refresh on the final production host.
+- Final metadata and 404 behavior are verified without exposing credentials or internal tracking details.
 
-Reference: Cloudflare Pages' GitHub integration supports branch deployments, pull-request previews, and deployment checks: <https://developers.cloudflare.com/pages/configuration/git-integration/github-integration/>.
+### 09.2 Deferred backend and live-service work - LATER
 
-### 09.2 Add real contact submission after deployment
+- [ ] Add a portfolio contact endpoint with server-side validation, rate limiting, Turnstile verification, and verified delivery.
+- [ ] Replace the email-draft fallback only after the contact endpoint passes an end-to-end test.
+- [ ] Consider live Google Sheets content, Google Forms delivery, and Google Drive media integration for Postcard Atlas only after the fixture-based portfolio demo is approved.
+- [ ] Perform credentialed Kroger and other operational automation verification only when explicitly authorized and safely configured.
 
-- [ ] Add a Pages Function or Worker endpoint for `POST /api/contact`.
-- [ ] Validate and length-limit name, email, message, and an optional `reason` field such as `Role`, `Project`, or `Something else`.
-- [ ] Add a honeypot, basic rate limiting, and Cloudflare Turnstile with mandatory server-side token verification.
-- [ ] Send the message to Joe through a verified Cloudflare email binding, with the visitor's address set as `replyTo` rather than as the sender.
-- [ ] Return clear inline success and failure states and retain a direct `mailto:` fallback.
-- [ ] Do not log full message bodies or email addresses longer than needed for error diagnosis.
-- [ ] Test with Cloudflare's Turnstile test keys before production keys are enabled.
+## Pass 10 - Final repository validation and release QA
 
-Decision: add a true `Send message` button only when the endpoint and delivery path pass an end-to-end test. Until then, keep `Open email draft` so the interface remains truthful.
+Comprehensive validation is consolidated here. It occurs after remaining front-end feature completion, the mobile and bug pass, and custom-domain/production-route release. Every production-bound PR must still meet the minimum smoke gate below.
 
-References:
+### 10.1 Final validation matrix
 
-- Pages Functions can handle form submissions without a dedicated server: <https://developers.cloudflare.com/pages/functions/>.
-- Cloudflare Workers can send through a configured email binding: <https://developers.cloudflare.com/email-service/api/send-emails/workers-api/>.
-- Turnstile requires server-side Siteverify validation: <https://developers.cloudflare.com/turnstile/get-started/server-side-validation/>.
+- [ ] Audit root-level artifacts, stale routes, orphaned selectors/helpers, duplicate data, captures, and obsolete comments before any deletion; preserve sources needed by unfinished work.
+- [ ] Review all affected public routes at 320, 375, 390, 430, 768, and 1024 CSS pixels, relevant landscape layouts, and 200 percent browser zoom.
+- [ ] Verify keyboard navigation, visible focus, screen-reader labels, reduced motion, touch targets, loading/error/fallback states, and print/PDF behavior at US Letter size.
+- [ ] Run complete applicable validators, Python and JavaScript syntax checks, and JSON parsing checks.
+- [ ] Perform repository privacy, route, and asset scans; review external URLs and confirm no secrets, private data, generated captures, or unintended files are present.
+- [ ] Verify final Cloudflare preview and production behavior, including canonical host, routes, refreshes, headers, redirects, metadata, favicon, and 404 response.
+- [ ] Measure Gravity Fleet laptop/mobile frame pacing and playtest planet motion, level objectives, and wormhole fairness. These physical checks remain open until evidence is recorded.
 
-## Pass 10 - Cleanup and release QA
+### 10.2 Minimum production-bound PR smoke gate
 
-### 10.1 Audit the repository before deleting files
+Every production-bound PR must complete and report this minimum gate:
 
-- [ ] Build a keep/move/delete inventory for every root-level development artifact and placeholder.
-- [ ] Review these likely candidates first:
-  - `3-looping-animations(1).html` - keep until reusable scenes are extracted, then move to a clearly named prototype/archive location or delete.
-  - `ev-true-cost-foundation-spec.md` - keep if it remains the active design/data contract; otherwise archive under project docs.
-  - `ev-true-cost-seed-data.json` - compare with `data/ev-true-cost.json` and remove only if it is a superseded duplicate.
-  - Empty `.gitkeep` files - remove when their directories contain real assets, or remove the empty directory if it has no near-term purpose.
-  - Old commented configuration values in `script.js` - remove once the Dev Lab can reproduce and export the chosen defaults.
-- [ ] Check for orphaned CSS selectors, unused JavaScript helpers, stale routes, duplicate data, temporary captures, and obsolete comments.
-- [ ] Update `README.md`, `tools/README.md`, and the repository map after changes.
+- `git diff --check`
+- syntax validation for changed Python and JavaScript
+- parse changed JSON files
+- run any directly affected existing repository validator
+- serve the repository root over HTTP
+- verify every changed route loads directly and after refresh
+- inspect for uncaught console errors and failed local requests
+- review at one desktop width
+- review at approximately 390px
+- verify the Cloudflare pull-request preview when routes, headers, redirects, or deployment behavior change
 
-Acceptance criteria:
-
-- Every deletion is backed by a reference search and a local smoke test.
-- No source asset needed by an unfinished roadmap item is removed early.
-- Root-level files are intentional and easy for a new contributor to understand.
-
-### 10.2 Complete a full mobile pass
-
-- [ ] Test at 320, 375, 390, 430, 768, and 1024 CSS pixels, in portrait and relevant landscape layouts.
-- [ ] Review the homepage, projects page, Showcase launcher, Shrinkflation Tracker, EV case study, Gravity Fleet Lab, Colony Ops Lab, and the publishing-system case study.
-- [ ] Fix horizontal overflow, clipped headings, sticky-nav collisions, undersized tap targets, cramped forms, chart overflow, modal sizing, and canvas/control usability.
-- [ ] Verify keyboard focus, screen-reader labels, reduced motion, and 200 percent browser zoom.
-- [ ] Use `tools/capture_page.py` for repeatable desktop/mobile captures and compare important before/after states.
-
-Acceptance criteria:
-
-- No public route has unintended horizontal scrolling at 320px.
-- Primary controls meet a comfortable touch target and remain visible.
-- Sticky elements do not cover anchor destinations or each other.
-- Interactive projects provide a usable mobile fallback where full gameplay is impractical.
-
-### 10.3 Recheck the print/PDF rÃ©sumÃ©
-
-- [ ] Run this only after the landing-page content and layout passes are complete.
-- [ ] Review Chrome print preview at US Letter size with backgrounds both enabled and disabled.
-- [ ] Confirm the welcome guide, Showcase, project cards, interactive controls, and decorative visuals do not leak into the rÃ©sumÃ© unless intentionally designed for print.
-- [ ] Fix clipped headings, awkward page breaks, orphaned timeline items, crowded contact details, and stray blank pages.
-- [ ] Confirm URLs and contact information remain readable in a saved PDF.
-
-Acceptance criteria:
-
-- The PDF reads as a polished rÃ©sumÃ© rather than a printed website.
-- There are no clipped elements, accidental overlays, or empty pages.
-- The screen experience is not compromised to satisfy print layout.
-
-### 10.4 Final release gate
-
-- [ ] Serve locally from the repository root with `python -m http.server 8000` and click through every public route.
-- [ ] Run `python tools/validate_ev_true_cost.py`.
-- [ ] Run `python tools/fetch_kroger_products.py --test-merge-fixture`.
-- [ ] Confirm all JSON fetches succeed and the browser console has no uncaught errors.
-- [ ] Verify Cloudflare preview and production URLs after the final merge.
-- [ ] Check links, metadata, favicon, redirects, 404 behavior, forms, modals, and keyboard navigation.
-- [ ] Update this roadmap, the README roadmap section, and project statuses to reflect what actually shipped.
+Do not claim broader QA occurred unless there is evidence.
 
 ## Deferred ideas and guardrails
 
 - Do not add a framework solely to organize this roadmap. Reconsider templating only when duplicated page structure becomes a material maintenance problem.
-- Do not publish private client material to make the publishing-system case study feel more realistic. Fictional sample content is enough.
+- The approved Postcard Atlas staging source, fictional content, local fixtures, fallback image, background videos, and manifest are preservation requirements, not material to replace or disable.
 - Do not treat unlisted static pages as private or secure.
 - Do not cache or redistribute third-party product imagery until the relevant terms allow it.
 - Do not increase Gravity Fleet telemetry frequency at the expense of input responsiveness.
-- Do not use decorative brand colors or motion if they make the rÃ©sumÃ© harder to scan.
+- Live Sheets, Forms, Drive, portfolio contact delivery, credentialed operational automation verification, and Gravity Fleet physical frame-pacing/fairness validation are deferred, not blockers for the front-end portfolio release.
 
 ## Completion definition
 
@@ -732,9 +592,6 @@ The portfolio reaches the current north star when:
 
 - visitors immediately understand what the site is and how to explore it;
 - every public project is intentionally marked ready and appears in correct date order;
-- mobile, desktop, reduced-motion, keyboard, and print experiences are coherent;
-- core case studies have reliable data, purposeful visuals, and clear next actions;
-- deployment and recurring data updates are automated without exposing secrets;
-- recruiters and potential clients can contact Joe through a trustworthy path; and
-- the repository is clean enough that the next improvement starts from an understandable baseline.
-
+- remaining front-end features, mobile/bug fixes, and production-route work are complete;
+- final validation confirms coherent mobile, desktop, reduced-motion, keyboard, zoom, print, route, asset, privacy, and Cloudflare behavior; and
+- deferred backend and operational work is either explicitly completed with evidence or remains honestly labeled as deferred.
