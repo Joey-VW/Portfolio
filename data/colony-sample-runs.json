@@ -1,0 +1,10 @@
+[
+  {"name":"Quartz Hive","totalResources":186,"efficiencyScore":82,"colonyLevel":6,"workersCreated":13,"expansionCount":5},
+  {"name":"Neon Foragers","totalResources":162,"efficiencyScore":74,"colonyLevel":5,"workersCreated":10,"expansionCount":4},
+  {"name":"Aster Swarm","totalResources":211,"efficiencyScore":88,"colonyLevel":7,"workersCreated":15,"expansionCount":6},
+  {"name":"Low Orbit Apiary","totalResources":139,"efficiencyScore":67,"colonyLevel":4,"workersCreated":8,"expansionCount":3},
+  {"name":"Cinder Colony","totalResources":174,"efficiencyScore":79,"colonyLevel":5,"workersCreated":12,"expansionCount":4},
+  {"name":"Delta Brood","totalResources":228,"efficiencyScore":91,"colonyLevel":7,"workersCreated":16,"expansionCount":6},
+  {"name":"Glass Garden","totalResources":151,"efficiencyScore":71,"colonyLevel":5,"workersCreated":9,"expansionCount":4},
+  {"name":"Violet Wing","totalResources":196,"efficiencyScore":84,"colonyLevel":6,"workersCreated":14,"expansionCount":5}
+]

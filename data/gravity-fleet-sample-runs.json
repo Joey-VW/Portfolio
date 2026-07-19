@@ -1,0 +1,7 @@
+[
+  { "name": "Fast Expansion", "levelId": 1, "levelName": "First Orbit", "outcome": "Victory", "durationSeconds": 118, "score": 284, "endedAt": "2026-07-01T16:12:00Z", "planetsCaptured": 5, "shipsLaunched": 9, "shipsLost": 31, "shipsDestroyed": 56, "wormholesCreated": 4 },
+  { "name": "Portal Tactician", "levelId": 2, "levelName": "Wide Periapsis", "outcome": "Victory", "durationSeconds": 142, "score": 261, "endedAt": "2026-07-02T18:35:00Z", "planetsCaptured": 4, "shipsLaunched": 7, "shipsLost": 24, "shipsDestroyed": 49, "wormholesCreated": 8 },
+  { "name": "Wide Orbit", "levelId": 2, "levelName": "Wide Periapsis", "outcome": "Victory", "durationSeconds": 169, "score": 229, "endedAt": "2026-07-03T20:08:00Z", "planetsCaptured": 4, "shipsLaunched": 11, "shipsLost": 44, "shipsDestroyed": 62, "wormholesCreated": 2 },
+  { "name": "Attrition Hold", "levelId": 3, "levelName": "Broken Helix", "outcome": "Defeat", "durationSeconds": 156, "score": 91, "endedAt": "2026-07-04T17:44:00Z", "planetsCaptured": 2, "shipsLaunched": 8, "shipsLost": 68, "shipsDestroyed": 38, "wormholesCreated": 1 },
+  { "name": "Late Counter", "levelId": 3, "levelName": "Broken Helix", "outcome": "Victory", "durationSeconds": 188, "score": 205, "endedAt": "2026-07-05T21:26:00Z", "planetsCaptured": 5, "shipsLaunched": 13, "shipsLost": 59, "shipsDestroyed": 72, "wormholesCreated": 3 }
+]

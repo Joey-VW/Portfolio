@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "original": {
+    "config": {
+      "layout": {
+        "desktopDistanceScale": 1.03,
+        "mobileDistanceScale": 1,
+        "hubXRatio": 0.52,
+        "hubYOffsetRatio": 0.22,
+        "mobileHubYRatio": 0.16,
+        "viewportMargin": 18,
+        "collisionGap": 14,
+        "lineBend": 30,
+        "lineEndpointGap": 4
+      },
+      "node": {
+        "desktopWidth": 232,
+        "desktopHeight": 92,
+        "mobileWidth": 166,
+        "mobileHeight": 66,
+        "backgroundOpacity": 0.95,
+        "hoverBackgroundOpacity": 0.85,
+        "borderWidth": 1,
+        "borderOpacity": 0.2,
+        "borderRadius": 16
+      },
+      "hub": {
+        "desktopWidth": 128,
+        "desktopHeight": 72,
+        "mobileWidth": 96,
+        "mobileHeight": 44
+      },
+      "line": {
+        "width": 2,
+        "activeWidth": 1.6,
+        "opacity": 0.72
+      },
+      "motion": {
+        "hubTravelDuration": 400,
+        "hubCollapseDuration": 400,
+        "hubArcStrength": 0.45,
+        "hubArcDirection": -1,
+        "hubArcMin": 18,
+        "hubArcMax": 96,
+        "webDeployDuration": 280,
+        "webDeployStagger": 20,
+        "nodeRevealDelay": 140,
+        "nodeRevealDuration": 180,
+        "pointerStrength": 0.16,
+        "pointerDamping": 0.05,
+        "pointerRadius": 520,
+        "pointerInfluence": 35,
+        "settleDistance": 0.35,
+        "settleVelocity": 0.05,
+        "easing": "easeOutCubic"
+      }
+    },
+    "nodePlacements": [
+      {
+        "angle": 26,
+        "radius": 163
+      },
+      {
+        "angle": 51,
+        "radius": 163
+      },
+      {
+        "angle": 77,
+        "radius": 163
+      },
+      {
+        "angle": 103,
+        "radius": 163
+      },
+      {
+        "angle": 129,
+        "radius": 163
+      },
+      {
+        "angle": 154,
+        "radius": 163
+      },
+      {
+        "angle": 180,
+        "radius": 163
+      }
+    ]
+  },
+  "saved": {
+    "config": {
+      "layout": {
+        "desktopDistanceScale": 1,
+        "mobileDistanceScale": 1,
+        "hubXRatio": 0.52,
+        "hubYOffsetRatio": 0.05,
+        "mobileHubYRatio": 0.16,
+        "viewportMargin": 18,
+        "collisionGap": 14,
+        "lineBend": 30,
+        "lineEndpointGap": 4
+      },
+      "node": {
+        "desktopWidth": 232,
+        "desktopHeight": 92,
+        "mobileWidth": 166,
+        "mobileHeight": 66,
+        "backgroundOpacity": 0.96,
+        "hoverBackgroundOpacity": 0.85,
+        "borderWidth": 1,
+        "borderOpacity": 0.2,
+        "borderRadius": 24
+      },
+      "hub": {
+        "desktopWidth": 128,
+        "desktopHeight": 72,
+        "mobileWidth": 96,
+        "mobileHeight": 44
+      },
+      "line": {
+        "width": 2,
+        "activeWidth": 1.6,
+        "opacity": 0.72
+      },
+      "motion": {
+        "hubTravelDuration": 400,
+        "hubCollapseDuration": 400,
+        "hubArcStrength": 0.45,
+        "hubArcDirection": -1,
+        "hubArcMin": 18,
+        "hubArcMax": 96,
+        "webDeployDuration": 280,
+        "webDeployStagger": 20,
+        "nodeRevealDelay": 140,
+        "nodeRevealDuration": 180,
+        "pointerStrength": 0.16,
+        "pointerDamping": 0.05,
+        "pointerRadius": 140,
+        "pointerInfluence": 30,
+        "settleDistance": 0.35,
+        "settleVelocity": 0.05,
+        "easing": "easeOutCubic"
+      }
+    },
+    "nodePlacements": [
+      {
+        "angle": 0,
+        "radius": 266
+      },
+      {
+        "angle": 27,
+        "radius": 201
+      },
+      {
+        "angle": 61,
+        "radius": 224
+      },
+      {
+        "angle": 85,
+        "radius": 294
+      },
+      {
+        "angle": 103,
+        "radius": 163
+      },
+      {
+        "angle": 129,
+        "radius": 163
+      },
+      {
+        "angle": 154,
+        "radius": 163
+      }
+    ]
+  }
+}

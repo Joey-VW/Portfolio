@@ -1,0 +1,123 @@
+{
+  "items": [
+    {
+      "id": "1-mp4",
+      "name": "Background video 1",
+      "src": "./assets/video-bg/1.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "2-mp4",
+      "name": "Background video 2",
+      "src": "./assets/video-bg/2.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "03-mp4",
+      "name": "Background video 03",
+      "src": "./assets/video-bg/03.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "3-mp4",
+      "name": "Background video 3",
+      "src": "./assets/video-bg/3.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "04-mp4",
+      "name": "Background video 04",
+      "src": "./assets/video-bg/04.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "5-optimized-mp4",
+      "name": "Background video 5 Optimized",
+      "src": "./assets/video-bg/5-optimized.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "06-mp4",
+      "name": "Background video 06",
+      "src": "./assets/video-bg/06.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "08-mp4",
+      "name": "Background video 08",
+      "src": "./assets/video-bg/08.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "09-mp4",
+      "name": "Background video 09",
+      "src": "./assets/video-bg/09.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "10-mp4",
+      "name": "Background video 10",
+      "src": "./assets/video-bg/10.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "11-mp4",
+      "name": "Background video 11",
+      "src": "./assets/video-bg/11.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "12-mp4",
+      "name": "Background video 12",
+      "src": "./assets/video-bg/12.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "13-mp4",
+      "name": "Background video 13",
+      "src": "./assets/video-bg/13.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "14-mp4",
+      "name": "Background video 14",
+      "src": "./assets/video-bg/14.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "15-mp4",
+      "name": "Background video 15",
+      "src": "./assets/video-bg/15.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "17-mp4",
+      "name": "Background video 17",
+      "src": "./assets/video-bg/17.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    },
+    {
+      "id": "18-mp4",
+      "name": "Background video 18",
+      "src": "./assets/video-bg/18.mp4",
+      "type": "video/mp4",
+      "poster": "./assets/background_image_clean.jpg"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080b1a" />
+  <meta name="description" content="A consumer analytics prototype that normalizes grocery and household prices by package size to reveal hidden unit-cost increases." />
+  <title>Shrinkflation Tracker | Joe Wisto Portfolio</title>
+  <meta property="og:title" content="Shrinkflation Tracker | Joe Wisto Portfolio" />
+  <meta property="og:description" content="A consumer-friendly analytics prototype for making hidden unit-cost increases visible." />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="/assets/img/og/joe-wisto-portfolio.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/projects/shrinkflation-tracker.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to project content</a>
+  <div class="ambient" aria-hidden="true"><span class="orb orb-one"></span><span class="orb orb-two"></span><span class="orb orb-three"></span><span class="grid-glow"></span></div>
+  <header class="topbar" aria-label="Portfolio navigation"><a class="brand-mark" href="/index.html"><span class="brand-glyph">JW</span><span class="brand-copy"><strong>Joe Wisto</strong><small>Systems • Automation • Analytics • BI</small></span></a><nav class="topnav project-context-nav" aria-label="Project navigation"><a class="nav-return" href="/index.html"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18 9 12l6-6"/><path d="M10 12h10"/></svg>Go back</a><a href="/projects/">All projects</a></nav></header>
+  <main id="main" class="resume-shell portfolio-shell shrink-app">
+    <article class="panel case-study shrink-shell">
+      <header class="case-hero shrink-hero" id="overview">
+        <p class="eyebrow">Consumer analytics case study</p>
+        <div class="shrink-hero-layout">
+          <div class="shrink-hero-lead">
+            <h1>Shrinkflation Tracker</h1>
+            <p class="hero-title">Finding more air in your chips?<br>
+              Less juice in your juice box?<br>
+            </p>
+            <p class ="hero-summary">Your groceries are shrinking. Your bill isn't.</p>
+            <div class="hero-actions"><a class="button" href="/projects/">Back to projects</a><a class="button primary" href="#product-signals">Explore products</a></div>
+          </div>
+          <div class="shrink-hero-side">
+            <figure class="shelf-signal" data-shelf-signal>
+              <figcaption><strong>Shelf signal</strong><span>Package size + price per unit</span></figcaption>
+              <svg viewBox="0 0 760 300" role="img" aria-labelledby="shelf-signal-title shelf-signal-desc">
+                <title id="shelf-signal-title">Grocery shelf and rolling price-per-unit chart</title>
+                <desc id="shelf-signal-desc">A compact grocery shelf sits beside a chart whose line rolls over time. Rising unit cost is orange and falling unit cost is green.</desc>
+                <g class="shelf-signal-rack" transform="translate(30 42)">
+                  <path class="shelf-signal-frame" d="M8 18v218M248 18v218" />
+                  <rect class="shelf-signal-board" x="0" y="92" width="256" height="14" rx="4" />
+                  <rect class="shelf-signal-board" x="0" y="198" width="256" height="14" rx="4" />
+                  <g transform="translate(25 38)"><rect class="shelf-signal-lid" x="8" width="40" height="9" rx="3" /><path class="shelf-signal-jar" d="M5 10h46l-3 43H8z" /></g>
+                  <g transform="translate(99 16)"><path class="shelf-signal-carton" d="M5 18 18 2h28l13 16v58H5z" /><path d="M18 2l12 16L46 2" /></g>
+                  <g transform="translate(181 44)"><rect class="shelf-signal-lid" x="4" width="43" height="8" rx="3" /><path class="shelf-signal-tin" d="M2 8h47v39H2z" /></g>
+                  <g transform="translate(24 140)"><path class="shelf-signal-tin" d="M2 8h48v50H2z" /><path d="M8 22h36" /></g>
+                  <g transform="translate(99 139)"><rect class="shelf-signal-lid" x="8" width="40" height="9" rx="3" /><path class="shelf-signal-jar" d="M5 10h46l-3 53H8z" /></g>
+                  <g transform="translate(181 121)"><path class="shelf-signal-carton" d="M4 18 17 2h30l13 16v59H4z" /></g>
+                </g>
+                <g class="shelf-signal-chart" transform="translate(324 45)">
+                  <rect class="shelf-signal-chart-panel" width="408" height="214" rx="16" />
+                  <path class="shelf-signal-grid" d="M32 54h350M32 96h350M32 138h350M32 180h350M102 30v150M172 30v150M242 30v150M312 30v150" />
+                  <path class="shelf-signal-axis" d="M32 30v150h350" />
+                  <defs><clipPath id="shelf-signal-clip"><rect x="33" y="29" width="349" height="152" /></clipPath></defs>
+                  <g clip-path="url(#shelf-signal-clip)"><path class="shelf-signal-trend" data-shelf-trend /></g>
+                  <path class="shelf-signal-arrow" data-shelf-arrow />
+                  <text class="shelf-signal-label" x="32" y="19">PRICE / UNIT</text>
+                  <text class="shelf-signal-label" x="382" y="204" text-anchor="end">TIME</text>
+                </g>
+              </svg>
+            </figure>
+            <aside class="shrink-hero-guide" aria-label="What shrinkflation means and how to read the tracker">
+              <p class="hero-summary"><strong>Shrinkflation</strong> is when a product gets smaller while its shelf price stays the same or rises. The price tag may look familiar, but the cost per ounce, pound, or item goes up.</p>
+              <div class="hero-reading">
+                <p class="eyebrow">How to read the tracker</p>
+                <ol class="hero-reading-steps">
+                  <li><p><strong>Find the signal.</strong> Cards tagged “Shrinkflation” pair a smaller package with a higher unit cost.</p></li>
+                  <li><p><strong>Compare all three numbers.</strong> Read package size, shelf price, and price per unit together to see what really changed.</p></li>
+                  <li><p><strong>Follow and filter.</strong> Mini charts show the direction over time; filters and the detail table help you dig deeper.</p></li>
+                </ol>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </header>
+
+      <nav id="tracker-nav" class="shrink-subnav" aria-label="Shrinkflation Tracker sections">
+        <a href="#overview">Signals</a><a href="#product-signals">Products</a><a href="#categories">Categories</a><a href="#methodology">Method</a><a href="#insights">Takeaways</a>
+      </nav>
+
+      <section class="shrink-section" aria-labelledby="metric-title">
+        <div class="section-heading"><p class="eyebrow">What changed?</p><h2 id="metric-title">Cost signals</h2></div>
+        <div class="metric-grid" data-summary-metrics></div>
+      </section>
+
+
+      <section class="shrink-section" id="product-signals" aria-labelledby="overview-products-title">
+        <div class="section-heading"><p class="eyebrow">Which products?</p><h2 id="overview-products-title">Product signals</h2></div>
+        <form class="filter-bar" aria-label="Overview product filters">
+          <label>Category<select data-overview-category><option value="all">All Categories</option></select></label>
+          <label>Department<select data-overview-department><option value="all">All Departments</option></select></label>
+          <label class="checkbox-control"><input type="checkbox" data-overview-flagged /> Show only shrinkflation</label>
+          <label>Sort by<select data-overview-sort><option value="unit-desc">Price per Unit Change (High → Low)</option><option value="size-asc">Size Change (Down → Up)</option><option value="price-desc">Shelf Price Change (High → Low)</option><option value="name-asc">Product Name</option></select></label>
+        </form>
+        <div class="product-card-grid" data-overview-grid></div>
+        <p class="empty-state" data-overview-empty hidden>No products match these filters. Try widening the category or turning off the shrinkflation-only filter.</p>
+      </section>
+
+      <section class="shrink-section" id="products" aria-labelledby="products-title">
+        <div class="section-heading"><p class="eyebrow">Browse</p><h2 id="products-title">Product detail</h2></div>
+        <form class="filter-bar product-filters" aria-label="Product search and filters">
+          <label class="search-field">Search<input type="search" data-product-search placeholder="Search name, brand, category…" /></label>
+          <label>Category<select data-product-category><option value="all">All Categories</option></select></label>
+          <label>Status<select data-product-status><option value="all">All Statuses</option></select></label>
+          <label>Sort<select data-product-sort><option value="unit-desc">Unit price change</option><option value="size-asc">Size change</option><option value="price-desc">Shelf price change</option><option value="name-asc">Product name</option></select></label>
+        </form>
+        <div class="product-table-wrap"><table class="product-table"><thead><tr><th>Product</th><th>Status</th><th>Size</th><th>Shelf price</th><th>Unit price</th><th>Trend</th></tr></thead><tbody data-product-table></tbody></table></div>
+        <p class="empty-state" data-product-empty hidden>No product rows match the current search and filters.</p>
+      </section>
+
+      <section class="shrink-section" id="categories" aria-labelledby="categories-title">
+        <div class="section-heading"><p class="eyebrow">Categories</p><h2 id="categories-title">Where it clusters</h2></div>
+        <div class="category-grid" data-category-grid></div>
+      </section>
+
+      <section class="shrink-section methodology" id="methodology" aria-labelledby="methodology-title">
+        <div class="section-heading"><p class="eyebrow">Method</p><h2 id="methodology-title">Signal logic</h2></div>
+        <div class="method-grid">
+          <div class="method-card"><h3>Simple read</h3><ul class="signal-list"><li>Normalize price by package size.</li><li>Compare first and latest points.</li><li>Flag size down + unit cost up.</li><li>Demo curve stays curated.</li></ul></div>
+          <div class="method-card"><h3>Core formulas</h3><code>unitPrice = shelfPrice / packageSize</code><code>percentChange = ((current - previous) / previous) * 100</code><code>shrinkflationFlag = currentSize &lt; previousSize &amp;&amp; currentUnitPrice &gt; previousUnitPrice</code></div>
+        </div>
+      </section>
+
+      <section class="shrink-section" id="insights" aria-labelledby="insights-title">
+        <div class="section-heading"><p class="eyebrow">Takeaways</p><h2 id="insights-title">What the signals show</h2></div>
+        <div class="insight-grid" data-insight-grid></div>
+      </section>
+
+      <section class="shrink-section live-data-section" aria-labelledby="live-data-title">
+        <div class="section-heading"><p class="eyebrow">Data status</p><h2 id="live-data-title">Live observation coverage</h2></div>
+        <div class="live-status-panel" data-live-status></div>
+      </section>
+    </article>
+  </main>
+  <a class="back-to-top-arrow" href="#tracker-nav" aria-label="Back to tracker navigation">↑</a>
+  <footer class="site-footer"><p>Joe Wisto technical portfolio hub for analytics, automation, systems, BI, reporting workflows, and project case studies.</p><p class="footer-links"><a href="/index.html">Home</a><a href="/projects/">Projects</a><a href="mailto:joey.wisto@gmail.com">Email</a><a href="https://www.linkedin.com/in/joey-wisto" target="_blank" rel="noreferrer">LinkedIn</a></p></footer>
+  <script src="/script.js"></script>
+  <script src="/projects/shrinkflation-tracker.js"></script>
+</body>
+</html>

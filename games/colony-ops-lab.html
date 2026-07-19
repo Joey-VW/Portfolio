@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080b1a" />
+  <meta name="description" content="Colony Ops Lab is an interactive data visualization experiment with a tiny playable colony simulation and run analytics." />
+  <title>Colony Ops Lab | Joe Wisto Portfolio</title>
+  <meta property="og:title" content="Colony Ops Lab | Joe Wisto Portfolio" />
+  <meta property="og:description" content="A 60-second colony resource allocation game that turns play telemetry into analytics dashboards." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/assets/img/og/joe-wisto-portfolio.svg" />
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/games/colony-ops-lab.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to Colony Ops Lab</a>
+  <div class="ambient" aria-hidden="true"><span class="orb orb-one"></span><span class="orb orb-two"></span><span class="orb orb-three"></span><span class="grid-glow"></span></div>
+  <header class="topbar" aria-label="Portfolio navigation"><a class="brand-mark" href="/index.html"><span class="brand-glyph">JW</span><span class="brand-copy"><strong>Joe Wisto</strong><small>Systems • Automation • Analytics • BI</small></span></a><nav class="topnav project-context-nav" aria-label="Project navigation"><a class="nav-return" href="/index.html"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18 9 12l6-6"/><path d="M10 12h10"/></svg>Go back</a><a href="/projects/">All projects</a></nav></header>
+
+  <main id="main" class="resume-shell portfolio-shell colony-lab">
+    <section class="hero panel colony-hero" aria-labelledby="lab-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Interactive data visualization experiment</p>
+        <h1 id="lab-title">Colony Ops Lab</h1>
+        <p class="hero-title">A tiny playable 2D colony simulation that converts decisions into session analytics.</p>
+        <p class="hero-summary">Click glowing food, energy, and material nodes to dispatch workers. Keep routes efficient, survive pressure events, and review the telemetry dashboard generated from your 60-second run.</p>
+        <div class="hero-actions"><a class="button primary" href="#simulation">Launch simulation</a><a class="button" href="#analytics">View analytics model</a></div>
+      </div>
+      <aside class="lab-brief panel" aria-label="How to play">
+        <h2>10-second briefing</h2>
+        <ol>
+          <li>Press <strong>Start 60s Run</strong>.</li>
+          <li>Click resource nodes to assign idle workers.</li>
+          <li>Collected resources create workers and expand the hive.</li>
+          <li>After time expires, inspect KPIs, timelines, heatmap, and benchmarks.</li>
+        </ol>
+      </aside>
+    </section>
+
+    <section id="simulation" class="lab-grid" aria-label="Colony simulation and controls">
+      <article class="panel sim-panel">
+        <div class="section-heading compact"><p class="eyebrow">Playable canvas</p><h2>60-second colony run</h2></div>
+        <canvas id="colonyCanvas" width="900" height="560" aria-label="Interactive colony map with workers and resources"></canvas>
+        <p class="fine-print">Canvas uses simple geometry only. The animation respects reduced-motion preferences by lowering particle and worker interpolation effects.</p>
+      </article>
+      <aside class="panel control-panel">
+        <div class="timer-shell"><span>Time remaining</span><strong id="timeRemaining">60</strong></div>
+        <button id="startRun" class="button primary" type="button">Start 60s Run</button>
+        <button id="resetRun" class="button" type="button">Reset lab</button>
+        <div class="resource-readout" id="resourceReadout"></div>
+        <div class="status-card"><h3>Live objective</h3><p id="liveObjective">Start the run, then click resource nodes. Idle workers automatically wait at the hive.</p></div>
+        <div class="status-card"><h3>Pressure events</h3><ul id="eventFeed"><li>Hazards will appear during the run.</li></ul></div>
+      </aside>
+    </section>
+
+    <section id="analytics" class="analytics-shell" aria-labelledby="analytics-title">
+      <div class="section-heading centered"><p class="eyebrow">Session telemetry</p><h2 id="analytics-title">End-of-run analytics dashboard</h2><p>Widgets populate after your run ends, then compare your results with mock aggregate runs loaded from JSON.</p></div>
+      <div id="dashboardEmpty" class="panel empty-dashboard"><h3>No run analyzed yet</h3><p>Complete a 60-second run to render KPIs, charts, heatmap, generated insights, and benchmarks.</p></div>
+      <div id="dashboard" class="dashboard" hidden>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="chart-grid">
+          <article class="panel chart-card"><h3>Resource mix</h3><div id="mixBar" class="mix-bar"></div></article>
+          <article class="panel chart-card"><h3>Growth over time</h3><canvas id="growthChart" width="620" height="240"></canvas></article>
+          <article class="panel chart-card"><h3>Worker allocation timeline</h3><canvas id="allocationChart" width="620" height="240"></canvas></article>
+          <article class="panel chart-card"><h3>Movement / collection heatmap</h3><div id="heatmap" class="heatmap" aria-label="Movement intensity heatmap"></div></article>
+        </div>
+        <div class="insight-grid">
+          <article class="panel"><h3>Personal run summary</h3><ul id="insights" class="signal-list"></ul></article>
+          <article class="panel"><h3>Demo leaderboard benchmark</h3><div id="leaderboard" class="leaderboard"></div></article>
+          <article class="panel"><h3>Recent local runs</h3><div id="recentRuns" class="leaderboard"></div></article>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><p>Colony Ops Lab is a static, frontend-only portfolio experiment: no backend, no external libraries, no persistent server data.</p><p class="footer-links"><a href="/index.html">Home</a><a href="/projects/">Projects</a><a href="mailto:joey.wisto@gmail.com">Email</a></p></footer>
+  <script src="/script.js"></script>
+  <script src="/games/colony-ops-lab.js"></script>
+</body>
+</html>

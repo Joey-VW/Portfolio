@@ -1,0 +1,211 @@
+[
+  {
+    "slug": "shrinkflation-tracker",
+    "createdAt": "2026-07-10",
+    "status": "ready",
+    "visibility": "public",
+    "title": "Shrinkflation Tracker",
+    "category": "Consumer Analytics",
+    "summary": "A consumer-friendly analytics prototype that normalizes grocery and household prices by package size to reveal hidden unit-cost increases.",
+    "value": "A static mini-product/case study showing how clear data modeling, lightweight visualizations, and plain-English UX can turn everyday pricing changes into understandable consumer insight.",
+    "stack": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "JSON",
+      "Data modeling",
+      "Data visualization"
+    ],
+    "href": "/projects/shrinkflation-tracker.html",
+    "repo": "https://github.com/Joey-VW/Portfolio",
+    "featured": true,
+    "showcase": {
+      "title": "Shrink Tracker",
+      "description": "Spot hidden unit-price hikes",
+      "visualKey": "shelf-signal",
+      "motion": "animated"
+    }
+  },
+  {
+    "slug": "gravity-fleet-lab",
+    "createdAt": "2026-07-04",
+    "status": "ready",
+    "visibility": "public",
+    "title": "Gravity Fleet Lab",
+    "category": "Interactive Data Viz",
+    "summary": "A playable orbital strategy prototype that turns fleet movement, conquest, wormholes, and AI pressure into post-match analytics.",
+    "value": "A frontend-only experiment showing how real-time canvas interactions can produce structured telemetry, scoring, heatmaps, and benchmark dashboards.",
+    "stack": [
+      "HTML Canvas",
+      "CSS",
+      "JavaScript",
+      "Telemetry",
+      "Data visualization",
+      "localStorage"
+    ],
+    "href": "/games/gravity-fleet-lab.html",
+    "repo": "https://github.com/Joey-VW",
+    "featured": true,
+    "showcase": {
+      "title": "Gravity Fleet",
+      "description": "Orbital strategy with telemetry",
+      "visualKey": "gravity-fleet",
+      "motion": "animated"
+    }
+  },
+  {
+    "slug": "colony-ops-lab",
+    "createdAt": "2026-07-04",
+    "status": "ready",
+    "visibility": "public",
+    "title": "Colony Ops Lab",
+    "category": "Interactive Data Viz",
+    "summary": "A playable 60-second colony resource allocation simulation that turns session telemetry into KPI dashboards, charts, heatmaps, and benchmarks.",
+    "value": "A frontend-only experiment showing how lightweight game mechanics can generate structured analytics and visual decision feedback.",
+    "stack": [
+      "HTML Canvas",
+      "CSS",
+      "JavaScript",
+      "Telemetry",
+      "Data visualization",
+      "localStorage"
+    ],
+    "href": "/games/colony-ops-lab.html",
+    "repo": "https://github.com/Joey-VW",
+    "featured": true,
+    "showcase": {
+      "title": "Colony Ops",
+      "description": "Resource strategy meets analytics",
+      "visualKey": "colony-ops",
+      "motion": "static"
+    }
+  },
+  {
+    "slug": "procurement-kpi-analysis",
+    "createdAt": "2025-06-21",
+    "status": "in-progress",
+    "visibility": "hidden",
+    "title": "Procurement KPI Analysis",
+    "category": "BI + ETL",
+    "summary": "Supplier performance analytics model for cost, savings, lead time, delivery reliability, defects, and compliance.",
+    "value": "A procurement intelligence case study that turns scattered supplier data into executive-ready KPI signals.",
+    "stack": [
+      "SQL",
+      "BigQuery",
+      "Python",
+      "pandas",
+      "Looker Studio",
+      "Data QA"
+    ],
+    "href": "/projects/procurement-kpi-analysis.html",
+    "repo": "https://github.com/Joey-VW/DataAnalyticsPortfolio",
+    "featured": true,
+    "showcase": {
+      "title": "Procurement KPI",
+      "description": "Supplier performance at a glance",
+      "visualKey": "procurement-kpi",
+      "motion": "static"
+    }
+  },
+  {
+    "slug": "cfpb-complaint-intelligence",
+    "createdAt": "2026-07-02",
+    "status": "in-progress",
+    "visibility": "hidden",
+    "title": "CFPB Complaint Intelligence",
+    "category": "Automation + Analytics",
+    "summary": "Public complaint-data workflow for ingestion, categorization, complaint trend monitoring, and risk storytelling.",
+    "value": "An analytics concept that converts CFPB complaint data into product, risk, and customer-experience intelligence.",
+    "stack": [
+      "Python",
+      "API ingestion",
+      "pandas",
+      "SQL",
+      "Dashboarding",
+      "NLP concepts"
+    ],
+    "href": "/projects/cfpb-complaint-intelligence.html",
+    "repo": "https://github.com/Joey-VW/DataAnalyticsPortfolio",
+    "featured": true,
+    "showcase": {
+      "title": "CFPB Signals",
+      "description": "Turn complaints into signals",
+      "visualKey": "cfpb-signals",
+      "motion": "static"
+    }
+  },
+  {
+    "slug": "video-cutter-lite",
+    "createdAt": "2026-06-25",
+    "status": "in-progress",
+    "visibility": "hidden",
+    "title": "Video Cutter Lite",
+    "category": "Python + Media Tooling",
+    "summary": "Desktop utility concept for marking removal ranges, previewing edits, cropping frames, and automating repeat video cuts.",
+    "value": "A lightweight media workflow tool aimed at making repetitive video trimming faster and more understandable.",
+    "stack": [
+      "Python",
+      "Desktop UI",
+      "FFmpeg",
+      "Media automation",
+      "UX prototyping"
+    ],
+    "href": "/projects/video-cutter-lite.html",
+    "repo": "https://github.com/Joey-VW",
+    "featured": false
+  },
+  {
+    "slug": "multi-platform-publishing-system",
+    "createdAt": "2026-06-18",
+    "status": "in-progress",
+    "visibility": "hidden",
+    "title": "Multi-Platform Publishing System",
+    "category": "Static Site + Cloudflare",
+    "summary": "Cloudflare-hosted travel journal/photo/map site powered by Google Sheets, Forms, Drive, and Apps Script workflows.",
+    "value": "A no-build publishing system that lets non-technical content updates flow into a fast static web experience.",
+    "stack": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Cloudflare Pages",
+      "Google Sheets",
+      "Apps Script"
+    ],
+    "href": "/projects/multi-platform-publishing-system.html",
+    "repo": "https://github.com/Joey-VW",
+    "featured": true,
+    "showcase": {
+      "title": "Publishing System",
+      "description": "Travel publishing without code",
+      "visualKey": "publishing-system",
+      "motion": "static"
+    }
+  },
+  {
+    "slug": "ev-true-cost",
+    "createdAt": "2026-07-13",
+    "status": "ready",
+    "visibility": "public",
+    "title": "The Real Cost of Public Charging",
+    "category": "Consumer Analytics",
+    "summary": "An EV public-charging cost check showing why public fast charging can cost more than gasoline, while home charging can flip the answer.",
+    "value": "Turns a confirmed EV9 charging receipt, a Pilot benchmark, and editable assumptions into a plain-English cost-per-mile comparison.",
+    "stack": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "JSON",
+      "Scenario modeling",
+      "Data visualization"
+    ],
+    "href": "/projects/ev-true-cost.html",
+    "repo": "https://github.com/Joey-VW/Portfolio",
+    "featured": true,
+    "showcase": {
+      "title": "Public Charging",
+      "description": "Compare gasoline and charging costs",
+      "visualKey": "public-charging",
+      "motion": "animated"
+    }
+  }
+]

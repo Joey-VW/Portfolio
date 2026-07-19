@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080b1a" />
+  <meta name="description" content="An EV public-charging cost check showing why public fast charging can cost more than gasoline, while home charging can flip the answer." />
+  <title>The Real Cost of Public Charging | Joe Wisto Portfolio</title>
+  <meta property="og:title" content="The Real Cost of Public Charging | Joe Wisto Portfolio" />
+  <meta property="og:description" content="An EV public-charging cost check showing how charging location changes the cost of going electric." />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="/assets/img/og/joe-wisto-portfolio.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/projects/ev-true-cost.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to project content</a>
+  <div class="ambient" aria-hidden="true"><span class="orb orb-one"></span><span class="orb orb-two"></span><span class="orb orb-three"></span><span class="grid-glow"></span></div>
+  <header class="topbar" aria-label="Portfolio navigation"><a class="brand-mark" href="/index.html"><span class="brand-glyph">JW</span><span class="brand-copy"><strong>Joe Wisto</strong><small>Systems • Automation • Analytics • BI</small></span></a><nav class="topnav project-context-nav" aria-label="Project navigation"><a class="nav-return" href="/index.html"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18 9 12l6-6"/><path d="M10 12h10"/></svg>Go back</a><a href="/projects/">All projects</a></nav></header>
+  <main id="main" class="resume-shell portfolio-shell ev-app">
+    <article class="panel case-study ev-shell">
+      <header class="case-hero ev-hero" id="overview">
+        <div class="ev-hero-heading">
+          <p class="eyebrow">EV COST CHECK</p>
+          <h1>The Real Cost of Public Charging</h1>
+        </div>
+        <div class="ev-hero-lower">
+          <div class="ev-hero-copy">
+            <p class="hero-title">Don't just ditch the gas, ditch the station too.</p>
+            <p class="hero-summary">We moved from a Honda Pilot to a Kia EV9, but we do not have home charging yet. One public charging receipt made the real question clear: where does an EV become cheaper?</p>
+            <div class="hero-actions"><a class="button primary" href="#comparison">See the answer</a><a class="button" href="#adjust">Try your numbers</a></div>
+          </div>
+          <div class="ev-hero-scene" aria-hidden="false">
+            <svg class="ev-charging-scene" viewBox="0 0 760 360" role="img" aria-labelledby="ev-charging-title ev-charging-desc" focusable="false" data-ev-charging-scene>
+              <title id="ev-charging-title">Expanded Public Charging visual</title>
+              <desc id="ev-charging-desc">A larger version of the portfolio Public Charging visual shows an electric vehicle connected to a public charger with a restrained amber cost indicator built into the charger.</desc>
+              <defs>
+                <linearGradient id="ev-vehicle-edge-fade-gradient" x1="-8" x2="80" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="black" />
+                  <stop offset="18%" stop-color="white" />
+                  <stop offset="82%" stop-color="white" />
+                  <stop offset="100%" stop-color="black" />
+                </linearGradient>
+                <mask id="ev-vehicle-edge-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="-8" y="0" width="88" height="56">
+                  <rect x="-8" y="0" width="88" height="56" fill="url(#ev-vehicle-edge-fade-gradient)" />
+                </mask>
+              </defs>
+              <g class="ev-showcase-scene" transform="translate(68 34) scale(8.7)">
+                <path class="ev-showcase-ground" d="M4 46h64" aria-hidden="true" />
+                <g class="ev-vehicle-viewport" mask="url(#ev-vehicle-edge-mask)" aria-hidden="true">
+                  <g class="ev-showcase-car" data-ev-scene-vehicle>
+                    <g class="ev-showcase-car-align" transform="translate(0 -1)">
+                      <path class="ev-showcase-body" d="M15 34h5l5-9h22l8 9h7v7H15z" />
+                      <path class="ev-showcase-window" d="M27 27h17l5 6H23z" />
+                      <path class="ev-showcase-bolt" d="m41 28-4 7h4l-3 7 8-10h-4z" data-ev-vehicle-bolt />
+                      <g class="ev-showcase-wheel ev-showcase-wheel-rear" data-ev-wheel="rear"><circle cx="27" cy="42" r="5" /><path d="M23.5 42h7M27 38.5v7" /></g>
+                      <g class="ev-showcase-wheel ev-showcase-wheel-front" data-ev-wheel="front"><circle cx="52" cy="42" r="5" /><path d="M48.5 42h7M52 38.5v7" /></g>
+                    </g>
+                  </g>
+                </g>
+                <g class="ev-showcase-charger" data-ev-scene-charger transform="translate(0 7)" aria-hidden="true">
+                  <rect class="ev-showcase-charger-body" x="6" y="10" width="12" height="20" rx="2" />
+                  <path class="ev-showcase-charger-bolt" d="m13 13-4 7h4l-2 6 6-8h-4z" data-ev-charger-bolt />
+                  <path class="ev-showcase-cost-cue" d="M9 27h6" />
+                  <circle class="ev-showcase-status" cx="16" cy="27" r="1.1" data-ev-charge-status />
+                  <path class="ev-showcase-charger-base" d="M9 30v9M5 39h14" />
+                </g>
+                <path class="ev-showcase-cable" d="M18 30c6 1 2 4 9 3" data-ev-scene-cable aria-hidden="true" />
+              </g>
+            </svg>
+          </div>
+        </div>
+      </header>
+      <nav class="ev-subnav" id="ev-cost-nav" aria-label="EV cost sections"><a href="#our-story">Our setup</a><a href="#comparison">The answer</a><a href="#receipt">The receipt</a><a href="#adjust">Try yours</a><a href="#method">Method</a></nav>
+      <div class="data-alert" data-error hidden role="alert"></div>
+
+      <section class="ev-section story-section" id="our-story" aria-labelledby="our-story-title">
+        <header class="story-heading">
+          <p class="eyebrow">Our starting point</p>
+          <h2 id="our-story-title">I'll be real...</h2>
+        </header>
+        <article class="story-article">
+          <div class="story-prose">
+            <p class="story-lede">We bought our <strong data-story-ev>2026 Kia EV9</strong> at a very <strong>generous</strong> price, from a very close friend, replacing our <strong data-story-ice>2018 Honda Pilot</strong>.</p>
+            <p>I was still curious about the fuel savings. With no home charger yet, I compared the Pilot’s gasoline cost with the EV9’s first public fast-charging receipt. The result genuinely surprised me: the EV was costing more per mile.</p>
+            <p>Apparently I had missed the most important memo. The biggest savings do not come from simply leaving gasoline behind; they come from leaving the station behind, too. Public charging is convenient. Home charging is what changes the math.</p>
+            <p>I put this model together to show where the answer flips, and to give other families a practical idea of what to expect. It compares energy cost per mile, not every cost of owning a vehicle, and it will get sharper as our real driving and charging history grows.</p>
+          </div>
+          <aside class="story-receipt" aria-label="The receipt that started the analysis">
+            <p class="eyebrow">The receipt that started it</p>
+            <strong class="story-receipt-total" data-story-receipt>$30.08</strong>
+            <p><span data-story-energy>49.6 kWh</span> delivered in <span data-story-minutes>18 minutes</span> at a public fast charger.</p>
+            <div class="story-starting-model">
+              <span>Starting model</span>
+              <strong data-story-mileage>15,000 miles/year</strong>
+              <small>Estimated from our school, work, dance, grocery, and errand routine.</small>
+            </div>
+          </aside>
+        </article>
+        <details class="ev-details"><summary>How we estimated mileage</summary><p>The working estimate starts with a 46.8-mile school and work loop, three weekly 12-mile dance trips, groceries, and occasional errands. Driving is owner-reported as roughly 90% city and 10% highway, with heavy air-conditioning in Phoenix summers.</p></details>
+      </section>
+
+      <section class="ev-section comparison-section" id="comparison" aria-labelledby="comparison-title">
+        <div class="section-heading"><p class="eyebrow">See the answer change</p><h2 id="comparison-title">Compare cost per mile</h2><p>Choose a set up to see how it stacks against the Honda.</p></div>
+        <div class="preset-row" data-presets aria-label="Charging scenario presets"></div>
+        <div class="comparison-card" data-results>
+          <div class="comparison-lanes">
+            <span class="benchmark-guide" aria-hidden="true"></span>
+            <div class="lane gas-lane"><div class="lane-copy"><span class="lane-label">Pilot gasoline benchmark</span><strong data-guided-ice-cpm> - </strong><small data-guided-ice-annual> - </small></div><div class="lane-plot"><div class="bar-track"><span data-guided-ice-bar></span></div></div></div>
+            <div class="lane ev-lane"><div class="lane-copy"><span class="lane-label" data-guided-ev-label>EV scenario</span><strong data-guided-ev-cpm> - </strong><small data-guided-ev-annual> - </small></div><div class="lane-plot"><div class="bar-track"><span data-guided-ev-bar></span></div></div></div>
+          </div>
+          <div class="result-strip"><div><span>Annual difference vs gasoline</span><strong data-guided-difference> - </strong></div><div><span>Home charger payback</span><strong data-guided-payback> - </strong></div><div><span>Blended electric rate</span><strong data-guided-rate> - </strong></div></div>
+          <section class="verdict-card" aria-live="polite" aria-labelledby="verdict-label">
+            <p class="eyebrow" id="verdict-label">What this means</p>
+            <h3 data-guided-verdict-headline>Loading the verdict...</h3>
+            <p data-guided-verdict-body>Results update from the current inputs.</p>
+            <p class="verdict-payback" data-guided-verdict-payback hidden></p>
+          </section>
+        </div>
+      </section>
+
+      <section class="ev-section evidence-grid" id="receipt" aria-labelledby="receipt-title">
+        <div class="receipt-card"><p class="eyebrow">The receipt that raised the question</p><h2 id="receipt-title">Fast charge. Real cost.</h2><p>Our first confirmed public session added <span data-receipt-energy>49.6 kWh</span> in <span data-receipt-minutes>18 minutes</span> and cost <span data-receipt-total>$30.08</span> after tax. It was fast and simple - but the all-in rate was high enough to put the EV9 above the Pilot on energy cost.</p><dl data-receipt></dl><p class="fine-print">This is one confirmed session, not live data.</p></div>
+        <div class="change-card"><p class="eyebrow">The turning point</p><h2>Electricity price decides the result.</h2><ul data-turning-point></ul></div>
+      </section>
+
+      <section class="ev-section" id="adjust" aria-labelledby="adjust-title">
+        <div class="section-heading"><p class="eyebrow">Make it yours</p><h2 id="adjust-title">Try your own numbers</h2><p>Mileage, gas price, efficiency, electricity price, and charging mix can change the answer. Edit any field below.</p></div>
+        <p class="fine-print">Confirmed facts come from our sticker or receipt. Benchmarks and estimates are placeholders you can replace.</p>
+        <div class="custom-workspace">
+          <aside class="custom-results-card" aria-labelledby="custom-results-title">
+            <p class="eyebrow">Your comparison</p>
+            <h3 id="custom-results-title">Your numbers, live result</h3>
+            <div class="custom-mini-lanes">
+              <div class="mini-lane gas-lane"><span>Pilot gasoline</span><strong data-custom-ice-cpm> - </strong><small data-custom-ice-annual> - </small><div class="bar-track"><span data-custom-ice-bar></span></div></div>
+              <div class="mini-lane ev-lane"><span>Your EV scenario</span><strong data-custom-ev-cpm> - </strong><small data-custom-ev-annual> - </small><div class="bar-track"><span data-custom-ev-bar></span></div></div>
+            </div>
+            <div class="custom-result-grid">
+              <div><span>Annual difference</span><strong data-custom-difference> - </strong></div>
+              <div><span>Blended electric rate</span><strong data-custom-rate> - </strong></div>
+              <div><span>Home charger payback</span><strong data-custom-payback> - </strong></div>
+            </div>
+            <div class="custom-verdict" aria-live="polite"><h4 data-custom-verdict-headline>Loading your result...</h4><p data-custom-verdict-body>Results update as you edit.</p><p data-custom-verdict-payback hidden></p></div>
+          </aside>
+          <div class="custom-controls">
+            <form class="input-grid" data-form></form>
+            <button class="button" type="button" data-reset>Reset to our starting point</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="ev-section methodology" id="method" aria-labelledby="method-title">
+        <div class="section-heading"><p class="eyebrow">What is behind the answer</p><h2 id="method-title">Simple math, clear limits</h2><p>I built this model to compare energy cost only, not the full cost of ownership.</p></div>
+        <div class="method-grid">
+          <div class="method-card"><h3>What the model compares</h3><ul><li>Gasoline cost per mile.</li><li>EV electricity cost per mile.</li><li>Annual difference.</li><li>Home-charger payback versus staying public-only.</li></ul></div>
+          <div class="method-card"><h3>What is still estimated</h3><ul><li>Annual miles.</li><li>Pilot MPG.</li><li>Home electricity rate.</li><li>Charger installation cost.</li></ul></div>
+          <div class="method-card"><h3>What is not included yet</h3><p>Purchase price, financing, insurance, registration, maintenance, tires, and depreciation.</p></div>
+        </div>
+        <details class="ev-details formula-details"><summary>See the formulas</summary><code>gasCost = miles / MPG * gasPrice</code><code>evKwh = miles * kWhPer100 / 100</code><code>evCost = evKwh * blendedRate</code><code>savings = gasCost - evCost</code></details>
+        <div class="method-card provenance-card"><h3>Provenance legend</h3><div class="legend" data-legend></div></div>
+      </section>
+
+      <!-- <section class="ev-section takeaway-card" id="takeaway" aria-labelledby="takeaway-title">
+        <p class="eyebrow">The takeaway</p><h2 id="takeaway-title">Going electric changed the price lever.</h2><p>We did not erase the cost of fueling a family SUV. We moved that cost from the gas pump to the charger. In this first model, public fast charging costs more; home charging is where the savings appear.</p><a class="button primary" href="#adjust">Try your numbers</a>
+      </section> -->
+    </article>
+  </main>
+  <a class="back-to-top-arrow" href="#ev-cost-nav" aria-label="Back to EV cost navigation">↑</a>
+  <footer class="site-footer"><p>Joe Wisto technical portfolio hub for analytics, automation, systems, BI, reporting workflows, and project case studies.</p><p class="footer-links"><a href="/index.html">Home</a><a href="/projects/">Projects</a><a href="https://www.linkedin.com/in/joey-wisto" target="_blank" rel="noreferrer">LinkedIn</a></p></footer>
+  <script src="/script.js"></script>
+  <script src="/projects/ev-true-cost.js"></script>
+</body>
+</html>

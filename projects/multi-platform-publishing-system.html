@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080b1a" />
+  <meta name="description" content="An anonymized case study of a static publishing system connecting familiar Google tools to a fast, accessible travel-journal frontend." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Multi-Platform Publishing System | Joe Wisto Portfolio</title>
+  <meta property="og:title" content="Multi-Platform Publishing System | Joe Wisto Portfolio" />
+  <meta property="og:description" content="A build-light publishing workflow for journal entries, photos, maps, and messages." />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="/assets/img/og/joe-wisto-portfolio.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to project content</a>
+  <div class="ambient" aria-hidden="true"><span class="orb orb-one"></span><span class="orb orb-two"></span><span class="orb orb-three"></span><span class="grid-glow"></span></div>
+  <header class="topbar" aria-label="Portfolio navigation"><a class="brand-mark" href="/index.html"><span class="brand-glyph">JW</span><span class="brand-copy"><strong>Joe Wisto</strong><small>Systems • Automation • Analytics • BI</small></span></a><nav class="topnav project-context-nav" aria-label="Project navigation"><a class="nav-return" href="/index.html"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18 9 12l6-6"/><path d="M10 12h10"/></svg>Go back</a><a href="/projects/">All projects</a></nav></header>
+  <main id="main" class="resume-shell portfolio-shell">
+    <article class="panel case-study">
+      <header class="case-hero">
+        <p class="eyebrow">Case study • Integration in progress</p>
+        <h1>Multi-Platform Publishing System</h1>
+        <p class="hero-title">A build-light content system that turns familiar editorial tools into an accessible journal, photo gallery, interactive map, and message workflow.</p>
+        <div class="hero-actions"><a class="button primary" href="/multi-platform-publishing-system-staging/">Open fictional staging demo</a><a class="button" href="/projects/">Back to projects</a><a class="button" href="mailto:joey.wisto@gmail.com?subject=Multi-Platform%20Publishing%20System">Discuss this work</a></div>
+      </header>
+      <div class="case-grid">
+        <section><h2>Problem</h2><p>A nontechnical publisher needed to add journal entries, photographs, mapped stops, and reader messages without editing source code or operating a traditional CMS.</p></section>
+        <section><h2>Solution</h2><p>I built a static frontend around structured content rows and media references. Shared browser-side normalization turns those records into several connected experiences while keeping deployment simple.</p></section>
+        <section><h2>Publishing workflow</h2><ol class="signal-list"><li>An editor adds or reviews structured content in familiar Google tools.</li><li>Published rows provide a small, predictable data contract.</li><li>The static site validates and normalizes records in the browser.</li><li>One source powers home previews, journal cards, photo groups, and map stops.</li></ol></section>
+        <section><h2>Tech stack</h2><div class="skill-cloud"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>CSV</span><span>Google Sheets</span><span>Google Forms</span><span>Google Drive</span><span>Apps Script</span><span>Leaflet</span><span>Cloudflare Pages</span></div></section>
+        <section class="wide-case"><h2>System design</h2><p>The frontend has no framework, database, application server, or required build step. Configuration defines content endpoints, map defaults, form integration, and ambient-media behavior. Reusable loaders handle CSV parsing, cache busting, visibility rules, safe fallbacks, media normalization, and loading states. Journal anchors, gallery clusters, and map markers share stable keys so visitors can move between views without losing context.</p></section>
+        <section><h2>Experience details</h2><ul class="signal-list"><li>Searchable journal and photo views</li><li>Grouped map markers and cross-page deep links</li><li>Lightbox and keyboard interactions</li><li>Video crossfades with reduced-motion fallback</li><li>Accessible validation and honest failure states</li></ul></section>
+        <section><h2>Technical judgment</h2><p>The design favors the smallest system the content owner can operate confidently. Public data is treated as public, network failures degrade to local content, decorative video never carries essential information, and the form cannot pretend to submit when its destination is unavailable.</p></section>
+        <section><h2>Portfolio adaptation</h2><p>The public demo is not the client site. It uses the fictional Postcard Atlas identity, sanitized local fixtures, portfolio-scoped routes, and approved media while preserving the implementation’s visual and behavioral character.</p></section>
+        <section><h2>Current boundary</h2><p>Journal, photo, map, navigation, background-media, loading, and fallback behavior can be tested now. Message delivery and the live portfolio-owned Google content endpoints remain deliberately paused until their privacy and permission checks are complete.</p></section>
+        <section class="wide-case"><h2>Outcome and next steps</h2><p>The result demonstrates a low-maintenance publishing pattern that meets a content owner where they already work. The remaining release gate is operational rather than architectural: finish the duplicate-resource cleanup, verify signed-out access, run responsive and accessibility review on a deployment preview, and only then publish the registry entry.</p></section>
+        <section class="wide-case"><h2>Links</h2><p><a href="/multi-platform-publishing-system-staging/">Fictional staging demo</a> · <a href="/projects/">Project index</a> · <a href="https://github.com/Joey-VW" target="_blank" rel="noreferrer">GitHub profile</a> · <a href="/index.html#contact">Contact Joe</a></p></section>
+      </div>
+    </article>
+  </main>
+  <footer class="site-footer"><p>Joe Wisto technical portfolio hub for analytics, automation, systems, BI, reporting workflows, and project case studies.</p><p class="footer-links"><a href="/index.html">Home</a><a href="/projects/">Projects</a><a href="mailto:joey.wisto@gmail.com">Email</a><a href="https://www.linkedin.com/in/joey-wisto" target="_blank" rel="noreferrer">LinkedIn</a></p></footer>
+  <script src="/script.js"></script>
+</body>
+</html>

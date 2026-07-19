@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "slug": "ev-true-cost",
+    "title": "The Real Cost of Public Charging",
+    "question": "Where does an EV become cheaper?",
+    "region": "Phoenix-area, Arizona",
+    "stage": "foundation",
+    "updatedAt": "2026-07-13",
+    "privacyNote": "Owner-only acquisition, sale, family, contact, charger, session, and exact-location details are intentionally excluded from this public browser dataset."
+  },
+  "provenanceLevels": {
+    "confirmed": "Gathered from receipts and data.",
+    "userReported": "Either from the internet or word-of-mouth.",
+    "benchmark": "Gathered from manufacturer benchmarks.",
+    "mock": "Temporary modeling assumptions."
+  },
+  "sources": [
+    {
+      "id": "ev9-window-sticker",
+      "label": "2026 Kia EV9 owner-provided window sticker",
+      "type": "confirmed",
+      "date": null,
+      "publicUrl": null
+    },
+    {
+      "id": "confirmed-public-receipt",
+      "label": "Electrify America public charging receipt",
+      "type": "confirmed",
+      "date": "2026-07-11",
+      "publicUrl": null
+    },
+    {
+      "id": "owner-questionnaire-2026-07-13",
+      "label": "Owner questionnaire",
+      "type": "userReported",
+      "date": "2026-07-13",
+      "publicUrl": null
+    },
+    {
+      "id": "foundation-model",
+      "label": "Foundation modeling assumption",
+      "type": "mock",
+      "date": "2026-07-13",
+      "publicUrl": null
+    }
+  ],
+  "vehicles": {
+    "ev": {
+      "year": 2026,
+      "make": "Kia",
+      "model": "EV9",
+      "trim": "Light Long Range RWD",
+      "drivetrain": "RWD",
+      "motor": "Single rear electric motor",
+      "horsepower": 201,
+      "batteryKwh": 99.8,
+      "wheelSizeIn": 19,
+      "seating": 7,
+      "epaRangeMiles": 305,
+      "epaCombinedMpge": 89,
+      "epaCityMpge": 100,
+      "epaHighwayMpge": 78,
+      "epaKwhPer100Miles": 38,
+      "stickerMsrpUsd": 59675,
+      "sourceId": "ev9-window-sticker",
+      "provenance": "confirmed"
+    },
+    "iceBaseline": {
+      "year": 2018,
+      "make": "Honda",
+      "model": "Pilot",
+      "drivetrain": "2WD",
+      "fuelType": "Regular gasoline",
+      "combinedMpg": 22,
+      "sourceId": "foundation-model",
+      "provenance": "benchmark",
+      "note": "Replace with the exact trim or owner-observed fuel economy when available."
+    }
+  },
+  "inputs": {
+    "annualMiles": {
+      "value": 15000,
+      "unit": "miles/year",
+      "provenance": "mock",
+      "sourceId": "foundation-model",
+      "note": "Rounded from the supplied commute, dance, grocery, and errand pattern."
+    },
+    "citySharePct": {
+      "value": 90,
+      "unit": "percent",
+      "provenance": "userReported",
+      "sourceId": "owner-questionnaire-2026-07-13"
+    },
+    "highwaySharePct": {
+      "value": 10,
+      "unit": "percent",
+      "provenance": "userReported",
+      "sourceId": "owner-questionnaire-2026-07-13"
+    },
+    "gasPricePerGallonUsd": {
+      "value": 3.82,
+      "unit": "USD/gallon",
+      "provenance": "userReported",
+      "sourceId": "owner-questionnaire-2026-07-13"
+    },
+    "evKwhPer100Miles": {
+      "value": 38,
+      "unit": "kWh/100 miles",
+      "provenance": "confirmed",
+      "sourceId": "ev9-window-sticker"
+    },
+    "homeRatePerKwhUsd": {
+      "value": 0.15,
+      "unit": "USD/kWh",
+      "provenance": "mock",
+      "sourceId": "foundation-model",
+      "note": "Replace with the household utility plan and an all-in effective rate."
+    },
+    "homeChargerInstalledCostUsd": {
+      "value": 2000,
+      "unit": "USD",
+      "provenance": "mock",
+      "sourceId": "foundation-model"
+    }
+  },
+  "charging": {
+    "currentHomeChargingAvailable": false,
+    "solarAvailable": false,
+    "confirmedSessions": [
+      {
+        "id": "confirmed-public-receipt",
+        "date": "2026-07-11",
+        "network": "Electrify America",
+        "plan": "Electrify America Pass",
+        "locationLabel": "Gilbert, AZ public fast charger",
+        "city": "Gilbert",
+        "state": "AZ",
+        "powerType": "DC",
+        "preTaxRatePerKwhUsd": 0.56,
+        "salesTaxRate": 0.083,
+        "energyDeliveredKwh": 49.6,
+        "chargingMinutes": 18,
+        "endStateOfChargePct": 80,
+        "maxChargingPowerKw": 205,
+        "chargingCostUsd": 27.77,
+        "salesTaxUsd": 2.31,
+        "totalPaidUsd": 30.08,
+        "discountUsd": 0,
+        "idleFeeUsd": 0,
+        "effectiveAllInRatePerKwhUsd": 0.6064516129,
+        "sourceId": "confirmed-public-receipt",
+        "provenance": "confirmed"
+      }
+    ]
+  },
+  "presets": [
+    {
+      "id": "public-now",
+      "label": "Today: public charging",
+      "description": "No home charger yet. Uses the confirmed public rate.",
+      "homeChargingSharePct": 0,
+      "publicChargingSharePct": 100
+    },
+    {
+      "id": "mixed-future",
+      "label": "Next: mostly home",
+      "description": "80% at the mock home rate and 20% public.",
+      "homeChargingSharePct": 80,
+      "publicChargingSharePct": 20
+    },
+    {
+      "id": "home-future",
+      "label": "Home-only test",
+      "description": "All charging at the mock home rate.",
+      "homeChargingSharePct": 100,
+      "publicChargingSharePct": 0
+    }
+  ],
+  "plannedTotalCostModel": {
+    "provenance": "planned",
+    "includedInCurrentResults": false,
+    "awaitingInputs": [
+      "Comparable gasoline vehicle purchase price",
+      "Financing terms",
+      "Insurance premiums",
+      "Registration and EV fees",
+      "Maintenance and repair history",
+      "Tire costs",
+      "Depreciation assumptions"
+    ]
+  }
+}
