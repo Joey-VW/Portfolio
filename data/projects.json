@@ -157,26 +157,26 @@
   {
     "slug": "multi-platform-publishing-system",
     "createdAt": "2026-06-18",
-    "status": "in-progress",
-    "visibility": "hidden",
+    "status": "ready",
+    "visibility": "public",
     "title": "Multi-Platform Publishing System",
     "category": "Static Site + Cloudflare",
-    "summary": "Cloudflare-hosted travel journal/photo/map site powered by Google Sheets, Forms, Drive, and Apps Script workflows.",
-    "value": "A no-build publishing system that lets non-technical content updates flow into a fast static web experience.",
+    "summary": "A fictional, fixture-based travel journal, photo gallery, and map demo showing a build-light publishing-system architecture.",
+    "value": "Shows how structured content can drive a fast static publishing experience while keeping review data local, fictional, and private.",
     "stack": [
       "HTML",
       "CSS",
       "JavaScript",
       "Cloudflare Pages",
-      "Google Sheets",
-      "Apps Script"
+      "CSV fixtures",
+      "Leaflet"
     ],
     "href": "/projects/multi-platform-publishing-system.html",
     "repo": "https://github.com/Joey-VW",
     "featured": true,
     "showcase": {
       "title": "Publishing System",
-      "description": "Travel publishing without code",
+      "description": "Fictional publishing workflow demo",
       "visualKey": "publishing-system",
       "motion": "static"
     }

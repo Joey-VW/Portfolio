@@ -424,18 +424,18 @@ Acceptance criteria for Pass 07:
 
 ## Pass 08 - Anonymized multi-platform publishing system
 
-Pass 08 began July 18, 2026 on `multi-platform-publishing-system-staging`. The branch contains a working source copy, the original local background-video set and manifest, a replacement-resource inventory, and links to duplicated Google Drive resources. It remains a private working quarantine branch while client-specific content and identifiers are present. Do not merge this staging branch into `main`.
+Pass 08 began July 18, 2026 on `publishing-system quarantine branch`. The branch contains a working source copy, the original local background-video set and manifest, a replacement-resource inventory, and links to duplicated Google Drive resources. It remains a private working quarantine branch while client-specific content and identifiers are present. Do not merge this staging branch into `main`.
 
 Target public architecture:
 
 - `/projects/multi-platform-publishing-system.html` - portfolio case study and project entry route.
-- `/projects/multi-platform-publishing-system/` - self-contained live demo, with `index.html`, supporting pages, scripts, styles, and media nested beneath this directory.
+- `/projects/multi-platform-publishing-system/demo/` - self-contained noindex demo, with `index.html`, supporting pages, scripts, styles, and media nested beneath this directory.
 - Every demo page includes one clearly labeled `Return to Joe Wisto portfolio` navigation option without otherwise changing the original site flow.
-- The demo preserves the original homepage, About, Journal, Photos, Map, Ask, background-video, loading, filtering, lightbox, and reduced-motion behaviors using fictional content and portfolio-owned Google resources.
+- The demo preserves the original homepage, About, Journal, Photos, Map, Ask, background-video, loading, filtering, lightbox, and reduced-motion behaviors using fictional content and approved local fixtures for this review build.
 
 ### 08.0 Preserve a safe staging boundary
 
-- [x] Create `multi-platform-publishing-system-staging/` on the dedicated `multi-platform-publishing-system-staging` branch.
+- [x] Create `quarantine staging directory/` on the dedicated `publishing-system quarantine branch` branch.
 - [x] Copy the reusable HTML, CSS, JavaScript, tools, fallback background, background videos, and generated video manifest into the staging directory.
 - [x] Add a Drive-resource inventory identifying a portfolio-owned Google Form, Google Sheet, and two replacement media files.
 - [x] Verify the staging directory contains no nested `.git` directory, remote configuration, `.env` file, credentials, cookies, API keys, private deployment configuration, local editor state, or unrelated source history.
@@ -593,6 +593,9 @@ Acceptance criteria:
 - A visitor can understand what was built, why it mattered, how a nontechnical publisher uses it, and what technical judgment the work demonstrates.
 - The case study links to the demo, the demo returns to the portfolio, and neither route is mistaken for the original client website.
 - Unfinished or unsanitized material never appears in project cards or the Showcase launcher.
+
+
+Implementation update - July 19, 2026: the sanitized Postcard Atlas demo now lives at `/projects/multi-platform-publishing-system/demo/` rather than the originally proposed parent route. It retains only an original SVG fallback illustration documented in its README; the 17 undocumented staging videos and the undocumented staging JPEG were not released. The demo uses local CSV fixtures, disables message delivery, preserves Leaflet/OpenStreetMap attribution, declares `noindex, nofollow`, and has project-scoped headers. Local route, syntax, JSON, link, and privacy scans passed. Cloudflare Pages preview and browser capture tooling were unavailable in this environment, so those external visual/deployment checks remain follow-up verification rather than being marked complete.
 
 ### 08.8 Validate, integrate, and release
 

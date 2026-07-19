@@ -34,6 +34,8 @@ Key routes:
 - `/games/gravity-fleet-lab.html` - playable orbital RTS telemetry experiment
 - `/projects/shrinkflation-tracker.html` - consumer analytics prototype for unit-price changes
 - `/projects/ev-true-cost.html` - EV public-charging cost check for public, mostly-home, and home-only charging
+- `/projects/multi-platform-publishing-system.html` - case study for a fixture-based static publishing workflow
+- `/projects/multi-platform-publishing-system/demo/` - noindex fictional Postcard Atlas integration demo
 
 ## Project structure
 
@@ -46,6 +48,7 @@ data/*-sample-runs.json             # Mock benchmark data for interactive game d
 data/ev-true-cost.json              # Public, source-aware EV operating-cost foundation data
 projects/index.html                # Projects hub
 projects/*.html                    # Individual case-study pages
+projects/multi-platform-publishing-system/demo/ # Self-contained fictional publishing demo
 games/*.html/css/js                 # Frontend-only playable portfolio experiments
 assets/docs/                       # Future PDFs or supporting docs
 assets/img/favicon.svg             # Basic favicon

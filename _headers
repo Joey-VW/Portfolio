@@ -8,3 +8,14 @@
 
 /data/*
   Cache-Control: public, max-age=300
+
+/projects/multi-platform-publishing-system/demo/*
+  X-Robots-Tag: noindex, nofollow
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.tile.openstreetmap.org; media-src 'self'; connect-src 'self' https://*.tile.openstreetmap.org; font-src 'self' data:
+  Cache-Control: public, max-age=300
+
+/projects/multi-platform-publishing-system/demo/assets/*
+  Cache-Control: public, max-age=31536000, immutable

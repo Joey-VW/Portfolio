@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Photo Stories | Postcard Atlas</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="Browse fictional, mapped photo stories in the Postcard Atlas publishing-system demo." />
+  <link rel="canonical" href="https://joewisto.com/projects/multi-platform-publishing-system/demo/photos.html" />
+  <meta property="og:site_name" content="Postcard Atlas" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Photo Stories | Postcard Atlas" />
+  <meta property="og:description" content="Browse fictional, mapped photo stories in the Postcard Atlas publishing-system demo." />
+  <meta property="og:url" content="https://joewisto.com/projects/multi-platform-publishing-system/demo/photos.html" />
+  <meta property="og:image" content="https://joewisto.com/projects/multi-platform-publishing-system/demo/assets/postcard-atlas-fallback.svg" />
+  <meta property="og:image:alt" content="Soft clouds above a distant landscape in the Postcard Atlas demo." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Photo Stories | Postcard Atlas" />
+  <meta name="twitter:description" content="Browse fictional, mapped photo stories in the Postcard Atlas publishing-system demo." />
+  <meta name="twitter:image" content="https://joewisto.com/projects/multi-platform-publishing-system/demo/assets/postcard-atlas-fallback.svg" />
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+  <script type="module" src="./assets/js/site.js"></script>
+  <script type="module" src="./assets/js/photos.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-shell site-nav">
+      <a class="brand-link" href="./"><span class="brand-mark" aria-hidden="true">✦</span><span class="brand-text"><span data-site-title></span><small>Photos</small></span></a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="./">Home</a><a href="./about.html">About</a><a href="./journal.html">Journal</a><a href="./photos.html">Photos</a><a href="./map.html">Map</a><a href="./ask.html">Send a postcard</a>
+      <a class="portfolio-return" href="/index.html">Return to Joe Wisto portfolio</a></nav>
+    </div>
+  </header>
+  <main id="main">
+    <div class="site-shell">
+      <section class="atlas-photo-hero">
+        <p class="atlas-kicker">Travel gallery</p>
+        <h1>Photos from the journey</h1>
+        <p>Browse sample travel images grouped by place. Map pins link directly into these photo stories.</p>
+      </section>
+      <div class="atlas-photo-tools">
+        <input id="atlasPhotoSearch" type="search" placeholder="Search photos, places, notes..." aria-label="Search photos" />
+        <select id="atlasLocationFilter" aria-label="Filter by location"><option value="">All locations</option></select>
+      </div>
+      <div id="atlasPhotoStatus" class="atlas-photo-status" aria-live="polite">Gathering photos…</div>
+      <div class="atlas-loading-card atlas-page-loader" role="status" aria-live="polite">
+        <div class="atlas-loader-mark" aria-hidden="true">✦</div>
+        <div>
+          <p class="kicker">Preparing the gallery</p>
+          <h2>Gathering golden moments…</h2>
+          <p>Loading the latest photos and warming up the first images.</p>
+        </div>
+      </div>
+      <div class="atlas-skeleton-grid atlas-page-loader" aria-hidden="true">
+        <div class="atlas-skeleton-card"></div>
+        <div class="atlas-skeleton-card"></div>
+        <div class="atlas-skeleton-card"></div>
+      </div>
+      <section id="atlasPhotoGrid" class="atlas-photo-groups atlas-loading-shell is-loading" aria-label="Photo groups" aria-busy="true"></section>
+    </div>
+  </main>
+  <div class="atlas-photo-lightbox" id="atlasPhotoLightbox" aria-hidden="true">
+    <button class="atlas-lightbox-close" type="button" aria-label="Close photo viewer">×</button>
+    <div class="atlas-lightbox-panel">
+      <img id="atlasLightboxImage" alt="" />
+      <div class="atlas-lightbox-caption">
+        <h2 id="atlasLightboxTitle"></h2>
+        <p id="atlasLightboxMeta"></p>
+        <a id="atlasLightboxOriginal" href="#" target="_blank" rel="noopener">Open source image</a>
+      </div>
+    </div>
+  </div>
+  <footer class="site-footer"><div class="site-shell"><span>© <span data-current-year></span> <span data-site-title></span></span><span>Snapshots and stories from Postcard Atlas.</span></div></footer>
+</body>
+</html>
