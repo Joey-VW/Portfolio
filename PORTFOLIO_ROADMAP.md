@@ -33,20 +33,20 @@ Status labels:
 | 04. Shrinkflation reliability | DONE | The hero is tighter, product imagery is resilient, and the weekly Kroger update is automated. | Secrets for automation |
 | 05. EV hero animation | DONE | The EV case study opens with a responsive, purposeful car-and-charger scene. | Preserve the animation prototype until complete |
 | 06. Gravity Fleet game flow | DONE | Match flow, navigation, terminology, level-three fairness, and command states feel intentional. | None |
-| 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 10. | Pass 06 |
-| 08. Publishing-system case study | NEXT | Faithfully integrate the approved, fictional Postcard Atlas source into a project-scoped portfolio demo. | Fresh focused branch from current main |
-| 09. Production deployment and contact | READY | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 08 preview and domain access |
-| 10. Cleanup and release QA | LATER | Complete final repository validation after the remaining front-end and release work. | Remaining front-end completion and production-route release |
+| 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 11. | Pass 06 |
+| 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
+| 09. Mobile layout corrections and responsive bug fixes | NEXT | Resolve the confirmed mobile and responsive findings in `MOBILE_QA_REPORT.md`. | Pass 08 structural integration |
+| 10. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09 and domain access |
+| 11. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections and production-route release. | Pass 10 production release |
 
 The recommended execution order is:
 
-1. Rebaseline documentation and roadmap.
-2. Faithful Pass 08 integration.
-3. Remaining front-end feature completion.
-4. Mobile and bug pass.
-5. Custom-domain and production-route release.
-6. Final repository validation.
-7. Deferred backend and operational automation work.
+1. Completed governance and feature passes.
+2. Completed faithful Pass 08 publishing-system integration.
+3. Pass 09 mobile layout corrections and responsive bug fixes.
+4. Pass 10 custom-domain and production-route release.
+5. Pass 11 final repository validation and release QA.
+6. Deferred backend and operational automation work.
 
 ## Decisions already made
 
@@ -64,7 +64,7 @@ These choices remove ambiguity from later implementation work.
 
 ## Pass 01 - Project governance
 
-Implemented and verified July 15, 2026. The registry contains four public/ready projects and four hidden/in-progress projects. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
+Implemented and verified July 15, 2026. The current registry contains five public/ready projects and three hidden/in-progress projects. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
 
 ### 01.1 Add explicit lifecycle metadata
 
@@ -284,7 +284,7 @@ Acceptance criteria:
 - The workflow can be run manually before the schedule is enabled.
 - A successful no-change run produces no commit.
 - A failed API or validation run leaves production data untouched and exposes a useful Actions error.
-- A successful data commit triggers the normal Cloudflare deployment once Pass 09 is complete.
+- A successful data commit triggers the normal Cloudflare deployment once Pass 10 is complete.
 
 Reference: GitHub scheduled workflows support cron schedules and IANA timezones, and run from the default branch: <https://docs.github.com/actions/using-workflows/events-that-trigger-workflows#schedule>.
 
@@ -386,14 +386,14 @@ Acceptance criteria for Pass 06:
 
 Implementation was completed July 18, 2026. Live telemetry uses a configurable 200ms timer outside the gameplay animation loop and skips unchanged chart and DOM work. Run summaries provide evidence-based observations and replay guidance; leaderboard, recent-run, and minimap improvements are implemented. Control-hint mouse icons were enlarged, and `PLANET_MOTION_MULTIPLIER` is 1.2 without changing ship movement constants.
 
-The remaining laptop/mobile frame-pacing measurements and planet-motion fairness playtesting are deliberately deferred to Pass 10. They have not yet passed and must not be represented as complete physical validation.
+The remaining laptop/mobile frame-pacing measurements and planet-motion fairness playtesting are deliberately deferred to Pass 11. They have not yet passed and must not be represented as complete physical validation.
 
 ### 07.1 Increase live telemetry cadence safely
 
 - [x] Move the current live telemetry interval from 350ms to a configurable target near 200ms.
 - [x] Avoid rebuilding expensive DOM or charts when underlying values have not changed.
 - [x] Keep gameplay animation on `requestAnimationFrame` and telemetry rendering on its own cadence.
-- [ ] Defer dropped-frame measurement on a typical laptop and mobile-width emulation to Pass 10.
+- [ ] Defer dropped-frame measurement on a typical laptop and mobile-width emulation to Pass 11.
 
 ### 07.2 Make run summary insights more specific
 
@@ -423,7 +423,7 @@ The remaining laptop/mobile frame-pacing measurements and planet-motion fairness
 - [x] Increase the mouse icons in the control hints while keeping the accompanying text compact.
 - [x] Increase base planet-orbit speed by approximately 15 to 25 percent through a dedicated planet-motion multiplier.
 - [x] Do not change ship orbit, travel, formation, or combat speeds as part of this item.
-- [ ] Defer fairness playtesting of the faster planets, level objectives, and wormhole placement to Pass 10.
+- [ ] Defer fairness playtesting of the faster planets, level objectives, and wormhole placement to Pass 11.
 
 Acceptance criteria for Pass 07 implementation:
 
@@ -432,18 +432,18 @@ Acceptance criteria for Pass 07 implementation:
 - The heatmap can be related back to the actual map at a glance.
 - Planet motion is more visible while ship behavior remains unchanged.
 
-## Pass 08 - Faithful multi-platform publishing-system integration
+## Pass 08 - Faithful multi-platform publishing-system integration - DONE
 
-The approved, already-anonymized, already-fictional source implementation is now located at `projects/multi-platform-publishing-system/demo/`. It preserves the approved fictional Postcard Atlas identity and remains the authoritative implementation for faithful integration, not a quarantine source or a candidate for further anonymization.
+Structural integration was merged in PR #3 on July 19, 2026. The approved, already-anonymized, fictional Postcard Atlas source was moved faithfully into its final project-scoped routes: `/projects/multi-platform-publishing-system.html` for the portfolio case study and `/projects/multi-platform-publishing-system/demo/` for the self-contained demo. The registry now correctly lists the project as `public` and `ready`.
 
 All local fallback imagery and background-video assets currently committed under `projects/multi-platform-publishing-system/demo/` are owned by Joe Wisto and are approved for public redistribution within this portfolio repository. These approved assets are part of the intended public portfolio presentation and must not be replaced, removed, or substituted solely for licensing, anonymization, or placeholder purposes.
 
-The approved implementation has been moved into the project-scoped route below on a focused integration branch. Keep the registry entry hidden/in-progress until faithful integration, behavior validation, and Cloudflare preview review are approved. Privacy scans and route validation remain required verification, but they are not a reason to rewrite approved fictional content, replace approved media, or simplify the source implementation.
+The structural move included project-scoped paths, metadata, local fixtures, media, video manifest, headers, nested routes, and the separate `Return to Joe Wisto portfolio` action. Remaining mobile, deployment-only, and regression findings are deliberately tracked in Pass 09 and the later production and final-QA gates; they do not reopen the completed structural integration.
 
 > [!IMPORTANT]
 > **Implementation preservation contract**
 >
-> Future Pass 08 implementation is a **structural integration**, not a redesign or reimplementation.
+> Pass 08 was a **structural integration**, not a redesign or reimplementation.
 >
 > Unless a project-scoped route or deployment change makes a modification technically unavoidable, preserve the approved implementation's:
 >
@@ -457,7 +457,7 @@ The approved implementation has been moved into the project-scoped route below o
 > - deep links, filtering, lightbox behavior, and cross-page interactions;
 > - loading, accessibility, fallback, and responsive behavior.
 >
-> The objective of Pass 08 is to relocate and integrate the approved implementation into its final project structure while preserving its visual character, interaction model, and functionality.
+> Future corrections must preserve the approved implementation's visual character, interaction model, and functionality rather than substitute content, media, or identity.
 
 Target public architecture:
 
@@ -467,7 +467,7 @@ Target public architecture:
 
 ### 08.0 Preservation contract
 
-Future Pass 08 work must preserve the approved implementation's:
+Future work must preserve the approved implementation's:
 
 - current fictional Postcard Atlas identity, copy, and fixtures;
 - all approved local media and fallback imagery;
@@ -477,80 +477,116 @@ Future Pass 08 work must preserve the approved implementation's:
 - Journal deep links, sorting/filtering, multi-media rendering, and anchored entries;
 - Photos search, location filtering, grouping, lightbox controls, hash targeting, and cross-page interactions;
 - Map marker grouping, panels, thumbnails, and Journal/Photos cross-links;
-- Ask UI, accessible validation, and clearly disabled delivery behavior. The initial public demo must state that no message is submitted or collected;
+- Ask UI, accessible validation, and clearly disabled delivery behavior. The public demo must state that no message is submitted or collected;
 - responsive, keyboard, focus, loading, fallback, and reduced-motion behavior.
 
 Do not perform additional fictionalization, anonymization, simplification, placeholder replacement, media reduction, or identity substitution unless Joe Wisto explicitly authorizes it. Do not rewrite already-fictional content, invent replacement identities or locations, replace approved media with placeholders, remove or disable the background-video system, or reduce the demo to a fixture-only redesign. The demo may continue using its approved local fictional fixtures while live Google Sheets, Forms, and Drive integrations remain deferred.
 
-### 08.1 Establish the nested project structure
+### 08.1 Completed structural integration
 
 - [x] Create `projects/multi-platform-publishing-system/demo/` as the final self-contained demo directory.
-- [x] Preserve the approved page set as `index.html`, `about.html`, `journal.html`, `photos.html`, `map.html`, and `ask.html` unless an equivalent route is intentionally redirected.
+- [x] Preserve the approved page set as `index.html`, `about.html`, `journal.html`, `photos.html`, `map.html`, and `ask.html`, plus the demo not-found experience.
 - [x] Keep `/projects/multi-platform-publishing-system.html` as the portfolio case study rather than overwriting it with the demo homepage.
-- [ ] Migrate paths, dynamic URL construction, manifest URLs, and CSS asset URLs to project-scoped paths while preserving deep links, filtering, lightbox behavior, and cross-page interactions.
+- [x] Move project paths, dynamic URL construction, manifest URLs, CSS assets, local fixtures, media, and nested routes into the project-scoped structure.
 - [x] Add the portfolio-return link to shared navigation, including the not-found experience, without replacing or confusing the demo's Home link.
-- [x] Scope any necessary root `_headers` work to `/projects/multi-platform-publishing-system/*`; do not change deployment behavior without a verified need.
+- [x] Scope root `_headers` rules to `/projects/multi-platform-publishing-system/*`.
+- [x] Copy the approved source implementation and media without content or identity substitution.
+- [x] Preserve the fallback image, every background-video file, manifest entry, and local fictional CSV fixture.
+- [x] Keep Ask delivery disabled with truthful no-submission/no-collection copy while retaining its validation and fallback UI.
+- [x] Provide the portfolio case study, `Open live demo` action, and return to the project index.
+- [x] Update the registry to the shipped `public` and `ready` lifecycle state.
+- [x] Run the recorded local structural checks: HTTP nested-route loading, changed-JavaScript syntax checks, manifest parsing, asset URL verification, and registry validation.
 
-Acceptance criteria:
+The case study and demo remain `noindex` in the currently shipped source. That deployment choice and Cloudflare-only behavior remain for Pass 10 verification; it does not change the public/ready registry lifecycle.
 
-- Direct loads and refreshes resolve project-scoped CSS, JavaScript, fixtures, media, and internal links.
-- Demo Home remains inside the demo, while the portfolio-return link exits it intentionally.
-- The demo and case-study routes remain distinct and understandable.
+### 08.2 Evidence transferred to later gates
 
-### 08.2 Integrate the approved source faithfully
+`MOBILE_QA_REPORT.md` provides the first mobile QA evidence for the merged source. It confirms no document-level horizontal overflow across 14 routes at 360×800, 375×812, 390×844, and 430×932, but identifies a fallback-image defect and several mobile/responsive issues. Pass 09 owns their correction and regression evidence.
 
-- [x] Copy the approved source implementation and media into the project-scoped route without content or identity substitution.
-- [x] Preserve the fallback image, every background-video file, and every manifest entry; verify all nested public URLs resolve.
-- [ ] Preserve background-video behavior, failure recovery, page-visibility behavior, and reduced-motion fallback.
-- [x] Preserve local fictional CSV fixtures for Journal, Photos, Map, and homepage content; do not require live services for the initial portfolio demo.
-- [x] Keep Ask delivery disabled, with truthful copy that no message is submitted or collected, while retaining its approved validation and fallback UI.
-- [ ] Preserve navigation, page functionality, loading/error states, accessibility behavior, deep links, filtering, lightbox, and cross-page interaction parity.
-- [ ] Keep Leaflet and OpenStreetMap attribution where used and validate external-service behavior without introducing credentials.
+Cloudflare preview and production checks were not available in that audit. Verify actual videos, external map behavior, headers, redirects, metadata, caching, direct loads, and production console/network behavior in Pass 10 and Pass 11. Do not mark those deployment-only checks as completed based on local evidence.
 
-Acceptance criteria:
+## Pass 09 - Mobile layout corrections and responsive bug fixes
 
-- The final demo retains the approved Postcard Atlas experience and all preservation-contract behavior.
-- Every page remains understandable and usable when a local fixture, image, or video fails.
-- No future integration replaces approved content or media merely to alter the demo's fictional identity.
+**Status: NEXT.** `MOBILE_QA_REPORT.md` is the detailed evidence source for this first mobile QA pass. Its screenshots are before evidence and supporting visual references, not a replacement for updated captures after implementation. The audit covered 14 routes at 360×800, 375×812, 390×844, and 430×932 and found no document-level horizontal overflow at those widths; the confirmed findings below remain active.
 
-### 08.3 Build the portfolio case study and registry integration
+Implement these subsections as focused, independently reviewable handoffs while preserving the build-light architecture and the Pass 08 preservation contract.
 
-- [x] Keep the existing project-registry entry `hidden` and `in-progress` during integration.
-- [ ] Expand `/projects/multi-platform-publishing-system.html` into a complete case study.
-- [ ] Explain the portfolio project, publishing workflow, static frontend, fixture-based demo, media handling, accessibility, privacy decisions, and deferred live integrations truthfully.
-- [x] Add a clear `Open live demo` action and a route back to all projects.
-- [x] Keep the case study and demo `noindex` while Pass 08 remains incomplete.
-- [ ] Change the registry to `public` and `ready` only after faithful integration, responsive/behavior validation, and Cloudflare preview approval. Do not change `data/projects.json` before then.
+### 09.1 Repair Postcard Atlas fallback behavior - highest priority
 
-### 08.4 Validate, integrate, and release
+Relevant files: `projects/multi-platform-publishing-system/demo/assets/js/config.js`, `projects/multi-platform-publishing-system/demo/assets/js/background-video.js`, and `projects/multi-platform-publishing-system/demo/assets/css/styles.css`.
 
-- [x] Serve the repository root through HTTP and test the final nested route rather than serving the demo directory as a deployment root.
-- [x] Run syntax checks for changed project JavaScript and the video-manifest builder, parse the manifest, and verify all listed video and fallback URLs.
-- [x] Run project-registry validators if registry metadata changes.
-- [ ] Validate desktop, tablet, mobile, keyboard, focus, reduced-motion, direct-load, refresh, Back/Forward, and case-study/demo round-trip behavior.
-- [ ] Verify Home, About, Journal, Photos, Map, Ask, cross-page hashes, filtering, lightbox, loading, fallback, and disabled Ask delivery.
-- [ ] Inspect the console and network panel for uncaught errors, failed local requests, missing assets, incorrect paths, and unexpected external dependencies.
-- [ ] Run a final repository privacy scan and route/asset scan on the integration branch, preserving approved fictional content and media.
-- [ ] Verify the project-scoped route, headers as applicable, caching, deep links, metadata, and fallbacks on a Cloudflare pull-request preview.
-- [ ] Open a draft PR and do not merge until the integration and preview are approved.
+- [ ] Normalize the configured fallback image against `document.baseURI`, or an equivalently reliable project-scoped base, before placing it in the CSS custom property.
+- [ ] Eliminate the incorrect request to `/projects/multi-platform-publishing-system/demo/assets/css/assets/background_image_clean.jpg` and resolve the approved image at `/projects/multi-platform-publishing-system/demo/assets/background_image_clean.jpg`.
+- [ ] Verify normal loading, direct nested-page loads, reduced motion, empty manifest, and forced video failure.
+- [ ] Preserve every approved image, video, manifest entry, transition, and recovery behavior.
 
-Final acceptance criteria for Pass 08:
+### 09.2 Improve Postcard Atlas mobile navigation
 
-- The complete approved publishing site runs beneath `/projects/multi-platform-publishing-system/demo/` with its visual character and behavior intact, plus a clear portfolio-return option.
-- Approved media, fallback imagery, background videos, manifest, fixtures, and Ask-disabled behavior are all preserved.
-- The registry remains hidden/in-progress until faithful integration and preview approval, then changes to `public` and `ready` only in the reviewed release.
+The primary navigation is dense, wraps across multiple rows, has approximately 36-39px navigation targets, and consumes excessive narrow-screen header height.
 
-## Pass 09 - Production deployment and custom-domain release
+- [ ] Bring primary navigation and portfolio-return controls to approximately 44px touch targets.
+- [ ] Keep navigation clear at 320, 360, 375, 390, and 430px without merely adding padding and making the header taller.
+- [ ] Preserve Postcard Atlas identity, keyboard navigation, focus behavior, current-page indication, internal Home behavior, and the separate portfolio-return action.
+- [ ] After inspecting the implementation, choose either a compact accessible disclosure menu or a well-designed scrollable navigation row.
 
-Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the `pages.dev` deployment is working.
+### 09.3 Increase shared portfolio touch targets
 
-### 09.1 Complete remaining production release work
+The report measures `Read case study` links at about 25.6px, footer links at about 23.5px, the shared brand link slightly below 44px, EV section navigation at about 43.2px, and EV/Shrinkflation back-to-top controls at about 43.8px. Relevant source families include `styles.css`, `script.js`, `projects/ev-true-cost.css`, and `projects/shrinkflation-tracker.css`.
+
+- [ ] Give important mobile controls comfortable touch areas of approximately 44 CSS pixels where practical while keeping visual weight restrained.
+- [ ] Preserve desktop spacing, homepage print/PDF behavior, explicit links and labels, focus states, and semantics.
+
+### 09.4 Increase Gravity Fleet heatmap toggle targets
+
+The Movement/Combat controls measure about 32px high. Relevant file: `games/gravity-fleet-lab.css`.
+
+- [ ] Use approximately 44px targets on mobile/coarse-pointer layouts while retaining compact desktop behavior.
+- [ ] Keep controls on one row where practical or wrap them cleanly at 320-390px.
+- [ ] Prevent collisions with analytics panels, post-match controls, and back-to-game navigation.
+
+### 09.5 Harden debug/dev tools on production hosts
+
+Prior local-storage state can allow Showcase or Gravity Fleet debug controls to persist on a production host. Relevant files include `script.js`, `games/gravity-fleet-lab.js`, and their fixed-panel rules in `styles.css` and game CSS.
+
+- [ ] Ensure an ordinary production visitor with no explicit debug query sees no debug toggles or panels.
+- [ ] Ensure persisted debug state cannot independently enable production debug UI; retain convenient localhost behavior.
+- [ ] Keep explicit production debug access usable and safe-area aware when intentionally invoked.
+- [ ] Verify with a clean profile and stale debug local-storage values.
+
+### 09.6 Narrow-screen typography polish
+
+After functional and accessibility corrections, consider the EV and publishing-system hero headings that wrap to four lines at 360px.
+
+- [ ] Improve first-viewport balance below 375px where possible while preserving hierarchy and readability.
+- [ ] Do not force truncation, tiny text, or clipping; leave this unchanged if correction would weaken the design more than it helps.
+
+### 09.7 Mobile regression and deployment verification
+
+- [ ] Review 320, 360, 375, 390, and 430px portrait widths; 768 and 1024px breakpoint-sensitive widths; relevant mobile landscape layouts; and 200% browser zoom.
+- [ ] Verify no horizontal overflow or clipped content; direct load, refresh, Back/Forward, and anchor/hash behavior; keyboard navigation and visible focus; reduced motion; touch targets; and console and failed-network-request checks.
+- [ ] Verify actual background videos and fallback recovery; Leaflet/OpenStreetMap attribution, markers, panels, and deep links; Photos filtering and lightbox; Journal filtering, expansion, and deep links; Ask validation and truthful disabled delivery; and homepage, Projects, project-page, and Showcase mobile layouts.
+- [ ] Review a real Cloudflare pull-request preview where deployment behavior is involved.
+- [ ] Include updated captures for materially changed routes in implementation PRs, using the existing QA screenshots only as before evidence. Do not create replacement screenshots for this documentation-only pass.
+
+Pass 09 acceptance criteria:
+
+- Every High and Medium finding in `MOBILE_QA_REPORT.md` is fixed or explicitly dispositioned with rationale.
+- Every changed route has updated mobile evidence, and no new horizontal overflow or clipped content is introduced.
+- Touch targets meet the repository guideline where practical, production debug tools are absent for ordinary visitors, and Postcard Atlas fallback behavior works on nested routes and under reduced motion/video failure.
+- Relevant interactions still work, console and network checks show no new local failures, and a Cloudflare pull-request preview is reviewed where deployment behavior is involved.
+- Remaining low/cosmetic findings are completed or deliberately deferred in this roadmap.
+
+## Pass 10 - Production deployment and custom-domain release
+
+**Status: BLOCKED by Pass 09.** Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the `pages.dev` deployment is working.
+
+### 10.1 Complete remaining production release work
 
 - [x] Connect `Joey-VW/Portfolio` to Cloudflare Pages.
 - [x] Use `main` as the production branch.
 - [x] Enable automatic deployments and pull-request previews.
 - [ ] Attach `joewisto.com`, confirm HTTPS, choose a canonical hostname, and add the redirect from the other host.
-- [ ] Verify final production routes, `_headers`, `_redirects`, caching, deep links, JSON fetches, metadata, favicon, and 404 behavior.
+- [ ] Verify final production routes, `_headers`, `_redirects`, caching, deep links, JSON fetches, metadata, favicon, 404 behavior, and Postcard Atlas deployment-only behavior.
 
 Acceptance criteria:
 
@@ -558,28 +594,28 @@ Acceptance criteria:
 - Every public route loads directly and after refresh on the final production host.
 - Final metadata and 404 behavior are verified without exposing credentials or internal tracking details.
 
-### 09.2 Deferred backend and live-service work - LATER
+### 10.2 Deferred backend and live-service work - LATER
 
 - [ ] Add a portfolio contact endpoint with server-side validation, rate limiting, Turnstile verification, and verified delivery.
 - [ ] Replace the email-draft fallback only after the contact endpoint passes an end-to-end test.
 - [ ] Consider live Google Sheets content, Google Forms delivery, and Google Drive media integration for Postcard Atlas only after the fixture-based portfolio demo is approved.
 - [ ] Perform credentialed Kroger and other operational automation verification only when explicitly authorized and safely configured.
 
-## Pass 10 - Final repository validation and release QA
+## Pass 11 - Final repository validation and release QA
 
-Comprehensive validation is consolidated here. It occurs after remaining front-end feature completion, the mobile and bug pass, and custom-domain/production-route release. Every production-bound PR must still meet the minimum smoke gate below.
+Comprehensive validation is consolidated here after Pass 09 mobile corrections and Pass 10 custom-domain/production-route release. Every production-bound PR must still meet the minimum smoke gate below.
 
-### 10.1 Final validation matrix
+### 11.1 Final validation matrix
 
 - [ ] Audit root-level artifacts, stale routes, orphaned selectors/helpers, duplicate data, captures, and obsolete comments before any deletion; preserve sources needed by unfinished work.
-- [ ] Review all affected public routes at 320, 375, 390, 430, 768, and 1024 CSS pixels, relevant landscape layouts, and 200 percent browser zoom.
+- [ ] Review all affected public routes at 320, 375, 390, 430, 768, and 1024 CSS pixels, relevant landscape layouts, and 200% browser zoom.
 - [ ] Verify keyboard navigation, visible focus, screen-reader labels, reduced motion, touch targets, loading/error/fallback states, and print/PDF behavior at US Letter size.
 - [ ] Run complete applicable validators, Python and JavaScript syntax checks, and JSON parsing checks.
 - [ ] Perform repository privacy, route, and asset scans; review external URLs and confirm no secrets, private data, generated captures, or unintended files are present.
 - [ ] Verify final Cloudflare preview and production behavior, including canonical host, routes, refreshes, headers, redirects, metadata, favicon, and 404 response.
 - [ ] Measure Gravity Fleet laptop/mobile frame pacing and playtest planet motion, level objectives, and wormhole fairness. These physical checks remain open until evidence is recorded.
 
-### 10.2 Minimum production-bound PR smoke gate
+### 11.2 Minimum production-bound PR smoke gate
 
 Every production-bound PR must complete and report this minimum gate:
 
@@ -611,6 +647,6 @@ The portfolio reaches the current north star when:
 
 - visitors immediately understand what the site is and how to explore it;
 - every public project is intentionally marked ready and appears in correct date order;
-- remaining front-end features, mobile/bug fixes, and production-route work are complete;
-- final validation confirms coherent mobile, desktop, reduced-motion, keyboard, zoom, print, route, asset, privacy, and Cloudflare behavior; and
+- Pass 09 mobile layout corrections and responsive bug fixes, plus Pass 10 production-route work, are complete;
+- Pass 11 final validation confirms coherent mobile, desktop, reduced-motion, keyboard, zoom, print, route, asset, privacy, and Cloudflare behavior; and
 - deferred backend and operational work is either explicitly completed with evidence or remains honestly labeled as deferred.
