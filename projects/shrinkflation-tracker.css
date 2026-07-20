@@ -897,6 +897,8 @@ body.modal-open {
 
   .back-to-top-arrow {
     bottom: max(1rem, env(safe-area-inset-bottom));
+    height: 44px;
+    width: 44px;
   }
 }
 

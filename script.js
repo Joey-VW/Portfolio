@@ -58,6 +58,43 @@ if (printButton) {
   });
 }
 
+
+const initMobileHeader = () => {
+  const header = document.querySelector("[data-mobile-header]");
+  const toggle = header?.querySelector("[data-mobile-menu-toggle]");
+  const navigation = header?.querySelector(".topnav");
+  if (!header || !toggle || !navigation) return;
+
+  const mobileQuery = window.matchMedia("(max-width: 640px)");
+  const setOpen = (open, restoreFocus = false) => {
+    header.toggleAttribute("data-mobile-menu-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+    if (restoreFocus) toggle.focus();
+  };
+
+  header.setAttribute("data-mobile-menu-ready", "");
+  setOpen(false);
+
+  toggle.addEventListener("click", () => setOpen(!header.hasAttribute("data-mobile-menu-open")));
+  navigation.addEventListener("click", (event) => {
+    if (event.target.closest("a")) setOpen(false);
+  });
+  document.addEventListener("click", (event) => {
+    if (mobileQuery.matches && header.hasAttribute("data-mobile-menu-open") && !header.contains(event.target)) setOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !header.hasAttribute("data-mobile-menu-open")) return;
+    event.preventDefault();
+    setOpen(false, true);
+  });
+  mobileQuery.addEventListener("change", (event) => {
+    if (!event.matches) setOpen(false);
+  });
+};
+
+initMobileHeader();
+
 const reactivePanelSelector = ".panel, .metric, .section-card, .timeline-section, .project-card, .contact-panel, .case-grid section";
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 const pendingPanelUpdates = new WeakMap();
@@ -319,8 +356,9 @@ const initShowcase = (showcaseSnapshots) => {
       return false;
     }
   })();
-  const debugAvailable = localDebugHost || debugParam === "1" || debugWasEnabled;
-  const debugInitiallyEnabled = debugParam === "1" || debugWasEnabled;
+  const explicitDebugAccess = debugParam === "1";
+  const debugAvailable = localDebugHost || explicitDebugAccess;
+  const debugInitiallyEnabled = explicitDebugAccess || (localDebugHost && debugWasEnabled);
 
   const configDescriptors = showcaseConfigDescriptors;
   const labTabs = [

@@ -625,7 +625,8 @@
     const localHost = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(window.location.hostname);
     let debugWasEnabled = false;
     try { debugWasEnabled = localStorage.getItem(GRAVITY_DEBUG_ENABLED_KEY) === "true"; } catch { /* Runtime-only debug remains available. */ }
-    const debugAvailable = localHost || params.get("gravityDebug") === "1" || debugWasEnabled;
+    const explicitDebugAccess = params.get("gravityDebug") === "1";
+    const debugAvailable = localHost || explicitDebugAccess;
     if (!debugAvailable) return;
 
     const saved = (() => {
@@ -669,10 +670,10 @@
     lab.setAttribute("aria-label", "Gravity Fleet Dev Lab");
     lab.innerHTML = `
       <label class="showcase-dev-toggle">
-        <input type="checkbox" data-gravity-debug-toggle ${params.get("gravityDebug") === "1" || debugWasEnabled ? "checked" : ""}>
+        <input type="checkbox" data-gravity-debug-toggle ${explicitDebugAccess || (localHost && debugWasEnabled) ? "checked" : ""}>
         <span>Gravity Fleet Dev Lab</span>
       </label>
-      <section class="showcase-dev-drawer" data-gravity-debug-drawer ${params.get("gravityDebug") === "1" || debugWasEnabled ? "" : "hidden"}>
+      <section class="showcase-dev-drawer" data-gravity-debug-drawer ${explicitDebugAccess || (localHost && debugWasEnabled) ? "" : "hidden"}>
         <header><div><strong>Gravity Fleet Dev Lab</strong><small>Local runtime testing</small></div></header>
         <nav class="showcase-dev-labs" aria-label="Development labs"><button type="button" class="is-selected" aria-current="page">Gravity Fleet</button></nav>
         <div class="showcase-dev-tabs" role="tablist" aria-label="Gravity Fleet debug controls">${tabs}</div>

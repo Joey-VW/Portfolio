@@ -222,7 +222,7 @@ For browser-visible changes:
 - Verify reduced-motion behavior when motion or scrolling changes.
 - Check Chrome print preview at US Letter size when homepage resume content or shared print CSS changes.
 
-Use `tools/capture_page.py` for repeatable visual comparisons when Playwright, Pillow, and Chromium are already available. Agents must use non-interactive capture. Do not add unrelated dependencies solely to produce a screenshot, and never commit generated captures.
+Use `tools/capture_page.py` for repeatable visual comparisons only when Playwright, Pillow, and a launchable Chromium installation are already confirmed available. Do not invoke capture speculatively to discover missing dependencies. When availability is unknown, make at most one lightweight prerequisite check; if it fails, do not install, retry, or repeat capture errors, and continue with proportional source-level validation. When the user will perform Cloudflare visual QA, skip local capture unless it is specifically requested or browser availability is already confirmed. Record external rendered QA as pending once in the final report. Agents must use non-interactive capture. Do not add unrelated dependencies solely to produce a screenshot, and never commit generated captures.
 
 Example captures:
 
