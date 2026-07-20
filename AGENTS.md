@@ -79,6 +79,18 @@ Do not let agents edit the same or overlapping file family. Agents sharing a wor
 
 Start from the latest `main` unless the task explicitly depends on an unmerged branch. Prefer one focused branch and pull request per roadmap pass or independently reviewable slice.
 
+When a task continues work from an unmerged pull request, the user must select that pull request's branch before starting the Codex task. The agent should verify the current checkout and commit before editing and must not assume it started from `main`.
+
+When direct push or PR-update capability is unavailable, the agent should complete one focused commit on the selected checkout and report:
+
+- the commit hash
+- the current branch and base commit
+- the intended parent pull request
+- the exact files changed
+- whether the result should be applied through the Codex `Create PR` option
+
+Do not claim that an existing pull request was updated unless the remote branch actually changed. Do not instruct the user to export patches unless creating a new Codex pull request is unavailable or explicitly declined.
+
 ## Scope and change discipline
 
 Before editing:
@@ -234,6 +246,8 @@ python tools/capture_page.py http://127.0.0.1:8000/ --no-interactive --mode both
 Creating captures is not validation by itself. Inspect them and report any unavailable checks honestly. Lighthouse, axe, and deployment checks are optional unless already available or explicitly in scope.
 
 ## Pull requests and merges
+
+For Cloudflare Pages workflows, distinguish pre-PR local validation from post-PR deployment QA. A preview may not exist until after the branch and pull request are created, so record Cloudflare visual QA as pending rather than permanently unavailable.
 
 Before opening a pull request, review the complete diff against `main` and remove accidental or unrelated changes.
 
