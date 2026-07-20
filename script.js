@@ -320,6 +320,7 @@ const initShowcase = (showcaseSnapshots) => {
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
   let overlay;
+  let showcaseContent;
   let projectsLoaded = false;
   let state = "collapsed";
   let targetExpanded = false;
@@ -491,10 +492,12 @@ const initShowcase = (showcaseSnapshots) => {
     overlay = document.createElement("nav");
     overlay.className = "showcase-overlay is-collapsed";
     overlay.setAttribute("aria-label", "Project showcase");
-    overlay.innerHTML = `
+    overlay.innerHTML = `<div class="showcase-content">
       <svg class="showcase-lines" aria-hidden="true"></svg>
       <a class="showcase-center" href="/projects/">View all</a>
-      <p class="showcase-error" hidden>Project data is temporarily unavailable. <a href="/projects/">View all projects</a>.</p>`;
+      <p class="showcase-error" hidden>Project data is temporarily unavailable. <a href="/projects/">View all projects</a>.</p>
+    </div>`;
+    showcaseContent = overlay.querySelector(".showcase-content");
     document.body.append(overlay);
     applyVisualConfig();
     overlay.addEventListener("pointermove", (event) => {
@@ -508,6 +511,9 @@ const initShowcase = (showcaseSnapshots) => {
       requestMotionFrame();
     }, { passive: true });
     overlay.addEventListener("pointerleave", () => { pointer.active = false; requestMotionFrame(); }, { passive: true });
+    overlay.addEventListener("click", (event) => {
+      if (state === "expanded" && (event.target === overlay || event.target === showcaseContent || event.target.closest(".showcase-lines"))) beginTransition(false);
+    });
   };
 
   const replayMotion = () => {
@@ -839,7 +845,10 @@ const initShowcase = (showcaseSnapshots) => {
   };
 
   const computeExpandedHub = () => {
-    if (!isDesktop()) return { x: window.innerWidth * 0.5, y: clamp(window.innerHeight * layout.mobileHubYRatio, 118, 172) };
+    if (!isDesktop()) {
+      const hubSize = currentHubSize();
+      return { x: window.innerWidth * 0.5, y: layout.viewportMargin + 16 + hubSize.height / 2 };
+    }
     const topbar = document.querySelector(".topbar")?.getBoundingClientRect();
     const shell = document.querySelector(".resume-shell")?.getBoundingClientRect();
     const left = shell ? shell.left : window.innerWidth * 0.1;
@@ -860,7 +869,13 @@ const initShowcase = (showcaseSnapshots) => {
   const layoutExpandedNodes = () => {
     const size = currentNodeSize();
     const hubSize = currentHubSize();
+    const mobileLayout = !isDesktop();
     const placed = [{ x: hub.expandedX, y: hub.expandedY, width: hubSize.width, height: hubSize.height }];
+    const usableWidth = window.innerWidth - layout.viewportMargin * 2;
+    const twoColumnWidth = (usableWidth - layout.collisionGap) / 2;
+    const mobileColumns = mobileLayout && twoColumnWidth >= 144 ? 2 : 1;
+    const mobileCardWidth = Math.min(size.width, mobileColumns === 2 ? twoColumnWidth : usableWidth);
+    const mobileGridStart = (window.innerWidth - (mobileColumns * mobileCardWidth + (mobileColumns - 1) * layout.collisionGap)) / 2;
     nodes.forEach((node, index) => {
       const offset = offsets[index % offsets.length];
       const viewportScale = isDesktop() ? Math.min(window.innerWidth / 1280, 1.1) : Math.min(window.innerWidth / 390, 1);
@@ -868,29 +883,38 @@ const initShowcase = (showcaseSnapshots) => {
       let x = hub.expandedX + offset[0] * distanceScale;
       let y = hub.expandedY + offset[1] * distanceScale;
 
-      if (!isDesktop()) {
-        const columns = window.innerWidth < 430 ? 2 : 3;
-        const col = index % columns;
-        const row = Math.floor(index / columns);
-        x = layout.viewportMargin + size.width / 2 + col * ((window.innerWidth - layout.viewportMargin * 2 - size.width) / Math.max(1, columns - 1));
-        y = hub.expandedY + (80 + row * (size.height + 12)) * layout.mobileDistanceScale;
+      if (mobileLayout) {
+        const col = index % mobileColumns;
+        const row = Math.floor(index / mobileColumns);
+        x = mobileGridStart + mobileCardWidth / 2 + col * (mobileCardWidth + layout.collisionGap);
+        y = hub.expandedY + hubSize.height / 2 + layout.collisionGap + size.height / 2 + row * (size.height + layout.collisionGap);
       }
 
-      x = clamp(x, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
-      y = clamp(y, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
-      let rect = { x, y, width: size.width, height: size.height };
-      for (let attempt = 0; attempt < 10 && placed.some((other) => rectsOverlap(rect, other)); attempt += 1) {
-        const angle = Math.atan2(y - hub.expandedY, x - hub.expandedX) + attempt * 0.34;
-        const push = 18 + attempt * 10;
-        x = clamp(x + Math.cos(angle) * push, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
-        y = clamp(y + Math.sin(angle) * push, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
+      const nodeWidth = mobileLayout ? mobileCardWidth : size.width;
+      let rect = { x, y, width: nodeWidth, height: size.height };
+      if (!mobileLayout) {
+        x = clamp(x, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
+        y = clamp(y, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
         rect = { x, y, width: size.width, height: size.height };
+        for (let attempt = 0; attempt < 10 && placed.some((other) => rectsOverlap(rect, other)); attempt += 1) {
+          const angle = Math.atan2(y - hub.expandedY, x - hub.expandedX) + attempt * 0.34;
+          const push = 18 + attempt * 10;
+          x = clamp(x + Math.cos(angle) * push, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
+          y = clamp(y + Math.sin(angle) * push, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
+          rect = { x, y, width: size.width, height: size.height };
+        }
       }
       placed.push(rect);
-      Object.assign(node, { expandedX: x, expandedY: y, width: size.width, height: size.height });
-      node.el.style.setProperty("--w", `${size.width}px`);
+      Object.assign(node, { expandedX: x, expandedY: y, width: nodeWidth, height: size.height });
+      node.el.style.setProperty("--w", `${nodeWidth}px`);
       node.el.style.setProperty("--h", `${size.height}px`);
     });
+    if (mobileLayout && nodes.length) {
+      const lastNode = nodes[nodes.length - 1];
+      overlay.style.setProperty("--showcase-content-height", `${Math.max(window.innerHeight, lastNode.expandedY + size.height / 2 + layout.viewportMargin + 16)}px`);
+    } else {
+      overlay.style.removeProperty("--showcase-content-height");
+    }
   };
 
   const updateLayout = () => {
@@ -1029,6 +1053,7 @@ const initShowcase = (showcaseSnapshots) => {
     if (!projectsLoaded) return;
     updateLayout();
     targetExpanded = expanded;
+    if (expanded) overlay.scrollTop = 0;
     cancelMotionFrame();
     pointer.active = false;
 
@@ -1153,7 +1178,7 @@ const initShowcase = (showcaseSnapshots) => {
         el.href = project.href;
         el.setAttribute("aria-label", `${title}: ${description}`);
         el.innerHTML = `<span class="showcase-stage showcase-stage--${escapeHtml(meta.visualKey || "default")}">${showcaseVisualSvg(meta.visualKey)}</span><span class="showcase-copy"><span class="showcase-name">${escapeHtml(title)}</span><span class="showcase-description">${escapeHtml(description)}</span></span>`;
-        overlay.append(el);
+        showcaseContent.append(el);
         const model = { el, index, x: 0, y: 0, vx: 0, vy: 0, collapsedX: 0, collapsedY: 0, expandedX: 0, expandedY: 0, width: nodeConfig.desktopWidth, height: nodeConfig.desktopHeight, active: false };
         el.addEventListener("mouseenter", () => { model.active = true; renderPositions(); });
         el.addEventListener("mouseleave", () => { model.active = false; renderPositions(); });
