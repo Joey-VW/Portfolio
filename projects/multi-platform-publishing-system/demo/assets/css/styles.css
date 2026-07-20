@@ -1406,7 +1406,7 @@ body.atlas-lightbox-active {
 
 }
 
-@media (max-width: 640px) {
+@media (max-width: 960px) {
   .site-shell {
     width: min(100% - 24px, 1180px);
   }
@@ -1435,6 +1435,7 @@ body.atlas-lightbox-active {
 
   .nav-primary-links {
     grid-column: 1 / -1;
+    grid-row: 2;
     width: 100%;
     justify-content: flex-start;
     overflow-x: auto;
@@ -1450,10 +1451,10 @@ body.atlas-lightbox-active {
   }
 
   .nav-links .portfolio-return {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: start;
     min-width: 0;
-    max-width: 10.5rem;
     margin-left: 0;
     padding: 0.35rem 0.65rem;
     font-size: 0.72rem;

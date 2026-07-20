@@ -568,7 +568,7 @@ After functional and accessibility corrections, consider the EV and publishing-s
 - [ ] Review a real Cloudflare pull-request preview where deployment behavior is involved.
 - [ ] Include updated captures for materially changed routes in implementation PRs, using the existing QA screenshots only as before evidence. Do not create replacement screenshots for this documentation-only pass.
 
-Implementation note (July 19, 2026): The fallback URL normalization, compact horizontally scrollable Postcard Atlas navigation, coarse-pointer touch targets, and production debug-query gating are implemented. JavaScript syntax checks, static route checks, and focused source inspection passed. Browser and Cloudflare preview verification remain open because this environment does not include Playwright/Chromium and no repository remote is configured for pushing a preview branch; leave the subsection checkboxes open until those checks are completed.
+Implementation note (July 20, 2026): The fallback URL normalization, compact horizontally scrollable Postcard Atlas navigation, coarse-pointer touch targets, production debug-query gating, tablet navigation breakpoint, and landscape touch-target corrections are implemented. Codex completed source implementation and local checks; Cloudflare preview deployment begins only after the branch and pull request are created, and external browser/visual QA remains a separate review step. Leave the Pass 09.7 browser and deployment checkboxes open until that review is completed.
 
 Pass 09 acceptance criteria:
 
