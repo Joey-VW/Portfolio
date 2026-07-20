@@ -320,6 +320,8 @@ const initShowcase = (showcaseSnapshots) => {
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
   let overlay;
+  let showcaseContent;
+  let showcaseClose;
   let projectsLoaded = false;
   let state = "collapsed";
   let targetExpanded = false;
@@ -328,6 +330,7 @@ const initShowcase = (showcaseSnapshots) => {
   let nodes = [];
   let hub = { x: 0, y: 0, collapsedX: 0, collapsedY: 0, expandedX: 0, expandedY: 0 };
   let pointer = { x: 0, y: 0, active: false };
+  let lastLauncherCenter = null;
 
   const easingFns = {
     linear: (t) => t,
@@ -491,10 +494,15 @@ const initShowcase = (showcaseSnapshots) => {
     overlay = document.createElement("nav");
     overlay.className = "showcase-overlay is-collapsed";
     overlay.setAttribute("aria-label", "Project showcase");
-    overlay.innerHTML = `
+    overlay.innerHTML = `<button class="showcase-close" type="button" aria-label="Close project showcase" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 7 10 10M17 7 7 17"/></svg>
+    </button><div class="showcase-content">
       <svg class="showcase-lines" aria-hidden="true"></svg>
       <a class="showcase-center" href="/projects/">View all</a>
-      <p class="showcase-error" hidden>Project data is temporarily unavailable. <a href="/projects/">View all projects</a>.</p>`;
+      <p class="showcase-error" hidden>Project data is temporarily unavailable. <a href="/projects/">View all projects</a>.</p>
+    </div>`;
+    showcaseContent = overlay.querySelector(".showcase-content");
+    showcaseClose = overlay.querySelector(".showcase-close");
     document.body.append(overlay);
     applyVisualConfig();
     overlay.addEventListener("pointermove", (event) => {
@@ -508,6 +516,10 @@ const initShowcase = (showcaseSnapshots) => {
       requestMotionFrame();
     }, { passive: true });
     overlay.addEventListener("pointerleave", () => { pointer.active = false; requestMotionFrame(); }, { passive: true });
+    overlay.addEventListener("click", (event) => {
+      if (state === "expanded" && (event.target === overlay || event.target === showcaseContent || event.target.closest(".showcase-lines"))) beginTransition(false);
+    });
+    showcaseClose.addEventListener("click", () => beginTransition(false));
   };
 
   const replayMotion = () => {
@@ -827,6 +839,8 @@ const initShowcase = (showcaseSnapshots) => {
     overlay?.classList.toggle("is-interactive", interactive);
     overlay?.querySelector(".showcase-center")?.toggleAttribute("aria-hidden", !interactive);
     overlay?.querySelector(".showcase-center")?.setAttribute("tabindex", interactive ? "0" : "-1");
+    showcaseClose?.toggleAttribute("hidden", !interactive);
+    showcaseClose?.setAttribute("aria-hidden", String(!interactive));
     nodes.forEach((node) => {
       node.el.toggleAttribute("aria-hidden", !interactive);
       node.el.setAttribute("tabindex", interactive ? "0" : "-1");
@@ -835,11 +849,25 @@ const initShowcase = (showcaseSnapshots) => {
 
   const launcherCenter = () => {
     const rect = showcaseLauncher.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    if (rect.width > 1 && rect.height > 1) {
+      lastLauncherCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    }
+    return lastLauncherCenter || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  };
+
+  const restoreFocusAfterClose = () => {
+    const mobileMenuToggle = document.querySelector("[data-mobile-menu-toggle]");
+    const triggerRect = showcaseLauncher.getBoundingClientRect();
+    const triggerIsVisible = triggerRect.width > 1 && triggerRect.height > 1;
+    const target = !isDesktop() && !triggerIsVisible ? mobileMenuToggle : showcaseLauncher;
+    target?.focus();
   };
 
   const computeExpandedHub = () => {
-    if (!isDesktop()) return { x: window.innerWidth * 0.5, y: clamp(window.innerHeight * layout.mobileHubYRatio, 118, 172) };
+    if (!isDesktop()) {
+      const hubSize = currentHubSize();
+      return { x: window.innerWidth * 0.5, y: layout.viewportMargin + 16 + hubSize.height / 2 };
+    }
     const topbar = document.querySelector(".topbar")?.getBoundingClientRect();
     const shell = document.querySelector(".resume-shell")?.getBoundingClientRect();
     const left = shell ? shell.left : window.innerWidth * 0.1;
@@ -860,7 +888,13 @@ const initShowcase = (showcaseSnapshots) => {
   const layoutExpandedNodes = () => {
     const size = currentNodeSize();
     const hubSize = currentHubSize();
+    const mobileLayout = !isDesktop();
     const placed = [{ x: hub.expandedX, y: hub.expandedY, width: hubSize.width, height: hubSize.height }];
+    const usableWidth = window.innerWidth - layout.viewportMargin * 2;
+    const twoColumnWidth = (usableWidth - layout.collisionGap) / 2;
+    const mobileColumns = mobileLayout && twoColumnWidth >= 144 ? 2 : 1;
+    const mobileCardWidth = Math.min(size.width, mobileColumns === 2 ? twoColumnWidth : usableWidth);
+    const mobileGridStart = (window.innerWidth - (mobileColumns * mobileCardWidth + (mobileColumns - 1) * layout.collisionGap)) / 2;
     nodes.forEach((node, index) => {
       const offset = offsets[index % offsets.length];
       const viewportScale = isDesktop() ? Math.min(window.innerWidth / 1280, 1.1) : Math.min(window.innerWidth / 390, 1);
@@ -868,29 +902,38 @@ const initShowcase = (showcaseSnapshots) => {
       let x = hub.expandedX + offset[0] * distanceScale;
       let y = hub.expandedY + offset[1] * distanceScale;
 
-      if (!isDesktop()) {
-        const columns = window.innerWidth < 430 ? 2 : 3;
-        const col = index % columns;
-        const row = Math.floor(index / columns);
-        x = layout.viewportMargin + size.width / 2 + col * ((window.innerWidth - layout.viewportMargin * 2 - size.width) / Math.max(1, columns - 1));
-        y = hub.expandedY + (80 + row * (size.height + 12)) * layout.mobileDistanceScale;
+      if (mobileLayout) {
+        const col = index % mobileColumns;
+        const row = Math.floor(index / mobileColumns);
+        x = mobileGridStart + mobileCardWidth / 2 + col * (mobileCardWidth + layout.collisionGap);
+        y = hub.expandedY + hubSize.height / 2 + layout.collisionGap + size.height / 2 + row * (size.height + layout.collisionGap);
       }
 
-      x = clamp(x, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
-      y = clamp(y, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
-      let rect = { x, y, width: size.width, height: size.height };
-      for (let attempt = 0; attempt < 10 && placed.some((other) => rectsOverlap(rect, other)); attempt += 1) {
-        const angle = Math.atan2(y - hub.expandedY, x - hub.expandedX) + attempt * 0.34;
-        const push = 18 + attempt * 10;
-        x = clamp(x + Math.cos(angle) * push, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
-        y = clamp(y + Math.sin(angle) * push, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
+      const nodeWidth = mobileLayout ? mobileCardWidth : size.width;
+      let rect = { x, y, width: nodeWidth, height: size.height };
+      if (!mobileLayout) {
+        x = clamp(x, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
+        y = clamp(y, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
         rect = { x, y, width: size.width, height: size.height };
+        for (let attempt = 0; attempt < 10 && placed.some((other) => rectsOverlap(rect, other)); attempt += 1) {
+          const angle = Math.atan2(y - hub.expandedY, x - hub.expandedX) + attempt * 0.34;
+          const push = 18 + attempt * 10;
+          x = clamp(x + Math.cos(angle) * push, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
+          y = clamp(y + Math.sin(angle) * push, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
+          rect = { x, y, width: size.width, height: size.height };
+        }
       }
       placed.push(rect);
-      Object.assign(node, { expandedX: x, expandedY: y, width: size.width, height: size.height });
-      node.el.style.setProperty("--w", `${size.width}px`);
+      Object.assign(node, { expandedX: x, expandedY: y, width: nodeWidth, height: size.height });
+      node.el.style.setProperty("--w", `${nodeWidth}px`);
       node.el.style.setProperty("--h", `${size.height}px`);
     });
+    if (mobileLayout && nodes.length) {
+      const lastNode = nodes[nodes.length - 1];
+      overlay.style.setProperty("--showcase-content-height", `${Math.max(window.innerHeight, lastNode.expandedY + size.height / 2 + layout.viewportMargin + 16)}px`);
+    } else {
+      overlay.style.removeProperty("--showcase-content-height");
+    }
   };
 
   const updateLayout = () => {
@@ -1027,8 +1070,10 @@ const initShowcase = (showcaseSnapshots) => {
 
   const beginTransition = (expanded) => {
     if (!projectsLoaded) return;
-    updateLayout();
+    if (!expanded && ["collapsed", "collapsing"].includes(state)) return;
+    if (expanded || isDesktop()) updateLayout();
     targetExpanded = expanded;
+    if (expanded) overlay.scrollTop = 0;
     cancelMotionFrame();
     pointer.active = false;
 
@@ -1037,13 +1082,14 @@ const initShowcase = (showcaseSnapshots) => {
       snapTo(expanded);
       setVisualState(expanded ? "expanded" : "collapsed");
       renderPositions();
-      if (!expanded && overlay.contains(document.activeElement)) showcaseLauncher.focus();
+      if (!expanded) restoreFocusAfterClose();
       return;
     }
 
     const now = performance.now();
     const from = { x: hub.x, y: hub.y };
-    const to = expanded ? { x: hub.expandedX, y: hub.expandedY } : { x: hub.collapsedX, y: hub.collapsedY };
+    const mobileClose = !expanded && !isDesktop();
+    const to = expanded ? { x: hub.expandedX, y: hub.expandedY } : (mobileClose ? { x: hub.x, y: hub.y - 12 } : { x: hub.collapsedX, y: hub.collapsedY });
     nodes.forEach((node) => {
       node.x = expanded ? node.expandedX : node.x;
       node.y = expanded ? node.expandedY : node.y;
@@ -1056,10 +1102,12 @@ const initShowcase = (showcaseSnapshots) => {
       from,
       to,
       reverse: !expanded,
-      duration: expanded ? motion.hubTravelDuration : motion.hubCollapseDuration,
+      mobileClose,
+      duration: expanded ? motion.hubTravelDuration : (mobileClose ? 180 : motion.hubCollapseDuration),
     };
     setVisualState(expanded ? "hub-expanding" : "collapsing");
-    if (!expanded) setNodeReveal(0);
+    if (!expanded && !mobileClose) setNodeReveal(0);
+    overlay.style.setProperty("--showcase-hub-opacity", "1");
     setLineProgress(expanded ? 0 : 0);
     requestMotionFrame();
   };
@@ -1097,7 +1145,9 @@ const initShowcase = (showcaseSnapshots) => {
 
     const transition = activeTransition;
     const hubProgress = clamp((now - transition.start) / transition.duration, 0, 1);
-    const point = hubArcPoint(transition.from, transition.to, hubProgress, transition.reverse);
+    const point = transition.mobileClose
+      ? { x: transition.from.x, y: transition.from.y + (transition.to.y - transition.from.y) * ease(hubProgress) }
+      : hubArcPoint(transition.from, transition.to, hubProgress, transition.reverse);
     hub.x = point.x;
     hub.y = point.y;
 
@@ -1124,9 +1174,14 @@ const initShowcase = (showcaseSnapshots) => {
       return;
     }
 
-    nodes.forEach((node) => { node.x = node.collapsedX; node.y = node.collapsedY; });
+    if (transition.mobileClose) {
+      setNodeReveal(1 - ease(hubProgress));
+      overlay.style.setProperty("--showcase-hub-opacity", String(1 - ease(hubProgress)));
+    } else {
+      nodes.forEach((node) => { node.x = node.collapsedX; node.y = node.collapsedY; });
+      setNodeReveal(0);
+    }
     setLineProgress(0);
-    setNodeReveal(0);
     renderPositions();
     if (hubProgress < 1) {
       requestMotionFrame();
@@ -1136,7 +1191,7 @@ const initShowcase = (showcaseSnapshots) => {
     snapTo(false);
     setVisualState("collapsed");
     renderPositions();
-    if (overlay.contains(document.activeElement)) showcaseLauncher.focus();
+    restoreFocusAfterClose();
   }
 
   const loadProjects = async () => {
@@ -1153,7 +1208,7 @@ const initShowcase = (showcaseSnapshots) => {
         el.href = project.href;
         el.setAttribute("aria-label", `${title}: ${description}`);
         el.innerHTML = `<span class="showcase-stage showcase-stage--${escapeHtml(meta.visualKey || "default")}">${showcaseVisualSvg(meta.visualKey)}</span><span class="showcase-copy"><span class="showcase-name">${escapeHtml(title)}</span><span class="showcase-description">${escapeHtml(description)}</span></span>`;
-        overlay.append(el);
+        showcaseContent.append(el);
         const model = { el, index, x: 0, y: 0, vx: 0, vy: 0, collapsedX: 0, collapsedY: 0, expandedX: 0, expandedY: 0, width: nodeConfig.desktopWidth, height: nodeConfig.desktopHeight, active: false };
         el.addEventListener("mouseenter", () => { model.active = true; renderPositions(); });
         el.addEventListener("mouseleave", () => { model.active = false; renderPositions(); });

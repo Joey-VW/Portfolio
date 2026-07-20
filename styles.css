@@ -1230,6 +1230,59 @@ textarea:focus {
     display: none;
   }
 
+  .projects-index-topbar {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 0;
+    padding: 0.5rem;
+    border-radius: 1.5rem;
+  }
+
+  .projects-index-topbar .project-context-nav {
+    grid-column: 1;
+    grid-row: 1;
+    order: 0;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .projects-index-topbar .nav-return {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .projects-index-topbar .nav-return span { display: none; }
+
+  .projects-index-topbar .nav-return svg { transform: translateX(1px); }
+
+  .projects-index-topbar .brand-mark {
+    grid-column: 2;
+    grid-row: 1;
+    order: 0;
+    justify-self: center;
+    min-height: 44px;
+  }
+
+  .projects-index-topbar .brand-copy { display: none; }
+
+  .projects-index-topbar .projects-header-spacer {
+    display: block;
+    grid-column: 3;
+    grid-row: 1;
+    order: 0;
+    width: 44px;
+    height: 44px;
+  }
+
   .hero-actions {
     display: grid;
     grid-template-columns: 0.8fr 1.15fr 1.3fr;
@@ -1819,6 +1872,10 @@ textarea:focus {
   background: rgba(255,255,255,0.045);
 }
 
+.projects-index-topbar .brand-mark { order: 1; }
+.projects-index-topbar .project-context-nav { order: 2; }
+.projects-header-spacer { display: none; }
+
 .nav-return svg {
   width: 1.05rem;
   height: 1.05rem;
@@ -1845,7 +1902,17 @@ textarea:focus {
   --showcase-line-opacity: 0.72;
   --showcase-node-opacity: 0;
   --showcase-node-scale: 0.72;
+  background: transparent;
+  transition: background 180ms ease, backdrop-filter 180ms ease;
 }
+
+.showcase-content {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+}
+
+.showcase-close { display: none; }
 
 .showcase-dev-panel {
   position: fixed;
@@ -2488,8 +2555,74 @@ textarea:focus {
 }
 
 @media (max-width: 420px) {
-  .showcase-node { --w: 156px; grid-template-columns: 48px 1fr; }
+  .showcase-node { grid-template-columns: 48px 1fr; }
   .showcase-stage { width: 48px; height: 42px; }
+}
+
+@media (max-width: 859px), (max-height: 619px), (pointer: coarse) {
+  .showcase-overlay:not(.is-collapsed) {
+    background: rgba(5, 8, 20, 0.46);
+    backdrop-filter: blur(5px);
+  }
+
+  .showcase-overlay.is-interactive {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  }
+
+  .showcase-content {
+    min-height: max(100%, var(--showcase-content-height, 100svh));
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .showcase-lines { display: none; }
+
+  .showcase-overlay.is-collapsing .showcase-center {
+    opacity: var(--showcase-hub-opacity, 1);
+    transform: translate3d(calc(var(--x, 50vw) - 50%), calc(var(--y, 40vh) - 50%), 0) scale(calc(0.92 + var(--showcase-hub-opacity, 1) * 0.08));
+  }
+
+  .showcase-close {
+    position: fixed;
+    top: max(0.5rem, env(safe-area-inset-top));
+    right: max(0.5rem, env(safe-area-inset-right));
+    z-index: 6;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 50%;
+    background: rgba(7, 8, 22, 0.76);
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .showcase-close[hidden] { display: none; }
+
+  .showcase-close svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .showcase-node:focus-visible,
+  .showcase-center:focus-visible,
+  .showcase-close:focus-visible {
+    outline: 2px solid rgba(255,255,255,0.94);
+    outline-offset: 3px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
