@@ -507,7 +507,7 @@ Cloudflare preview and production checks were not available in that audit. Verif
 
 ## Pass 09 - Mobile layout corrections and responsive bug fixes
 
-**Status: NEXT.** `MOBILE_QA_REPORT.md` is the detailed evidence source for this first mobile QA pass. Its screenshots are before evidence and supporting visual references, not a replacement for updated captures after implementation. The audit covered 14 routes at 360×800, 375×812, 390×844, and 430×932 and found no document-level horizontal overflow at those widths; the confirmed findings below remain active.
+**Status: IN REVIEW.** `MOBILE_QA_REPORT.md` is the detailed evidence source for this first mobile QA pass. Its screenshots are before evidence and supporting visual references, not a replacement for updated captures after implementation. The audit covered 14 routes at 360×800, 375×812, 390×844, and 430×932 and found no document-level horizontal overflow at those widths; the confirmed findings below remain active.
 
 Implement these subsections as focused, independently reviewable handoffs while preserving the build-light architecture and the Pass 08 preservation contract.
 
@@ -567,6 +567,8 @@ After functional and accessibility corrections, consider the EV and publishing-s
 - [ ] Verify actual background videos and fallback recovery; Leaflet/OpenStreetMap attribution, markers, panels, and deep links; Photos filtering and lightbox; Journal filtering, expansion, and deep links; Ask validation and truthful disabled delivery; and homepage, Projects, project-page, and Showcase mobile layouts.
 - [ ] Review a real Cloudflare pull-request preview where deployment behavior is involved.
 - [ ] Include updated captures for materially changed routes in implementation PRs, using the existing QA screenshots only as before evidence. Do not create replacement screenshots for this documentation-only pass.
+
+Implementation note (July 20, 2026): The fallback URL normalization, compact horizontally scrollable Postcard Atlas navigation, coarse-pointer touch targets, production debug-query gating, tablet navigation breakpoint, landscape touch-target corrections, and homepage mobile navigation disclosure with compact brand and print controls are implemented. Codex completed source implementation and local checks; Cloudflare preview deployment begins only after the branch and pull request are created, and external browser/visual QA remains a separate review step. Leave the Pass 09.7 browser and deployment checkboxes open until that review is completed.
 
 Pass 09 acceptance criteria:
 

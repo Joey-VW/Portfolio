@@ -30,7 +30,11 @@ let controller;
 export function initBackgroundVideo() {
   if (controller) return controller;
 
-  const config = { ...DEFAULTS, ...(SITE_CONFIG.backgroundVideos || {}) };
+  const configured = { ...DEFAULTS, ...(SITE_CONFIG.backgroundVideos || {}) };
+  const config = {
+    ...configured,
+    fallbackImageUrl: resolveProjectUrl(configured.fallbackImageUrl),
+  };
   const isColdStart = shouldUseColdStartFallback();
   rememberBackgroundStart();
 
@@ -55,6 +59,15 @@ export function initBackgroundVideo() {
   controller = new BackgroundVideoController(root, config);
   controller.start();
   return controller;
+}
+
+function resolveProjectUrl(url) {
+  if (!url) return "";
+  try {
+    return new URL(url, document.baseURI).href;
+  } catch {
+    return url;
+  }
 }
 
 function createBackgroundLayer(config, isColdStart) {
