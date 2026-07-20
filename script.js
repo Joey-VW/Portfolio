@@ -327,6 +327,7 @@ const initShowcase = (showcaseSnapshots) => {
   let targetExpanded = false;
   let frame = 0;
   let activeTransition = null;
+  let closeResetFrame = 0;
   let nodes = [];
   let hub = { x: 0, y: 0, collapsedX: 0, collapsedY: 0, expandedX: 0, expandedY: 0 };
   let pointer = { x: 0, y: 0, active: false };
@@ -841,6 +842,7 @@ const initShowcase = (showcaseSnapshots) => {
     overlay?.querySelector(".showcase-center")?.setAttribute("tabindex", interactive ? "0" : "-1");
     showcaseClose?.toggleAttribute("hidden", !interactive);
     showcaseClose?.setAttribute("aria-hidden", String(!interactive));
+    if (showcaseClose) showcaseClose.tabIndex = interactive ? 0 : -1;
     nodes.forEach((node) => {
       node.el.toggleAttribute("aria-hidden", !interactive);
       node.el.setAttribute("tabindex", interactive ? "0" : "-1");
@@ -1057,6 +1059,7 @@ const initShowcase = (showcaseSnapshots) => {
     showcaseLauncher.classList.toggle("is-detached", active);
     showcaseLauncher.setAttribute("aria-expanded", active ? "true" : "false");
     setInteractive(nextState === "expanded");
+    if (nextState === "collapsing" && !isDesktop()) showcaseClose?.removeAttribute("hidden");
   };
 
   const requestMotionFrame = () => {
@@ -1068,17 +1071,46 @@ const initShowcase = (showcaseSnapshots) => {
     frame = 0;
   };
 
+  const cancelCloseReset = () => {
+    if (closeResetFrame) cancelAnimationFrame(closeResetFrame);
+    closeResetFrame = 0;
+  };
+
+  const clearMobileCloseStyles = () => {
+    overlay.style.removeProperty("--showcase-hub-opacity");
+    overlay.style.removeProperty("--showcase-backdrop-opacity");
+  };
+
+  const finalizeMobileClose = () => {
+    activeTransition = null;
+    setVisualState("collapsed");
+    cancelCloseReset();
+    closeResetFrame = requestAnimationFrame(() => {
+      closeResetFrame = 0;
+      if (state !== "collapsed" || targetExpanded) return;
+      snapTo(false);
+      renderPositions();
+      clearMobileCloseStyles();
+      restoreFocusAfterClose();
+    });
+  };
+
   const beginTransition = (expanded) => {
     if (!projectsLoaded) return;
     if (!expanded && ["collapsed", "collapsing"].includes(state)) return;
     if (expanded || isDesktop()) updateLayout();
     targetExpanded = expanded;
+    if (expanded) cancelCloseReset();
     if (expanded) overlay.scrollTop = 0;
     cancelMotionFrame();
     pointer.active = false;
 
     if (isReduced()) {
       activeTransition = null;
+      if (!expanded && !isDesktop()) {
+        finalizeMobileClose();
+        return;
+      }
       snapTo(expanded);
       setVisualState(expanded ? "expanded" : "collapsed");
       renderPositions();
@@ -1108,6 +1140,7 @@ const initShowcase = (showcaseSnapshots) => {
     setVisualState(expanded ? "hub-expanding" : "collapsing");
     if (!expanded && !mobileClose) setNodeReveal(0);
     overlay.style.setProperty("--showcase-hub-opacity", "1");
+    overlay.style.setProperty("--showcase-backdrop-opacity", "1");
     setLineProgress(expanded ? 0 : 0);
     requestMotionFrame();
   };
@@ -1177,6 +1210,7 @@ const initShowcase = (showcaseSnapshots) => {
     if (transition.mobileClose) {
       setNodeReveal(1 - ease(hubProgress));
       overlay.style.setProperty("--showcase-hub-opacity", String(1 - ease(hubProgress)));
+      overlay.style.setProperty("--showcase-backdrop-opacity", String(1 - ease(hubProgress)));
     } else {
       nodes.forEach((node) => { node.x = node.collapsedX; node.y = node.collapsedY; });
       setNodeReveal(0);
@@ -1185,6 +1219,10 @@ const initShowcase = (showcaseSnapshots) => {
     renderPositions();
     if (hubProgress < 1) {
       requestMotionFrame();
+      return;
+    }
+    if (transition.mobileClose) {
+      finalizeMobileClose();
       return;
     }
     activeTransition = null;
