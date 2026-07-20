@@ -2561,8 +2561,18 @@ textarea:focus {
 
 @media (max-width: 859px), (max-height: 619px), (pointer: coarse) {
   .showcase-overlay:not(.is-collapsed) {
-    background: rgba(5, 8, 20, 0.46);
-    backdrop-filter: blur(5px);
+    background: rgb(5 8 20 / calc(0.46 * var(--showcase-backdrop-opacity, 1)));
+    backdrop-filter: blur(calc(5px * var(--showcase-backdrop-opacity, 1)));
+  }
+
+  .showcase-overlay.is-collapsing {
+    transition: none;
+  }
+
+  .showcase-overlay.is-collapsed .showcase-center,
+  .showcase-overlay.is-collapsed .showcase-node,
+  .showcase-overlay.is-collapsed .showcase-close {
+    visibility: hidden;
   }
 
   .showcase-overlay.is-interactive {
@@ -2585,6 +2595,12 @@ textarea:focus {
     transform: translate3d(calc(var(--x, 50vw) - 50%), calc(var(--y, 40vh) - 50%), 0) scale(calc(0.92 + var(--showcase-hub-opacity, 1) * 0.08));
   }
 
+  .showcase-overlay.is-collapsing .showcase-close {
+    opacity: var(--showcase-hub-opacity, 1);
+    pointer-events: none;
+    transform: scale(calc(0.92 + var(--showcase-hub-opacity, 1) * 0.08));
+  }
+
   .showcase-close {
     position: fixed;
     top: max(0.5rem, env(safe-area-inset-top));
@@ -2604,6 +2620,7 @@ textarea:focus {
     box-shadow: 0 8px 24px rgba(0,0,0,0.28);
     cursor: pointer;
     pointer-events: auto;
+    transition: opacity 160ms ease, transform 160ms ease;
   }
 
   .showcase-close[hidden] { display: none; }
