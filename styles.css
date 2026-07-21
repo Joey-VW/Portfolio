@@ -1279,7 +1279,17 @@ textarea:focus {
     display: block;
     width: 1.25rem;
     height: 1.25rem;
+    transform: translateX(11px);
   }
+
+  
+  /* Common adjustments:
+  /* transform: translateX(2px);        /* move right */
+  /* transform: translateX(-2px);       /* move left */
+  /* transform: translateY(1px);        /* move down */
+  /* transform: translateY(-1px);       /* move up */
+  /* transform: translate(1px, -1px);   /* right and up */
+  
 
   .projects-index-topbar .brand-mark {
     grid-column: 2;
