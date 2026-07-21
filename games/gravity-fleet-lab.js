@@ -163,7 +163,7 @@
   let selectedLevelId = 1;
 
   const ui = {
-    start: document.querySelector("#startMatch"), dockMissionSetup: document.querySelector("#dockMissionSetup"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"),
+    start: document.querySelector("#startMatch"), dockMissionSetup: document.querySelector("#dockMissionSetup"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"), mobileModes: [...document.querySelectorAll("[data-game-mode]")], mobileModeControls: document.querySelector("#mobileModeControls"),
     overlay: document.querySelector("#gameStartOverlay"), levelPicker: document.querySelector("#levelPicker"), levelName: document.querySelector("#selectedLevelName"), levelDescription: document.querySelector("#selectedLevelDescription"), levelDifficulty: document.querySelector("#selectedLevelDifficulty"),
     tutorial: document.querySelector("#gameTutorialOverlay"), tutorialGo: document.querySelector("#tutorialGo"),
     outcome: document.querySelector("#gameOutcomeOverlay"), outcomeCard: document.querySelector("#gameOutcomeOverlay .outcome-card"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeLevel: document.querySelector("#gameOutcomeLevel"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"),
@@ -295,6 +295,9 @@
   let shipId = 1;
   let wormMode = false;
   let pendingWorm = null;
+  let activePointerId = null;
+  const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
+  const isCoarsePointer = () => coarsePointerQuery.matches;
   let completedRun = null;
   let dashboardRunId = null;
   let dashboardRenderPromise = null;
@@ -302,6 +305,7 @@
   let heatmapMode = "movement";
   let benchmarkRunsPromise = null;
   let outcomeTrapActive = false;
+  let tutorialTrapActive = false;
   let commandDockSignature = "";
   let syncGravityDevLab = () => {};
   let updateGravityDevActions = () => {};
@@ -451,6 +455,7 @@
       setText(ui.dockLiveStatus, live.status);
     }
     if (mode !== "live") setWormMode(false);
+    if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(mode === "live" && isCoarsePointer());
     if (ui.reset) ui.reset.disabled = mode !== "live";
     if (ui.worm) ui.worm.disabled = mode !== "live";
     const run = completedRun;
@@ -491,9 +496,16 @@
     if (!modal) deactivateOutcomeTrap();
   }
 
+  function deactivateTutorialTrap() {
+    tutorialTrapActive = false;
+    document.removeEventListener("keydown", trapTutorialTab, true);
+    document.removeEventListener("focusin", keepTutorialFocus, true);
+  }
+
   function hideGameOverlays() {
     setOverlayVisible(ui.overlay, false);
     setOverlayVisible(ui.tutorial, false);
+    deactivateTutorialTrap();
     hideOutcomeOverlay();
   }
 
@@ -514,14 +526,30 @@
   function showStartOverlay() {
     updateLevelUi();
     setOverlayVisible(ui.tutorial, false);
+    deactivateTutorialTrap();
     hideOutcomeOverlay();
     setOverlayVisible(ui.overlay, true);
+    window.requestAnimationFrame(() => (ui.levelPicker?.querySelector(`[data-level-id="${selectedLevelId}"]`) || ui.start)?.focus({ preventScroll: true }));
   }
 
   function showTutorialOverlay() {
     hideOutcomeOverlay();
     setOverlayVisible(ui.overlay, false);
     setOverlayVisible(ui.tutorial, true);
+    tutorialTrapActive = true;
+    document.addEventListener("keydown", trapTutorialTab, true);
+    document.addEventListener("focusin", keepTutorialFocus, true);
+    window.requestAnimationFrame(() => ui.tutorialGo?.focus({ preventScroll: true }));
+  }
+
+  function trapTutorialTab(event) {
+    if (!tutorialTrapActive || event.key !== "Tab") return;
+    event.preventDefault();
+    ui.tutorialGo?.focus({ preventScroll: true });
+  }
+
+  function keepTutorialFocus(event) {
+    if (tutorialTrapActive && !ui.tutorial?.hidden && !ui.tutorial.contains(event.target)) ui.tutorialGo?.focus({ preventScroll: true });
   }
 
   function trapOutcomeTab(event) {
@@ -884,19 +912,29 @@
     return { x: (event.clientX - rect.left) * canvas.width / rect.width, y: (event.clientY - rect.top) * canvas.height / rect.height };
   }
 
-  function nearestPlanet(point, owner = null) {
-    return state.planets.find(p => (!owner || p.owner === owner) && dist(point, p) < p.radius + 34);
+  function coarsePlanetHitRadius(planet) {
+    const rect = canvas.getBoundingClientRect();
+    const worldUnitsPerCssPixel = Math.max(canvas.width / Math.max(1, rect.width), canvas.height / Math.max(1, rect.height));
+    return Math.max(planet.radius + 34, 22 * worldUnitsPerCssPixel);
   }
 
-  function createLauncher(point) {
+  function nearestPlanet(point, owner = null, coarse = false) {
+    return state.planets
+      .filter(p => (!owner || p.owner === owner) && dist(point, p) < (coarse ? coarsePlanetHitRadius(p) : p.radius + 34))
+      .sort((a, b) => dist(point, a) - dist(point, b))[0];
+  }
+
+  function createLauncher(point, coarse = false) {
     const inside = state.planets.find(p => dist(point, p) < p.radius);
-    const nearOwned = nearestPlanet(point, "player");
+    const nearOwned = nearestPlanet(point, "player", coarse);
+    if (coarse && !nearOwned) return false;
     state.launcher = {
       active: true, origin: point, pointer: point, lockedPointer: point, radius: levelLaunchRadius(),
       selectedShipIds: [], formationVersion: 0, aimVector: { x: 1, y: 0, len: 0 },
       nearPlanetId: nearOwned?.id || null, startedInsidePlanet: Boolean(inside), pullPulse: 0
     };
     updateCommandDock();
+    return true;
   }
 
   function updateLauncher(point, dt) {
@@ -946,6 +984,7 @@
     const l = state.launcher;
     if (!l || l.selectedShipIds.includes(ship.id)) return;
     const previousPlanetId = ship.planetId;
+    ship.launchSourcePlanetId = previousPlanetId;
     ship.state = "pointerOrbit";
     ship.planetId = null;
     ship.pointerAngle = Math.atan2(ship.y - l.lockedPointer.y, ship.x - l.lockedPointer.x);
@@ -993,6 +1032,19 @@
       const orbitSpeed = (reduced ? .35 : 1.2) + (ship.formationLayer || 0) * .16 + (i % 3) * .04;
       ship.formationAngle = (ship.formationAngle ?? 0) + dt * orbitSpeed;
     });
+  }
+
+  function cancelLauncher() {
+    const l = state.launcher;
+    if (!l?.active) return;
+    state.ships.filter(ship => l.selectedShipIds.includes(ship.id)).forEach(ship => {
+      ship.state = "orbiting";
+      ship.planetId = ship.launchSourcePlanetId || l.nearPlanetId;
+      delete ship.launchSourcePlanetId;
+      if (ship.planetId) assignPlanetOrbitSlots(ship.planetId, ship.owner);
+    });
+    state.launcher = null;
+    updateCommandDock();
   }
 
   function releaseLauncher() {
@@ -1066,13 +1118,15 @@
   function placeWormFallback(point) {
     if (!pendingWorm) {
       pendingWorm = point;
-      addEvent("Touch wormhole anchor primed.");
+      addEvent("Wormhole entrance set. Tap an exit point to stabilize it.");
+      setWormMode(true);
       return;
     }
     const endpoint = clampedWormholeEndpoint(pendingWorm, point);
     if (endpoint.length < 24) {
       addEvent("Wormhole exit was too close to stabilize.");
       pendingWorm = null;
+      updateCommandDock();
       return;
     }
     createWormhole(pendingWorm, endpoint);
@@ -1099,10 +1153,26 @@
     return createTeamWormhole("player", start, exit, { ttl: 30 });
   }
 
+  function releaseActivePointerCapture() {
+    if (activePointerId !== null && canvas.hasPointerCapture(activePointerId)) canvas.releasePointerCapture(activePointerId);
+    activePointerId = null;
+  }
+
+  function cancelActiveGesture({ cancelPending = false } = {}) {
+    state.wormDrag = null;
+    cancelLauncher();
+    if (cancelPending) pendingWorm = null;
+    releaseActivePointerCapture();
+    updateCommandDock();
+  }
+
   function setWormMode(value) {
+    const changed = wormMode !== value;
     wormMode = value;
+    if (!value && (changed || pendingWorm)) cancelActiveGesture({ cancelPending: true });
     ui.worm.setAttribute("aria-pressed", String(value));
-    ui.worm.textContent = value ? "Tap wormhole exit" : "Wormhole Mode";
+    ui.worm.textContent = value ? (pendingWorm ? "Tap wormhole exit" : "Wormhole Mode: entrance") : "Wormhole Mode";
+    ui.mobileModes.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.gameMode === (value ? "wormhole" : "launch"))));
     updateCommandDock();
   }
 
@@ -2091,7 +2161,8 @@
     state.acceptingInput = false;
     state.outcome = outcome;
     state.endedAt = new Date();
-    if (state.launcher) releaseLauncher();
+    cancelActiveGesture({ cancelPending: true });
+    setWormMode(false);
     snapshot();
     updateLiveTelemetry(counts(), true);
     addEvent(outcome === "Victory" ? "Victory: all Red and Orange planets captured." : "Defeat: all player planets were lost.");
@@ -2930,32 +3001,38 @@
   canvas.addEventListener("pointerdown", event => {
     if (!state.acceptingInput) return;
     const point = canvasPoint(event);
+    const coarse = event.pointerType === "touch" || isCoarsePointer();
     if (event.button === 2) {
       const hit = hitPlayerWormholeEntrance(point);
       if (hit) { deletePlayerWormhole(hit.wormhole); return; }
       startWormDrag(point);
+      activePointerId = event.pointerId;
       canvas.setPointerCapture(event.pointerId);
       return;
     }
     const wormHit = hitPlayerWormholeEntrance(point);
     if (wormHit) { toggleWormholeEntrance(wormHit); return; }
     if (wormMode) { placeWormFallback(point); return; }
-    createLauncher(point);
+    if (!createLauncher(point, coarse)) return;
+    activePointerId = event.pointerId;
     canvas.setPointerCapture(event.pointerId);
+    if (coarse) event.preventDefault();
   });
   canvas.addEventListener("pointermove", event => {
     const point = canvasPoint(event);
-    if (state.wormDrag?.active) { updateWormDrag(point); return; }
-    if (state.launcher?.active) updateLauncher(point, 0);
+    if (state.wormDrag?.active) { updateWormDrag(point); event.preventDefault(); return; }
+    if (state.launcher?.active) { updateLauncher(point, 0); event.preventDefault(); }
   });
   canvas.addEventListener("pointerup", event => {
     const point = canvasPoint(event);
-    if (state.wormDrag?.active) { updateWormDrag(point); finalizeWormDrag(); return; }
+    if (state.wormDrag?.active) { updateWormDrag(point); finalizeWormDrag(); releaseActivePointerCapture(); return; }
     if (!state.launcher?.active) return;
     updateLauncher(point, 0);
     releaseLauncher();
+    releaseActivePointerCapture();
   });
-  canvas.addEventListener("pointercancel", () => { state.wormDrag = null; releaseLauncher(); });
+  canvas.addEventListener("pointercancel", () => cancelActiveGesture());
+  canvas.addEventListener("lostpointercapture", () => { activePointerId = null; });
 
   function beginMatch() {
     hideOutcomeOverlay();
@@ -2965,6 +3042,7 @@
     state.startedAt = new Date();
     state.lastTick = performance.now();
     hideGameOverlays();
+    canvas.focus({ preventScroll: true });
     snapshot();
     updateLiveTelemetry();
     addEvent("Match started. Hold left click to form a launch field; right-click drag to place a wormhole.");
@@ -3070,6 +3148,7 @@
     scrollGameIntoView();
   });
   ui.worm.addEventListener("click", () => setWormMode(!wormMode));
+  ui.mobileModes.forEach(button => button.addEventListener("click", () => setWormMode(button.dataset.gameMode === "wormhole")));
 
   initBackToGameObserver();
   initGravityDevLab();
