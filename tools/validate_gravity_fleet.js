@@ -10,6 +10,7 @@ const root = path.resolve(__dirname, "..");
 const corePath = path.join(root, "games", "gravity-fleet", "core.mjs");
 const levelsPath = path.join(root, "games", "gravity-fleet", "levels.mjs");
 const performancePath = path.join(root, "games", "gravity-fleet", "performance.mjs");
+const runtimePath = path.join(root, "games", "gravity-fleet", "runtime.mjs");
 const fixtureRoot = path.join(__dirname, "fixtures", "gravity-fleet");
 
 function readJson(name) {
@@ -51,6 +52,7 @@ function runCommands(api, fixture) {
   const api = await import(pathToFileURL(corePath));
   const { LEVELS } = await import(pathToFileURL(levelsPath));
   const { createPerformanceMonitor } = await import(pathToFileURL(performancePath));
+  const { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STEP_SECONDS } = await import(pathToFileURL(runtimePath));
   const commandFixture = readJson("level-1-command-sequence.json");
   const savedFixture = readJson("saved-run-v1.json");
 
@@ -118,13 +120,66 @@ function runCommands(api, fixture) {
   enabledMonitor.measure("simulation", () => { instant += 3; });
   enabledMonitor.recordFrame(10);
   enabledMonitor.recordFrame(65);
+  enabledMonitor.resetFrameTiming();
+  enabledMonitor.recordFrame(10000);
+  enabledMonitor.recordFrame(10016);
   enabledMonitor.setGauge("activeShips", 12);
   const metrics = enabledMonitor.snapshot();
   assert.equal(metrics.timings.simulation.medianMs, 3);
   assert.equal(metrics.frames.over50Ms, 1);
+  assert.equal(metrics.frames.samples, 2, "restoration should begin a new frame-timing epoch");
   assert.equal(metrics.gauges.activeShips, 12);
 
-  console.log(`Gravity Fleet validation passed: ${LEVELS.length} levels, deterministic command fixture, win/loss paths, saved-run schema, telemetry, and core boundary.`);
+  function runAtDisplayRate(displayFps) {
+    const testEngine = api.createGravityFleetEngine({
+      levelId: 1,
+      randomSource: api.createSeededRandom(8128),
+      validationMode: true,
+      effectsEnabled: false,
+      trailsEnabled: false
+    });
+    const testRuntime = createFixedStepRuntime();
+    testEngine.begin();
+    testRuntime.reset(0, { resetRender: true });
+    let steps = 0;
+    const frames = displayFps * 12;
+    for (let frame = 1; frame <= frames; frame++) {
+      const timestamp = frame * 12000 / frames;
+      const advance = testRuntime.advance(timestamp, { running: true });
+      steps += advance.steps;
+      for (let index = 0; index < advance.steps; index++) testEngine.step(FIXED_SIMULATION_STEP_SECONDS);
+      testRuntime.shouldRender(timestamp, 1000 / displayFps);
+    }
+    return { checkpoint: testEngine.checkpoint(), steps, runtime: testRuntime.snapshot() };
+  }
+
+  const thirtyHertz = runAtDisplayRate(30);
+  const sixtyHertz = runAtDisplayRate(60);
+  const oneFortyFourHertz = runAtDisplayRate(144);
+  assert.equal(thirtyHertz.steps, 720, "twelve seconds should advance exactly 720 fixed steps");
+  assert.equal(sixtyHertz.steps, thirtyHertz.steps);
+  assert.equal(oneFortyFourHertz.steps, thirtyHertz.steps);
+  assert.deepEqual(sixtyHertz.checkpoint, thirtyHertz.checkpoint, "simulation must not depend on 30 Hz versus 60 Hz rendering");
+  assert.deepEqual(oneFortyFourHertz.checkpoint, thirtyHertz.checkpoint, "simulation must not depend on high-refresh rendering");
+
+  const restoredRuntime = createFixedStepRuntime();
+  restoredRuntime.reset(0);
+  assert.equal(restoredRuntime.advance(1000, { running: true }).steps, 8, "catch-up work must be capped");
+  assert.ok(restoredRuntime.snapshot().droppedSimulationSeconds > 0, "excess catch-up time should be discarded");
+  restoredRuntime.reset(60000);
+  assert.equal(restoredRuntime.advance(60000 + 1000 / 60, { running: true }).steps, 1, "restoration should not apply hidden elapsed time");
+
+  const desktopProfile = selectPresentationProfile();
+  const mobileProfile = selectPresentationProfile({ mobile: true });
+  const reducedProfile = selectPresentationProfile({ reducedMotion: true });
+  assert.equal(desktopProfile.renderIntervalMs, 0, "desktop rendering should follow the display");
+  assert.equal(mobileProfile.renderIntervalMs, 1000 / 30, "mobile rendering should target 30 FPS");
+  assert.equal(desktopProfile.trailsEnabled, true);
+  assert.equal(mobileProfile.trailsEnabled, false);
+  assert.equal(reducedProfile.effectsEnabled, false);
+  assert.equal(reducedProfile.trailsEnabled, false);
+
+  console.log(`Gravity Fleet validation passed: ${LEVELS.length} levels, deterministic command fixture, win/loss paths, saved-run schema, telemetry, core boundary, and render-independent fixed timestep.`);
 })().catch(error => {
   console.error(error.stack || error);
   process.exitCode = 1;

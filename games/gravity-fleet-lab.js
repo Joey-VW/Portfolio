@@ -1,6 +1,7 @@
 import { createGravityFleetEngine, readSavedRuns, writeSavedRun, GRAVITY_FLEET_STORAGE_KEY } from "./gravity-fleet/core.mjs";
 import { LEVELS, teamMeta, activeTeamKeys, contestTeamKeys, colors, BASE_WORLD_BOUNDS, BASE_LAUNCH_RADIUS, BASE_PULL_RADIUS, MIN_LAUNCH_SPEED, MAX_LAUNCH_SPEED, LAUNCH_POWER_CURVE, MAX_SPEED, BASE_WORM_MAX_RANGE, BASE_WORM_INFLUENCE, BASE_TOTAL_SHIP_CAP, PLANET_MOTION_MULTIPLIER, TAU } from "./gravity-fleet/levels.mjs";
 import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
+import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STEP_SECONDS } from "./gravity-fleet/runtime.mjs";
 
 (() => {
   "use strict";
@@ -11,7 +12,6 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   const ctx = canvas.getContext("2d");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const GAME_VISIBILITY_THRESHOLD = 0.35;
-  const liveTelemetryConfig = { desktopIntervalMs: 200, mobileIntervalMs: 1000 };
 
   const GRAVITY_DEBUG_STORAGE_KEY = "portfolio.gravityFleetDevLab";
   const GRAVITY_DEBUG_ENABLED_KEY = "portfolio.gravityFleetDebug";
@@ -155,7 +155,8 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   const mobileViewportQuery = window.matchMedia("(max-width: 900px)");
   const isTouchCapable = () => coarsePointerQuery.matches;
   const usesMobilePresentation = () => isTouchCapable() && mobileViewportQuery.matches;
-  const allowsShipTrails = () => !reduced && !usesMobilePresentation();
+  const presentationProfile = () => selectPresentationProfile({ mobile: usesMobilePresentation(), reducedMotion: reduced });
+  const allowsShipTrails = () => presentationProfile().trailsEnabled;
   const usesCoarseTargets = event => event.pointerType === "touch" || event.pointerType === "pen" || (!event.pointerType && primaryCoarsePointerQuery.matches);
   let completedRun = null;
   let dashboardRunId = null;
@@ -172,7 +173,6 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   let mobileDrawerOpen = false;
   let mobileHudSignature = "";
   let lastHudUpdateAt = 0;
-  let lastProcessedFrameAt = 0;
   let lastTutorialFrameAt = 0;
   let frameWindowStartedAt = performance.now();
   let frameWindowCount = 0;
@@ -188,10 +188,12 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   const mobileDiagnosticsEnabled = new URLSearchParams(window.location.search).get("gravityDebug") === "1";
   const developmentMetricsEnabled = mobileDiagnosticsEnabled || ["localhost", "127.0.0.1", "::1", "[::1]"].includes(window.location.hostname);
   const performanceMonitor = createPerformanceMonitor({ enabled: developmentMetricsEnabled });
+  const runtime = createFixedStepRuntime();
+  let animationFrameId = 0;
   const engine = createGravityFleetEngine({
     levelId: selectedLevelId,
     reducedMotion: reduced,
-    effectsEnabled: !usesMobilePresentation(),
+    effectsEnabled: presentationProfile().effectsEnabled,
     trailsEnabled: allowsShipTrails(),
     monitor: performanceMonitor,
     createId: () => crypto.randomUUID()
@@ -201,7 +203,10 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
     if (event.type === "events" && ui.feed) ui.feed.innerHTML = event.detail.map(item => `<li>${item.t}s · ${item.message}</li>`).join("");
     if (event.type === "launchPulse" && ui.launchPulse) ui.launchPulse.textContent = `+${event.detail} launch`;
   });
-  if (developmentMetricsEnabled) window.gravityFleetDiagnostics = Object.freeze({ snapshot: () => performanceMonitor.snapshot(), engine });
+  if (developmentMetricsEnabled) window.gravityFleetDiagnostics = Object.freeze({
+    snapshot: () => ({ ...performanceMonitor.snapshot(), runtime: runtime.snapshot(), profile: presentationProfile().id }),
+    engine
+  });
 
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -355,6 +360,7 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
     if (ui.mobileHud) ui.mobileHud.inert = false;
     if (ui.mobileModeControls) ui.mobileModeControls.inert = false;
     document.body.classList.remove("gravity-mobile-drawer-open");
+    resetRuntimeTiming();
     if (restoreFocus) ui.mobileTelemetryToggle?.focus({ preventScroll: true });
   }
 
@@ -367,6 +373,7 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
     if (ui.mobileHud) ui.mobileHud.inert = true;
     if (ui.mobileModeControls) ui.mobileModeControls.inert = true;
     document.body.classList.add("gravity-mobile-drawer-open");
+    resetRuntimeTiming();
     updateMobileHud(counts(), true);
     ui.mobileTelemetryClose?.focus({ preventScroll: true });
   }
@@ -390,7 +397,8 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   }
 
   function syncMobilePresentation() {
-    engine.setPresentationPolicy({ effectsEnabled: !usesMobilePresentation(), trailsEnabled: allowsShipTrails() });
+    const profile = presentationProfile();
+    engine.setPresentationPolicy({ effectsEnabled: profile.effectsEnabled, trailsEnabled: profile.trailsEnabled });
     if (gameStage?.parentElement === document.body && (!usesMobilePresentation() || !state?.running || mobilePresentationDismissed || mobileShellState === "idle" || mobileShellState === "failed")) restoreGameStage();
     const preparing = Boolean(usesMobilePresentation() && state?.running && mobileShellState === "preparing");
     const active = Boolean(usesMobilePresentation() && state?.running && mobileShellState === "ready" && !mobilePresentationDismissed);
@@ -1189,8 +1197,10 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
     closeMobileTelemetryDrawer();
     completedRun = null;
     mobilePresentationDismissed = false;
-    engine.setPresentationPolicy({ effectsEnabled: !usesMobilePresentation(), trailsEnabled: allowsShipTrails() });
+    const profile = presentationProfile();
+    engine.setPresentationPolicy({ effectsEnabled: profile.effectsEnabled, trailsEnabled: profile.trailsEnabled });
     state = engine.reset(selectedLevelId);
+    resetRuntimeTiming(true);
     staticMapLayerLevel = null;
     wormMode = false;
     setWormMode(false);
@@ -1220,39 +1230,52 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
     showOutcomeOverlay(run);
   }
 
+  function resetRuntimeTiming(resetRender = false) {
+    runtime.reset(performance.now(), { resetRender });
+    performanceMonitor.resetFrameTiming();
+  }
+
+  function scheduleAnimationFrame() {
+    if (!animationFrameId && !document.hidden) animationFrameId = requestAnimationFrame(tick);
+  }
+
   function tick(now) {
-    requestAnimationFrame(tick);
-    if (document.hidden) { state.lastTick = now; lastProcessedFrameAt = now; return; }
-    const targetFps = state.ended ? 12 : (usesMobilePresentation() ? 30 : 60);
-    const minimumFrameMs = 1000 / targetFps;
-    if (lastProcessedFrameAt && now - lastProcessedFrameAt < minimumFrameMs * .8) return;
-    performanceMonitor.recordFrame(now);
-    lastProcessedFrameAt = now;
-    frameWindowCount++;
-    if (now - frameWindowStartedAt >= 1000) {
-      observedFps = Math.round(frameWindowCount * 1000 / Math.max(1, now - frameWindowStartedAt));
-      frameWindowCount = 0; frameWindowStartedAt = now; mobileHudSignature = "";
-    }
-    const dt = Math.min(.06, (now - state.lastTick) / 1000);
-    state.lastTick = now;
-    if (state.running) {
-      const result = engine.step(dt);
+    animationFrameId = 0;
+    if (document.hidden) return;
+    scheduleAnimationFrame();
+    const profile = presentationProfile();
+    const frame = runtime.advance(now, { running: Boolean(state.running && !state.ended) });
+    let result = null;
+    for (let step = 0; step < frame.steps; step++) {
+      result = engine.step(FIXED_SIMULATION_STEP_SECONDS);
       state = engine.state;
       lastSuccessfulSimulationAt = performance.now();
-      if (result?.outcome) end(result.outcome);
-      const hudInterval = usesMobilePresentation() ? 250 : 100;
-      if (now - lastHudUpdateAt >= hudInterval || state.ended) {
-        lastHudUpdateAt = now;
-        performanceMonitor.measure("hudDom", () => updateHud(result?.counts || counts()));
-      }
+      if (result?.outcome) { end(result.outcome); break; }
     }
-    const tutorialInterval = usesMobilePresentation() ? 1000 / 20 : 1000 / 30;
-    if (!reduced && now - lastTutorialFrameAt >= tutorialInterval) {
+    performanceMonitor.setGauge("simulationStepsPerFrame", frame.steps);
+    performanceMonitor.setGauge("droppedSimulationMs", runtime.snapshot().droppedSimulationSeconds * 1000);
+
+    if (state.running && (now - lastHudUpdateAt >= profile.hudIntervalMs || state.ended)) {
+      lastHudUpdateAt = now;
+      performanceMonitor.measure("hudDom", () => updateHud(result?.counts || counts()));
+    }
+
+    if (!reduced && now - lastTutorialFrameAt >= profile.tutorialIntervalMs) {
       lastTutorialFrameAt = now; drawTutorialCanvases(now / 1000);
     } else if (reduced && !lastTutorialFrameAt) {
       lastTutorialFrameAt = now; drawTutorialCanvases(now / 1000);
     }
-    if (state.running) performanceMonitor.measure("canvasDraw", draw);
+
+    const renderInterval = state.ended ? profile.endedRenderIntervalMs : profile.renderIntervalMs;
+    if (state.running && runtime.shouldRender(now, renderInterval)) {
+      performanceMonitor.recordFrame(now);
+      frameWindowCount++;
+      if (now - frameWindowStartedAt >= 1000) {
+        observedFps = Math.round(frameWindowCount * 1000 / Math.max(1, now - frameWindowStartedAt));
+        frameWindowCount = 0; frameWindowStartedAt = now; mobileHudSignature = "";
+      }
+      performanceMonitor.measure("canvasDraw", draw);
+    }
   }
 
   function beginMatch() {
@@ -1260,8 +1283,7 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
     if (state.running) return;
     state = engine.begin();
     state.acceptingInput = false;
-    state.lastTick = performance.now();
-    lastProcessedFrameAt = 0;
+    resetRuntimeTiming(true);
     mobilePresentationDismissed = false;
     hideGameOverlays();
     updateLiveTelemetry();
@@ -1277,7 +1299,7 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   }
 
   function setupTutorialCanvas(canvas) {
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    const dpr = Math.max(1, Math.min(presentationProfile().maxDevicePixelRatio, window.devicePixelRatio || 1));
     const rect = canvas.getBoundingClientRect();
     const width = Math.max(1, rect.width);
     const height = Math.max(1, rect.height);
@@ -1595,7 +1617,7 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
     const signature = liveTelemetrySignature(c);
     if (!force && signature === state.lastLiveSignature) return false;
     state.lastLiveSignature = signature;
-    const deferCharts = usesMobilePresentation() && state.running && !state.ended && !state.dashboardRendered;
+    const deferCharts = !presentationProfile().chartsDuringMatch && state.running && !state.ended && !state.dashboardRendered;
     if (!deferCharts) {
       const keys = contestTeamKeys;
       lineChart(ui.liveFleetChart, state.shipCountTimeline.slice(-40), keys, 8);
@@ -1617,7 +1639,8 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   let liveTelemetryTimer = 0;
   function scheduleLiveTelemetryUpdate() {
     window.clearTimeout(liveTelemetryTimer);
-    const interval = usesMobilePresentation() ? liveTelemetryConfig.mobileIntervalMs : liveTelemetryConfig.desktopIntervalMs;
+    if (document.hidden) { liveTelemetryTimer = 0; return; }
+    const interval = presentationProfile().telemetryIntervalMs;
     liveTelemetryTimer = window.setTimeout(() => {
       if (!document.hidden && state?.running && !state.ended) performanceMonitor.measure("chart", updateLiveTelemetry);
       scheduleLiveTelemetryUpdate();
@@ -2498,11 +2521,28 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   coarsePointerQuery.addEventListener("change", syncInputCapability);
   finePointerQuery.addEventListener("change", syncInputCapability);
   mobileViewportQuery.addEventListener("change", syncMobilePresentation);
+  mobileViewportQuery.addEventListener("change", () => {
+    resetRuntimeTiming(true);
+    scheduleLiveTelemetryUpdate();
+  });
+  window.addEventListener("orientationchange", () => {
+    cancelActiveGesture({ cancelPending: true });
+    resetRuntimeTiming(true);
+  });
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && state) {
-      state.lastTick = performance.now();
-      lastProcessedFrameAt = 0;
+    if (document.hidden) {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = 0;
+      window.clearTimeout(liveTelemetryTimer);
+      liveTelemetryTimer = 0;
+      runtime.reset();
+      return;
     }
+    resetRuntimeTiming(true);
+    frameWindowStartedAt = performance.now();
+    frameWindowCount = 0;
+    scheduleLiveTelemetryUpdate();
+    scheduleAnimationFrame();
   });
 
   initBackToGameObserver();
@@ -2511,5 +2551,5 @@ import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
   syncInputCapability();
   reset();
   scheduleLiveTelemetryUpdate();
-  requestAnimationFrame(tick);
+  scheduleAnimationFrame();
 })();
