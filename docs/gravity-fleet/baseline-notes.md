@@ -18,14 +18,20 @@
 
 ## Known-good desktop reference
 
-- Commit: To be identified during Pass 10.0
-- Evidence required:
-  - Smooth frame pacing
-  - Full trails and effects
-  - Responsive mouse controls
-  - Preferred visual quality
+- Last pre-mobile ancestry point: `121c1307517e0f24d02d4c5ce24c989e6bff96b3`
+- Relationship: this is PR #13's base branch head, not `main`.
+- Status: historical reference candidate only; it is not promoted to a
+  known-good desktop baseline.
+- Evidence: commit ancestry establishes that it predates the mobile work. The
+  available repository sources and screenshots do not prove its frame pacing,
+  full trails and effects, mouse responsiveness, or preferred visual quality.
+- Limitation: this environment did not have an authenticated historical
+  checkout or a previously captured desktop performance trace. Direct visual
+  and performance verification of that commit was therefore not possible.
 
-Do not assume the PR #13 base is the desktop reference without testing it.
+The current PR A checkout must be compared against that candidate in a human
+desktop session before PR B changes runtime timing. Until then, the desktop
+baseline is explicitly unresolved rather than guessed.
 
 ## Baseline preservation rules
 
