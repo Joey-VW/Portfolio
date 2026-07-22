@@ -184,6 +184,9 @@
   };
 
   const modalElements = [ui.overlay, ui.tutorial, ui.outcome].filter(Boolean);
+  const gameStage = canvas.closest(".game-stage");
+  let stagePortalPlaceholder = null;
+  let stagePortalParent = null;
   modalElements.forEach(element => document.body.append(element));
 
   function rand(min, max) { return min + Math.random() * (max - min); }
@@ -526,7 +529,26 @@
     ui.mobileTelemetryClose?.focus({ preventScroll: true });
   }
 
+  function portalGameStage() {
+    if (!gameStage || gameStage.parentElement === document.body) return;
+    stagePortalParent = gameStage.parentNode;
+    stagePortalPlaceholder = document.createComment("gravity-fleet-stage-placeholder");
+    stagePortalParent.insertBefore(stagePortalPlaceholder, gameStage);
+    document.body.append(gameStage);
+    gameStage.classList.add("gravity-mobile-stage");
+  }
+
+  function restoreGameStage() {
+    if (!gameStage || gameStage.parentElement !== document.body) return;
+    if (stagePortalPlaceholder?.parentNode) stagePortalPlaceholder.parentNode.replaceChild(gameStage, stagePortalPlaceholder);
+    else if (stagePortalParent) stagePortalParent.append(gameStage);
+    stagePortalPlaceholder = null;
+    stagePortalParent = null;
+    gameStage.classList.remove("gravity-mobile-stage");
+  }
+
   function syncMobilePresentation() {
+    if (gameStage?.parentElement === document.body && (!usesMobilePresentation() || !state?.running || mobilePresentationDismissed || mobileShellState === "idle" || mobileShellState === "failed")) restoreGameStage();
     const preparing = Boolean(usesMobilePresentation() && state?.running && mobileShellState === "preparing");
     const active = Boolean(usesMobilePresentation() && state?.running && mobileShellState === "ready" && !mobilePresentationDismissed);
     document.documentElement.classList.toggle("gravity-mobile-preparing", preparing);
@@ -553,10 +575,29 @@
     syncMobilePresentation();
   }
 
+  function viewportIntersection(rect) {
+    const viewport = window.visualViewport;
+    const left = viewport?.offsetLeft || 0;
+    const top = viewport?.offsetTop || 0;
+    const right = left + (viewport?.width || window.innerWidth);
+    const bottom = top + (viewport?.height || window.innerHeight);
+    return Boolean(rect && rect.right > left && rect.left < right && rect.bottom > top && rect.top < bottom);
+  }
+
+  function visibleSurfaceDetails(element) {
+    const rect = element?.getBoundingClientRect();
+    const style = element ? window.getComputedStyle(element) : null;
+    return { rect, display: style?.display || "", visibility: style?.visibility || "", opacity: Number(style?.opacity || 0), position: style?.position || "", zIndex: Number(style?.zIndex || 0), intersects: viewportIntersection(rect), valid: Boolean(rect?.width > 0 && rect?.height > 0 && style?.display !== "none" && style?.visibility !== "hidden" && Number(style?.opacity || 0) > .01 && viewportIntersection(rect)) };
+  }
+
   function mobileSurfaceDetails() {
-    const stage = canvas.closest(".game-stage")?.getBoundingClientRect();
-    const rect = canvas.getBoundingClientRect();
-    return { stage, rect, valid: [stage?.width, stage?.height, rect.width, rect.height, canvas.width, canvas.height].every(Number.isFinite) && stage.width > 0 && stage.height > 0 && rect.width > 0 && rect.height > 0 && canvas.width > 0 && canvas.height > 0 };
+    const stage = visibleSurfaceDetails(gameStage);
+    const surface = visibleSurfaceDetails(canvas);
+    const hud = visibleSurfaceDetails(ui.mobileHud);
+    const controls = visibleSurfaceDetails(ui.mobileModeControls);
+    const exit = visibleSurfaceDetails(ui.mobileMatchExit);
+    const stackingValid = stage.position === "fixed" && stage.zIndex >= 900 && hud.zIndex > stage.zIndex && controls.zIndex > stage.zIndex && exit.zIndex > stage.zIndex;
+    return { stage, surface, hud, controls, exit, stackingValid, valid: gameStage?.parentElement === document.body && [stage, surface, hud, controls, exit].every(item => item.valid) && stackingValid && canvas.width > 0 && canvas.height > 0 };
   }
 
   function rollbackMobileShell(reason) {
@@ -568,24 +609,27 @@
     closeMobileTelemetryDrawer();
     hideGameOverlays();
     setBackgroundInert(false);
+    restoreGameStage();
     setMobileShellStatus("failed", "Mobile match could not start", "The portfolio has been restored. Retry the match or return to mission setup.", lastRuntimeError);
     scrollGameIntoView();
   }
 
   function beginMobileShell() {
+    portalGameStage();
     setMobileShellStatus("preparing", "Preparing tactical map", "Checking the game surface before entering the mobile match.");
     mobileShellTimer = window.setTimeout(() => rollbackMobileShell("Mobile shell readiness timed out after 2500ms."), 2500);
     requestAnimationFrame(() => requestAnimationFrame(() => {
       try {
-        const surface = mobileSurfaceDetails();
-        if (!surface.valid) throw new Error("Mobile game surface has an invalid or zero-size layout.");
+        let surface = mobileSurfaceDetails();
+        if (!surface.stage.valid || !surface.surface.valid || !surface.exit.valid || gameStage?.parentElement !== document.body) throw new Error("Mobile game surface is not viewport-visible in its body-level shell.");
         draw();
         lastSuccessfulDrawAt = performance.now();
         mobileShellState = "ready";
         state.acceptingInput = true;
         syncMobilePresentation();
         updateHud(counts(), true);
-        if (ui.mobileHud?.hidden || ui.mobileModeControls?.hidden) throw new Error("Mobile HUD or mode controls did not become visible.");
+        surface = mobileSurfaceDetails();
+        if (!surface.valid) throw new Error("Mobile canvas, HUD, controls, or exit action did not become viewport-visible.");
         window.clearTimeout(mobileShellTimer);
         setMobileShellStatus("ready", "", "");
         updateHud(counts(), true);
@@ -608,12 +652,16 @@
     panel.setAttribute("aria-live", "polite");
     document.body.append(panel);
     const update = () => {
-      const { stage, rect } = mobileSurfaceDetails();
+      const { stage, surface, hud, controls, exit } = mobileSurfaceDetails();
+      const inertChildren = [...document.body.children].filter(element => element.inert).map(element => element.id || element.className || element.tagName).join(", ") || "none";
+      const focused = document.activeElement?.id ? `#${document.activeElement.id}` : document.activeElement?.tagName || "none";
       panel.textContent = [
         `shell: ${mobileShellState}`, `input: ${document.documentElement.dataset.gravityInput || "unknown"}`, `viewport: ${window.innerWidth} × ${window.innerHeight}`,
-        `stage: ${Math.round(stage?.width || 0)} × ${Math.round(stage?.height || 0)}`, `canvas CSS: ${Math.round(rect.width)} × ${Math.round(rect.height)}`,
-        `canvas backing: ${canvas.width} × ${canvas.height}`, `HUD hidden: ${Boolean(ui.mobileHud?.hidden)}`, `controls hidden: ${Boolean(ui.mobileModeControls?.hidden)}`,
-        `main inert: ${Boolean(document.querySelector("main")?.inert)}`, `running/input/ended: ${Boolean(state?.running)}/${Boolean(state?.acceptingInput)}/${Boolean(state?.ended)}`,
+        `stage parent: ${gameStage?.parentElement === document.body ? "body" : gameStage?.parentElement?.className || "none"}`, `stage: ${Math.round(stage.rect?.width || 0)} × ${Math.round(stage.rect?.height || 0)} ${stage.position} z:${stage.zIndex} ${stage.display}/${stage.visibility}/${stage.opacity} intersect:${stage.intersects}`,
+        `canvas CSS: ${Math.round(surface.rect?.width || 0)} × ${Math.round(surface.rect?.height || 0)} z:${surface.zIndex} ${surface.display}/${surface.visibility}/${surface.opacity} intersect:${surface.intersects}`,
+        `HUD: z:${hud.zIndex} ${hud.display}/${hud.visibility}/${hud.opacity} intersect:${hud.intersects}`, `controls: z:${controls.zIndex} ${controls.display}/${controls.visibility}/${controls.opacity} intersect:${controls.intersects}`, `exit: z:${exit.zIndex} ${exit.display}/${exit.visibility}/${exit.opacity} intersect:${exit.intersects}`,
+        `panel contains stage: ${Boolean(document.querySelector(".sim-panel")?.contains(gameStage))}`, `focus: ${focused}`, `modal: ${activeModal?.id || "none"}`, `inert body children: ${inertChildren}`,
+        `canvas backing: ${canvas.width} × ${canvas.height}`, `running/input/ended: ${Boolean(state?.running)}/${Boolean(state?.acceptingInput)}/${Boolean(state?.ended)}`,
         `sim/draw: ${Math.round(lastSuccessfulSimulationAt)} / ${Math.round(lastSuccessfulDrawAt)}`, `FPS: ${observedFps}`, `error: ${lastRuntimeError || "none"}`
       ].join("\n");
       requestAnimationFrame(update);
@@ -700,17 +748,18 @@
     (focusableModalControls(activeModal)[0] || activeModal).focus({ preventScroll: true });
   }
 
-  function deactivateModal(element, { restoreFocus = false } = {}) {
+  function deactivateModal(element, { restoreFocus = false, focusTarget = null } = {}) {
     if (!element) return;
-    setOverlayVisible(element, false);
-    if (activeModal !== element) return;
+    if (activeModal !== element) { setOverlayVisible(element, false); return; }
     document.removeEventListener("keydown", trapModalTab, true);
     document.removeEventListener("focusin", keepModalFocus, true);
     activeModal = null;
     setBackgroundInert(false);
     const origin = modalOrigin;
     modalOrigin = null;
-    if (restoreFocus && origin?.isConnected && !origin.inert) origin.focus({ preventScroll: true });
+    const destination = focusTarget || (restoreFocus && origin?.isConnected && !origin.inert ? origin : canvas);
+    if (destination?.isConnected && !destination.inert) destination.focus({ preventScroll: true });
+    setOverlayVisible(element, false);
   }
 
   function activateModal(element, initialFocus, origin = document.activeElement) {
@@ -3364,6 +3413,7 @@
     hideOutcomeOverlay();
     mobilePresentationDismissed = true;
     closeMobileTelemetryDrawer();
+    restoreGameStage();
     syncMobilePresentation();
     updateLiveTelemetry(counts(), true);
     if (ui.analyticsTitle && !ui.analyticsTitle.hasAttribute("tabindex")) ui.analyticsTitle.setAttribute("tabindex", "-1");

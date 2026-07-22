@@ -227,8 +227,8 @@ button.run-card { cursor: pointer; }
 
 @media (max-width: 900px) and (any-pointer: coarse) {
   html.gravity-mobile-preparing, body.gravity-mobile-preparing { overflow: hidden; }
-  body.gravity-mobile-preparing .game-stage { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; border-radius: 0; background: radial-gradient(circle at 50% 45%, rgba(13,25,49,.96), #02040d 72%); }
-  body.gravity-mobile-preparing #gravityCanvas { position: relative; z-index: 1; width: min(100vw, 160dvh); height: auto; max-width: 100vw; max-height: 100vh; max-height: 100dvh; border: 0; border-radius: 0; box-shadow: none; touch-action: none; }
+  body.gravity-mobile-preparing > .game-stage.gravity-mobile-stage { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; border-radius: 0; background: radial-gradient(circle at 50% 45%, rgba(13,25,49,.96), #02040d 72%); }
+  body.gravity-mobile-preparing > .game-stage.gravity-mobile-stage #gravityCanvas { position: relative; z-index: 1; width: min(100vw, 160dvh); height: auto; max-width: 100vw; max-height: 100vh; max-height: 100dvh; border: 0; border-radius: 0; box-shadow: none; touch-action: none; }
   body.gravity-mobile-preparing .mobile-shell-status { position: fixed; right: 1rem; bottom: max(1rem, env(safe-area-inset-bottom)); left: 1rem; z-index: 1002; width: auto; }
   html.gravity-mobile-match, body.gravity-mobile-match { width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; background: #02040d; }
   body.gravity-mobile-match > .ambient,
@@ -244,9 +244,9 @@ button.run-card { cursor: pointer; }
   body.gravity-mobile-match .gravity-lab,
   body.gravity-mobile-match #simulation,
   body.gravity-mobile-match .sim-panel { display: block; width: 100%; max-width: none; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
-  body.gravity-mobile-match .game-stage { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; border-radius: 0; background: radial-gradient(circle at 50% 45%, rgba(13,25,49,.96), #02040d 72%); box-shadow: none; }
-  body.gravity-mobile-match #gravityCanvas { position: relative; z-index: 1; width: min(100vw, 160dvh); height: auto; max-width: 100vw; max-height: 100vh; max-height: 100dvh; border: 0; border-radius: 0; box-shadow: none; touch-action: none; }
-  body.gravity-mobile-match .mobile-game-hud:not([hidden]) { position: fixed; inset: 0; z-index: 901; display: grid; grid-template-rows: auto 1fr auto; padding: max(.6rem, env(safe-area-inset-top)) max(.7rem, env(safe-area-inset-right)) max(.65rem, env(safe-area-inset-bottom)) max(.7rem, env(safe-area-inset-left)); color: #f6f7ff; pointer-events: none; text-shadow: 0 2px 7px #02040d, 0 0 5px #02040d; }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; border-radius: 0; background: radial-gradient(circle at 50% 45%, rgba(13,25,49,.96), #02040d 72%); box-shadow: none; }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage #gravityCanvas { position: relative; z-index: 1; width: min(100vw, 160dvh); height: auto; max-width: 100vw; max-height: 100vh; max-height: 100dvh; border: 0; border-radius: 0; box-shadow: none; touch-action: none; }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage .mobile-game-hud:not([hidden]) { position: fixed; inset: 0; z-index: 901; display: grid; grid-template-rows: auto 1fr auto; padding: max(.6rem, env(safe-area-inset-top)) max(.7rem, env(safe-area-inset-right)) max(.65rem, env(safe-area-inset-bottom)) max(.7rem, env(safe-area-inset-left)); color: #f6f7ff; pointer-events: none; text-shadow: 0 2px 7px #02040d, 0 0 5px #02040d; }
   .mobile-hud-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
   .mobile-hud-heading p { display: grid; gap: .08rem; margin: 0; }
   .mobile-hud-heading span { color: rgba(223,232,255,.76); font-size: .62rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
@@ -257,11 +257,11 @@ button.run-card { cursor: pointer; }
   .mobile-hud-metrics dt { color: rgba(223,232,255,.7); font-size: .52rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
   .mobile-hud-metrics dd { margin: 0; color: var(--text); font-size: .92rem; font-weight: 900; font-variant-numeric: tabular-nums; }
   .mobile-hud-status { align-self: end; justify-self: start; max-width: calc(100% - 10.5rem); margin: 0; color: var(--cyan); font-size: .62rem; font-weight: 900; letter-spacing: .04em; }
-  body.gravity-mobile-match .mobile-mode-controls { position: fixed; z-index: 902; right: max(.7rem, env(safe-area-inset-right)); top: auto; bottom: max(.65rem, env(safe-area-inset-bottom)); display: flex; max-width: none; padding: .22rem; border-radius: 999px; background: rgba(3,7,18,.76); backdrop-filter: none; }
-  body.gravity-mobile-match .mobile-mode-button { min-width: 4.55rem; min-height: 44px; padding: .45rem .6rem; border-radius: 999px; }
-  body.gravity-mobile-match .mobile-mode-button[aria-pressed="true"]::after { content: ""; }
-  body.gravity-mobile-match .mobile-drawer-backdrop:not([hidden]) { position: fixed; inset: 0; z-index: 903; display: block; background: rgba(0,3,12,.62); }
-  body.gravity-mobile-match .mobile-telemetry-drawer:not([hidden]) { position: fixed; z-index: 904; right: 0; bottom: 0; left: 0; display: grid; gap: .8rem; max-height: min(78vh, 42rem); max-height: min(78dvh, 42rem); padding: .9rem max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); overflow-y: auto; overscroll-behavior: contain; border: 1px solid rgba(111,248,255,.28); border-bottom: 0; border-radius: 24px 24px 0 0; color: var(--text); background: linear-gradient(165deg, rgba(8,14,34,.995), rgba(12,8,28,.995)); box-shadow: 0 -22px 60px rgba(0,0,0,.52); }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage .mobile-mode-controls { position: fixed; z-index: 902; right: max(.7rem, env(safe-area-inset-right)); top: auto; bottom: max(.65rem, env(safe-area-inset-bottom)); display: flex; max-width: none; padding: .22rem; border-radius: 999px; background: rgba(3,7,18,.76); backdrop-filter: none; }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage .mobile-mode-button { min-width: 4.55rem; min-height: 44px; padding: .45rem .6rem; border-radius: 999px; }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage .mobile-mode-button[aria-pressed="true"]::after { content: ""; }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage .mobile-drawer-backdrop:not([hidden]) { position: fixed; inset: 0; z-index: 903; display: block; background: rgba(0,3,12,.62); }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage .mobile-telemetry-drawer:not([hidden]) { position: fixed; z-index: 904; right: 0; bottom: 0; left: 0; display: grid; gap: .8rem; max-height: min(78vh, 42rem); max-height: min(78dvh, 42rem); padding: .9rem max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); overflow-y: auto; overscroll-behavior: contain; border: 1px solid rgba(111,248,255,.28); border-bottom: 0; border-radius: 24px 24px 0 0; color: var(--text); background: linear-gradient(165deg, rgba(8,14,34,.995), rgba(12,8,28,.995)); box-shadow: 0 -22px 60px rgba(0,0,0,.52); }
   .mobile-telemetry-drawer header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
   .mobile-telemetry-drawer header p { margin: 0 0 .14rem; }
   .mobile-telemetry-drawer h3 { margin: 0; font-size: 1.15rem; }
@@ -278,7 +278,7 @@ button.run-card { cursor: pointer; }
 }
 
 @media (max-width: 900px) and (any-pointer: coarse) and (orientation: portrait) {
-  body.gravity-mobile-match .game-stage::before { content: "Landscape gives you the clearest tactical view"; position: fixed; top: calc(max(.6rem, env(safe-area-inset-top)) + 3.15rem); left: 50%; z-index: 4; color: rgba(223,232,255,.58); font-size: .56rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; transform: translateX(-50%); white-space: nowrap; }
+  body.gravity-mobile-match > .game-stage.gravity-mobile-stage::before { content: "Landscape gives you the clearest tactical view"; position: fixed; top: calc(max(.6rem, env(safe-area-inset-top)) + 3.15rem); left: 50%; z-index: 4; color: rgba(223,232,255,.58); font-size: .56rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; transform: translateX(-50%); white-space: nowrap; }
 }
 
 @media (max-width: 720px) {
