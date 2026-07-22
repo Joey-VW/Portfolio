@@ -582,7 +582,7 @@ Pass 09 acceptance criteria:
 
 ## Pass 10 - Gravity Fleet mobile edition
 
-**Status: IN REVIEW.** Source implementation is complete on the active Gravity Fleet touch-playability branch. The mobile edition uses the same rules, AI, physics, scoring, telemetry events, analytics calculations, and saved-run schema as desktop while presenting the live match through a dedicated mobile shell. Physical phone performance, thermal behavior, and final Cloudflare preview QA remain open.
+**Status: IN REVIEW.** The live mobile shell has a release-blocking black-screen report on physical iPhone and must be rendered and verified before its source implementation can be called complete. This branch still uses the existing combined Gravity Fleet script, not a completed shared-engine extraction. The mobile edition is intended to preserve the same rules, AI, physics, scoring, telemetry events, analytics calculations, and saved-run schema as desktop; physical phone performance, thermal behavior, breakpoint, reduced-motion, keyboard, and final Cloudflare preview QA remain open.
 
 ### 10.1 Performance baseline and rescue
 
@@ -603,10 +603,10 @@ Pass 09 acceptance criteria:
 
 ### 10.3 Full-screen mobile match shell and transparent HUD
 
-- [x] Promote the live match to a viewport-fixed, safe-area-aware shell on narrow touch devices while leaving setup, tutorial, and outcome dialogs viewport-safe.
-- [x] Add background-free live HUD telemetry for level, timer, Cyan ships/worlds, rival worlds, ships in flight, frame rate, and current touch instruction.
-- [x] Keep 44px Launch/Wormhole mode controls reachable without obscuring the tactical map.
-- [x] Preserve the full tactical field without distorting its 16:10 coordinate system; center it in portrait and landscape and recommend landscape where it improves visibility.
+- [ ] Promote the live match to a viewport-fixed, safe-area-aware shell on narrow touch devices while leaving setup, tutorial, and outcome dialogs viewport-safe. Reopened pending black-screen repair rendering and verification.
+- [ ] Add background-free live HUD telemetry for level, timer, Cyan ships/worlds, rival worlds, ships in flight, frame rate, and current touch instruction. Reopened pending black-screen repair rendering and verification.
+- [ ] Keep 44px Launch/Wormhole mode controls reachable without obscuring the tactical map. Reopened pending black-screen repair rendering and verification.
+- [ ] Preserve the full tactical field without distorting its 16:10 coordinate system; center it in portrait and landscape and recommend landscape where it improves visibility. Reopened pending black-screen repair rendering and verification.
 
 ### 10.4 Telemetry drawer and mobile post-match analysis
 
