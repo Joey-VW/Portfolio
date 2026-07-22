@@ -5,7 +5,6 @@
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
-  canvas.setAttribute("tabindex", "-1");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const GAME_VISIBILITY_THRESHOLD = 0.35;
   const teamMeta = {
@@ -180,7 +179,8 @@
     insights: document.querySelector("#insights"), leaderboard: document.querySelector("#leaderboard"), recent: document.querySelector("#recentRuns"), clearRecent: document.querySelector("#clearLocalRuns"), recentStatus: document.querySelector("#recentRunsStatus"),
     tutorialCanvases: [...document.querySelectorAll("[data-tutorial-demo]")],
     mobileHud: document.querySelector("#mobileGameHud"), mobileHudLevel: document.querySelector("#mobileHudLevel"), mobileHudTimer: document.querySelector("#mobileHudTimer"), mobileHudShips: document.querySelector("#mobileHudShips"), mobileHudWorlds: document.querySelector("#mobileHudWorlds"), mobileHudRivals: document.querySelector("#mobileHudRivals"), mobileHudTraveling: document.querySelector("#mobileHudTraveling"), mobileHudFps: document.querySelector("#mobileHudFps"), mobileHudStatus: document.querySelector("#mobileHudStatus"),
-    mobileTelemetryToggle: document.querySelector("#mobileTelemetryToggle"), mobileTelemetryDrawer: document.querySelector("#mobileTelemetryDrawer"), mobileTelemetryClose: document.querySelector("#mobileTelemetryClose"), mobileDrawerBackdrop: document.querySelector("#mobileDrawerBackdrop"), mobileDrawerRed: document.querySelector("#mobileDrawerRed"), mobileDrawerOrange: document.querySelector("#mobileDrawerOrange"), mobileDrawerStar: document.querySelector("#mobileDrawerStar"), mobileDrawerLaunch: document.querySelector("#mobileDrawerLaunch"), mobileDrawerFights: document.querySelector("#mobileDrawerFights"), mobileDrawerTransits: document.querySelector("#mobileDrawerTransits"), mobileDrawerEvents: document.querySelector("#mobileDrawerEvents"), mobileReset: document.querySelector("#mobileResetMatch"), mobileChooseLevel: document.querySelector("#mobileChooseLevel")
+    mobileTelemetryToggle: document.querySelector("#mobileTelemetryToggle"), mobileTelemetryDrawer: document.querySelector("#mobileTelemetryDrawer"), mobileTelemetryClose: document.querySelector("#mobileTelemetryClose"), mobileDrawerBackdrop: document.querySelector("#mobileDrawerBackdrop"), mobileDrawerRed: document.querySelector("#mobileDrawerRed"), mobileDrawerOrange: document.querySelector("#mobileDrawerOrange"), mobileDrawerStar: document.querySelector("#mobileDrawerStar"), mobileDrawerLaunch: document.querySelector("#mobileDrawerLaunch"), mobileDrawerFights: document.querySelector("#mobileDrawerFights"), mobileDrawerTransits: document.querySelector("#mobileDrawerTransits"), mobileDrawerEvents: document.querySelector("#mobileDrawerEvents"), mobileReset: document.querySelector("#mobileResetMatch"), mobileChooseLevel: document.querySelector("#mobileChooseLevel"),
+    mobileShellStatus: document.querySelector("#mobileShellStatus"), mobileShellStatusTitle: document.querySelector("#mobileShellStatusTitle"), mobileShellStatusMessage: document.querySelector("#mobileShellStatusMessage"), mobileShellDiagnostic: document.querySelector("#mobileShellDiagnostic"), mobileShellActions: document.querySelector("#mobileShellActions"), mobileShellRetry: document.querySelector("#mobileShellRetry"), mobileShellReturn: document.querySelector("#mobileShellReturn"), mobileMatchExit: document.querySelector("#mobileMatchExit")
   };
 
   const modalElements = [ui.overlay, ui.tutorial, ui.outcome].filter(Boolean);
@@ -332,6 +332,12 @@
   let staticMapLayer = null;
   let staticMapLayerLevel = null;
   let mobilePresentationDismissed = false;
+  let mobileShellState = "idle";
+  let mobileShellTimer = 0;
+  let lastSuccessfulDrawAt = 0;
+  let lastSuccessfulSimulationAt = 0;
+  let lastRuntimeError = "";
+  const mobileDiagnosticsEnabled = new URLSearchParams(window.location.search).get("gravityDebug") === "1";
 
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -521,13 +527,98 @@
   }
 
   function syncMobilePresentation() {
-    const active = Boolean(usesMobilePresentation() && state?.running && !mobilePresentationDismissed);
+    const preparing = Boolean(usesMobilePresentation() && state?.running && mobileShellState === "preparing");
+    const active = Boolean(usesMobilePresentation() && state?.running && mobileShellState === "ready" && !mobilePresentationDismissed);
+    document.documentElement.classList.toggle("gravity-mobile-preparing", preparing);
+    document.body.classList.toggle("gravity-mobile-preparing", preparing);
     document.documentElement.classList.toggle("gravity-mobile-match", active);
     document.body.classList.toggle("gravity-mobile-match", active);
     if (ui.mobileHud) ui.mobileHud.hidden = !(active && state?.acceptingInput && !state?.ended);
     if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(active && state?.acceptingInput && !state?.ended);
+    if (ui.mobileMatchExit) ui.mobileMatchExit.hidden = !(preparing || active);
     if (!active || state?.ended) closeMobileTelemetryDrawer();
     mobileHudSignature = "";
+  }
+
+  function setMobileShellStatus(stateName, title, message, error = "") {
+    mobileShellState = stateName;
+    if (ui.mobileShellStatus) ui.mobileShellStatus.hidden = stateName === "idle" || stateName === "ready";
+    setText(ui.mobileShellStatusTitle, title);
+    setText(ui.mobileShellStatusMessage, message);
+    if (ui.mobileShellDiagnostic) {
+      ui.mobileShellDiagnostic.hidden = !error || !mobileDiagnosticsEnabled;
+      setText(ui.mobileShellDiagnostic, error);
+    }
+    if (ui.mobileShellActions) ui.mobileShellActions.hidden = stateName !== "failed";
+    syncMobilePresentation();
+  }
+
+  function mobileSurfaceDetails() {
+    const stage = canvas.closest(".game-stage")?.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
+    return { stage, rect, valid: [stage?.width, stage?.height, rect.width, rect.height, canvas.width, canvas.height].every(Number.isFinite) && stage.width > 0 && stage.height > 0 && rect.width > 0 && rect.height > 0 && canvas.width > 0 && canvas.height > 0 };
+  }
+
+  function rollbackMobileShell(reason) {
+    window.clearTimeout(mobileShellTimer);
+    lastRuntimeError = reason instanceof Error ? `${reason.name}: ${reason.message}` : String(reason);
+    state.running = false;
+    state.acceptingInput = false;
+    cancelActiveGesture({ cancelPending: true });
+    closeMobileTelemetryDrawer();
+    hideGameOverlays();
+    setBackgroundInert(false);
+    setMobileShellStatus("failed", "Mobile match could not start", "The portfolio has been restored. Retry the match or return to mission setup.", lastRuntimeError);
+    scrollGameIntoView();
+  }
+
+  function beginMobileShell() {
+    setMobileShellStatus("preparing", "Preparing tactical map", "Checking the game surface before entering the mobile match.");
+    mobileShellTimer = window.setTimeout(() => rollbackMobileShell("Mobile shell readiness timed out after 2500ms."), 2500);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      try {
+        const surface = mobileSurfaceDetails();
+        if (!surface.valid) throw new Error("Mobile game surface has an invalid or zero-size layout.");
+        draw();
+        lastSuccessfulDrawAt = performance.now();
+        mobileShellState = "ready";
+        state.acceptingInput = true;
+        syncMobilePresentation();
+        updateHud(counts(), true);
+        if (ui.mobileHud?.hidden || ui.mobileModeControls?.hidden) throw new Error("Mobile HUD or mode controls did not become visible.");
+        window.clearTimeout(mobileShellTimer);
+        setMobileShellStatus("ready", "", "");
+        updateHud(counts(), true);
+      } catch (error) {
+        rollbackMobileShell(error);
+      }
+    }));
+  }
+
+  function initMobileDiagnostics() {
+    const reportError = reason => {
+      lastRuntimeError = reason instanceof Error ? `${reason.name}: ${reason.message}` : String(reason);
+      if (mobileShellState === "preparing" || mobileShellState === "ready") rollbackMobileShell(reason);
+    };
+    window.addEventListener("error", event => reportError(event.error || event.message));
+    window.addEventListener("unhandledrejection", event => reportError(event.reason));
+    if (!mobileDiagnosticsEnabled) return;
+    const panel = document.createElement("aside");
+    panel.className = "gravity-mobile-diagnostics";
+    panel.setAttribute("aria-live", "polite");
+    document.body.append(panel);
+    const update = () => {
+      const { stage, rect } = mobileSurfaceDetails();
+      panel.textContent = [
+        `shell: ${mobileShellState}`, `input: ${document.documentElement.dataset.gravityInput || "unknown"}`, `viewport: ${window.innerWidth} × ${window.innerHeight}`,
+        `stage: ${Math.round(stage?.width || 0)} × ${Math.round(stage?.height || 0)}`, `canvas CSS: ${Math.round(rect.width)} × ${Math.round(rect.height)}`,
+        `canvas backing: ${canvas.width} × ${canvas.height}`, `HUD hidden: ${Boolean(ui.mobileHud?.hidden)}`, `controls hidden: ${Boolean(ui.mobileModeControls?.hidden)}`,
+        `main inert: ${Boolean(document.querySelector("main")?.inert)}`, `running/input/ended: ${Boolean(state?.running)}/${Boolean(state?.acceptingInput)}/${Boolean(state?.ended)}`,
+        `sim/draw: ${Math.round(lastSuccessfulSimulationAt)} / ${Math.round(lastSuccessfulDrawAt)}`, `FPS: ${observedFps}`, `error: ${lastRuntimeError || "none"}`
+      ].join("\n");
+      requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
   }
 
   function mobileInputStatus() {
@@ -948,6 +1039,8 @@
   }
 
   function reset(showOverlay = true) {
+    window.clearTimeout(mobileShellTimer);
+    mobileShellState = "idle";
     hideOutcomeOverlay();
     closeMobileTelemetryDrawer();
     completedRun = null;
@@ -973,6 +1066,7 @@
     updateHud(undefined, true);
     updateLiveTelemetry();
     syncMobilePresentation();
+    if (ui.mobileShellStatus) ui.mobileShellStatus.hidden = true;
     draw();
   }
 
@@ -2278,6 +2372,7 @@
       });
       resolveCombat(dt);
       updateEffects(dt);
+      lastSuccessfulSimulationAt = performance.now();
       if (!state.ended && Math.floor(state.elapsed / 4) > state.lastSnap) { state.lastSnap = Math.floor(state.elapsed / 4); snapshot(); }
       const c = counts();
       state.peakPlayerShips = Math.max(state.peakPlayerShips, c.playerShips);
@@ -3157,6 +3252,7 @@
     });
     drawEffects();
     drawOutcomeOverlay();
+    lastSuccessfulDrawAt = performance.now();
   }
 
   canvas.addEventListener("contextmenu", event => event.preventDefault());
@@ -3200,21 +3296,26 @@
     hideOutcomeOverlay();
     if (state.running) return;
     state.running = true;
-    state.acceptingInput = true;
+    state.acceptingInput = false;
     state.startedAt = new Date();
     state.lastTick = performance.now();
     lastProcessedFrameAt = 0;
     mobilePresentationDismissed = false;
     hideGameOverlays();
-    syncMobilePresentation();
-    canvas.focus({ preventScroll: true });
     snapshot();
     updateLiveTelemetry();
     addEvent("Match started. Hold left click to form a launch field; right-click drag to place a wormhole.");
     addEvent("The neutral central star is capturable and anchors the system.");
     updateTelemetryBadgeVisibility();
     updateHud(undefined, true);
-    if (!usesMobilePresentation()) scrollGameIntoView();
+    if (usesMobilePresentation()) {
+      beginMobileShell();
+      return;
+    }
+    mobileShellState = "idle";
+    state.acceptingInput = true;
+    syncMobilePresentation();
+    scrollGameIntoView();
   }
 
   ui.liveTelemetryBadge?.addEventListener("click", scrollLiveTelemetryIntoView);
@@ -3339,6 +3440,21 @@
     closeMobileTelemetryDrawer();
     chooseLevelAction();
   });
+  ui.mobileShellRetry?.addEventListener("click", () => {
+    reset(false);
+    beginMatch();
+  });
+  ui.mobileShellReturn?.addEventListener("click", () => {
+    setMobileShellStatus("idle", "", "");
+    reset(true);
+    scrollGameIntoView();
+  });
+  ui.mobileMatchExit?.addEventListener("click", () => {
+    window.clearTimeout(mobileShellTimer);
+    setMobileShellStatus("idle", "", "");
+    reset(true);
+    scrollGameIntoView();
+  });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && mobileDrawerOpen) {
       event.preventDefault();
@@ -3357,6 +3473,7 @@
 
   initBackToGameObserver();
   initGravityDevLab();
+  initMobileDiagnostics();
   syncInputCapability();
   reset();
   scheduleLiveTelemetryUpdate();

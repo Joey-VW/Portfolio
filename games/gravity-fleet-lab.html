@@ -78,7 +78,19 @@
           </div>
         </div>
         <div class="game-stage">
-          <canvas id="gravityCanvas" width="1280" height="800" tabindex="0" aria-label="Interactive orbital RTS map with planets, ships, and wormholes"></canvas>
+          <canvas id="gravityCanvas" width="1280" height="800" tabindex="-1" aria-label="Interactive orbital RTS map with planets, ships, and wormholes" aria-describedby="gameKeyboardNote"></canvas>
+          <p id="gameKeyboardNote" class="game-keyboard-note">The tactical map is pointer and touch controlled. Mission, telemetry, mode, and return controls remain available by keyboard.</p>
+          <section class="mobile-shell-status" id="mobileShellStatus" aria-live="assertive" hidden>
+            <p class="eyebrow">Preparing tactical map</p>
+            <h3 id="mobileShellStatusTitle">Starting match</h3>
+            <p id="mobileShellStatusMessage">Checking the game surface before entering the mobile match.</p>
+            <p class="mobile-shell-diagnostic" id="mobileShellDiagnostic" hidden></p>
+            <div class="mobile-shell-actions" id="mobileShellActions" hidden>
+              <button class="button primary" id="mobileShellRetry" type="button">Retry match</button>
+              <button class="button" id="mobileShellReturn" type="button">Return to mission setup</button>
+            </div>
+          </section>
+          <button class="mobile-match-exit" id="mobileMatchExit" type="button" hidden>Return to setup</button>
           <section class="mobile-game-hud" id="mobileGameHud" aria-label="Live match status" hidden>
             <div class="mobile-hud-heading">
               <p><span id="mobileHudLevel">Level 1 - First Orbit</span><strong id="mobileHudTimer">0:00</strong></p>
