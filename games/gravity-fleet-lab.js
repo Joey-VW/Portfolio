@@ -31,7 +31,7 @@
   const TAU = Math.PI * 2;
   const HEATMAP_WIDTH = 24;
   const HEATMAP_HEIGHT = 15;
-  const liveTelemetryConfig = { intervalMs: 200 };
+  const liveTelemetryConfig = { desktopIntervalMs: 200, mobileIntervalMs: 1000 };
 
 
   const LEVELS = [
@@ -166,7 +166,7 @@
     start: document.querySelector("#startMatch"), dockMissionSetup: document.querySelector("#dockMissionSetup"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"), mobileModes: [...document.querySelectorAll("[data-game-mode]")], mobileModeControls: document.querySelector("#mobileModeControls"),
     overlay: document.querySelector("#gameStartOverlay"), levelPicker: document.querySelector("#levelPicker"), levelName: document.querySelector("#selectedLevelName"), levelDescription: document.querySelector("#selectedLevelDescription"), levelDifficulty: document.querySelector("#selectedLevelDifficulty"),
     tutorial: document.querySelector("#gameTutorialOverlay"), tutorialGo: document.querySelector("#tutorialGo"),
-    outcome: document.querySelector("#gameOutcomeOverlay"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeLevel: document.querySelector("#gameOutcomeLevel"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"),
+    outcome: document.querySelector("#gameOutcomeOverlay"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeLevel: document.querySelector("#gameOutcomeLevel"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"), outcomeCaptures: document.querySelector("#gameOutcomeCaptures"), outcomeLargestLaunch: document.querySelector("#gameOutcomeLargestLaunch"), outcomeDestroyed: document.querySelector("#gameOutcomeDestroyed"), outcomeTransits: document.querySelector("#gameOutcomeTransits"), outcomeSignal: document.querySelector("#gameOutcomeSignal"),
     viewAnalysis: document.querySelector("#viewMatchAnalysis"), playAgain: document.querySelector("#playAgain"), chooseLevel: document.querySelector("#chooseLevel"), analytics: document.querySelector("#analytics"), analyticsTitle: document.querySelector("#analytics-title"),
     timer: document.querySelector("#matchTimer"), readout: document.querySelector("#fleetReadout"), feed: document.querySelector("#eventFeed"),
     commandDock: document.querySelector(".command-dock"), commandModeLabel: document.querySelector("#commandModeLabel"), commandStates: [...document.querySelectorAll("[data-command-state]")],
@@ -178,7 +178,9 @@
     liveFleetChart: document.querySelector("#liveFleetChart"), liveLaunchChart: document.querySelector("#liveLaunchChart"), liveSystemDonut: document.querySelector("#liveSystemDonut"),
     pressure: document.querySelector("#pressureSnapshot"), launchPulse: document.querySelector("#launchPulse"), liveTelemetry: document.querySelector("#liveTelemetryModule"), liveTelemetryBadge: document.querySelector("#liveTelemetryBadge"), backToGame: document.querySelector("#backToGame"),
     insights: document.querySelector("#insights"), leaderboard: document.querySelector("#leaderboard"), recent: document.querySelector("#recentRuns"), clearRecent: document.querySelector("#clearLocalRuns"), recentStatus: document.querySelector("#recentRunsStatus"),
-    tutorialCanvases: [...document.querySelectorAll("[data-tutorial-demo]")]
+    tutorialCanvases: [...document.querySelectorAll("[data-tutorial-demo]")],
+    mobileHud: document.querySelector("#mobileGameHud"), mobileHudLevel: document.querySelector("#mobileHudLevel"), mobileHudTimer: document.querySelector("#mobileHudTimer"), mobileHudShips: document.querySelector("#mobileHudShips"), mobileHudWorlds: document.querySelector("#mobileHudWorlds"), mobileHudRivals: document.querySelector("#mobileHudRivals"), mobileHudTraveling: document.querySelector("#mobileHudTraveling"), mobileHudFps: document.querySelector("#mobileHudFps"), mobileHudStatus: document.querySelector("#mobileHudStatus"),
+    mobileTelemetryToggle: document.querySelector("#mobileTelemetryToggle"), mobileTelemetryDrawer: document.querySelector("#mobileTelemetryDrawer"), mobileTelemetryClose: document.querySelector("#mobileTelemetryClose"), mobileDrawerBackdrop: document.querySelector("#mobileDrawerBackdrop"), mobileDrawerRed: document.querySelector("#mobileDrawerRed"), mobileDrawerOrange: document.querySelector("#mobileDrawerOrange"), mobileDrawerStar: document.querySelector("#mobileDrawerStar"), mobileDrawerLaunch: document.querySelector("#mobileDrawerLaunch"), mobileDrawerFights: document.querySelector("#mobileDrawerFights"), mobileDrawerTransits: document.querySelector("#mobileDrawerTransits"), mobileDrawerEvents: document.querySelector("#mobileDrawerEvents"), mobileReset: document.querySelector("#mobileResetMatch"), mobileChooseLevel: document.querySelector("#mobileChooseLevel")
   };
 
   const modalElements = [ui.overlay, ui.tutorial, ui.outcome].filter(Boolean);
@@ -302,7 +304,10 @@
   const coarsePointerQuery = window.matchMedia("(any-pointer: coarse)");
   const finePointerQuery = window.matchMedia("(any-pointer: fine)");
   const primaryCoarsePointerQuery = window.matchMedia("(pointer: coarse)");
+  const mobileViewportQuery = window.matchMedia("(max-width: 900px)");
   const isTouchCapable = () => coarsePointerQuery.matches;
+  const usesMobilePresentation = () => isTouchCapable() && mobileViewportQuery.matches;
+  const allowsShipTrails = () => !reduced && !usesMobilePresentation();
   const usesCoarseTargets = event => event.pointerType === "touch" || event.pointerType === "pen" || (!event.pointerType && primaryCoarsePointerQuery.matches);
   let completedRun = null;
   let dashboardRunId = null;
@@ -316,6 +321,17 @@
   let commandDockSignature = "";
   let syncGravityDevLab = () => {};
   let updateGravityDevActions = () => {};
+  let mobileDrawerOpen = false;
+  let mobileHudSignature = "";
+  let lastHudUpdateAt = 0;
+  let lastProcessedFrameAt = 0;
+  let lastTutorialFrameAt = 0;
+  let frameWindowStartedAt = performance.now();
+  let frameWindowCount = 0;
+  let observedFps = 0;
+  let staticMapLayer = null;
+  let staticMapLayerLevel = null;
+  let mobilePresentationDismissed = false;
 
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -351,7 +367,7 @@
       wormholeOrbitCaptures: 0, wormholeTransitCount: 0,
       events: [], effects: [], launchEvents: [], launches: 0, shipsLaunched: 0, largestLaunch: 0, captures: [], combat: 0, shipsLost: 0, shipsDestroyed: 0,
       shipsPulled: 0, gravityCaptures: 0, blasterHits: 0, deepSpaceCombats: 0, wallBounces: 0, enemyMajorLaunches: 0,
-      heatmap: { width: HEATMAP_WIDTH, height: HEATMAP_HEIGHT, movement: Array(HEATMAP_WIDTH * HEATMAP_HEIGHT).fill(0), combat: Array(HEATMAP_WIDTH * HEATMAP_HEIGHT).fill(0) }, shipCountTimeline: [], ownershipTimeline: [], lastSnap: 0, lastLiveSignature: "", liveSpikeUntil: 0, aiClock: 2.5, peakPlayerShips: 0, peakFleetAdvantage: 0,
+      heatmap: { width: HEATMAP_WIDTH, height: HEATMAP_HEIGHT, movement: Array(HEATMAP_WIDTH * HEATMAP_HEIGHT).fill(0), combat: Array(HEATMAP_WIDTH * HEATMAP_HEIGHT).fill(0) }, shipCountTimeline: [], ownershipTimeline: [], lastSnap: 0, lastLiveSignature: "", lastHudSignature: "", liveSpikeUntil: 0, aiClock: 2.5, peakPlayerShips: 0, peakFleetAdvantage: 0,
       aiTeams: Object.fromEntries(contestTeamKeys.filter(key => teamMeta[key].ai).map(key => [key, createAiTeamState(key)]))
     };
   }
@@ -479,6 +495,73 @@
     element.setAttribute("aria-hidden", String(!visible));
   }
 
+  function closeMobileTelemetryDrawer({ restoreFocus = false } = {}) {
+    if (!mobileDrawerOpen && ui.mobileTelemetryDrawer?.hidden) return;
+    mobileDrawerOpen = false;
+    if (ui.mobileTelemetryDrawer) ui.mobileTelemetryDrawer.hidden = true;
+    if (ui.mobileDrawerBackdrop) ui.mobileDrawerBackdrop.hidden = true;
+    ui.mobileTelemetryToggle?.setAttribute("aria-expanded", "false");
+    if (ui.mobileHud) ui.mobileHud.inert = false;
+    if (ui.mobileModeControls) ui.mobileModeControls.inert = false;
+    document.body.classList.remove("gravity-mobile-drawer-open");
+    if (restoreFocus) ui.mobileTelemetryToggle?.focus({ preventScroll: true });
+  }
+
+  function openMobileTelemetryDrawer() {
+    if (!usesMobilePresentation() || !state?.running || state?.ended) return;
+    mobileDrawerOpen = true;
+    if (ui.mobileTelemetryDrawer) ui.mobileTelemetryDrawer.hidden = false;
+    if (ui.mobileDrawerBackdrop) ui.mobileDrawerBackdrop.hidden = false;
+    ui.mobileTelemetryToggle?.setAttribute("aria-expanded", "true");
+    if (ui.mobileHud) ui.mobileHud.inert = true;
+    if (ui.mobileModeControls) ui.mobileModeControls.inert = true;
+    document.body.classList.add("gravity-mobile-drawer-open");
+    updateMobileHud(counts(), true);
+    ui.mobileTelemetryClose?.focus({ preventScroll: true });
+  }
+
+  function syncMobilePresentation() {
+    const active = Boolean(usesMobilePresentation() && state?.running && !mobilePresentationDismissed);
+    document.documentElement.classList.toggle("gravity-mobile-match", active);
+    document.body.classList.toggle("gravity-mobile-match", active);
+    if (ui.mobileHud) ui.mobileHud.hidden = !(active && state?.acceptingInput && !state?.ended);
+    if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(active && state?.acceptingInput && !state?.ended);
+    if (!active || state?.ended) closeMobileTelemetryDrawer();
+    mobileHudSignature = "";
+  }
+
+  function mobileInputStatus() {
+    if (wormMode) return pendingWorm ? "Tap to place the wormhole exit" : "Tap to place the wormhole entrance";
+    const selected = state?.launcher?.selectedShipIds?.length || 0;
+    if (selected) return `${selected} ships selected - release to launch`;
+    return "Hold and drag from a Cyan world to launch";
+  }
+
+  function updateMobileHud(c = counts(), force = false) {
+    if (!ui.mobileHud || !usesMobilePresentation()) return;
+    const star = state.planets.find(planet => planet.isStar);
+    const signature = [Math.floor(state.elapsed), c.playerShips, c.playerPlanets, c.rivalPlanets, c.travelingShips, c.enemyPlanets, c.enemyShips, c.orangePlanets, c.orangeShips, star?.owner, state.largestLaunch, state.deepSpaceCombats, state.shipTransits, wormMode, pendingWorm ? 1 : 0, state.launcher?.selectedShipIds?.length || 0, state.events[0]?.message, observedFps].join("|");
+    if (!force && signature === mobileHudSignature) return;
+    mobileHudSignature = signature;
+    setText(ui.mobileHudLevel, `Level ${state.levelId} - ${state.levelName}`);
+    setText(ui.mobileHudTimer, fmt(state.elapsed));
+    setText(ui.mobileHudShips, c.playerShips);
+    setText(ui.mobileHudWorlds, c.playerPlanets);
+    setText(ui.mobileHudRivals, c.rivalPlanets);
+    setText(ui.mobileHudTraveling, c.travelingShips);
+    setText(ui.mobileHudFps, observedFps ? `${observedFps} fps` : "--");
+    setText(ui.mobileHudStatus, mobileInputStatus());
+    setText(ui.mobileDrawerRed, `${c.enemyPlanets} worlds · ${c.enemyShips} ships`);
+    setText(ui.mobileDrawerOrange, `${c.orangePlanets} worlds · ${c.orangeShips} ships`);
+    setText(ui.mobileDrawerStar, star ? teamLabel(star.owner) : "Neutral");
+    setText(ui.mobileDrawerLaunch, `${state.largestLaunch} ships`);
+    setText(ui.mobileDrawerFights, state.deepSpaceCombats);
+    setText(ui.mobileDrawerTransits, state.shipTransits);
+    if (ui.mobileDrawerEvents) ui.mobileDrawerEvents.innerHTML = state.events.length
+      ? state.events.slice(0, 5).map(event => `<li>${event.t}s · ${event.message}</li>`).join("")
+      : "<li>Telemetry will appear after launch.</li>";
+  }
+
   function focusableModalControls(element) {
     if (!element) return [];
     return [...element.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
@@ -558,6 +641,7 @@
     cancelActiveGesture({ cancelPending: true });
     commandDockSignature = "";
     updateCommandDock();
+    syncMobilePresentation();
   }
 
   function hideOutcomeOverlay() {
@@ -608,6 +692,12 @@
     if (ui.outcomeLevel) ui.outcomeLevel.textContent = `Level ${run.levelId} - ${run.levelName}`;
     if (ui.outcomeScore) ui.outcomeScore.textContent = run.score;
     if (ui.outcomeDuration) ui.outcomeDuration.textContent = fmt(run.durationSeconds);
+    setText(ui.outcomeCaptures, run.planetsCaptured || 0);
+    setText(ui.outcomeLargestLaunch, `${run.largestLaunch || 0} ships`);
+    setText(ui.outcomeDestroyed, run.shipsDestroyed || 0);
+    setText(ui.outcomeTransits, shipTransitCount(run));
+    setText(ui.outcomeSignal, strongestMatchSignal(run));
+    syncMobilePresentation();
     activateModal(ui.outcome, ui.viewAnalysis, canvas);
   }
 
@@ -859,7 +949,9 @@
 
   function reset(showOverlay = true) {
     hideOutcomeOverlay();
+    closeMobileTelemetryDrawer();
     completedRun = null;
+    mobilePresentationDismissed = false;
     shipId = 1;
     state = makeState();
     const level = activeLevel();
@@ -870,6 +962,7 @@
       state.planets.filter(p => p.owner === "neutral").forEach(p => spawnShip("neutral", p, level.neutralDefenders));
     }
     pendingWorm = null;
+    staticMapLayerLevel = null;
     setWormMode(false);
     ui.timer.textContent = "0:00";
     if (showOverlay) showStartOverlay();
@@ -877,8 +970,9 @@
     updateTelemetryBadgeVisibility();
     ui.feed.innerHTML = "<li>Fleet telemetry will stream here.</li>";
     commandDockSignature = "";
-    updateHud();
+    updateHud(undefined, true);
     updateLiveTelemetry();
+    syncMobilePresentation();
     draw();
   }
 
@@ -904,18 +998,22 @@
     };
   }
 
-  function updateHud() {
-    const c = counts();
-    const teamRows = contestTeamKeys.map(key => {
-      const team = c.teams[key] || { planets: 0, ships: 0 };
-      return `<div class="faction-row faction-${key}" style="--team-color:${colors[key]}"><span class="team-dot" aria-hidden="true"></span><strong>${teamMeta[key].label}</strong><span><b>${team.planets}</b> planets</span><span><b>${team.ships}</b> ships</span></div>`;
-    }).join("");
+  function updateHud(c = counts(), force = false) {
     const playerWormhole = playerWormholes()[0];
     const wormStatus = playerWormhole ? `Cyan Active · Entry ${playerWormhole.aEntryEnabled ? "A" : "-"}/${playerWormhole.bEntryEnabled ? "B" : "-"}` : "Ready";
-    const utility = `<div class="utility-row"><span>Neutral bodies <b>${c.neutralPlanets}</b></span><span>Wormhole <b>${wormStatus}</b></span></div>`;
-    ui.readout.innerHTML = `${teamRows}${utility}`;
-    ui.timer.textContent = fmt(state.elapsed);
+    const signature = [Math.floor(state.elapsed), ...contestTeamKeys.flatMap(key => [c.teams[key]?.planets || 0, c.teams[key]?.ships || 0]), c.neutralPlanets, wormStatus].join("|");
+    if (force || signature !== state.lastHudSignature) {
+      state.lastHudSignature = signature;
+      const teamRows = contestTeamKeys.map(key => {
+        const team = c.teams[key] || { planets: 0, ships: 0 };
+        return `<div class="faction-row faction-${key}" style="--team-color:${colors[key]}"><span class="team-dot" aria-hidden="true"></span><strong>${teamMeta[key].label}</strong><span><b>${team.planets}</b> planets</span><span><b>${team.ships}</b> ships</span></div>`;
+      }).join("");
+      const utility = `<div class="utility-row"><span>Neutral bodies <b>${c.neutralPlanets}</b></span><span>Wormhole <b>${wormStatus}</b></span></div>`;
+      ui.readout.innerHTML = `${teamRows}${utility}`;
+      setText(ui.timer, fmt(state.elapsed));
+    }
     updateCommandDock(c);
+    updateMobileHud(c, force);
   }
 
   function snapshot() {
@@ -1193,6 +1291,7 @@
     ui.worm.textContent = value ? (pendingWorm ? "Tap wormhole exit" : "Wormhole Mode: entrance") : "Wormhole Mode";
     ui.mobileModes.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.gameMode === (value ? "wormhole" : "launch"))));
     updateCommandDock();
+    updateMobileHud(counts(), true);
   }
 
   function planetOrbiters(planetId, owner) {
@@ -1424,7 +1523,7 @@
     const ease = t * t * (3 - 2 * t);
     ship.x = ship.wormholeEntry.x + (ship.wormholeExit.x - ship.wormholeEntry.x) * ease;
     ship.y = ship.wormholeEntry.y + (ship.wormholeExit.y - ship.wormholeEntry.y) * ease;
-    if (!reduced) ship.trail = [{ x: ship.x, y: ship.y }, ...(ship.trail || [])].slice(0, 10);
+    if (allowsShipTrails()) ship.trail = [{ x: ship.x, y: ship.y }, ...(ship.trail || [])].slice(0, 10);
     if (t >= 1) releaseFromWormholeExit(ship);
   }
 
@@ -1454,7 +1553,7 @@
       ship.vy = ship.vy / speed * MAX_SPEED;
     }
     bounceWithinBounds(ship);
-    if (!reduced) ship.trail = [{ x: ship.x, y: ship.y }, ...(ship.trail || [])].slice(0, 8);
+    if (allowsShipTrails()) ship.trail = [{ x: ship.x, y: ship.y }, ...(ship.trail || [])].slice(0, 8);
   }
 
   function rivalTeams(owner) {
@@ -1747,7 +1846,7 @@
   }
 
   function spawnEffect(type, x1, y1, x2, y2, color, ttl = .25) {
-    if (reduced && type !== "blast") return;
+    if (usesMobilePresentation() || (reduced && type !== "blast")) return;
     state.effects.push({ type, x1, y1, x2, y2, color, ttl, maxTtl: ttl });
   }
 
@@ -2114,6 +2213,7 @@
   }
 
   function drawTutorialCanvases(time) {
+    if (ui.tutorial?.hidden || activeModal !== ui.tutorial) return;
     ui.tutorialCanvases.forEach(tutorialCanvas => {
       if (tutorialCanvas.dataset.tutorialDemo === "launch") drawTutorialLaunch(tutorialCanvas, time);
       if (tutorialCanvas.dataset.tutorialDemo === "wormhole") drawTutorialWormhole(tutorialCanvas, time);
@@ -2121,6 +2221,23 @@
   }
 
   function tick(now) {
+    requestAnimationFrame(tick);
+    if (document.hidden) {
+      state.lastTick = now;
+      lastProcessedFrameAt = now;
+      return;
+    }
+    const targetFps = state.ended ? 12 : (usesMobilePresentation() ? 30 : 60);
+    const minimumFrameMs = 1000 / targetFps;
+    if (lastProcessedFrameAt && now - lastProcessedFrameAt < minimumFrameMs * .8) return;
+    lastProcessedFrameAt = now;
+    frameWindowCount++;
+    if (now - frameWindowStartedAt >= 1000) {
+      observedFps = Math.round(frameWindowCount * 1000 / Math.max(1, now - frameWindowStartedAt));
+      frameWindowCount = 0;
+      frameWindowStartedAt = now;
+      mobileHudSignature = "";
+    }
     const dt = Math.min(.06, (now - state.lastTick) / 1000);
     state.lastTick = now;
     if (state.running) {
@@ -2167,11 +2284,21 @@
       state.peakFleetAdvantage = Math.max(state.peakFleetAdvantage, c.playerShips - Math.max(0, ...contestTeamKeys.filter(k => k !== "player").map(k => c.teams[k]?.ships || 0)));
       if (!state.ended && (c.rivalPlanets === 0 || state.planets.filter(p => p.owner !== "neutral").every(p => p.owner === "player"))) end("Victory");
       if (!state.ended && c.playerPlanets === 0) end("Defeat");
-      updateHud();
+      const hudInterval = usesMobilePresentation() ? 250 : 100;
+      if (now - lastHudUpdateAt >= hudInterval || state.ended) {
+        lastHudUpdateAt = now;
+        updateHud(c);
+      }
     }
-    drawTutorialCanvases(now / 1000);
-    draw();
-    requestAnimationFrame(tick);
+    const tutorialInterval = usesMobilePresentation() ? 1000 / 20 : 1000 / 30;
+    if (!reduced && now - lastTutorialFrameAt >= tutorialInterval) {
+      lastTutorialFrameAt = now;
+      drawTutorialCanvases(now / 1000);
+    } else if (reduced && !lastTutorialFrameAt) {
+      lastTutorialFrameAt = now;
+      drawTutorialCanvases(now / 1000);
+    }
+    if (state.running) draw();
   }
 
   function end(outcome) {
@@ -2311,10 +2438,13 @@
     const signature = liveTelemetrySignature(c);
     if (!force && signature === state.lastLiveSignature) return false;
     state.lastLiveSignature = signature;
-    const keys = contestTeamKeys;
-    lineChart(ui.liveFleetChart, state.shipCountTimeline.slice(-40), keys, 8);
-    barChart(ui.liveLaunchChart, state.launchEvents, keys);
-    donutChart(ui.liveSystemDonut, Object.fromEntries(activeTeamKeys.map(key => [key, c.teams[key]?.planets || 0])), Object.fromEntries(contestTeamKeys.map(key => [key, c.teams[key]?.ships || 0])), activeTeamKeys);
+    const deferCharts = usesMobilePresentation() && state.running && !state.ended && !state.dashboardRendered;
+    if (!deferCharts) {
+      const keys = contestTeamKeys;
+      lineChart(ui.liveFleetChart, state.shipCountTimeline.slice(-40), keys, 8);
+      barChart(ui.liveLaunchChart, state.launchEvents, keys);
+      donutChart(ui.liveSystemDonut, Object.fromEntries(activeTeamKeys.map(key => [key, c.teams[key]?.planets || 0])), Object.fromEntries(contestTeamKeys.map(key => [key, c.teams[key]?.ships || 0])), activeTeamKeys);
+    }
     const recentPlayerLaunch = [...state.launchEvents].reverse().find(e => e.team === "player")?.ships || 0;
     const star = state.planets.find(p => p.isStar);
     const starOwnerLabel = star ? teamLabel(star.owner) : "Neutral";
@@ -2330,9 +2460,9 @@
   let liveTelemetryTimer = 0;
   function scheduleLiveTelemetryUpdate() {
     window.clearTimeout(liveTelemetryTimer);
-    const interval = Math.max(100, Number(liveTelemetryConfig.intervalMs) || 200);
+    const interval = usesMobilePresentation() ? liveTelemetryConfig.mobileIntervalMs : liveTelemetryConfig.desktopIntervalMs;
     liveTelemetryTimer = window.setTimeout(() => {
-      if (state?.running && !state.ended) updateLiveTelemetry();
+      if (!document.hidden && state?.running && !state.ended) updateLiveTelemetry();
       scheduleLiveTelemetryUpdate();
     }, interval);
   }
@@ -2848,31 +2978,49 @@
   }
 
 
-  function drawOrbitPaths() {
+  function drawOrbitPaths(drawing = ctx) {
     const paths = Object.values(makeOrbitPaths());
-    ctx.save();
+    drawing.save();
     paths.forEach((path, index) => {
-      ctx.strokeStyle = index === 1 ? "rgba(111,248,255,.115)" : "rgba(223,232,255,.075)";
-      ctx.lineWidth = index === 1 ? 1.25 : 1;
-      ctx.setLineDash(index === 1 ? [3, 9] : [2, 12]);
-      ctx.beginPath();
+      drawing.strokeStyle = index === 1 ? "rgba(111,248,255,.115)" : "rgba(223,232,255,.075)";
+      drawing.lineWidth = index === 1 ? 1.25 : 1;
+      drawing.setLineDash(index === 1 ? [3, 9] : [2, 12]);
+      drawing.beginPath();
       const steps = 160;
       for (let i = 0; i <= steps; i++) {
         const point = positionOnOrbit(path, i / steps * TAU);
-        ctx[i ? "lineTo" : "moveTo"](point.x, point.y);
+        drawing[i ? "lineTo" : "moveTo"](point.x, point.y);
       }
-      ctx.closePath();
-      ctx.stroke();
-      ctx.setLineDash([]);
+      drawing.closePath();
+      drawing.stroke();
+      drawing.setLineDash([]);
       for (let i = 0; i < 12; i++) {
         const point = positionOnOrbit(path, i / 12 * TAU + path.phase * .35);
-        ctx.fillStyle = index === 1 ? "rgba(111,248,255,.16)" : "rgba(223,232,255,.1)";
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, index === 1 ? 1.7 : 1.25, 0, TAU);
-        ctx.fill();
+        drawing.fillStyle = index === 1 ? "rgba(111,248,255,.16)" : "rgba(223,232,255,.1)";
+        drawing.beginPath();
+        drawing.arc(point.x, point.y, index === 1 ? 1.7 : 1.25, 0, TAU);
+        drawing.fill();
       }
     });
-    ctx.restore();
+    drawing.restore();
+  }
+
+  function ensureStaticMapLayer() {
+    const levelKey = `${activeLevel().id}:${canvas.width}x${canvas.height}`;
+    if (staticMapLayer && staticMapLayerLevel === levelKey) return staticMapLayer;
+    staticMapLayer ||= document.createElement("canvas");
+    staticMapLayer.width = canvas.width;
+    staticMapLayer.height = canvas.height;
+    const drawing = staticMapLayer.getContext("2d");
+    drawing.clearRect(0, 0, staticMapLayer.width, staticMapLayer.height);
+    drawing.strokeStyle = "rgba(111,248,255,.08)";
+    for (let x = 0; x < staticMapLayer.width; x += 60) { drawing.beginPath(); drawing.moveTo(x, 0); drawing.lineTo(x, staticMapLayer.height); drawing.stroke(); }
+    for (let y = 0; y < staticMapLayer.height; y += 60) { drawing.beginPath(); drawing.moveTo(0, y); drawing.lineTo(staticMapLayer.width, y); drawing.stroke(); }
+    drawing.strokeStyle = "rgba(111,248,255,.22)";
+    drawing.strokeRect(levelWorldBounds().x + 1, levelWorldBounds().y + 1, levelWorldBounds().width - 2, levelWorldBounds().height - 2);
+    drawOrbitPaths(drawing);
+    staticMapLayerLevel = levelKey;
+    return staticMapLayer;
   }
 
   function drawAiLaunchFields() {
@@ -2908,12 +3056,7 @@
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "rgba(111,248,255,.08)";
-    for (let x = 0; x < canvas.width; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
-    for (let y = 0; y < canvas.height; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
-    ctx.strokeStyle = "rgba(111,248,255,.22)";
-    ctx.strokeRect(levelWorldBounds().x + 1, levelWorldBounds().y + 1, levelWorldBounds().width - 2, levelWorldBounds().height - 2);
-    drawOrbitPaths();
+    ctx.drawImage(ensureStaticMapLayer(), 0, 0);
 
     state.planets.forEach(p => {
       const influence = bodyInfluence(p);
@@ -2977,7 +3120,7 @@
     drawLauncherOverlay();
 
     state.ships.forEach(s => {
-      if (!reduced && s.trail?.length > 1) {
+      if (allowsShipTrails() && s.trail?.length > 1) {
         ctx.strokeStyle = colors[s.owner] + "2b";
         ctx.beginPath();
         s.trail.forEach((p, i) => ctx[i ? "lineTo" : "moveTo"](p.x, p.y));
@@ -3018,7 +3161,7 @@
 
   canvas.addEventListener("contextmenu", event => event.preventDefault());
   canvas.addEventListener("pointerdown", event => {
-    if (!state.acceptingInput) return;
+    if (!state.acceptingInput || mobileDrawerOpen) return;
     const point = canvasPoint(event);
     const coarse = usesCoarseTargets(event);
     if (event.button === 2) {
@@ -3060,15 +3203,18 @@
     state.acceptingInput = true;
     state.startedAt = new Date();
     state.lastTick = performance.now();
+    lastProcessedFrameAt = 0;
+    mobilePresentationDismissed = false;
     hideGameOverlays();
+    syncMobilePresentation();
     canvas.focus({ preventScroll: true });
     snapshot();
     updateLiveTelemetry();
     addEvent("Match started. Hold left click to form a launch field; right-click drag to place a wormhole.");
     addEvent("The neutral central star is capturable and anchors the system.");
     updateTelemetryBadgeVisibility();
-    updateCommandDock();
-    scrollGameIntoView();
+    updateHud(undefined, true);
+    if (!usesMobilePresentation()) scrollGameIntoView();
   }
 
   ui.liveTelemetryBadge?.addEventListener("click", scrollLiveTelemetryIntoView);
@@ -3115,6 +3261,10 @@
     const run = completedRun;
     await ensureDashboardRendered(run);
     hideOutcomeOverlay();
+    mobilePresentationDismissed = true;
+    closeMobileTelemetryDrawer();
+    syncMobilePresentation();
+    updateLiveTelemetry(counts(), true);
     if (ui.analyticsTitle && !ui.analyticsTitle.hasAttribute("tabindex")) ui.analyticsTitle.setAttribute("tabindex", "-1");
     scrollElementWithOffset(ui.analytics, gravityDevSettings.navigation.matchAnalysisOffset);
     ui.analyticsTitle?.focus({ preventScroll: true });
@@ -3168,8 +3318,42 @@
   });
   ui.worm.addEventListener("click", () => setWormMode(!wormMode));
   ui.mobileModes.forEach(button => button.addEventListener("click", () => setWormMode(button.dataset.gameMode === "wormhole")));
+  ui.mobileTelemetryToggle?.addEventListener("click", () => mobileDrawerOpen ? closeMobileTelemetryDrawer({ restoreFocus: true }) : openMobileTelemetryDrawer());
+  ui.mobileTelemetryClose?.addEventListener("click", () => closeMobileTelemetryDrawer({ restoreFocus: true }));
+  ui.mobileTelemetryDrawer?.addEventListener("keydown", event => {
+    if (event.key !== "Tab" || !mobileDrawerOpen) return;
+    const controls = focusableModalControls(ui.mobileTelemetryDrawer);
+    if (!controls.length) return;
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
+  ui.mobileDrawerBackdrop?.addEventListener("click", () => closeMobileTelemetryDrawer({ restoreFocus: true }));
+  ui.mobileReset?.addEventListener("click", () => {
+    closeMobileTelemetryDrawer();
+    reset(false);
+    beginMatch();
+  });
+  ui.mobileChooseLevel?.addEventListener("click", () => {
+    closeMobileTelemetryDrawer();
+    chooseLevelAction();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && mobileDrawerOpen) {
+      event.preventDefault();
+      closeMobileTelemetryDrawer({ restoreFocus: true });
+    }
+  });
   coarsePointerQuery.addEventListener("change", syncInputCapability);
   finePointerQuery.addEventListener("change", syncInputCapability);
+  mobileViewportQuery.addEventListener("change", syncMobilePresentation);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && state) {
+      state.lastTick = performance.now();
+      lastProcessedFrameAt = 0;
+    }
+  });
 
   initBackToGameObserver();
   initGravityDevLab();
