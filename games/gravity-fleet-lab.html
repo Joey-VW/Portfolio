@@ -78,7 +78,62 @@
           </div>
         </div>
         <div class="game-stage">
-          <canvas id="gravityCanvas" width="1280" height="800" aria-label="Interactive orbital RTS map with planets, ships, and wormholes"></canvas>
+          <canvas id="gravityCanvas" width="1280" height="800" tabindex="-1" aria-label="Interactive orbital RTS map with planets, ships, and wormholes" aria-describedby="gameKeyboardNote"></canvas>
+          <p id="gameKeyboardNote" class="game-keyboard-note">The tactical map is pointer and touch controlled. Mission, telemetry, mode, and return controls remain available by keyboard.</p>
+          <section class="mobile-shell-status" id="mobileShellStatus" aria-live="assertive" hidden>
+            <p class="eyebrow">Preparing tactical map</p>
+            <h3 id="mobileShellStatusTitle">Starting match</h3>
+            <p id="mobileShellStatusMessage">Checking the game surface before entering the mobile match.</p>
+            <p class="mobile-shell-diagnostic" id="mobileShellDiagnostic" hidden></p>
+            <div class="mobile-shell-actions" id="mobileShellActions" hidden>
+              <button class="button primary" id="mobileShellRetry" type="button">Retry match</button>
+              <button class="button" id="mobileShellReturn" type="button">Return to mission setup</button>
+            </div>
+          </section>
+          <button class="mobile-match-exit" id="mobileMatchExit" type="button" hidden>Return to setup</button>
+          <section class="mobile-game-hud" id="mobileGameHud" aria-label="Live match status" hidden>
+            <div class="mobile-hud-heading">
+              <p><span id="mobileHudLevel">Level 1 - First Orbit</span><strong id="mobileHudTimer">0:00</strong></p>
+              <button class="mobile-hud-menu" id="mobileTelemetryToggle" type="button" aria-expanded="false" aria-controls="mobileTelemetryDrawer">
+                <span aria-hidden="true">☰</span><span class="sr-only">Open match telemetry</span>
+              </button>
+            </div>
+            <dl class="mobile-hud-metrics" aria-label="Live fleet telemetry">
+              <div><dt>Cyan ships</dt><dd id="mobileHudShips">0</dd></div>
+              <div><dt>Cyan worlds</dt><dd id="mobileHudWorlds">0</dd></div>
+              <div><dt>Rival worlds</dt><dd id="mobileHudRivals">0</dd></div>
+              <div><dt>In flight</dt><dd id="mobileHudTraveling">0</dd></div>
+              <div><dt>Frame rate</dt><dd id="mobileHudFps">--</dd></div>
+            </dl>
+            <p class="mobile-hud-status" id="mobileHudStatus" aria-live="polite">Launch mode ready</p>
+          </section>
+          <div class="mobile-mode-controls" id="mobileModeControls" aria-label="Touch game mode" hidden>
+            <button class="mobile-mode-button" type="button" data-game-mode="launch" aria-pressed="true"><span aria-hidden="true">↗</span> Launch</button>
+            <button class="mobile-mode-button" type="button" data-game-mode="wormhole" aria-pressed="false"><span aria-hidden="true">◌</span> Wormhole</button>
+          </div>
+          <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop" hidden></div>
+          <aside class="mobile-telemetry-drawer" id="mobileTelemetryDrawer" role="dialog" aria-modal="true" aria-labelledby="mobileTelemetryTitle" tabindex="-1" hidden>
+            <header>
+              <div><p class="eyebrow">Live command data</p><h3 id="mobileTelemetryTitle">Match telemetry</h3></div>
+              <button class="mobile-drawer-close" id="mobileTelemetryClose" type="button" aria-label="Close match telemetry">×</button>
+            </header>
+            <dl class="mobile-drawer-metrics">
+              <div><dt>Red</dt><dd id="mobileDrawerRed">0 worlds · 0 ships</dd></div>
+              <div><dt>Orange</dt><dd id="mobileDrawerOrange">0 worlds · 0 ships</dd></div>
+              <div><dt>Central star</dt><dd id="mobileDrawerStar">Neutral</dd></div>
+              <div><dt>Largest launch</dt><dd id="mobileDrawerLaunch">0 ships</dd></div>
+              <div><dt>Deep-space fights</dt><dd id="mobileDrawerFights">0</dd></div>
+              <div><dt>Ship transits</dt><dd id="mobileDrawerTransits">0</dd></div>
+            </dl>
+            <section class="mobile-drawer-events" aria-labelledby="mobileEventsTitle">
+              <h4 id="mobileEventsTitle">Recent events</h4>
+              <ul id="mobileDrawerEvents"><li>Telemetry will appear after launch.</li></ul>
+            </section>
+            <div class="mobile-drawer-actions">
+              <button class="button" id="mobileResetMatch" type="button">Reset match</button>
+              <button class="button" id="mobileChooseLevel" type="button">Choose level</button>
+            </div>
+          </aside>
           <button
             class="live-telemetry-badge"
             id="liveTelemetryBadge"
@@ -90,10 +145,10 @@
             <span class="telemetry-badge-copy"><strong>Telemetry recording</strong><small>View live charts</small></span>
             <span class="telemetry-badge-arrow" aria-hidden="true">↓</span>
           </button>
-          <div class="game-start-overlay" id="gameStartOverlay">
+          <div class="game-start-overlay" id="gameStartOverlay" role="dialog" aria-modal="true" aria-labelledby="setupTitle" tabindex="-1">
             <div class="start-card">
               <p class="eyebrow">Gravity Fleet Lab</p>
-              <h3>Enter the orbital front</h3>
+              <h3 id="setupTitle">Enter the orbital front</h3>
               <p id="selectedLevelName" class="level-title">Level 1 - First Orbit</p>
               <p id="selectedLevelDescription">Capture Red and Orange worlds, contest the central star, and bend fleet paths with wormholes as planets drift on slow orbital paths.</p>
               <div class="level-picker" id="levelPicker" role="group" aria-label="Choose mission level">
@@ -105,14 +160,8 @@
               <button id="startMatch" class="button primary" type="button">Start match</button>
             </div>
           </div>
-          <div class="game-outcome-overlay" id="gameOutcomeOverlay" hidden aria-hidden="true">
-            <section
-              class="outcome-card"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="gameOutcomeTitle"
-              aria-describedby="gameOutcomeSummary"
-            >
+          <div class="game-outcome-overlay" id="gameOutcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="gameOutcomeTitle" aria-describedby="gameOutcomeSummary" tabindex="-1" hidden aria-hidden="true">
+            <section class="outcome-card">
               <p class="eyebrow" id="gameOutcomeEyebrow">Match complete</p>
               <h3 id="gameOutcomeTitle">System claimed</h3>
               <p id="gameOutcomeSummary" class="outcome-summary">Level 1 - First Orbit complete.</p>
@@ -121,6 +170,13 @@
                 <div><dt>Score</dt><dd id="gameOutcomeScore">0</dd></div>
                 <div><dt>Duration</dt><dd id="gameOutcomeDuration">0:00</dd></div>
               </dl>
+              <dl class="mobile-outcome-highlights" aria-label="Match analytics highlights">
+                <div><dt>Planets captured</dt><dd id="gameOutcomeCaptures">0</dd></div>
+                <div><dt>Largest launch</dt><dd id="gameOutcomeLargestLaunch">0</dd></div>
+                <div><dt>Ships destroyed</dt><dd id="gameOutcomeDestroyed">0</dd></div>
+                <div><dt>Ship transits</dt><dd id="gameOutcomeTransits">0</dd></div>
+              </dl>
+              <p class="mobile-outcome-signal" id="gameOutcomeSignal">Telemetry captured for review.</p>
               <div class="outcome-actions" aria-label="Choose what to do next">
                 <button id="viewMatchAnalysis" class="button primary" type="button">View match analysis</button>
                 <button id="playAgain" class="button outcome-secondary" type="button">Play again</button>
@@ -128,8 +184,8 @@
               </div>
             </section>
           </div>
-          <div class="game-tutorial-overlay" id="gameTutorialOverlay" hidden aria-hidden="true">
-            <div class="tutorial-card" role="dialog" aria-labelledby="tutorialTitle" aria-describedby="tutorialSubtitle">
+          <div class="game-tutorial-overlay" id="gameTutorialOverlay" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle" aria-describedby="tutorialSubtitle" tabindex="-1" hidden aria-hidden="true">
+            <div class="tutorial-card">
               <p class="eyebrow">Quick command primer</p>
               <h3 id="tutorialTitle">Command basics</h3>
               <p id="tutorialSubtitle" class="tutorial-subtitle">Hold, aim, release.</p>
@@ -139,14 +195,14 @@
                     <span class="tutorial-mouse-cue launch-cue"><span>hold</span><svg class="mouse-icon mouse-icon-left" viewBox="0 0 34 46" focusable="false"><path class="mouse-shell" d="M17 2C9.8 2 5 7.6 5 15.8v14.4C5 38.4 9.8 44 17 44s12-5.6 12-13.8V15.8C29 7.6 24.2 2 17 2Z"/><path class="mouse-button active" d="M17 3.8C10.8 3.8 7 8.5 7 15.5v1.8h10V3.8Z"/><path class="mouse-button" d="M17 3.8v13.5h10v-1.8c0-7-3.8-11.7-10-11.7Z"/><path class="mouse-seam" d="M17 3.8v16.4"/><circle class="mouse-wheel" cx="17" cy="22.5" r="1.7"/></svg></span>
                     <canvas class="tutorial-demo-canvas" data-tutorial-demo="launch" width="420" height="170"></canvas>
                   </div>
-                  <div class="tutorial-copy"><strong>Launch field</strong><p>Hold LMB near your ships to gather a launch field. Drag to aim, release to send the fleet.</p></div>
+                  <div class="tutorial-copy"><strong>Launch field</strong><p class="fine-pointer-copy">Hold LMB near your ships to gather a launch field. Drag to aim, release to send the fleet.</p><p class="coarse-pointer-copy">Hold and drag from a Cyan planet to aim, then release to send the fleet.</p></div>
                 </section>
                 <section class="tutorial-panel worm-demo" aria-label="Wormhole tutorial">
                   <div class="tutorial-scene" aria-hidden="true">
                     <span class="tutorial-mouse-cue worm-cue"><span>hold</span><svg class="mouse-icon mouse-icon-right" viewBox="0 0 34 46" focusable="false"><path class="mouse-shell" d="M17 2C9.8 2 5 7.6 5 15.8v14.4C5 38.4 9.8 44 17 44s12-5.6 12-13.8V15.8C29 7.6 24.2 2 17 2Z"/><path class="mouse-button" d="M17 3.8C10.8 3.8 7 8.5 7 15.5v1.8h10V3.8Z"/><path class="mouse-button active violet" d="M17 3.8v13.5h10v-1.8c0-7-3.8-11.7-10-11.7Z"/><path class="mouse-seam" d="M17 3.8v16.4"/><circle class="mouse-wheel" cx="17" cy="22.5" r="1.7"/></svg></span>
                     <canvas class="tutorial-demo-canvas" data-tutorial-demo="wormhole" width="420" height="170"></canvas>
                   </div>
-                  <div class="tutorial-copy"><strong>Wormhole</strong><p>Hold RMB, drag, and release to place a one-way wormhole. Right-click the entrance to collapse it.</p></div>
+                  <div class="tutorial-copy"><strong>Wormhole</strong><p class="fine-pointer-copy">Hold RMB, drag, and release to place a one-way wormhole. Right-click the entrance to collapse it.</p><p class="coarse-pointer-copy">Select Wormhole mode, then tap an entrance and exit. Tap an active entrance to toggle it.</p></div>
                 </section>
               </div>
               <div class="tutorial-footer">
@@ -156,6 +212,7 @@
             </div>
           </div>
         </div>
+        <p class="touch-control-hint" aria-label="Touch controls">Hold and drag to launch. Select Wormhole mode, then tap an entrance and exit.</p>
         <div class="control-panel command-dock" aria-label="Command and telemetry console">
           <section class="console-module command-module" aria-label="Match command status">
             <div class="module-head"><h3>Command</h3><span id="commandModeLabel">Pre-game</span></div>
@@ -256,6 +313,6 @@
   <button class="back-to-game" id="backToGame" type="button" hidden><span aria-hidden="true">↑</span><span>Back to game</span></button>
   <footer class="site-footer"><p>Gravity Fleet Lab is a static, frontend-only portfolio experiment: no backend, no external libraries, no persistent server data.</p><p class="footer-links"><a href="/index.html">Home</a><a href="/projects/">Projects</a><a href="mailto:joey.wisto@gmail.com">Email</a></p></footer>
   <script src="/script.js"></script>
-  <script src="/games/gravity-fleet-lab.js"></script>
+  <script type="module" src="/games/gravity-fleet-lab.js"></script>
 </body>
 </html>

@@ -1,0 +1,48 @@
+{
+  "fixtureVersion": 1,
+  "storageKey": "gravityFleetRuns",
+  "description": "Synthetic compatibility data matching the public pre-modernization saved-run schema. It contains no browser-exported or identifying data.",
+  "runs": [
+    {
+      "runId": "fixture-gravity-run-v1",
+      "outcome": "Victory",
+      "durationSeconds": 155,
+      "score": 2305,
+      "levelId": 1,
+      "levelName": "First Orbit",
+      "levelDifficulty": "Onboarding",
+      "captures": [{ "t": 42, "planet": "p1", "owner": "player" }],
+      "planetsCaptured": 1,
+      "launchEvents": 2,
+      "launchEventLog": [
+        { "t": 8, "team": "player", "ships": 9, "power": 0.82, "fromX": 140, "fromY": 400, "aimX": 1, "aimY": 0 },
+        { "t": 35, "team": "enemy", "ships": 12, "targetPlanetId": "p1", "sourcePlanetId": "enemy-home", "major": false, "mode": "expand", "staged": true }
+      ],
+      "largestLaunch": 12,
+      "peakFleetAdvantage": 16,
+      "shipsLaunched": 9,
+      "averageLaunchSize": 9,
+      "shipsPulled": 9,
+      "shipsLost": 3,
+      "shipsDestroyed": 7,
+      "wormholesCreated": 2,
+      "playerWormholesCreated": 1,
+      "aiWormholesCreated": 1,
+      "shipTransits": 4,
+      "wormholeUses": 4,
+      "wormholeEvents": [{ "t": 20, "owner": "player" }, { "t": 48, "owner": "enemy" }],
+      "wormholePulls": 3,
+      "peakPlayerShipCount": 44,
+      "gravityCaptures": 2,
+      "blasterHits": 14,
+      "deepSpaceCombats": 3,
+      "wallBounces": 1,
+      "enemyMajorLaunches": 0,
+      "shipCountTimeline": [{ "t": 0, "player": 20, "enemy": 18, "orange": 18, "neutral": 0 }],
+      "ownershipTimeline": [{ "t": 0, "player": 1, "enemy": 1, "orange": 1, "neutral": 8 }],
+      "heatmap": { "width": 2, "height": 2, "movement": [1, 0, 2, 0], "combat": [0, 1, 0, 1] },
+      "mapSnapshot": { "width": 1280, "height": 800, "aspectRatio": 1.6, "orbits": [], "planets": [] },
+      "endedAt": "2026-01-01T00:02:35.000Z"
+    }
+  ]
+}

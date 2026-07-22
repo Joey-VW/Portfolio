@@ -1,5 +1,18 @@
 # Shrinkflation data tools
 
+## Gravity Fleet deterministic validator
+
+Run the dependency-free Gravity Fleet regression harness directly with Node:
+
+```bash
+node tools/validate_gravity_fleet.js
+```
+
+It initializes every level, replays the seeded Level 1 command fixture, checks
+controlled win and loss paths, validates telemetry and saved-run compatibility,
+and rejects DOM, viewport, canvas, storage, or device dependencies in the shared
+engine modules.
+
 `fetch_kroger_products.py` is the backend-oriented data pull for the static Shrinkflation Tracker. It uses Kroger's official developer API only; it does **not** scrape grocery pages, automate a browser, or expose credentials to frontend JavaScript.
 
 ## Safety model
