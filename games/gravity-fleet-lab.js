@@ -166,7 +166,7 @@
     start: document.querySelector("#startMatch"), dockMissionSetup: document.querySelector("#dockMissionSetup"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"), mobileModes: [...document.querySelectorAll("[data-game-mode]")], mobileModeControls: document.querySelector("#mobileModeControls"),
     overlay: document.querySelector("#gameStartOverlay"), levelPicker: document.querySelector("#levelPicker"), levelName: document.querySelector("#selectedLevelName"), levelDescription: document.querySelector("#selectedLevelDescription"), levelDifficulty: document.querySelector("#selectedLevelDifficulty"),
     tutorial: document.querySelector("#gameTutorialOverlay"), tutorialGo: document.querySelector("#tutorialGo"),
-    outcome: document.querySelector("#gameOutcomeOverlay"), outcomeCard: document.querySelector("#gameOutcomeOverlay .outcome-card"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeLevel: document.querySelector("#gameOutcomeLevel"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"),
+    outcome: document.querySelector("#gameOutcomeOverlay"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeLevel: document.querySelector("#gameOutcomeLevel"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"),
     viewAnalysis: document.querySelector("#viewMatchAnalysis"), playAgain: document.querySelector("#playAgain"), chooseLevel: document.querySelector("#chooseLevel"), analytics: document.querySelector("#analytics"), analyticsTitle: document.querySelector("#analytics-title"),
     timer: document.querySelector("#matchTimer"), readout: document.querySelector("#fleetReadout"), feed: document.querySelector("#eventFeed"),
     commandDock: document.querySelector(".command-dock"), commandModeLabel: document.querySelector("#commandModeLabel"), commandStates: [...document.querySelectorAll("[data-command-state]")],
@@ -180,6 +180,9 @@
     insights: document.querySelector("#insights"), leaderboard: document.querySelector("#leaderboard"), recent: document.querySelector("#recentRuns"), clearRecent: document.querySelector("#clearLocalRuns"), recentStatus: document.querySelector("#recentRunsStatus"),
     tutorialCanvases: [...document.querySelectorAll("[data-tutorial-demo]")]
   };
+
+  const modalElements = [ui.overlay, ui.tutorial, ui.outcome].filter(Boolean);
+  modalElements.forEach(element => document.body.append(element));
 
   function rand(min, max) { return min + Math.random() * (max - min); }
 
@@ -296,16 +299,20 @@
   let wormMode = false;
   let pendingWorm = null;
   let activePointerId = null;
-  const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
-  const isCoarsePointer = () => coarsePointerQuery.matches;
+  const coarsePointerQuery = window.matchMedia("(any-pointer: coarse)");
+  const finePointerQuery = window.matchMedia("(any-pointer: fine)");
+  const primaryCoarsePointerQuery = window.matchMedia("(pointer: coarse)");
+  const isTouchCapable = () => coarsePointerQuery.matches;
+  const usesCoarseTargets = event => event.pointerType === "touch" || event.pointerType === "pen" || (!event.pointerType && primaryCoarsePointerQuery.matches);
   let completedRun = null;
   let dashboardRunId = null;
   let dashboardRenderPromise = null;
   let dashboardRun = null;
   let heatmapMode = "movement";
   let benchmarkRunsPromise = null;
-  let outcomeTrapActive = false;
-  let tutorialTrapActive = false;
+  let activeModal = null;
+  let modalOrigin = null;
+  const inertedBackground = new Map();
   let commandDockSignature = "";
   let syncGravityDevLab = () => {};
   let updateGravityDevActions = () => {};
@@ -455,7 +462,7 @@
       setText(ui.dockLiveStatus, live.status);
     }
     if (mode !== "live") setWormMode(false);
-    if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(mode === "live" && isCoarsePointer());
+    if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(mode === "live" && isTouchCapable());
     if (ui.reset) ui.reset.disabled = mode !== "live";
     if (ui.worm) ui.worm.disabled = mode !== "live";
     const run = completedRun;
@@ -472,40 +479,94 @@
     element.setAttribute("aria-hidden", String(!visible));
   }
 
-  function outcomeActions() {
-    return [ui.viewAnalysis, ui.playAgain, ui.chooseLevel].filter(Boolean);
+  function focusableModalControls(element) {
+    if (!element) return [];
+    return [...element.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+      .filter(control => !control.hidden && control.getClientRects().length > 0);
   }
 
-  function deactivateOutcomeTrap() {
-    outcomeTrapActive = false;
-    document.removeEventListener("keydown", trapOutcomeTab, true);
-    document.removeEventListener("focusin", keepOutcomeFocus, true);
+  function setBackgroundInert(inert) {
+    if (inert) {
+      [...document.body.children].forEach(element => {
+        if (modalElements.includes(element) || inertedBackground.has(element)) return;
+        inertedBackground.set(element, element.inert);
+        element.inert = true;
+      });
+      document.documentElement.classList.add("gravity-modal-open");
+      document.body.classList.add("gravity-modal-open");
+      return;
+    }
+    inertedBackground.forEach((wasInert, element) => { element.inert = wasInert; });
+    inertedBackground.clear();
+    document.documentElement.classList.remove("gravity-modal-open");
+    document.body.classList.remove("gravity-modal-open");
+  }
+
+  function trapModalTab(event) {
+    if (!activeModal || event.key !== "Tab") return;
+    const controls = focusableModalControls(activeModal);
+    if (!controls.length) {
+      event.preventDefault();
+      activeModal.focus({ preventScroll: true });
+      return;
+    }
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && (document.activeElement === first || !activeModal.contains(document.activeElement))) {
+      event.preventDefault();
+      last.focus({ preventScroll: true });
+    } else if (!event.shiftKey && (document.activeElement === last || !activeModal.contains(document.activeElement))) {
+      event.preventDefault();
+      first.focus({ preventScroll: true });
+    }
+  }
+
+  function keepModalFocus(event) {
+    if (!activeModal || activeModal.contains(event.target)) return;
+    (focusableModalControls(activeModal)[0] || activeModal).focus({ preventScroll: true });
+  }
+
+  function deactivateModal(element, { restoreFocus = false } = {}) {
+    if (!element) return;
+    setOverlayVisible(element, false);
+    if (activeModal !== element) return;
+    document.removeEventListener("keydown", trapModalTab, true);
+    document.removeEventListener("focusin", keepModalFocus, true);
+    activeModal = null;
+    setBackgroundInert(false);
+    const origin = modalOrigin;
+    modalOrigin = null;
+    if (restoreFocus && origin?.isConnected && !origin.inert) origin.focus({ preventScroll: true });
+  }
+
+  function activateModal(element, initialFocus, origin = document.activeElement) {
+    if (!element) return;
+    if (activeModal && activeModal !== element) deactivateModal(activeModal);
+    modalOrigin = modalElements.some(modal => modal.contains(origin)) ? canvas : origin;
+    activeModal = element;
+    setOverlayVisible(element, true);
+    setBackgroundInert(true);
+    document.addEventListener("keydown", trapModalTab, true);
+    document.addEventListener("focusin", keepModalFocus, true);
+    window.requestAnimationFrame(() => (initialFocus || focusableModalControls(element)[0] || element).focus({ preventScroll: true }));
+  }
+
+  function syncInputCapability() {
+    const inputMode = coarsePointerQuery.matches ? (finePointerQuery.matches ? "hybrid" : "touch") : "mouse";
+    document.documentElement.dataset.gravityInput = inputMode;
+    if (!state) return;
+    cancelActiveGesture({ cancelPending: true });
+    commandDockSignature = "";
+    updateCommandDock();
   }
 
   function hideOutcomeOverlay() {
-    deactivateOutcomeTrap();
-    if (ui.outcomeCard) ui.outcomeCard.setAttribute("aria-modal", "false");
-    if (ui.outcome) delete ui.outcome.dataset.interaction;
-    setOverlayVisible(ui.outcome, false);
-  }
-
-  function setOutcomeInteractionMode(modal) {
-    if (!ui.outcome || ui.outcome.hidden) return;
-    ui.outcome.dataset.interaction = modal ? "modal" : "passive";
-    ui.outcomeCard?.setAttribute("aria-modal", String(modal));
-    if (!modal) deactivateOutcomeTrap();
-  }
-
-  function deactivateTutorialTrap() {
-    tutorialTrapActive = false;
-    document.removeEventListener("keydown", trapTutorialTab, true);
-    document.removeEventListener("focusin", keepTutorialFocus, true);
+    deactivateModal(ui.outcome);
   }
 
   function hideGameOverlays() {
-    setOverlayVisible(ui.overlay, false);
-    setOverlayVisible(ui.tutorial, false);
-    deactivateTutorialTrap();
+    deactivateModal(ui.overlay);
+    deactivateModal(ui.tutorial);
     hideOutcomeOverlay();
   }
 
@@ -525,71 +586,29 @@
 
   function showStartOverlay() {
     updateLevelUi();
-    setOverlayVisible(ui.tutorial, false);
-    deactivateTutorialTrap();
+    deactivateModal(ui.tutorial);
     hideOutcomeOverlay();
-    setOverlayVisible(ui.overlay, true);
-    window.requestAnimationFrame(() => (ui.levelPicker?.querySelector(`[data-level-id="${selectedLevelId}"]`) || ui.start)?.focus({ preventScroll: true }));
+    const selectedButton = ui.levelPicker?.querySelector(`[data-level-id="${selectedLevelId}"]`);
+    activateModal(ui.overlay, selectedButton || ui.start);
   }
 
   function showTutorialOverlay() {
     hideOutcomeOverlay();
-    setOverlayVisible(ui.overlay, false);
-    setOverlayVisible(ui.tutorial, true);
-    tutorialTrapActive = true;
-    document.addEventListener("keydown", trapTutorialTab, true);
-    document.addEventListener("focusin", keepTutorialFocus, true);
-    window.requestAnimationFrame(() => ui.tutorialGo?.focus({ preventScroll: true }));
-  }
-
-  function trapTutorialTab(event) {
-    if (!tutorialTrapActive || event.key !== "Tab") return;
-    event.preventDefault();
-    ui.tutorialGo?.focus({ preventScroll: true });
-  }
-
-  function keepTutorialFocus(event) {
-    if (tutorialTrapActive && !ui.tutorial?.hidden && !ui.tutorial.contains(event.target)) ui.tutorialGo?.focus({ preventScroll: true });
-  }
-
-  function trapOutcomeTab(event) {
-    if (!outcomeTrapActive || event.key !== "Tab") return;
-    const actions = outcomeActions();
-    if (!actions.length) return;
-    const first = actions[0];
-    const last = actions[actions.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus({ preventScroll: true });
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus({ preventScroll: true });
-    }
-  }
-
-  function keepOutcomeFocus(event) {
-    if (!outcomeTrapActive || !ui.outcome || ui.outcome.hidden || ui.outcome.contains(event.target)) return;
-    const first = outcomeActions()[0];
-    if (first) first.focus({ preventScroll: true });
+    deactivateModal(ui.overlay);
+    activateModal(ui.tutorial, ui.tutorialGo, ui.start);
   }
 
   function showOutcomeOverlay(run) {
     completedRun = run;
-    setOverlayVisible(ui.overlay, false);
-    setOverlayVisible(ui.tutorial, false);
+    deactivateModal(ui.overlay);
+    deactivateModal(ui.tutorial);
     const won = run.outcome === "Victory";
     if (ui.outcomeTitle) ui.outcomeTitle.textContent = won ? "System claimed" : "Fleet lost";
     if (ui.outcomeSummary) ui.outcomeSummary.textContent = `${won ? "Victory" : "Defeat"} on Level ${run.levelId} - ${run.levelName}. Choose your next step.`;
     if (ui.outcomeLevel) ui.outcomeLevel.textContent = `Level ${run.levelId} - ${run.levelName}`;
     if (ui.outcomeScore) ui.outcomeScore.textContent = run.score;
     if (ui.outcomeDuration) ui.outcomeDuration.textContent = fmt(run.durationSeconds);
-    setOverlayVisible(ui.outcome, true);
-    deactivateOutcomeTrap();
-    setOutcomeInteractionMode(true);
-    outcomeTrapActive = true;
-    document.addEventListener("keydown", trapOutcomeTab, true);
-    document.addEventListener("focusin", keepOutcomeFocus, true);
-    ui.viewAnalysis?.focus({ preventScroll: true });
+    activateModal(ui.outcome, ui.viewAnalysis, canvas);
   }
 
   function shouldReduceMotion() {
@@ -3001,7 +3020,7 @@
   canvas.addEventListener("pointerdown", event => {
     if (!state.acceptingInput) return;
     const point = canvasPoint(event);
-    const coarse = event.pointerType === "touch" || isCoarsePointer();
+    const coarse = usesCoarseTargets(event);
     if (event.button === 2) {
       const hit = hitPlayerWormholeEntrance(point);
       if (hit) { deletePlayerWormhole(hit.wormhole); return; }
@@ -3081,7 +3100,7 @@
   });
   ui.backToGame?.addEventListener("click", () => {
     scrollGameIntoView();
-    if (state?.ended && ui.outcome && !ui.outcome.hidden) outcomeActions()[0]?.focus({ preventScroll: true });
+    if (state?.ended && completedRun) showOutcomeOverlay(completedRun);
     else canvas.focus({ preventScroll: true });
     setBackToGameVisible(false);
   });
@@ -3095,7 +3114,7 @@
   async function viewMatchAnalysisAction() {
     const run = completedRun;
     await ensureDashboardRendered(run);
-    setOutcomeInteractionMode(false);
+    hideOutcomeOverlay();
     if (ui.analyticsTitle && !ui.analyticsTitle.hasAttribute("tabindex")) ui.analyticsTitle.setAttribute("tabindex", "-1");
     scrollElementWithOffset(ui.analytics, gravityDevSettings.navigation.matchAnalysisOffset);
     ui.analyticsTitle?.focus({ preventScroll: true });
@@ -3149,9 +3168,12 @@
   });
   ui.worm.addEventListener("click", () => setWormMode(!wormMode));
   ui.mobileModes.forEach(button => button.addEventListener("click", () => setWormMode(button.dataset.gameMode === "wormhole")));
+  coarsePointerQuery.addEventListener("change", syncInputCapability);
+  finePointerQuery.addEventListener("change", syncInputCapability);
 
   initBackToGameObserver();
   initGravityDevLab();
+  syncInputCapability();
   reset();
   scheduleLiveTelemetryUpdate();
   requestAnimationFrame(tick);
