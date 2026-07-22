@@ -1122,6 +1122,19 @@ textarea:focus {
     padding-bottom: 0.1rem;
   }
 
+  .projects-index-topbar {
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .projects-index-topbar .project-context-nav {
+    order: 2;
+    width: auto;
+    margin-left: auto;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
   .hero,
   .section-grid,
   .contact-panel {
@@ -1260,9 +1273,13 @@ textarea:focus {
     border-radius: 50%;
   }
 
-  .projects-index-topbar .nav-return span { display: none; }
+  .projects-index-topbar .nav-return-label { display: none; }
 
-  .projects-index-topbar .nav-return svg { transform: translateX(1px); }
+  .projects-index-topbar .nav-return svg {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
 
   .projects-index-topbar .brand-mark {
     grid-column: 2;
@@ -1874,6 +1891,10 @@ textarea:focus {
 
 .projects-index-topbar .brand-mark { order: 1; }
 .projects-index-topbar .project-context-nav { order: 2; }
+.projects-index-topbar .nav-return:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.9);
+  outline-offset: 2px;
+}
 .projects-header-spacer { display: none; }
 
 .nav-return svg {
