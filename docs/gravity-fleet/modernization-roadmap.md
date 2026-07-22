@@ -152,16 +152,23 @@ The Node validator covers levels, deterministic commands, controlled win/loss pa
 * [x] Prove deterministic equivalence under 30 Hz, 60 Hz, and 144 Hz callback schedules.
 * [x] Provide runtime diagnostics and automated saved-run, telemetry, win/loss, and engine-boundary checks.
 
-### Human Checkpoint 1 - pending
+### Human Checkpoint 1 - July 22, 2026
 
-The repository does not contain credible recorded evidence for direct comparison with the historical desktop candidate, perceived desktop quality after PR B, current-main browser timing measurements, input-response observations, or a full mobile thermal validation after PR B. Leave those criteria pending.
+**Build tested:** current `main` after PRs #15, #16, and #17  
+**Desktop:** Chrome on Windows 10  
+**Mobile:** iPhone 14 pro max, Safari
 
-Before PR C, Joe should:
-
-* Play one current-main desktop match through analytics and confirm trails, effects, mouse responsiveness, live telemetry, and perceived frame pacing.
-* Capture a `?gravityDebug=1` diagnostics snapshot during representative play if practical.
-* Run one mobile smoke or full-match check and confirm no thermal or input regression.
-* Run `node tools/validate_gravity_fleet.js`.
+* Desktop completes a match through analytics.
+* Desktop trails and effects look intact.
+* Mouse interactions remain accurate.
+* No sustained or recurring frame-pacing failure is observed.
+* Live telemetry and final analytics work.
+* The runtime debug view does not reveal an obvious persistent failure.
+* Mobile starts and remains playable.
+* Launch and wormhole touch interactions work.
+* Tab restoration and orientation changes do not cause a large simulation jump or stuck input.
+* Mobile temperature remains acceptable for the test duration.
+* node tools/validate_gravity_fleet.js passes.
 
 ---
 
