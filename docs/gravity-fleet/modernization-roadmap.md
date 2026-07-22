@@ -1,14 +1,23 @@
 # Gravity Fleet Modernization Roadmap
 
+## Current status
+
+* PR #13, `Optimize Gravity Fleet for polished mobile play`, is merged history and remains the successful mobile-prototype reference.
+* PR A / PR #15, `Extract Gravity Fleet shared game core`, is merged. Its implementation commit is `46dfa0ba05af90886506e779687786103030abc9`.
+* PR B / PR #16, `Add Gravity Fleet fixed-step runtime`, is merged. Its implementation commit is `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`.
+* Automated fixed-step validation is complete with `node tools/validate_gravity_fleet.js`.
+* Implementation merged; human desktop/mobile performance verification remains pending because the repository contains no recorded current-main browser measurements or post-PR-B physical-device evidence.
+* PR C / Passes 10.3-10.4 is next after Checkpoint 1: the identity-equivalent desktop camera, portrait world-camera rotation, and dedicated replacement mobile shell.
+
 ## North star
 
 Transform Gravity Fleet Lab into one shared game with two polished presentations:
 
 * A restored, high-fidelity desktop experience.
-* A purpose-built mobile experience inspired primarily by `my favorite.png`.
+* A purpose-built mobile experience inspired primarily by `docs/gravity-fleet/reference/preferred-mobile-layout.png`.
 * Shared levels, physics, AI, combat, scoring, telemetry, analytics, and saved-run compatibility.
 * Separate cameras, input adapters, interface compositions, and rendering-quality policies.
-* No framework migration unless profiling later proves that the renderer—not the current architecture—is the remaining limitation.
+* No framework migration unless profiling later proves that the renderer - not the current architecture - is the remaining limitation.
 
 The preferred mobile concept establishes the target hierarchy: compact match status, a dominant battlefield, explicit Launch and Wormhole controls, a nearby wormhole-clear action, Fleet Strength and System Mix charts, and fewer low-value interface elements.
 
@@ -16,72 +25,31 @@ The preferred mobile concept establishes the target hierarchy: compact match sta
 
 # 1. Repository and pull-request strategy
 
-## 1.1 Preserve PR #13 as the proven mobile prototype
+## 1.1 PR #13 as merged historical mobile-prototype evidence
 
-PR #13 should remain a draft reference while the architecture work begins.
+PR #13, `Optimize Gravity Fleet for polished mobile play`, is merged into `main`; it is no longer an open draft or a replacement candidate. Commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remains the documented successful mobile playthrough reference.
 
-Do not merge it as the finished mobile edition yet because:
+Its implementation is not the finished adaptive presentation. The recorded limitations - desktop smoothness concerns and a landscape canvas surrounded by independently positioned mobile overlays - remain the reason for later camera, shell, touch, telemetry, and page-layout work. Preserve the historical evidence and its thermal/playthrough notes; do not rewrite history to make the sequence appear cleaner.
 
-* Its mobile playthrough now succeeds.
-* Its thermal behavior was acceptable on the tested phone.
-* It contains useful modal, touch, safe-area, pointer-capture, and mobile performance work.
-* Desktop smoothness has visibly regressed.
-* The new mobile presentation still relies on numerous fixed overlays around the existing 16:10 canvas.
-* The branch is stacked on a non-`main` base and includes a shared `styles.css` change described as outside the Gravity implementation scope.
-
-PR #13 is therefore valuable evidence and reusable source code, but not the appropriate place for an unbounded redesign.
-
-## 1.2 Freeze two known-good reference points
-
-Before architectural editing, preserve:
+## 1.2 Reference points and evidence limitation
 
 ### Desktop reference
 
-Identify and record the last commit where desktop play had the preferred:
-
-* Smooth frame pacing.
-* Trail and effect quality.
-* Input responsiveness.
-* Visual polish.
-
-Do not assume the PR #13 base commit is automatically that reference; verify it by running the game.
+`121c1307517e0f24d02d4c5ce24c989e6bff96b3` is a historical desktop reference candidate, not a verified preferred desktop baseline. `docs/gravity-fleet/baseline-notes.md` explicitly records that no captured desktop performance trace or runnable historical checkout was available for positive comparison. This limitation is documented, not resolved by assumption.
 
 ### Mobile reference
 
-Preserve commit:
+Commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remains the successfully tested mobile reference. Its recorded device, browser, orientation, approximate match duration, thermal observation, interaction notes, and saved-run result remain useful history, but do not substitute for post-PR-B validation.
+
+## 1.3 Current sequencing
+
+Current work starts from latest `main`. PR A / PR #15 and PR B / PR #16 are merged; do not recreate or rebase their historical branches. Complete Checkpoint 1 with current-main browser and mobile evidence, then create a focused PR C branch from current `main`, for example:
 
 ```text
-d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9
+gravity-fleet-camera-mobile-shell
 ```
 
-This is the successfully tested mobile playthrough reference.
-
-Record:
-
-* Device and browser.
-* Portrait and landscape screenshots.
-* Match level.
-* Approximate match duration.
-* Thermal observation.
-* Any interaction oddities.
-* Saved-run result.
-
-## 1.3 Establish a clean modernization branch
-
-Recommended sequence:
-
-1. Ensure the separate header work that PR #13 depends on is either merged into `main` or otherwise resolved.
-2. Create a new modernization branch based on the working PR #13 head.
-3. Rebase that branch onto the latest `main`.
-4. Remove unrelated shared-file changes from the Gravity diff.
-5. Keep PR #13 open as a reference until the modernization branch reaches mobile parity.
-6. Close PR #13 as superseded only after the replacement draft PR exists and its ancestry is verified.
-
-Suggested branch:
-
-```text
-gravity-fleet-shared-engine-modernization
-```
+Keep unrelated shared-file changes out of Gravity Fleet pull requests. Deliver later work in coherent, behavior-preserving stages.
 
 ## 1.4 Avoid a single rewrite commit
 
@@ -142,292 +110,62 @@ Given the same initial state, random seed, elapsed simulation steps, and command
 
 # 3. Proposed implementation passes
 
-## Pass 10.0 — Baselines, contracts, and regression harness
+## Pass 10.0 - Baselines, contracts, and regression harness
 
-**Size:** Medium
-**Risk:** Low
-**Purpose:** Protect the game before restructuring it.
+**Status: complete for repository-supported work through PR #15.** The baseline and contract record is in `docs/gravity-fleet/baseline-notes.md` and `docs/gravity-fleet/pr-a-contract.md`; fixtures and the validator are committed under `tools/fixtures/gravity-fleet/` and `tools/validate_gravity_fleet.js`.
 
-### Work
+* [x] Document the known-good mobile reference and the desktop-reference limitation.
+* [x] Inventory responsibilities and record gameplay invariants and compatibility boundaries.
+* [x] Add seedable validation, a deterministic command fixture, and a synthetic saved-run compatibility fixture.
+* [x] Add development-only diagnostics that are hidden from normal visitors.
+* [x] Preserve normal gameplay behavior and randomness outside validation.
 
-* Preserve the desktop and mobile reference commits.
-* Capture representative states:
-
-  * Setup.
-  * Tutorial.
-  * Early match.
-  * Large launch.
-  * Active wormhole.
-  * Telemetry open.
-  * Victory.
-  * Defeat.
-  * Post-match analytics.
-* Record current saved-run objects and the local-storage schema.
-* Document the gameplay invariants listed above.
-* Inventory every major responsibility currently inside `gravity-fleet-lab.js`.
-* Add temporary development instrumentation for:
-
-  * Simulation time.
-  * Draw time.
-  * AI time.
-  * Combat time.
-  * HUD update time.
-  * Chart time.
-  * Active ships.
-  * Effects.
-  * Long frames.
-* Add a repeatable command-sequence fixture for at least one level.
-* Introduce a seedable random source for validation without changing normal public randomness.
-* Document current desktop and mobile frame behavior.
-
-### Performance baseline
-
-Record, rather than guess:
-
-* Median frame time.
-* 95th-percentile frame time.
-* Frames exceeding 50 milliseconds.
-* Average displayed frame rate.
-* Input-to-visible-response feel.
-* Sustained mobile temperature observation.
-
-### Acceptance criteria
-
-* [ ] Both reference commits can still be run.
-* [ ] A known run can be reproduced from a command fixture.
-* [ ] Existing saved-run data is captured as a compatibility fixture.
-* [ ] Instrumentation is development-only and hidden from normal visitors.
-* [ ] No gameplay behavior changes.
-* [ ] PR #13 remains available as the working mobile comparison.
-
-### Stop condition
-
-Do not begin extraction until the desktop reference has been positively identified. Otherwise, “restore desktop quality” has no trustworthy comparison point.
+The stop condition is satisfied through explicit documentation of the unresolved historical desktop baseline. It does not establish historical desktop performance values.
 
 ---
 
-## Pass 10.1 — Extract the shared game core
+## Pass 10.1 - Extract the shared game core
 
-**Size:** Large
-**Risk:** High
-**Purpose:** Separate gameplay truth from the DOM, canvas, and device conditions.
+**Status: complete through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`.** `games/gravity-fleet/core.mjs` and `games/gravity-fleet/levels.mjs` provide the shared level and gameplay boundary; the existing desktop and mobile presentation adapters remain in `games/gravity-fleet-lab.js`.
 
-The current runtime mixes simulation, rendering, UI, telemetry, storage, input, mobile detection, dialogs, charts, and debugging. Mobile detection already influences trails, HUD cadence, chart behavior, and frame processing.
+* [x] Extract shared level/core logic, including simulation, AI, combat, scoring, telemetry production, and run serialization.
+* [x] Provide presentation-neutral command handling for launch, wormhole, pause, resume, reset, and cancellation.
+* [x] Preserve saved-run compatibility and deterministic validation.
+* [x] Verify the engine boundary has no device, viewport, DOM, or canvas dependencies.
+* [x] Retain current desktop and mobile compatibility through the existing presentation adapters.
+* [x] Keep implementation scoped to Gravity Fleet without unrelated shared-file changes.
 
-### Target responsibility boundaries
-
-The exact filenames should be verified during implementation, but the target structure should resemble:
-
-```text
-games/gravity-fleet/
-  core
-    levels
-    state
-    simulation
-    ai
-    commands
-  runtime
-    clock
-    performance-profile
-  view
-    camera
-    renderer
-  input
-    desktop-input
-    mobile-input
-  telemetry
-    telemetry-model
-    run-storage
-  presentation
-    desktop-presentation
-    mobile-presentation
-
-games/gravity-fleet-lab.js
-  bootstrap only
-```
-
-Avoid creating a separate file for every tiny function. The goal is coherent boundaries, not maximum file count.
-
-### Shared-core responsibilities
-
-Extract:
-
-* Level configuration.
-* State creation and reset.
-* Planet orbit updates.
-* Ship production.
-* AI updates.
-* Launch commands.
-* Wormhole commands.
-* Combat.
-* Win/loss checks.
-* Score calculation.
-* Telemetry event production.
-* Run serialization.
-
-### Command interface
-
-Both desktop and mobile input should eventually emit commands such as:
-
-```text
-BeginLaunch
-UpdateLaunch
-CommitLaunch
-CancelLaunch
-
-BeginWormhole
-UpdateWormhole
-CommitWormhole
-ClearWormhole
-CancelWormhole
-
-PauseMatch
-ResumeMatch
-ResetMatch
-```
-
-The core should not receive pointer events or DOM elements.
-
-### Prohibited core dependencies
-
-The shared engine must not directly query:
-
-* Viewport width.
-* Pointer media queries.
-* Screen orientation.
-* HTML controls.
-* CSS classes.
-* Drawer state.
-* Device type.
-* Canvas dimensions.
-
-### Regression validator
-
-Add a repository-provided validation command using Node and no external testing dependency.
-
-It should verify:
-
-* All three levels initialize.
-* The same seed and command script produces the same result.
-* Win and loss states complete.
-* Telemetry totals remain internally consistent.
-* Existing saved runs can still load.
-* Desktop and mobile command adapters produce equivalent engine commands.
-
-### Acceptance criteria
-
-* [ ] The current desktop presentation still plays from setup through analytics.
-* [ ] The current mobile presentation still plays from setup through analytics.
-* [ ] No level, AI, score, or telemetry behavior intentionally changes.
-* [ ] Device checks exist only in presentation/runtime selection.
-* [ ] Existing saved runs remain readable.
-* [ ] The deterministic validator passes.
-* [ ] The bootstrap file no longer owns core simulation logic.
-
-### Rollback point
-
-If extraction changes gameplay behavior, stop and restore parity before adding the camera or redesigned mobile shell.
+The Node validator covers levels, deterministic commands, controlled win/loss paths, telemetry consistency, saved-run readability, serialization, and the presentation-neutral engine boundary.
 
 ---
 
-## Pass 10.2 — Replace the clock and restore desktop quality
+## Pass 10.2 - Replace the clock and restore desktop quality
 
-**Size:** Large
-**Risk:** High
-**Purpose:** Recover desktop smoothness while creating a stable runtime for both presentations.
+**Status: implementation and automated validation complete through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; Human Checkpoint 1 pending.** `docs/gravity-fleet/pr-b-runtime.md`, `games/gravity-fleet/runtime.mjs`, `games/gravity-fleet/performance.mjs`, and the updated validator record the shipped runtime work.
 
-The current loop targets 60 FPS on desktop and 30 FPS on mobile but skips callbacks using an 80%-of-frame-duration threshold.
+### Implementation and automated validation - complete
 
-That scheduling policy should not remain the foundation of the modernized runtime.
+* [x] Run a shared 60-step-per-second fixed simulation with separate render scheduling.
+* [x] Cap catch-up work, suspend hidden-page work, and begin a fresh timing epoch on restoration and relevant timing transitions.
+* [x] Provide Desktop High, Mobile Balanced, and Reduced Motion profiles.
+* [x] Control HUD and telemetry schedules independently.
+* [x] Prove deterministic equivalence under 30 Hz, 60 Hz, and 144 Hz callback schedules.
+* [x] Provide runtime diagnostics and automated saved-run, telemetry, win/loss, and engine-boundary checks.
 
-### Runtime work
+### Human Checkpoint 1 - pending
 
-* Introduce a fixed simulation timestep.
-* Keep rendering separate from simulation advancement.
-* Cap catch-up work to prevent a stalled tab from creating a simulation spiral.
-* Reset timing cleanly after:
+The repository does not contain credible recorded evidence for direct comparison with the historical desktop candidate, perceived desktop quality after PR B, current-main browser timing measurements, input-response observations, or a full mobile thermal validation after PR B. Leave those criteria pending.
 
-  * Tab restoration.
-  * Pause.
-  * Orientation change.
-  * Drawer transitions that intentionally suspend play.
-* Keep telemetry sampling on its own schedule.
-* Keep DOM/HUD updates independently throttled.
-* Stop hidden-page work.
+Before PR C, Joe should:
 
-### Presentation profiles
-
-Introduce explicit profiles rather than scattered conditionals.
-
-#### Desktop High
-
-* Display-synchronized rendering.
-* Full trails.
-* Full effects.
-* Original glow and pulse quality.
-* High-quality canvas backing resolution.
-* Full live telemetry availability.
-* Precise mouse interactions.
-
-#### Mobile Balanced
-
-* Stable 30 FPS render target initially.
-* Shared simulation step.
-* Reduced nonessential effects.
-* Capped effective pixel density where needed.
-* No expensive hidden charts.
-* Compact HUD updates.
-
-#### Reduced Motion
-
-* Minimal decorative movement.
-* Static or restrained nonessential effects.
-* Gameplay state remains understandable.
-* Core mechanics remain available.
-
-### Desktop recovery work
-
-* Compare against the frozen pre-mobile desktop reference.
-* Restore trail and effect behavior only for Desktop High.
-* Confirm static-layer caching is not creating stale or lower-quality output.
-* Confirm telemetry throttling does not affect desktop charts.
-* Remove mobile rescue logic from the desktop render path.
-* Diagnose major frame spikes before reducing visual quality.
-
-### Recommended performance gates
-
-These are proposed release gates, not claims about current measurements:
-
-#### Desktop
-
-* Routine play should visually match the reference smoothness.
-* No persistent cadence reduction during ordinary gameplay.
-* No recurring long-frame clusters during normal ship counts.
-* Desktop High effects should not be disabled merely because mobile disables them.
-
-#### Mobile
-
-* Target remains a stable 30 FPS.
-* No sustained collapse below approximately 25 FPS in ordinary play.
-* No unacceptable temperature increase during a full match.
-* Input response remains immediate enough for launch and wormhole gestures.
-
-### Acceptance criteria
-
-* [ ] Desktop appearance and smoothness match or materially improve upon the pre-mobile reference.
-* [ ] Mobile remains playable and thermally acceptable.
-* [ ] Simulation results do not depend on render frequency.
-* [ ] Telemetry totals remain consistent across render profiles.
-* [ ] Pausing and tab restoration do not create simulation jumps.
-* [ ] Performance measurements are recorded before and after.
-
-### Decision gate
-
-If desktop still fails after runtime isolation and profiling identifies canvas drawing as the dominant cost, create a separate renderer experiment. Do not begin a framework migration based only on subjective lag.
+* Play one current-main desktop match through analytics and confirm trails, effects, mouse responsiveness, live telemetry, and perceived frame pacing.
+* Capture a `?gravityDebug=1` diagnostics snapshot during representative play if practical.
+* Run one mobile smoke or full-match check and confirm no thermal or input regression.
+* Run `node tools/validate_gravity_fleet.js`.
 
 ---
 
-## Pass 10.3 — Introduce the camera and viewport system
+## Pass 10.3 - Introduce the camera and viewport system
 
 **Size:** Large
 **Risk:** High
@@ -524,7 +262,7 @@ Add a temporary camera-debug mode showing:
 
 ---
 
-## Pass 10.4 — Build the dedicated mobile match shell
+## Pass 10.4 - Build the dedicated mobile match shell
 
 **Size:** Large
 **Risk:** Medium–High
@@ -624,7 +362,7 @@ Cut over only after:
 
 ---
 
-## Pass 10.5 — Replace mobile touch mechanics
+## Pass 10.5 - Replace mobile touch mechanics
 
 **Size:** Medium–Large
 **Risk:** Medium
@@ -719,7 +457,7 @@ Desktop instructions must continue to describe mouse controls.
 
 ---
 
-## Pass 10.6 — Redesign live telemetry and post-match analytics
+## Pass 10.6 - Redesign live telemetry and post-match analytics
 
 **Size:** Large
 **Risk:** Medium
@@ -860,7 +598,7 @@ Place lower-priority metrics under an expandable “All match statistics” regi
 
 ---
 
-## Pass 10.7 — Condense the Gravity page and stabilize the shared header
+## Pass 10.7 - Condense the Gravity page and stabilize the shared header
 
 **Size:** Medium
 **Risk:** Medium because `styles.css` is shared
@@ -946,7 +684,7 @@ When entering the mobile match:
 
 ---
 
-## Pass 10.8 — Integrated QA, accessibility, and release
+## Pass 10.8 - Integrated QA, accessibility, and release
 
 **Size:** Large
 **Risk:** Medium
@@ -1093,77 +831,43 @@ Remove:
 
 # 4. Recommended pull-request grouping
 
-To balance usage conservation with review safety, use six coherent implementation pull requests rather than one giant PR or dozens of tiny ones.
+## PR A - Core contracts and extraction - complete
 
-## PR A — Core contracts and extraction
+PR A is merged through PR #15. It includes Passes 10.0-10.1, the shared engine boundary, fixtures, diagnostics, and deterministic validation. It did not redesign visuals.
 
-Includes:
+## PR B - Runtime and desktop restoration - complete implementation
 
-* Pass 10.0.
-* Pass 10.1.
-* Deterministic validation.
-* No visual redesign.
+PR B is merged through PR #16. It includes Pass 10.2 fixed-step runtime work, Desktop High/Mobile Balanced/Reduced Motion profiles, diagnostics, and automated validation. Its browser/device performance checkpoint remains pending.
 
-## PR B — Runtime and desktop restoration
+## Checkpoint 1 - current
 
-Includes:
+Complete the current-main desktop and mobile verification described in Pass 10.2 before PR C. This is a human evidence checkpoint, not a reason to rewrite merged implementation.
 
-* Pass 10.2.
-* Desktop performance evidence.
-* Desktop High and Mobile Balanced profiles.
+## PR C - Camera and mobile shell - next
 
-## PR C — Camera and mobile shell
+PR C contains Passes 10.3-10.4: an identity-equivalent desktop camera, portrait rotation and inverse pointer transforms, safe gameplay rectangle and orientation-aware viewport behavior, plus a dedicated mobile shell behind a development flag. Retain the existing mobile shell until parity.
 
-Includes:
+## PR D - Touch controls and telemetry - later
 
-* Pass 10.3.
-* Pass 10.4.
-* New shell initially behind a development flag.
-* First device checkpoint.
+Retain the intended Passes 10.5-10.6 mobile design cutover and second device checkpoint.
 
-## PR D — Touch controls and telemetry
+## PR E - Page, header, and analytics polish - later
 
-Includes:
+Retain Pass 10.7, compact post-match styling, and shared-site regression review.
 
-* Pass 10.5.
-* Pass 10.6.
-* Mobile design cutover.
-* Second device checkpoint.
+## PR F - Release QA and cleanup - later
 
-## PR E — Page, header, and analytics polish
-
-Includes:
-
-* Pass 10.7.
-* Final compact post-match styling.
-* Shared-site regression review.
-
-## PR F — Release QA and cleanup
-
-Includes:
-
-* Pass 10.8.
-* Dead-code removal.
-* Documentation.
-* Final Cloudflare and device evidence.
-
-Each PR should follow the repository’s preferred issue-style prompt structure: goal, context, requirements, constraints, acceptance criteria, verification, and deliverable.
+Retain Pass 10.8, dead-code removal, documentation, and final Cloudflare/device evidence.
 
 ---
 
 # 5. Human QA checkpoints
 
-To avoid requiring a user review after every small technical pass, use only three planned approval checkpoints.
+## Checkpoint 1 - Desktop/mobile runtime evidence - current
 
-## Checkpoint 1 — Desktop restored
+After merged PR B, complete the current-main desktop match, optional `?gravityDebug=1` snapshot, and mobile smoke or full-match check specified in Pass 10.2. Confirm trails, effects, mouse responsiveness, live telemetry, perceived pacing, and no thermal or input regression. Automated validation is complete but does not replace this evidence.
 
-After PR B:
-
-* Confirm desktop feels like the preferred pre-mobile version.
-* Confirm no obvious gameplay drift.
-* Confirm current mobile fallback still works.
-
-## Checkpoint 2 — Mobile game experience
+## Checkpoint 2 - Mobile game experience - later
 
 After PR D:
 
@@ -1172,7 +876,7 @@ After PR D:
 * Test Launch, Wormhole, Clear, Pause, and Telemetry.
 * Approve the mobile composition before surrounding-page polish.
 
-## Checkpoint 3 — Release candidate
+## Checkpoint 3 - Release candidate - later
 
 After PR F:
 
