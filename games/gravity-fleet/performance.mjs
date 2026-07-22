@@ -9,7 +9,7 @@ function percentile(values, ratio) {
 export function createPerformanceMonitor({ enabled = false, now = () => performance.now(), sampleWindow = DEFAULT_WINDOW } = {}) {
   if (!enabled) {
     const noop = () => 0;
-    return { enabled: false, measure: (_name, work) => work(), recordFrame: noop, setGauge: noop, snapshot: () => null };
+    return { enabled: false, measure: (_name, work) => work(), recordFrame: noop, resetFrameTiming: noop, setGauge: noop, snapshot: () => null };
   }
 
   const timings = new Map();
@@ -42,6 +42,10 @@ export function createPerformanceMonitor({ enabled = false, now = () => performa
     previousFrameAt = timestamp;
   }
 
+  function resetFrameTiming() {
+    previousFrameAt = 0;
+  }
+
   function setGauge(name, value) {
     gauges.set(name, Number(value) || 0);
   }
@@ -65,5 +69,5 @@ export function createPerformanceMonitor({ enabled = false, now = () => performa
     };
   }
 
-  return { enabled: true, measure, recordFrame, setGauge, snapshot };
+  return { enabled: true, measure, recordFrame, resetFrameTiming, setGauge, snapshot };
 }
