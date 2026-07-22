@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: July 19, 2026
+- Last reviewed: July 21, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -33,20 +33,22 @@ Status labels:
 | 04. Shrinkflation reliability | DONE | The hero is tighter, product imagery is resilient, and the weekly Kroger update is automated. | Secrets for automation |
 | 05. EV hero animation | DONE | The EV case study opens with a responsive, purposeful car-and-charger scene. | Preserve the animation prototype until complete |
 | 06. Gravity Fleet game flow | DONE | Match flow, navigation, terminology, level-three fairness, and command states feel intentional. | None |
-| 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 11. | Pass 06 |
+| 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 12. | Pass 06 |
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
 | 09. Mobile layout corrections and responsive bug fixes | NEXT | Resolve the confirmed mobile and responsive findings in `MOBILE_QA_REPORT.md`. | Pass 08 structural integration |
-| 10. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09 and domain access |
-| 11. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections and production-route release. | Pass 10 production release |
+| 10. Gravity Fleet mobile edition | IN REVIEW | Deliver a lower-cost mobile runtime with a full-screen match shell, transparent HUD, telemetry drawer, and post-match analysis while preserving the shared game. | Pass 06, Pass 07, and touch-playability work |
+| 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
+| 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 
 The recommended execution order is:
 
 1. Completed governance and feature passes.
 2. Completed faithful Pass 08 publishing-system integration.
 3. Pass 09 mobile layout corrections and responsive bug fixes.
-4. Pass 10 custom-domain and production-route release.
-5. Pass 11 final repository validation and release QA.
-6. Deferred backend and operational automation work.
+4. Pass 10 Gravity Fleet mobile device and preview verification.
+5. Pass 11 custom-domain and production-route release.
+6. Pass 12 final repository validation and release QA.
+7. Deferred backend and operational automation work.
 
 ## Decisions already made
 
@@ -284,7 +286,7 @@ Acceptance criteria:
 - The workflow can be run manually before the schedule is enabled.
 - A successful no-change run produces no commit.
 - A failed API or validation run leaves production data untouched and exposes a useful Actions error.
-- A successful data commit triggers the normal Cloudflare deployment once Pass 10 is complete.
+- A successful data commit triggers the normal Cloudflare deployment once Pass 11 is complete.
 
 Reference: GitHub scheduled workflows support cron schedules and IANA timezones, and run from the default branch: <https://docs.github.com/actions/using-workflows/events-that-trigger-workflows#schedule>.
 
@@ -386,14 +388,14 @@ Acceptance criteria for Pass 06:
 
 Implementation was completed July 18, 2026. Live telemetry uses a configurable 200ms timer outside the gameplay animation loop and skips unchanged chart and DOM work. Run summaries provide evidence-based observations and replay guidance; leaderboard, recent-run, and minimap improvements are implemented. Control-hint mouse icons were enlarged, and `PLANET_MOTION_MULTIPLIER` is 1.2 without changing ship movement constants.
 
-The remaining laptop/mobile frame-pacing measurements and planet-motion fairness playtesting are deliberately deferred to Pass 11. They have not yet passed and must not be represented as complete physical validation.
+The remaining laptop/mobile frame-pacing measurements and planet-motion fairness playtesting are deliberately deferred to Pass 12. They have not yet passed and must not be represented as complete physical validation.
 
 ### 07.1 Increase live telemetry cadence safely
 
 - [x] Move the current live telemetry interval from 350ms to a configurable target near 200ms.
 - [x] Avoid rebuilding expensive DOM or charts when underlying values have not changed.
 - [x] Keep gameplay animation on `requestAnimationFrame` and telemetry rendering on its own cadence.
-- [ ] Defer dropped-frame measurement on a typical laptop and mobile-width emulation to Pass 11.
+- [ ] Defer dropped-frame measurement on a typical laptop and physical mobile hardware to Pass 12.
 
 ### 07.2 Make run summary insights more specific
 
@@ -423,7 +425,7 @@ The remaining laptop/mobile frame-pacing measurements and planet-motion fairness
 - [x] Increase the mouse icons in the control hints while keeping the accompanying text compact.
 - [x] Increase base planet-orbit speed by approximately 15 to 25 percent through a dedicated planet-motion multiplier.
 - [x] Do not change ship orbit, travel, formation, or combat speeds as part of this item.
-- [ ] Defer fairness playtesting of the faster planets, level objectives, and wormhole placement to Pass 11.
+- [ ] Defer fairness playtesting of the faster planets, level objectives, and wormhole placement to Pass 12.
 
 Acceptance criteria for Pass 07 implementation:
 
@@ -497,13 +499,13 @@ Do not perform additional fictionalization, anonymization, simplification, place
 - [x] Update the registry to the shipped `public` and `ready` lifecycle state.
 - [x] Run the recorded local structural checks: HTTP nested-route loading, changed-JavaScript syntax checks, manifest parsing, asset URL verification, and registry validation.
 
-The case study and demo remain `noindex` in the currently shipped source. That deployment choice and Cloudflare-only behavior remain for Pass 10 verification; it does not change the public/ready registry lifecycle.
+The case study and demo remain `noindex` in the currently shipped source. That deployment choice and Cloudflare-only behavior remain for Pass 11 verification; it does not change the public/ready registry lifecycle.
 
 ### 08.2 Evidence transferred to later gates
 
 `MOBILE_QA_REPORT.md` provides the first mobile QA evidence for the merged source. It confirms no document-level horizontal overflow across 14 routes at 360×800, 375×812, 390×844, and 430×932, but identifies a fallback-image defect and several mobile/responsive issues. Pass 09 owns their correction and regression evidence.
 
-Cloudflare preview and production checks were not available in that audit. Verify actual videos, external map behavior, headers, redirects, metadata, caching, direct loads, and production console/network behavior in Pass 10 and Pass 11. Do not mark those deployment-only checks as completed based on local evidence.
+Cloudflare preview and production checks were not available in that audit. Verify actual videos, external map behavior, headers, redirects, metadata, caching, direct loads, and production console/network behavior in Pass 11 and Pass 12. Do not mark those deployment-only checks as completed based on local evidence.
 
 ## Pass 09 - Mobile layout corrections and responsive bug fixes
 
@@ -578,11 +580,61 @@ Pass 09 acceptance criteria:
 - Relevant interactions still work, console and network checks show no new local failures, and a Cloudflare pull-request preview is reviewed where deployment behavior is involved.
 - Remaining low/cosmetic findings are completed or deliberately deferred in this roadmap.
 
-## Pass 10 - Production deployment and custom-domain release
+## Pass 10 - Gravity Fleet mobile edition
+
+**Status: IN REVIEW.** Source implementation is complete on the active Gravity Fleet touch-playability branch. The mobile edition uses the same rules, AI, physics, scoring, telemetry events, analytics calculations, and saved-run schema as desktop while presenting the live match through a dedicated mobile shell. Physical phone performance, thermal behavior, and final Cloudflare preview QA remain open.
+
+### 10.1 Performance baseline and rescue
+
+- [x] Cap the active coarse-pointer/mobile simulation and render loop at 30 frames per second while preserving the existing desktop target.
+- [x] Pause frame work while the document is hidden and reset frame timing on return so background time does not create a simulation jump.
+- [x] Stop continuously repainting hidden tutorial canvases; animate visible tutorial scenes at a bounded rate and keep reduced-motion scenes static.
+- [x] Cache the static grid and orbital-path layer instead of rebuilding it every frame.
+- [x] Disable per-ship trail allocation and nonessential effects in the mobile presentation.
+- [x] Throttle live HUD/command DOM writes, reduce mobile chart polling to one second, and defer the three full live-chart redraws while the mobile match shell is active.
+- [ ] Record before/after frame pacing, input responsiveness, and device temperature on at least one representative iPhone or Android phone and a desktop browser.
+
+### 10.2 Shared engine and presentation boundary
+
+- [x] Keep a single game state and simulation path for desktop and mobile; do not fork levels, AI, physics, scoring, telemetry, or local run history.
+- [x] Select the mobile presentation through coarse-pointer capability plus the narrow viewport breakpoint, and respond safely when either changes.
+- [x] Keep the implementation within `games/gravity-fleet-lab.html`, `.css`, and `.js` with no framework, bundler, backend, or new dependency.
+- [x] Preserve the existing desktop canvas, command dock, analytics dashboard, mouse controls, and debug behavior outside the mobile presentation.
+
+### 10.3 Full-screen mobile match shell and transparent HUD
+
+- [x] Promote the live match to a viewport-fixed, safe-area-aware shell on narrow touch devices while leaving setup, tutorial, and outcome dialogs viewport-safe.
+- [x] Add background-free live HUD telemetry for level, timer, Cyan ships/worlds, rival worlds, ships in flight, frame rate, and current touch instruction.
+- [x] Keep 44px Launch/Wormhole mode controls reachable without obscuring the tactical map.
+- [x] Preserve the full tactical field without distorting its 16:10 coordinate system; center it in portrait and landscape and recommend landscape where it improves visibility.
+
+### 10.4 Telemetry drawer and mobile post-match analysis
+
+- [x] Add an accessible bottom drawer with Red/Orange strength, star control, largest launch, deep-space fights, ship transits, recent events, reset, and level selection.
+- [x] Pause game input while the drawer is open, contain keyboard focus, support Escape and backdrop close, and return focus to the drawer trigger.
+- [x] Expand the outcome dialog with captures, largest launch, destroyed ships, transits, and the strongest recorded signal.
+- [x] Preserve the full post-match dashboard and render deferred live charts before navigating from the mobile result to analytics.
+
+### 10.5 Adaptive behavior, accessibility, and QA
+
+- [x] Respect safe-area insets, reduced motion, touch target guidance, focus visibility, dialog labels, and focus restoration.
+- [x] Keep cancelled gestures, mode changes, resets, level selection, viewport changes, and tab visibility transitions from leaving stale mobile UI or pointer state.
+- [ ] Review 320, 375, 390, 430, 768, and 1024 CSS pixels, relevant portrait/landscape layouts, 200% zoom, keyboard-only operation, reduced motion, and a real coarse-pointer device.
+- [ ] Verify a Cloudflare pull-request preview for direct load, refresh, Back/Forward, console errors, failed requests, touch launch/wormhole behavior, outcome actions, and analytics navigation.
+- [ ] Confirm sustained mobile play remains smooth and does not cause unacceptable thermal load; tune only presentation cost or timing unless evidence identifies a shared-engine defect.
+
+Pass 10 acceptance criteria:
+
+- Mobile play uses the shared engine and produces the same outcomes, scores, telemetry meanings, and compatible saved runs as desktop.
+- A live mobile match feels like a focused game rather than a small canvas embedded in a long page, with essential telemetry visible and deeper telemetry one action away.
+- Physical device evidence shows stable input and materially improved frame pacing/thermal behavior without a desktop regression.
+- Mobile setup, tutorial, drawer, match, outcome, and analytics states remain usable with touch, keyboard, reduced motion, safe areas, and supported orientations.
+
+## Pass 11 - Production deployment and custom-domain release
 
 **Status: BLOCKED by Pass 09.** Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the `pages.dev` deployment is working.
 
-### 10.1 Complete remaining production release work
+### 11.1 Complete remaining production release work
 
 - [x] Connect `Joey-VW/Portfolio` to Cloudflare Pages.
 - [x] Use `main` as the production branch.
@@ -596,18 +648,18 @@ Acceptance criteria:
 - Every public route loads directly and after refresh on the final production host.
 - Final metadata and 404 behavior are verified without exposing credentials or internal tracking details.
 
-### 10.2 Deferred backend and live-service work - LATER
+### 11.2 Deferred backend and live-service work - LATER
 
 - [ ] Add a portfolio contact endpoint with server-side validation, rate limiting, Turnstile verification, and verified delivery.
 - [ ] Replace the email-draft fallback only after the contact endpoint passes an end-to-end test.
 - [ ] Consider live Google Sheets content, Google Forms delivery, and Google Drive media integration for Postcard Atlas only after the fixture-based portfolio demo is approved.
 - [ ] Perform credentialed Kroger and other operational automation verification only when explicitly authorized and safely configured.
 
-## Pass 11 - Final repository validation and release QA
+## Pass 12 - Final repository validation and release QA
 
-Comprehensive validation is consolidated here after Pass 09 mobile corrections and Pass 10 custom-domain/production-route release. Every production-bound PR must still meet the minimum smoke gate below.
+Comprehensive validation is consolidated here after Pass 09 mobile corrections, Pass 10 Gravity Fleet mobile verification, and Pass 11 custom-domain/production-route release. Every production-bound PR must still meet the minimum smoke gate below.
 
-### 11.1 Final validation matrix
+### 12.1 Final validation matrix
 
 - [ ] Audit root-level artifacts, stale routes, orphaned selectors/helpers, duplicate data, captures, and obsolete comments before any deletion; preserve sources needed by unfinished work.
 - [ ] Review all affected public routes at 320, 375, 390, 430, 768, and 1024 CSS pixels, relevant landscape layouts, and 200% browser zoom.
@@ -617,7 +669,7 @@ Comprehensive validation is consolidated here after Pass 09 mobile corrections a
 - [ ] Verify final Cloudflare preview and production behavior, including canonical host, routes, refreshes, headers, redirects, metadata, favicon, and 404 response.
 - [ ] Measure Gravity Fleet laptop/mobile frame pacing and playtest planet motion, level objectives, and wormhole fairness. These physical checks remain open until evidence is recorded.
 
-### 11.2 Minimum production-bound PR smoke gate
+### 12.2 Minimum production-bound PR smoke gate
 
 Every production-bound PR must complete and report this minimum gate:
 
@@ -649,6 +701,6 @@ The portfolio reaches the current north star when:
 
 - visitors immediately understand what the site is and how to explore it;
 - every public project is intentionally marked ready and appears in correct date order;
-- Pass 09 mobile layout corrections and responsive bug fixes, plus Pass 10 production-route work, are complete;
-- Pass 11 final validation confirms coherent mobile, desktop, reduced-motion, keyboard, zoom, print, route, asset, privacy, and Cloudflare behavior; and
+- Pass 09 mobile layout corrections, Pass 10 Gravity Fleet mobile verification, and Pass 11 production-route work are complete;
+- Pass 12 final validation confirms coherent mobile, desktop, reduced-motion, keyboard, zoom, print, route, asset, privacy, and Cloudflare behavior; and
 - deferred backend and operational work is either explicitly completed with evidence or remains honestly labeled as deferred.
