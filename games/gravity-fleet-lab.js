@@ -2,6 +2,7 @@ import { createGravityFleetEngine, readSavedRuns, writeSavedRun, GRAVITY_FLEET_S
 import { LEVELS, teamMeta, activeTeamKeys, contestTeamKeys, colors, BASE_WORLD_BOUNDS, BASE_LAUNCH_RADIUS, BASE_PULL_RADIUS, MIN_LAUNCH_SPEED, MAX_LAUNCH_SPEED, LAUNCH_POWER_CURVE, MAX_SPEED, BASE_WORM_MAX_RANGE, BASE_WORM_INFLUENCE, BASE_TOTAL_SHIP_CAP, PLANET_MOTION_MULTIPLIER, TAU } from "./gravity-fleet/levels.mjs";
 import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
 import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STEP_SECONDS } from "./gravity-fleet/runtime.mjs";
+import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/camera.mjs";
 
 (() => {
   "use strict";
@@ -87,6 +88,16 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
   const levelWormMaxRange = () => levelValue("wormholeRange");
   const levelWormInfluence = () => levelValue("wormholeInfluence");
   const levelShipCap = () => levelValue("shipCap");
+
+  const camera = createGravityFleetCamera({
+    worldBounds: levelWorldBounds(),
+    viewport: levelWorldBounds(),
+    tacticalRect: levelWorldBounds(),
+    orientation: CAMERA_ORIENTATIONS.desktop
+  });
+  let cameraViewportDirty = true;
+  let cameraUpdateFrame = 0;
+  let lastCameraPointer = null;
 
   function orbitCenter(levelConfig = activeLevel()) {
     const bounds = levelConfig.worldBounds || BASE_WORLD_BOUNDS;
@@ -204,7 +215,7 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
     if (event.type === "launchPulse" && ui.launchPulse) ui.launchPulse.textContent = `+${event.detail} launch`;
   });
   if (developmentMetricsEnabled) window.gravityFleetDiagnostics = Object.freeze({
-    snapshot: () => ({ ...performanceMonitor.snapshot(), runtime: runtime.snapshot(), profile: presentationProfile().id }),
+    snapshot: () => ({ ...performanceMonitor.snapshot(), runtime: runtime.snapshot(), profile: presentationProfile().id, camera: camera.diagnostics(), pointer: lastCameraPointer }),
     engine
   });
 
@@ -385,6 +396,7 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
     stagePortalParent.insertBefore(stagePortalPlaceholder, gameStage);
     document.body.append(gameStage);
     gameStage.classList.add("gravity-mobile-stage");
+    cameraViewportDirty = true;
   }
 
   function restoreGameStage() {
@@ -394,6 +406,111 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
     stagePortalPlaceholder = null;
     stagePortalParent = null;
     gameStage.classList.remove("gravity-mobile-stage");
+    cameraViewportDirty = true;
+  }
+
+  function cameraUsesMobileStage() {
+    return Boolean(usesMobilePresentation() && gameStage?.parentElement === document.body);
+  }
+
+  function readCameraSafeArea(name) {
+    const value = Number.parseFloat(window.getComputedStyle(gameStage).getPropertyValue(`--gravity-safe-${name}`));
+    return Number.isFinite(value) ? Math.max(0, value) : 0;
+  }
+
+  function visibleCanvasCssRect(canvasRect) {
+    const viewport = window.visualViewport;
+    const viewportLeft = viewport?.offsetLeft || 0;
+    const viewportTop = viewport?.offsetTop || 0;
+    const viewportRight = viewportLeft + (viewport?.width || window.innerWidth);
+    const viewportBottom = viewportTop + (viewport?.height || window.innerHeight);
+    const left = clamp(viewportLeft - canvasRect.left, 0, canvasRect.width);
+    const top = clamp(viewportTop - canvasRect.top, 0, canvasRect.height);
+    const right = clamp(viewportRight - canvasRect.left, left, canvasRect.width);
+    const bottom = clamp(viewportBottom - canvasRect.top, top, canvasRect.height);
+    return { x: left, y: top, width: Math.max(1, right - left), height: Math.max(1, bottom - top) };
+  }
+
+  function mobileTacticalCssRect(visibleRect, orientation) {
+    const portrait = orientation === CAMERA_ORIENTATIONS.portrait;
+    const safeTop = readCameraSafeArea("top");
+    const safeRight = readCameraSafeArea("right");
+    const safeBottom = readCameraSafeArea("bottom");
+    const safeLeft = readCameraSafeArea("left");
+    const edge = portrait ? 12 : 14;
+    const topReserve = safeTop + (portrait ? 72 : 54);
+    const bottomReserve = safeBottom + (portrait ? 132 : 64);
+    const x = visibleRect.x + safeLeft + edge;
+    const y = visibleRect.y + topReserve;
+    return {
+      x,
+      y,
+      width: Math.max(1, visibleRect.width - safeLeft - safeRight - edge * 2),
+      height: Math.max(1, visibleRect.height - topReserve - bottomReserve)
+    };
+  }
+
+  function updateCameraViewport() {
+    if (!cameraViewportDirty) return false;
+    cameraViewportDirty = false;
+    const mobile = cameraUsesMobileStage();
+    const rect = canvas.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return false;
+
+    if (mobile) {
+      const dpr = Math.max(1, Math.min(presentationProfile().maxDevicePixelRatio, window.devicePixelRatio || 1));
+      const nextWidth = Math.max(1, Math.round(rect.width * dpr));
+      const nextHeight = Math.max(1, Math.round(rect.height * dpr));
+      if (canvas.width !== nextWidth || canvas.height !== nextHeight) {
+        canvas.width = nextWidth;
+        canvas.height = nextHeight;
+        staticMapLayerLevel = null;
+      }
+    } else if (canvas.width !== levelWorldBounds().width || canvas.height !== levelWorldBounds().height) {
+      canvas.width = levelWorldBounds().width;
+      canvas.height = levelWorldBounds().height;
+      staticMapLayerLevel = null;
+    }
+
+    const visibleCss = mobile ? visibleCanvasCssRect(rect) : { x: 0, y: 0, width: rect.width, height: rect.height };
+    const orientation = !mobile
+      ? CAMERA_ORIENTATIONS.desktop
+      : visibleCss.height > visibleCss.width
+        ? CAMERA_ORIENTATIONS.portrait
+        : CAMERA_ORIENTATIONS.landscape;
+    const tacticalCss = mobile ? mobileTacticalCssRect(visibleCss, orientation) : visibleCss;
+    const scaleX = canvas.width / Math.max(1, rect.width);
+    const scaleY = canvas.height / Math.max(1, rect.height);
+    const toBackingRect = source => ({ x: source.x * scaleX, y: source.y * scaleY, width: source.width * scaleX, height: source.height * scaleY });
+    const changed = camera.configure({
+      worldBounds: levelWorldBounds(),
+      viewport: { x: 0, y: 0, width: canvas.width, height: canvas.height },
+      tacticalRect: toBackingRect(tacticalCss),
+      orientation
+    });
+    if (changed) staticMapLayerLevel = null;
+    return changed;
+  }
+
+  function scheduleCameraViewportUpdate({ cancelGestures = true } = {}) {
+    cameraViewportDirty = true;
+    if (cancelGestures && (state?.launcher || state?.wormDrag || activePointerId !== null)) cancelActiveGesture({ cancelPending: true });
+    if (cameraUpdateFrame) return;
+    cameraUpdateFrame = requestAnimationFrame(() => {
+      cameraUpdateFrame = 0;
+      const changed = updateCameraViewport();
+      if (changed && state) performanceMonitor.measure("canvasDraw", draw);
+    });
+  }
+
+  function initCameraViewport() {
+    const observer = new ResizeObserver(() => scheduleCameraViewportUpdate());
+    observer.observe(gameStage);
+    observer.observe(canvas);
+    window.addEventListener("resize", () => scheduleCameraViewportUpdate());
+    window.visualViewport?.addEventListener("resize", () => scheduleCameraViewportUpdate());
+    window.visualViewport?.addEventListener("scroll", () => scheduleCameraViewportUpdate());
+    scheduleCameraViewportUpdate({ cancelGestures: false });
   }
 
   function syncMobilePresentation() {
@@ -411,6 +528,7 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
     if (ui.mobileMatchExit) ui.mobileMatchExit.hidden = !(preparing || active);
     if (!active || state?.ended) closeMobileTelemetryDrawer();
     mobileHudSignature = "";
+    scheduleCameraViewportUpdate({ cancelGestures: false });
   }
 
   function setMobileShellStatus(stateName, title, message, error = "") {
@@ -473,6 +591,8 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
       try {
         let surface = mobileSurfaceDetails();
         if (!surface.stage.valid || !surface.surface.valid || !surface.exit.valid || gameStage?.parentElement !== document.body) throw new Error("Mobile game surface is not viewport-visible in its body-level shell.");
+        cameraViewportDirty = true;
+        updateCameraViewport();
         draw();
         lastSuccessfulDrawAt = performance.now();
         mobileShellState = "ready";
@@ -504,6 +624,7 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
     document.body.append(panel);
     const update = () => {
       const { stage, surface, hud, controls, exit } = mobileSurfaceDetails();
+      const cameraState = camera.diagnostics();
       const inertChildren = [...document.body.children].filter(element => element.inert).map(element => element.id || element.className || element.tagName).join(", ") || "none";
       const focused = document.activeElement?.id ? `#${document.activeElement.id}` : document.activeElement?.tagName || "none";
       panel.textContent = [
@@ -512,7 +633,8 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
         `canvas CSS: ${Math.round(surface.rect?.width || 0)} × ${Math.round(surface.rect?.height || 0)} z:${surface.zIndex} ${surface.display}/${surface.visibility}/${surface.opacity} intersect:${surface.intersects}`,
         `HUD: z:${hud.zIndex} ${hud.display}/${hud.visibility}/${hud.opacity} intersect:${hud.intersects}`, `controls: z:${controls.zIndex} ${controls.display}/${controls.visibility}/${controls.opacity} intersect:${controls.intersects}`, `exit: z:${exit.zIndex} ${exit.display}/${exit.visibility}/${exit.opacity} intersect:${exit.intersects}`,
         `panel contains stage: ${Boolean(document.querySelector(".sim-panel")?.contains(gameStage))}`, `focus: ${focused}`, `modal: ${activeModal?.id || "none"}`, `inert body children: ${inertChildren}`,
-        `canvas backing: ${canvas.width} × ${canvas.height}`, `running/input/ended: ${Boolean(state?.running)}/${Boolean(state?.acceptingInput)}/${Boolean(state?.ended)}`,
+        `canvas backing: ${canvas.width} × ${canvas.height}`, `camera: ${cameraState.orientation} ${cameraState.rotationDegrees}deg scale:${cameraState.scale.toFixed(3)}`,
+        `tactical: ${Math.round(cameraState.tacticalRect.x)},${Math.round(cameraState.tacticalRect.y)} ${Math.round(cameraState.tacticalRect.width)} × ${Math.round(cameraState.tacticalRect.height)}`, `running/input/ended: ${Boolean(state?.running)}/${Boolean(state?.acceptingInput)}/${Boolean(state?.ended)}`,
         `sim/draw: ${Math.round(lastSuccessfulSimulationAt)} / ${Math.round(lastSuccessfulDrawAt)}`, `FPS: ${observedFps}`, `error: ${lastRuntimeError || "none"}`
       ].join("\n");
       requestAnimationFrame(update);
@@ -951,15 +1073,26 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
 
 
 
-  function canvasPoint(event) {
+  function canvasScreenPoint(event) {
     const rect = canvas.getBoundingClientRect();
     return { x: (event.clientX - rect.left) * canvas.width / rect.width, y: (event.clientY - rect.top) * canvas.height / rect.height };
   }
 
-  function coarsePlanetHitRadius(planet) {
+  function canvasPoint(event) {
+    const screen = canvasScreenPoint(event);
+    const world = camera.screenToWorld(screen);
+    lastCameraPointer = { screen, world };
+    return world;
+  }
+
+  function cameraWorldUnitsPerCssPixel() {
     const rect = canvas.getBoundingClientRect();
-    const worldUnitsPerCssPixel = Math.max(canvas.width / Math.max(1, rect.width), canvas.height / Math.max(1, rect.height));
-    return Math.max(planet.radius + 34, 22 * worldUnitsPerCssPixel);
+    const backingPixelsPerCssPixel = Math.max(canvas.width / Math.max(1, rect.width), canvas.height / Math.max(1, rect.height));
+    return camera.worldUnitsForScreenPixels(backingPixelsPerCssPixel);
+  }
+
+  function coarsePlanetHitRadius(planet) {
+    return Math.max(planet.radius + 34, 22 * cameraWorldUnitsPerCssPixel());
   }
 
 
@@ -1154,8 +1287,7 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
   }
 
   function createLauncher(point, coarse = false) {
-    const rect = canvas.getBoundingClientRect();
-    const coarseWorldUnitsPerCssPixel = Math.max(canvas.width / Math.max(1, rect.width), canvas.height / Math.max(1, rect.height));
+    const coarseWorldUnitsPerCssPixel = cameraWorldUnitsPerCssPixel();
     return engine.command("beginLaunch", { point, coarse, coarseWorldUnitsPerCssPixel });
   }
   function updateLauncher(point, dt = 0) { return engine.command("updateLaunch", { point, dt }); }
@@ -1200,6 +1332,7 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
     const profile = presentationProfile();
     engine.setPresentationPolicy({ effectsEnabled: profile.effectsEnabled, trailsEnabled: profile.trailsEnabled });
     state = engine.reset(selectedLevelId);
+    cameraViewportDirty = true;
     resetRuntimeTiming(true);
     staticMapLayerLevel = null;
     wormMode = false;
@@ -2181,21 +2314,94 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
   }
 
   function ensureStaticMapLayer() {
-    const levelKey = `${activeLevel().id}:${canvas.width}x${canvas.height}`;
+    const bounds = levelWorldBounds();
+    const levelKey = `${activeLevel().id}:${bounds.x},${bounds.y},${bounds.width}x${bounds.height}`;
     if (staticMapLayer && staticMapLayerLevel === levelKey) return staticMapLayer;
     staticMapLayer ||= document.createElement("canvas");
-    staticMapLayer.width = canvas.width;
-    staticMapLayer.height = canvas.height;
+    staticMapLayer.width = Math.ceil(bounds.width);
+    staticMapLayer.height = Math.ceil(bounds.height);
     const drawing = staticMapLayer.getContext("2d");
     drawing.clearRect(0, 0, staticMapLayer.width, staticMapLayer.height);
     drawing.strokeStyle = "rgba(111,248,255,.08)";
     for (let x = 0; x < staticMapLayer.width; x += 60) { drawing.beginPath(); drawing.moveTo(x, 0); drawing.lineTo(x, staticMapLayer.height); drawing.stroke(); }
     for (let y = 0; y < staticMapLayer.height; y += 60) { drawing.beginPath(); drawing.moveTo(0, y); drawing.lineTo(staticMapLayer.width, y); drawing.stroke(); }
     drawing.strokeStyle = "rgba(111,248,255,.22)";
-    drawing.strokeRect(levelWorldBounds().x + 1, levelWorldBounds().y + 1, levelWorldBounds().width - 2, levelWorldBounds().height - 2);
+    drawing.strokeRect(bounds.x + 1, bounds.y + 1, bounds.width - 2, bounds.height - 2);
     drawOrbitPaths(drawing);
     staticMapLayerLevel = levelKey;
     return staticMapLayer;
+  }
+
+  function drawPlanetLabels() {
+    const rect = canvas.getBoundingClientRect();
+    const pixelsPerCssPixel = canvas.width / Math.max(1, rect.width);
+    const mobile = camera.diagnostics().orientation !== CAMERA_ORIENTATIONS.desktop;
+    if (!mobile) return;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "#f6f7ff";
+    ctx.font = `${10 * pixelsPerCssPixel}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(2,4,13,.9)";
+    ctx.shadowBlur = 3 * pixelsPerCssPixel;
+    state.planets.forEach(planet => {
+      const point = camera.worldToScreen(planet);
+      ctx.fillText(planet.id.toUpperCase(), point.x, point.y);
+    });
+    ctx.restore();
+  }
+
+  function drawCameraDebugOverlay() {
+    if (!mobileDiagnosticsEnabled) return;
+    const diagnostic = camera.diagnostics();
+    const { tacticalRect, viewport, worldBounds, screenCenter } = diagnostic;
+    const corners = [
+      { x: worldBounds.x, y: worldBounds.y },
+      { x: worldBounds.x + worldBounds.width, y: worldBounds.y },
+      { x: worldBounds.x + worldBounds.width, y: worldBounds.y + worldBounds.height },
+      { x: worldBounds.x, y: worldBounds.y + worldBounds.height }
+    ].map(camera.worldToScreen);
+    const rect = canvas.getBoundingClientRect();
+    const pixelsPerCssPixel = canvas.width / Math.max(1, rect.width);
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "rgba(255,229,138,.055)";
+    ctx.fillRect(viewport.x, viewport.y, viewport.width, Math.max(0, tacticalRect.y - viewport.y));
+    ctx.fillRect(viewport.x, tacticalRect.y + tacticalRect.height, viewport.width, Math.max(0, viewport.y + viewport.height - tacticalRect.y - tacticalRect.height));
+    ctx.fillRect(viewport.x, tacticalRect.y, Math.max(0, tacticalRect.x - viewport.x), tacticalRect.height);
+    ctx.fillRect(tacticalRect.x + tacticalRect.width, tacticalRect.y, Math.max(0, viewport.x + viewport.width - tacticalRect.x - tacticalRect.width), tacticalRect.height);
+    ctx.strokeStyle = "rgba(255,229,138,.9)";
+    ctx.lineWidth = Math.max(1, pixelsPerCssPixel);
+    ctx.setLineDash([6 * pixelsPerCssPixel, 4 * pixelsPerCssPixel]);
+    ctx.strokeRect(tacticalRect.x, tacticalRect.y, tacticalRect.width, tacticalRect.height);
+    ctx.setLineDash([]);
+    ctx.strokeStyle = "rgba(111,248,255,.9)";
+    ctx.beginPath();
+    corners.forEach((point, index) => ctx[index ? "lineTo" : "moveTo"](point.x, point.y));
+    ctx.closePath();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(screenCenter.x - 8 * pixelsPerCssPixel, screenCenter.y);
+    ctx.lineTo(screenCenter.x + 8 * pixelsPerCssPixel, screenCenter.y);
+    ctx.moveTo(screenCenter.x, screenCenter.y - 8 * pixelsPerCssPixel);
+    ctx.lineTo(screenCenter.x, screenCenter.y + 8 * pixelsPerCssPixel);
+    ctx.stroke();
+    if (lastCameraPointer) {
+      ctx.fillStyle = "rgba(255,93,158,.95)";
+      ctx.beginPath();
+      ctx.arc(lastCameraPointer.screen.x, lastCameraPointer.screen.y, 4 * pixelsPerCssPixel, 0, TAU);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#fff3b6";
+    ctx.font = `${10 * pixelsPerCssPixel}px ui-monospace, monospace`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    const pointerText = lastCameraPointer
+      ? ` | screen ${lastCameraPointer.screen.x.toFixed(1)},${lastCameraPointer.screen.y.toFixed(1)} | world ${lastCameraPointer.world.x.toFixed(1)},${lastCameraPointer.world.y.toFixed(1)}`
+      : "";
+    ctx.fillText(`${diagnostic.orientation} | scale ${diagnostic.scale.toFixed(3)} | rotation ${diagnostic.rotationDegrees}°${pointerText}`, tacticalRect.x + 6 * pixelsPerCssPixel, tacticalRect.y + 6 * pixelsPerCssPixel);
+    ctx.restore();
   }
 
   function drawAiLaunchFields() {
@@ -2230,7 +2436,11 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
   }
 
   function draw() {
+    updateCameraViewport();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    camera.applyToContext(ctx);
     ctx.drawImage(ensureStaticMapLayer(), 0, 0);
 
     state.planets.forEach(p => {
@@ -2287,9 +2497,11 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
           ctx.lineWidth = 1;
         }
       });
-      ctx.fillStyle = "#f6f7ff";
-      ctx.font = "12px sans-serif";
-      ctx.fillText(p.id.toUpperCase(), p.x - 10, p.y + 4);
+      if (camera.diagnostics().orientation === CAMERA_ORIENTATIONS.desktop) {
+        ctx.fillStyle = "#f6f7ff";
+        ctx.font = "12px sans-serif";
+        ctx.fillText(p.id.toUpperCase(), p.x - 10, p.y + 4);
+      }
     });
 
     drawLauncherOverlay();
@@ -2331,7 +2543,10 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
       ctx.fill();
     });
     drawEffects();
+    ctx.restore();
+    drawPlanetLabels();
     drawOutcomeOverlay();
+    drawCameraDebugOverlay();
     lastSuccessfulDrawAt = performance.now();
   }
 
@@ -2522,11 +2737,13 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
   finePointerQuery.addEventListener("change", syncInputCapability);
   mobileViewportQuery.addEventListener("change", syncMobilePresentation);
   mobileViewportQuery.addEventListener("change", () => {
+    scheduleCameraViewportUpdate();
     resetRuntimeTiming(true);
     scheduleLiveTelemetryUpdate();
   });
   window.addEventListener("orientationchange", () => {
     cancelActiveGesture({ cancelPending: true });
+    scheduleCameraViewportUpdate({ cancelGestures: false });
     resetRuntimeTiming(true);
   });
   document.addEventListener("visibilitychange", () => {
@@ -2548,6 +2765,7 @@ import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STE
   initBackToGameObserver();
   initGravityDevLab();
   initMobileDiagnostics();
+  initCameraViewport();
   syncInputCapability();
   reset();
   scheduleLiveTelemetryUpdate();
