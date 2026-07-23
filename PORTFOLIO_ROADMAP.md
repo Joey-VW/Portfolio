@@ -36,7 +36,7 @@ Status labels:
 | 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 12. | Pass 06 |
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
 | 09. Mobile layout corrections and responsive bug fixes | NEXT | Resolve the confirmed mobile and responsive findings in `MOBILE_QA_REPORT.md`. | Pass 08 structural integration |
-| 10. Gravity Fleet modernization | IN REVIEW | PR A / Passes 10.0-10.1 and PR B / Pass 10.2 are merged on current `main`; automated runtime validation passes. Human desktop/mobile runtime evidence remains the current checkpoint before PR C camera and dedicated mobile-shell work. | Pass 06, Pass 07, merged PRs #13, #15, #16, and Pass 09 shared-header coordination |
+| 10. Gravity Fleet modernization | IN PROGRESS | PR A / Passes 10.0-10.1 and PR B / Pass 10.2 are merged; Human Checkpoint 1 is recorded. Pass 10.3 camera implementation is complete in the current PR C slice, with preview/device camera QA and Pass 10.4 mobile-shell work next. | Pass 06, Pass 07, merged PRs #13, #15, #16, #17, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 
@@ -583,7 +583,7 @@ Pass 09 acceptance criteria:
 
 ## Pass 10 - Gravity Fleet modernization
 
-**Status: IN REVIEW.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. The desktop/mobile runtime checkpoint still needs recorded human or deployed-browser evidence. After that checkpoint, PR C / Passes 10.3-10.4 - the camera and dedicated replacement mobile shell - is the next implementation stage. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
+**Status: IN PROGRESS.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. Pass 10.3 camera implementation is complete in the current PR C slice, with Cloudflare/device camera review and Pass 10.4 dedicated-shell work next. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
 
 Authoritative supporting documents:
 
@@ -616,7 +616,7 @@ Given the same initial state, random seed, fixed simulation steps, and gameplay 
 - [x] The shared core and fixed runtime are present on current `main`; future work starts cleanly from current `main`.
 - [x] Keep unrelated shared-file changes out of Gravity Fleet implementation pull requests.
 - [x] Deliver modernization through coherent, behavior-preserving pull requests rather than one rewrite commit.
-- [ ] Record the pending human desktop/mobile runtime checkpoint before beginning PR C. Do not claim the historical desktop candidate is a positively verified baseline.
+- [x] Record the human desktop/mobile runtime checkpoint before beginning PR C without claiming the historical desktop candidate is a positively verified baseline.
 
 Recommended next branch name:
 
@@ -626,8 +626,8 @@ Recommended pull-request grouping:
 
 1. **PR A - Core contracts and extraction:** merged through PR #15, Passes 10.0 and 10.1.
 2. **PR B - Runtime and desktop restoration:** merged through PR #16, Pass 10.2 implementation and automated validation.
-3. **Checkpoint 1 - desktop/mobile runtime evidence:** current human verification checkpoint.
-4. **PR C - Camera and mobile shell:** next, Passes 10.3 and 10.4.
+3. **Checkpoint 1 - desktop/mobile runtime evidence:** complete July 22, 2026.
+4. **PR C - Camera and mobile shell:** in progress; Pass 10.3 implementation complete and Pass 10.4 next.
 5. **PR D - Touch controls and telemetry:** later, Passes 10.5 and 10.6.
 6. **PR E - Page, header, and analytics polish:** later, Pass 10.7.
 7. **PR F - Integrated QA and cleanup:** later, Pass 10.8.
@@ -692,7 +692,7 @@ Acceptance criteria: **complete for the merged implementation.** Current desktop
 
 ### 10.2 Replace the runtime clock and restore desktop quality
 
-**Implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; human verification pending.** `docs/gravity-fleet/pr-b-runtime.md` records the runtime contract.
+**Implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; Human Checkpoint 1 completed July 22, 2026.** `docs/gravity-fleet/pr-b-runtime.md` records the runtime contract.
 
 - [x] Replace elapsed-threshold skipping with a 60-step-per-second fixed simulation and separate render scheduling.
 - [x] Cap catch-up work and reset the timing epoch after hidden-page restoration, pause, reset, orientation, and relevant presentation transitions.
@@ -700,29 +700,31 @@ Acceptance criteria: **complete for the merged implementation.** Current desktop
 - [x] Keep HUD and telemetry schedules independently controlled.
 - [x] Verify deterministic equivalence at 30 Hz, 60 Hz, and 144 Hz callback schedules.
 - [x] Provide runtime diagnostics and automated saved-run, telemetry, win/loss, and engine-boundary checks.
-- [ ] Compare current desktop directly against the historical desktop reference candidate and approve perceived trails, effects, mouse responsiveness, and frame pacing.
-- [ ] Record browser-session median and 95th-percentile frame time, frames exceeding 50 ms, simulation/draw measurements, and input-response observations.
-- [ ] Complete a current-main mobile smoke or full-match check and confirm no thermal or input regression.
+- [x] Complete a current-main desktop match through analytics and approve trails, effects, mouse responsiveness, live telemetry, and perceived frame pacing without treating the historical candidate as a verified trace.
+- [x] Review the runtime debug view and confirm it does not reveal an obvious persistent failure; exact exported percentile values were optional checkpoint evidence and were not recorded.
+- [x] Complete a current-main iPhone smoke/full-match check and confirm no thermal or input regression.
 
-**Checkpoint 1 before PR C:** Joe should play one current-main desktop match through analytics, confirm trails, effects, mouse responsiveness, live telemetry, and perceived pacing, capture `?gravityDebug=1` diagnostics if practical, and perform one mobile smoke or full-match check. `node tools/validate_gravity_fleet.js` is automated evidence only; it does not replace deployed-browser or physical-device observations.
+**Checkpoint 1 complete July 22, 2026:** Joe completed the current-main desktop and iPhone verification recorded in `docs/gravity-fleet/modernization-roadmap.md`. `node tools/validate_gravity_fleet.js` remains supporting automated evidence rather than a substitute for those observations.
 
 ### 10.3 Introduce the camera and viewport system
 
 **Purpose:** Solve portrait composition with a world camera rather than shrinking or CSS-rotating the complete interface.
 
-- [ ] Create a camera abstraction that owns world-to-screen and screen-to-world transforms, rotation, scale, translation, tactical viewport dimensions, safe gameplay bounds, orientation mode, and resize handling.
-- [ ] Introduce an identity-equivalent desktop camera first and verify that it reproduces the existing desktop composition.
-- [ ] For portrait mobile, rotate the world camera 90 degrees counterclockwise while leaving world coordinates unchanged.
-- [ ] Position Cyan's starting side toward the bottom in portrait.
-- [ ] Fit the rotated world inside the reserved tactical rectangle after accounting for safe-area insets, compact HUD, command dock, telemetry handle, and breathing room.
-- [ ] Keep HUD text, controls, labels, and charts upright.
-- [ ] Use the inverse camera matrix for touch and pointer hit testing.
-- [ ] Lock camera orientation for the match; do not rotate continuously to follow a moving planet.
-- [ ] Preserve moving planets. Do not make planets stationary merely to solve layout.
-- [ ] For landscape mobile, use the native landscape world orientation and a landscape-specific shell.
-- [ ] Recalculate safely when browser chrome, `VisualViewport`, orientation, the game container, or safe-area dimensions change.
-- [ ] Cancel active gestures before applying a new transform.
-- [ ] Add temporary development visualization for world bounds, tactical rectangle, safe margins, camera center, scale, rotation, and pointer coordinates.
+**Implementation complete; Cloudflare preview and physical-device camera review pending.** See `docs/gravity-fleet/pr-c-camera.md` for the coordinate-space, viewport, diagnostics, and validation contract.
+
+- [x] Create a camera abstraction that owns world-to-screen and screen-to-world transforms, rotation, scale, translation, tactical viewport dimensions, safe gameplay bounds, orientation mode, and resize handling.
+- [x] Introduce an identity-equivalent desktop camera and verify exact coordinate mapping in the deterministic validator.
+- [x] For portrait mobile, rotate the world camera 90 degrees counterclockwise while leaving world coordinates unchanged.
+- [x] Position Cyan's starting side toward the bottom in portrait.
+- [x] Fit the rotated world inside a reserved tactical rectangle after accounting for current safe-area, HUD, control, telemetry, and breathing-room needs. Pass 10.4 will supply the final shell-owned rectangle.
+- [x] Keep HUD text, controls, labels, and charts upright.
+- [x] Use the inverse camera matrix for touch and pointer hit testing.
+- [x] Lock camera orientation to the viewport mode; do not rotate continuously to follow a moving planet.
+- [x] Preserve moving planets. Do not make planets stationary merely to solve layout.
+- [x] For landscape mobile, use the native landscape world orientation and an orientation-specific tactical rectangle. The dedicated landscape shell remains Pass 10.4 scope.
+- [x] Recalculate safely when browser chrome, `VisualViewport`, orientation, the game container, or safe-area dimensions change.
+- [x] Cancel active gestures before applying a new transform.
+- [x] Add temporary development visualization for world bounds, tactical rectangle, safe margins, camera center, scale, rotation, and pointer coordinates.
 
 Acceptance criteria:
 
@@ -734,6 +736,8 @@ Acceptance criteria:
 - No interface text or chart is sideways.
 - Orientation changes do not leave stale pointer state.
 - Camera transforms do not alter world state, scoring, or telemetry.
+
+Automated camera and gameplay checks pass. Observable desktop parity, portrait space use, short-landscape composition, and real-device edge targeting remain the Cloudflare preview and physical-device review gate before the camera slice is merged.
 
 ### 10.4 Build the dedicated mobile match shell
 

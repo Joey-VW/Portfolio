@@ -6,8 +6,8 @@
 * PR A / PR #15, `Extract Gravity Fleet shared game core`, is merged. Its implementation commit is `46dfa0ba05af90886506e779687786103030abc9`.
 * PR B / PR #16, `Add Gravity Fleet fixed-step runtime`, is merged. Its implementation commit is `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`.
 * Automated fixed-step validation is complete with `node tools/validate_gravity_fleet.js`.
-* Implementation merged; human desktop/mobile performance verification remains pending because the repository contains no recorded current-main browser measurements or post-PR-B physical-device evidence.
-* PR C / Passes 10.3-10.4 is next after Checkpoint 1: the identity-equivalent desktop camera, portrait world-camera rotation, and dedicated replacement mobile shell.
+* Human Checkpoint 1 was completed July 22, 2026 on current `main` after PRs #15, #16, and #17 using Chrome on Windows 10 and Safari on an iPhone 14 Pro Max.
+* PR C / Pass 10.3 camera implementation is complete in the current camera slice. Pass 10.4 dedicated-shell implementation and Cloudflare/device visual review remain next.
 
 ## North star
 
@@ -43,7 +43,7 @@ Commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remains the successfully teste
 
 ## 1.3 Current sequencing
 
-Current work starts from latest `main`. PR A / PR #15 and PR B / PR #16 are merged; do not recreate or rebase their historical branches. Complete Checkpoint 1 with current-main browser and mobile evidence, then create a focused PR C branch from current `main`, for example:
+Current work starts from latest `main`. PR A / PR #15 and PR B / PR #16 are merged; do not recreate or rebase their historical branches. Checkpoint 1 is recorded, and PR C work starts from current `main` on the focused branch:
 
 ```text
 gravity-fleet-camera-mobile-shell
@@ -141,7 +141,7 @@ The Node validator covers levels, deterministic commands, controlled win/loss pa
 
 ## Pass 10.2 - Replace the clock and restore desktop quality
 
-**Status: implementation and automated validation complete through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; Human Checkpoint 1 pending.** `docs/gravity-fleet/pr-b-runtime.md`, `games/gravity-fleet/runtime.mjs`, `games/gravity-fleet/performance.mjs`, and the updated validator record the shipped runtime work.
+**Status: implementation and automated validation complete through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; Human Checkpoint 1 completed July 22, 2026.** `docs/gravity-fleet/pr-b-runtime.md`, `games/gravity-fleet/runtime.mjs`, `games/gravity-fleet/performance.mjs`, and the updated validator record the shipped runtime work.
 
 ### Implementation and automated validation - complete
 
@@ -177,6 +177,8 @@ The Node validator covers levels, deterministic commands, controlled win/loss pa
 **Size:** Large
 **Risk:** High
 **Purpose:** Solve portrait composition correctly instead of shrinking a landscape canvas.
+
+**Status: implementation complete; Cloudflare preview and physical-device visual evidence pending.** `games/gravity-fleet/camera.mjs`, the viewport adapter in `games/gravity-fleet-lab.js`, `docs/gravity-fleet/pr-c-camera.md`, and the expanded validator record the camera contract.
 
 ### Camera responsibilities
 
@@ -218,7 +220,7 @@ For landscape:
 * Use the native landscape world orientation.
 * Fit the world into the available tactical rectangle.
 * Do not rotate text or finished chart elements.
-* Use a landscape-specific shell composition.
+* Provide orientation-specific tactical framing. Pass 10.4 supplies the dedicated landscape shell composition.
 
 ### Safe gameplay rectangle
 
@@ -258,14 +260,14 @@ Add a temporary camera-debug mode showing:
 
 ### Acceptance criteria
 
-* [ ] Desktop camera produces no observable gameplay-layout regression.
-* [ ] Portrait uses substantially more of the phone’s vertical area.
-* [ ] Cyan begins toward the bottom in portrait.
-* [ ] All worlds remain visible without distortion.
-* [ ] Touch hit testing remains accurate near every edge and corner.
-* [ ] No text or charts are sideways.
-* [ ] Orientation changes do not leave stale pointer state.
-* [ ] The camera never changes gameplay coordinates or telemetry.
+* [ ] Desktop camera produces no observable gameplay-layout regression. Automated identity mapping passes; preview review remains pending.
+* [ ] Portrait uses substantially more of the phone’s vertical area. The full-height backing surface and portrait tactical framing are implemented; preview review remains pending.
+* [x] Cyan begins toward the bottom in portrait.
+* [x] All worlds remain visible without distortion.
+* [x] Touch hit testing remains accurate near every edge and corner through the tested inverse transform.
+* [x] World labels, DOM text, controls, and charts remain upright by construction.
+* [x] Orientation and viewport events cancel active pointer state before a transform update.
+* [x] The camera never changes gameplay coordinates or telemetry.
 
 ---
 
@@ -846,13 +848,13 @@ PR A is merged through PR #15. It includes Passes 10.0-10.1, the shared engine b
 
 PR B is merged through PR #16. It includes Pass 10.2 fixed-step runtime work, Desktop High/Mobile Balanced/Reduced Motion profiles, diagnostics, and automated validation. Its browser/device performance checkpoint remains pending.
 
-## Checkpoint 1 - current
+## Checkpoint 1 - complete
 
-Complete the current-main desktop and mobile verification described in Pass 10.2 before PR C. This is a human evidence checkpoint, not a reason to rewrite merged implementation.
+Completed July 22, 2026 on current `main` after PRs #15, #16, and #17. The recorded desktop and iPhone observations are in Pass 10.2.
 
-## PR C - Camera and mobile shell - next
+## PR C - Camera and mobile shell - in progress
 
-PR C contains Passes 10.3-10.4: an identity-equivalent desktop camera, portrait rotation and inverse pointer transforms, safe gameplay rectangle and orientation-aware viewport behavior, plus a dedicated mobile shell behind a development flag. Retain the existing mobile shell until parity.
+PR C contains Passes 10.3-10.4. Pass 10.3 camera implementation is complete: identity-equivalent desktop mapping, portrait rotation, inverse pointer transforms, safe gameplay rectangle, orientation-aware resize behavior, and development diagnostics. Pass 10.4 dedicated mobile shell remains next. Retain the existing mobile shell until parity.
 
 ## PR D - Touch controls and telemetry - later
 
@@ -870,9 +872,9 @@ Retain Pass 10.8, dead-code removal, documentation, and final Cloudflare/device 
 
 # 5. Human QA checkpoints
 
-## Checkpoint 1 - Desktop/mobile runtime evidence - current
+## Checkpoint 1 - Desktop/mobile runtime evidence - complete
 
-After merged PR B, complete the current-main desktop match, optional `?gravityDebug=1` snapshot, and mobile smoke or full-match check specified in Pass 10.2. Confirm trails, effects, mouse responsiveness, live telemetry, perceived pacing, and no thermal or input regression. Automated validation is complete but does not replace this evidence.
+Completed July 22, 2026. Current-main desktop and mobile evidence confirms the match, input, telemetry, analytics, tab/orientation recovery, and acceptable mobile temperature described in Pass 10.2. Automated validation remains supporting evidence rather than a substitute for those observations.
 
 ## Checkpoint 2 - Mobile game experience - later
 

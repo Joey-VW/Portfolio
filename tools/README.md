@@ -12,7 +12,9 @@ It initializes every level, replays the seeded Level 1 command fixture, checks
 controlled win and loss paths, validates telemetry and saved-run compatibility,
 rejects DOM, viewport, canvas, storage, or device dependencies in the shared
 engine modules, enforces fixed-step catch-up limits, and compares deterministic
-checkpoints under 30Hz, 60Hz, and 144Hz render schedules.
+checkpoints under 30Hz, 60Hz, and 144Hz render schedules. It also verifies the
+identity desktop camera, portrait and landscape framing, world-corner fitting,
+inverse pointer transforms, and camera resize isolation from gameplay state.
 
 `fetch_kroger_products.py` is the backend-oriented data pull for the static Shrinkflation Tracker. It uses Kroger's official developer API only; it does **not** scrape grocery pages, automate a browser, or expose credentials to frontend JavaScript.
 
