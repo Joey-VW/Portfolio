@@ -15,6 +15,9 @@ engine modules, enforces fixed-step catch-up limits, and compares deterministic
 checkpoints under 30Hz, 60Hz, and 144Hz render schedules. It also verifies the
 identity desktop camera, portrait and landscape framing, world-corner fitting,
 inverse pointer transforms, and camera resize isolation from gameplay state.
+The mobile-shell checks cover engine pause/resume without advancement or
+catch-up, gesture cancellation, Clear Wormhole command behavior, and the
+configured preparation, activation, countdown, and absolute-expiry lifecycle.
 
 `fetch_kroger_products.py` is the backend-oriented data pull for the static Shrinkflation Tracker. It uses Kroger's official developer API only; it does **not** scrape grocery pages, automate a browser, or expose credentials to frontend JavaScript.
 

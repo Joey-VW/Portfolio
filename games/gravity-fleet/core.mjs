@@ -7,6 +7,22 @@ import {
 } from "./levels.mjs";
 
 export const GRAVITY_FLEET_STORAGE_KEY = "gravityFleetRuns";
+export const WORMHOLE_LIFESPAN_PROFILES = Object.freeze({
+  desktopClassic: Object.freeze({
+    id: "desktop-classic",
+    preparationSeconds: 0,
+    activeSeconds: 30,
+    absoluteMaxSeconds: 30,
+    activationOnUse: false
+  }),
+  mobileTactical: Object.freeze({
+    id: "mobile-tactical",
+    preparationSeconds: .75,
+    activeSeconds: 2.5,
+    absoluteMaxSeconds: 10,
+    activationOnUse: true
+  })
+});
 export const GRAVITY_FLEET_RUN_SCHEMA = Object.freeze([
   "runId", "outcome", "durationSeconds", "score", "levelId", "levelName",
   "levelDifficulty", "captures", "planetsCaptured", "launchEvents",
@@ -71,6 +87,27 @@ export function createGravityFleetEngine(options = {}) {
   let shipId = 1;
   let wormMode = false;
   let pendingWorm = null;
+  let playerWormholeLifespan = normalizeWormholeLifespan(options.playerWormholeLifespan);
+
+  function normalizeWormholeLifespan(policy = WORMHOLE_LIFESPAN_PROFILES.desktopClassic) {
+    const fallback = WORMHOLE_LIFESPAN_PROFILES.desktopClassic;
+    const finiteNumber = (value, fallbackValue) => Number.isFinite(Number(value)) ? Number(value) : fallbackValue;
+    const preparationSeconds = Math.max(0, finiteNumber(policy?.preparationSeconds, fallback.preparationSeconds));
+    const activeSeconds = Math.max(.1, finiteNumber(policy?.activeSeconds, fallback.activeSeconds));
+    const absoluteMaxSeconds = Math.max(activeSeconds, finiteNumber(policy?.absoluteMaxSeconds, fallback.absoluteMaxSeconds));
+    return Object.freeze({
+      id: String(policy?.id || fallback.id),
+      preparationSeconds,
+      activeSeconds,
+      absoluteMaxSeconds,
+      activationOnUse: Boolean(policy?.activationOnUse)
+    });
+  }
+
+  function setPlayerWormholeLifespan(policy) {
+    playerWormholeLifespan = normalizeWormholeLifespan(policy);
+    return playerWormholeLifespan;
+  }
 
   function emit(type, detail) {
     listeners.forEach(listener => listener({ type, detail, state }));
@@ -213,7 +250,7 @@ function makeState() {
   const level = activeLevel();
   return {
     levelId: level.id, levelName: level.name, levelDifficulty: level.difficulty, levelSubtitle: level.subtitle,
-    running: false, ended: false, acceptingInput: false, dashboardRendered: false, outcome: null, outcomeScore: 0, startedAt: null, endedAt: null,
+    running: false, paused: false, ended: false, acceptingInput: false, dashboardRendered: false, outcome: null, outcomeScore: 0, startedAt: null, endedAt: null,
     elapsed: 0, lastTick: clockNow(), planets: generatePlanets(level),
     ships: [], launcher: null, aiLaunchFields: [], wormholes: [], wormDrag: null, wormholesCreated: 0, playerWormholesCreated: 0, aiWormholesCreated: 0, wormholeUses: 0, shipTransits: 0, wormholeEvents: [], wormholePulls: 0,
     wormholeOrbitCaptures: 0, wormholeTransitCount: 0,
@@ -498,10 +535,30 @@ function setWormMode(value) {
 }
 
 function createTeamWormhole(owner, start, exit, options = {}) {
-  const ttl = options.ttl ?? (owner === "player" ? 30 : 18);
+  const lifespan = owner === "player" ? normalizeWormholeLifespan(options.lifespan || playerWormholeLifespan) : null;
+  const ttl = options.ttl ?? (lifespan?.absoluteMaxSeconds || 18);
   if (owner === "player") state.wormholes = state.wormholes.filter(w => w.owner !== "player");
   else state.wormholes = state.wormholes.filter(w => w.owner !== owner);
-  const wormhole = { id: `worm-${owner}-${clockNow()}-${Math.floor(random() * 9999)}`, owner, a: { x: start.x, y: start.y }, b: { x: exit.x, y: exit.y }, aEntryEnabled: true, bEntryEnabled: false, ttl, spin: 0 };
+  const wormhole = {
+    id: `worm-${owner}-${clockNow()}-${Math.floor(random() * 9999)}`,
+    owner,
+    a: { x: start.x, y: start.y },
+    b: { x: exit.x, y: exit.y },
+    aEntryEnabled: true,
+    bEntryEnabled: false,
+    ttl,
+    maxTtl: ttl,
+    spin: 0,
+    ...(lifespan ? {
+      lifespan,
+      age: 0,
+      activeElapsed: 0,
+      activationPending: false,
+      phase: lifespan.activationOnUse ? "preparing" : "active",
+      remainingSeconds: ttl,
+      lifeRatio: 1
+    } : {})
+  };
   state.wormholes.push(wormhole);
   state.wormholesCreated++;
   if (owner === "player") state.playerWormholesCreated++;
@@ -513,7 +570,7 @@ function createTeamWormhole(owner, start, exit, options = {}) {
 }
 
 function createWormhole(start, exit) {
-  return createTeamWormhole("player", start, exit, { ttl: 30 });
+  return createTeamWormhole("player", start, exit, { lifespan: playerWormholeLifespan });
 }
 
 function planetOrbiters(planetId, owner) {
@@ -622,7 +679,17 @@ function isWormholeBusy(ship) {
   return ship.state === "pointerOrbit" || ship.state === "wormholeOrbit" || ship.state === "wormholeTransit";
 }
 
-function assignWormholeOrbit(ship, entry, exit) {
+function activatePlayerWormhole(wormhole) {
+  if (!wormhole?.lifespan?.activationOnUse || wormhole.phase === "active") return;
+  wormhole.activationPending = true;
+  if ((wormhole.age || 0) < wormhole.lifespan.preparationSeconds) return;
+  wormhole.phase = "active";
+  wormhole.activeElapsed = 0;
+  wormhole.activationPending = false;
+  addEvent(`Cyan wormhole activated - ${wormhole.lifespan.activeSeconds.toFixed(1)} seconds remaining.`);
+}
+
+function assignWormholeOrbit(ship, entry, exit, wormhole = null) {
   const previousPlanetId = ship.planetId;
   if (previousPlanetId) {
     ship.planetId = null;
@@ -643,12 +710,13 @@ function assignWormholeOrbit(ship, entry, exit) {
   ship.vx *= .35;
   ship.vy *= .35;
   state.wormholeOrbitCaptures++;
+  if (ship.owner === "player") activatePlayerWormhole(wormhole);
   if (!reduced) spawnEffect("spark", ship.x, ship.y, entry.x, entry.y, colors.worm, .22);
 }
 
 function applyWormholeGravity(ship, dt) {
   if (!(state.wormholes || []).length || isWormholeBusy(ship) || (ship.wormholeCooldown || ship.warpLock || 0) > 0) return;
-  for (const { entry, exit } of wormholeEntrancesFor(ship)) {
+  for (const { wormhole, entry, exit } of wormholeEntrancesFor(ship)) {
     if (ship.state !== "traveling") return;
     const d = dist(ship, entry);
     if (d > levelWormInfluence()) continue;
@@ -657,7 +725,7 @@ function applyWormholeGravity(ship, dt) {
     ship.vx += to.x * strength * dt;
     ship.vy += to.y * strength * dt;
     state.wormholePulls += dt;
-    if (d < 24) assignWormholeOrbit(ship, entry, exit);
+    if (d < 24) assignWormholeOrbit(ship, entry, exit, wormhole);
   }
 }
 
@@ -665,11 +733,11 @@ function scanWormholePickup(dt) {
   if (!(state.wormholes || []).length) return;
   state.ships.forEach(ship => {
     if (!(ship.state === "traveling" || ship.state === "orbiting") || (ship.wormholeCooldown || ship.warpLock || 0) > 0) return;
-    for (const { entry, exit } of wormholeEntrancesFor(ship)) {
+    for (const { wormhole, entry, exit } of wormholeEntrancesFor(ship)) {
       const d = dist(ship, entry);
       const captureRange = ship.state === "orbiting" ? levelWormInfluence() : 30;
       if (d <= captureRange) {
-        assignWormholeOrbit(ship, entry, exit);
+        assignWormholeOrbit(ship, entry, exit, wormhole);
         return;
       }
     }
@@ -1250,6 +1318,7 @@ function buildRunMapSnapshot(levelConfig = activeLevel(), planets = state.planet
   function begin() {
     if (state.ended) reset(selectedLevelId);
     state.running = true;
+    state.paused = false;
     state.acceptingInput = true;
     state.startedAt = new Date(clockNow());
     addEvent(`${state.levelName} match started.`);
@@ -1258,13 +1327,19 @@ function buildRunMapSnapshot(levelConfig = activeLevel(), planets = state.planet
   }
 
   function pause() {
+    cancelLauncher();
+    state.wormDrag = null;
+    pendingWorm = null;
+    wormMode = false;
     state.running = false;
+    state.paused = true;
     state.acceptingInput = false;
   }
 
   function resume() {
     if (state.ended) return false;
     state.running = true;
+    state.paused = false;
     state.acceptingInput = true;
     return true;
   }
@@ -1289,7 +1364,7 @@ function buildRunMapSnapshot(levelConfig = activeLevel(), planets = state.planet
   }
 
   function command(name, payload = {}) {
-    if (!state.acceptingInput && !["pause", "resume", "reset"].includes(name)) return false;
+    if (!state.acceptingInput && !["pause", "resume", "reset", "cancelLaunch", "cancelWormhole"].includes(name)) return false;
     switch (name) {
       case "beginLaunch": return createLauncher(payload.point, Boolean(payload.coarse), Number(payload.coarseWorldUnitsPerCssPixel) || 0);
       case "updateLaunch": updateLauncher(payload.point, Number(payload.dt) || 0); return true;
@@ -1337,8 +1412,23 @@ function buildRunMapSnapshot(levelConfig = activeLevel(), planets = state.planet
       updateAiLaunchFields(delta);
       state.wormholes = state.wormholes.filter(wormhole => {
         wormhole.spin += delta * 2.8;
-        wormhole.ttl -= delta;
-        return wormhole.ttl > 0;
+        if (!wormhole.lifespan) {
+          wormhole.ttl -= delta;
+          return wormhole.ttl > 0;
+        }
+        wormhole.age += delta;
+        const absoluteRemaining = Math.max(0, wormhole.lifespan.absoluteMaxSeconds - wormhole.age);
+        if (wormhole.activationPending) activatePlayerWormhole(wormhole);
+        if (!wormhole.activationPending && wormhole.phase === "preparing" && wormhole.age >= wormhole.lifespan.preparationSeconds) wormhole.phase = "armed";
+        if (wormhole.phase === "active") wormhole.activeElapsed += delta;
+        const activeRemaining = wormhole.phase === "active" ? Math.max(0, wormhole.lifespan.activeSeconds - wormhole.activeElapsed) : absoluteRemaining;
+        wormhole.remainingSeconds = Math.min(absoluteRemaining, activeRemaining);
+        wormhole.ttl = wormhole.remainingSeconds;
+        const lifeWindow = wormhole.phase === "active" ? wormhole.lifespan.activeSeconds : wormhole.lifespan.absoluteMaxSeconds;
+        wormhole.lifeRatio = Math.max(0, Math.min(1, wormhole.remainingSeconds / lifeWindow));
+        const alive = absoluteRemaining > 0 && (wormhole.phase !== "active" || activeRemaining > 0);
+        if (!alive && wormhole.owner === "player") addEvent("Cyan wormhole lifespan expired.");
+        return alive;
       });
       if (state.launcher?.active) updateLauncher(state.launcher.pointer, delta);
       updateWormholeCooldowns(delta);
@@ -1372,6 +1462,7 @@ function buildRunMapSnapshot(levelConfig = activeLevel(), planets = state.planet
   function finish(outcome) {
     if (state.ended) return state.completedRun || null;
     state.ended = true;
+    state.paused = false;
     state.acceptingInput = false;
     state.outcome = outcome;
     state.endedAt = new Date(clockNow());
@@ -1459,7 +1550,7 @@ function buildRunMapSnapshot(levelConfig = activeLevel(), planets = state.planet
     get wormMode() { return wormMode; },
     get pendingWorm() { return pendingWorm; },
     levels: LEVELS,
-    begin, pause, resume, reset, step, command, counts, checkpoint, finish,
+    begin, pause, resume, reset, step, command, counts, checkpoint, finish, setPlayerWormholeLifespan,
     forceOutcomeForValidation, buildRunMapSnapshot, addEvent, setPresentationPolicy,
     on(listener) { listeners.add(listener); return () => listeners.delete(listener); }
   };

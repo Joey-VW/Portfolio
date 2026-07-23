@@ -86,8 +86,93 @@ function runCommands(api, fixture) {
   assert.equal(commandEngine.state.wormDrag, null);
   assert.equal(commandEngine.command("pause"), true);
   assert.equal(commandEngine.state.running, false);
+  assert.equal(commandEngine.state.paused, true);
+  const pausedCheckpoint = commandEngine.checkpoint();
+  const pausedTimelineLength = commandEngine.state.shipCountTimeline.length;
+  const pausedMotionState = JSON.stringify({
+    elapsed: commandEngine.state.elapsed,
+    planets: commandEngine.state.planets.map(({ id, x, y, angle }) => ({ id, x, y, angle })),
+    ships: commandEngine.state.ships.map(({ id, x, y, vx, vy, state }) => ({ id, x, y, vx, vy, state })),
+    effects: commandEngine.state.effects,
+    events: commandEngine.state.events
+  });
+  for (let step = 0; step < 180; step++) assert.equal(commandEngine.step(FIXED_SIMULATION_STEP_SECONDS), null);
+  assert.deepEqual(commandEngine.checkpoint(), pausedCheckpoint, "paused simulation state and telemetry must not advance");
+  assert.equal(commandEngine.state.shipCountTimeline.length, pausedTimelineLength, "paused telemetry sampling must remain frozen");
+  assert.equal(JSON.stringify({
+    elapsed: commandEngine.state.elapsed,
+    planets: commandEngine.state.planets.map(({ id, x, y, angle }) => ({ id, x, y, angle })),
+    ships: commandEngine.state.ships.map(({ id, x, y, vx, vy, state }) => ({ id, x, y, vx, vy, state })),
+    effects: commandEngine.state.effects,
+    events: commandEngine.state.events
+  }), pausedMotionState, "pause must freeze planets, ships, effects, events, and elapsed match time");
   assert.equal(commandEngine.command("resume"), true);
   assert.equal(commandEngine.state.running, true);
+  assert.equal(commandEngine.state.paused, false);
+
+  assert.equal(commandEngine.command("beginLaunch", { point: { x: 140, y: 400 } }), true);
+  assert.ok(commandEngine.state.launcher, "launch gesture should begin before pause cancellation");
+  assert.equal(commandEngine.command("pause"), true);
+  assert.equal(commandEngine.state.launcher, null, "pause should cancel an incomplete launch gesture");
+  assert.equal(commandEngine.command("resume"), true);
+  assert.equal(commandEngine.command("beginWormhole", { point: { x: 280, y: 300 } }), true);
+  assert.ok(commandEngine.state.wormDrag, "wormhole gesture should begin before pause cancellation");
+  assert.equal(commandEngine.command("pause"), true);
+  assert.equal(commandEngine.state.wormDrag, null, "pause should cancel an incomplete wormhole gesture");
+  assert.equal(commandEngine.command("resume"), true);
+
+  assert.equal(commandEngine.command("beginWormhole", { point: { x: 280, y: 300 } }), true);
+  assert.equal(commandEngine.wormMode, true);
+  assert.equal(commandEngine.command("cancelWormhole"), true);
+  assert.equal(commandEngine.wormMode, false);
+  assert.equal(commandEngine.command("beginLaunch", { point: { x: 140, y: 400 } }), true);
+  assert.ok(commandEngine.state.launcher, "Launch mode should own the incomplete engine gesture");
+  assert.equal(commandEngine.state.wormDrag, null, "Launch and Wormhole gestures must not both be active");
+  assert.equal(commandEngine.command("cancelLaunch"), true);
+
+  const lifespanEngine = api.createGravityFleetEngine({
+    randomSource: api.createSeededRandom(91),
+    playerWormholeLifespan: api.WORMHOLE_LIFESPAN_PROFILES.mobileTactical,
+    effectsEnabled: false,
+    trailsEnabled: false
+  });
+  lifespanEngine.begin();
+  const cyanHome = lifespanEngine.state.planets.find(planet => planet.owner === "player" && planet.type === "home");
+  assert.ok(cyanHome, "mobile lifespan fixture requires the Cyan home world");
+  assert.equal(lifespanEngine.command("beginWormhole", { point: { x: cyanHome.x, y: cyanHome.y } }), true);
+  assert.equal(lifespanEngine.command("updateWormhole", { point: { x: cyanHome.x + 120, y: cyanHome.y } }), true);
+  assert.equal(lifespanEngine.command("commitWormhole"), true);
+  assert.equal(lifespanEngine.state.wormholes.length, 1);
+  assert.equal(lifespanEngine.state.wormholes[0].lifespan.id, "mobile-tactical");
+  for (let step = 0; step < 30; step++) lifespanEngine.step(FIXED_SIMULATION_STEP_SECONDS);
+  assert.equal(lifespanEngine.state.wormholes[0]?.phase, "preparing", "tactical wormhole should retain its short preparation window");
+  for (let step = 0; step < 30; step++) lifespanEngine.step(FIXED_SIMULATION_STEP_SECONDS);
+  assert.equal(lifespanEngine.state.wormholes[0]?.phase, "active", "first eligible Cyan transit should activate the tactical countdown after preparation");
+  for (let step = 0; step < 180; step++) lifespanEngine.step(FIXED_SIMULATION_STEP_SECONDS);
+  assert.equal(lifespanEngine.state.wormholes.length, 0, "mobile tactical wormhole should collapse roughly 2.5 seconds after activation");
+
+  const unusedLifespanEngine = api.createGravityFleetEngine({
+    randomSource: api.createSeededRandom(93),
+    playerWormholeLifespan: api.WORMHOLE_LIFESPAN_PROFILES.mobileTactical,
+    effectsEnabled: false,
+    trailsEnabled: false
+  });
+  unusedLifespanEngine.begin();
+  assert.equal(unusedLifespanEngine.command("beginWormhole", { point: { x: 610, y: 70 } }), true);
+  assert.equal(unusedLifespanEngine.command("updateWormhole", { point: { x: 730, y: 70 } }), true);
+  assert.equal(unusedLifespanEngine.command("commitWormhole"), true);
+  for (let step = 0; step < 620; step++) unusedLifespanEngine.step(FIXED_SIMULATION_STEP_SECONDS);
+  assert.equal(unusedLifespanEngine.state.wormholes.filter(wormhole => wormhole.owner === "player").length, 0, "unused tactical wormhole should respect its 10-second absolute maximum");
+
+  const clearEngine = api.createGravityFleetEngine({ randomSource: api.createSeededRandom(92) });
+  clearEngine.begin();
+  assert.equal(clearEngine.command("beginWormhole", { point: { x: 320, y: 280 } }), true);
+  assert.equal(clearEngine.command("updateWormhole", { point: { x: 440, y: 300 } }), true);
+  assert.equal(clearEngine.command("commitWormhole"), true);
+  assert.equal(clearEngine.state.wormholes.length, 1);
+  assert.equal(clearEngine.command("clearWormhole"), true);
+  assert.equal(clearEngine.state.wormholes.length, 0, "clear command should collapse the current Cyan wormhole immediately");
+  assert.equal(clearEngine.command("clearWormhole"), false, "clear command should report no-op when no Cyan wormhole exists");
   assert.equal(commandEngine.command("reset", { levelId: 2 }), true);
   assert.equal(commandEngine.state.levelId, 2);
 
@@ -170,6 +255,9 @@ function runCommands(api, fixture) {
   assert.ok(restoredRuntime.snapshot().droppedSimulationSeconds > 0, "excess catch-up time should be discarded");
   restoredRuntime.reset(60000);
   assert.equal(restoredRuntime.advance(60000 + 1000 / 60, { running: true }).steps, 1, "restoration should not apply hidden elapsed time");
+  restoredRuntime.advance(120000, { running: false });
+  restoredRuntime.reset(120000);
+  assert.equal(restoredRuntime.advance(120000 + 1000 / 60, { running: true }).steps, 1, "resume should begin a fresh timing epoch without catch-up");
 
   const desktopProfile = selectPresentationProfile();
   const mobileProfile = selectPresentationProfile({ mobile: true });
@@ -230,7 +318,7 @@ function runCommands(api, fixture) {
   });
   assert.deepEqual(worldBounds, immutableWorldBeforeResize, "camera resize must not mutate gameplay coordinates");
 
-  console.log(`Gravity Fleet validation passed: ${LEVELS.length} levels, deterministic command fixture, win/loss paths, saved-run schema, telemetry, core boundary, render-independent fixed timestep, and invertible desktop/portrait/landscape cameras.`);
+  console.log(`Gravity Fleet validation passed: ${LEVELS.length} levels, deterministic command fixture, win/loss paths, saved-run schema, telemetry, pause/resume, touch-command cancellation, configurable wormhole lifespan, core boundary, render-independent fixed timestep, and invertible desktop/portrait/landscape cameras.`);
 })().catch(error => {
   console.error(error.stack || error);
   process.exitCode = 1;
