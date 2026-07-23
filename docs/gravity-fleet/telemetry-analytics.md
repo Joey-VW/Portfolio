@@ -68,4 +68,4 @@ node tools/validate_gravity_fleet.js
 
 The validator checks live projection parity, outcome and chart parity, legacy saved-run compatibility without mutation, structural surface wiring, and the complete chart scheduler lifecycle.
 
-Browser and physical-device checks remain separate because the deterministic validator does not measure visual readability, touch ergonomics, sheet scrolling, focus behavior, or rendered breakpoints.
+Deterministic validation does not measure visual readability, touch ergonomics, sheet scrolling, focus behavior, or rendered breakpoints. Those deployed-browser and mobile checks were completed for PR #20, and PR #21's mobile match-end recovery follow-up was also verified.

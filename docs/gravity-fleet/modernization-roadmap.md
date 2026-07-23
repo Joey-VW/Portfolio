@@ -9,7 +9,7 @@
 * Human Checkpoint 1 was completed July 22, 2026 on current `main` after PRs #15, #16, and #17 using Chrome on Windows 10 and Safari on an iPhone 14 Pro Max.
 * PR #18, `Introduce Gravity Fleet camera and viewport system`, merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e` and completes Pass 10.3 repository work.
 * PR #19, `Build Gravity Fleet mobile shell and touch controls`, merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after completing Passes 10.4-10.5 implementation and QA.
-* Pass 10.6 repository implementation and deterministic validation are complete on the focused telemetry branch. Deployed-browser and physical-device telemetry/analytics QA remain pending; later work remains unstarted.
+* PR #20, `Add Gravity Fleet mobile telemetry analytics`, and PR #21, `Fix Gravity Fleet mobile match-end recovery`, are merged and verified. They complete Pass 10.6; active work is now Pass 10.7 page, header, and analytics polish.
 
 ## North star
 
@@ -619,13 +619,13 @@ Place lower-priority metrics under an expandable “All match statistics” regi
 * [x] System Mix is available live on mobile.
 * [x] Charts do not render continuously while hidden.
 * [x] The event feed no longer consumes the primary drawer.
-* [ ] Landscape telemetry remains usable. The side-sheet implementation is present; browser/device inspection remains pending.
+* [x] Landscape telemetry remains usable; deployed-browser and mobile review verified the side-sheet presentation.
 * [x] Outcome, score, and duration are visible together on mobile.
 * [x] Post-match metrics no longer require one large card per value.
-* [ ] Desktop live and post-match analytics retain their existing depth. The full data surfaces remain in source; desktop browser regression inspection remains pending.
+* [x] Desktop live and post-match analytics retain their existing depth; deployed-browser review verified the full data surfaces.
 * [x] Desktop and mobile display the same underlying telemetry totals.
 
-### Repository completion status - July 23, 2026
+### Completion and verification status
 
 Implemented:
 
@@ -637,7 +637,7 @@ Implemented:
 * A compact result strip, two-column highlights, fleet/control charts, turning point, run insight, and expandable `All match statistics` region.
 * Deterministic projection parity, scheduler-state, and legacy saved-run compatibility checks.
 
-Automated checks pass. Browser tooling was unavailable in the implementation workspace, so desktop, portrait, short-landscape, keyboard/focus, canvas readability, and Cloudflare-preview review remain pending.
+PR #20 merged this telemetry work. Deployed-browser and mobile review then verified desktop, portrait, short-landscape, keyboard/focus, canvas readability, and Cloudflare-preview behavior; PR #21 merged the subsequent mobile match-end recovery fix and its verification. Pass 10.6 is complete.
 
 ---
 
@@ -894,11 +894,11 @@ PR #18 merged Pass 10.3 on July 23, 2026 UTC at `8041c60f05ba9f99979bc968d8ac67a
 
 PR #19 merged Passes 10.4-10.5 on July 23, 2026 UTC at `9cf984ef417851726b49c8f7b9f37f24636fe21b`.
 
-## Current draft - Mobile telemetry
+## Mobile telemetry - complete
 
-Pass 10.6 repository work and automated validation are complete. Keep the pull request in draft until deployed-browser and physical-device evidence covers desktop, portrait, short landscape, chart readability, drawer focus/close behavior, post-match disclosure hierarchy, and saved-run selection.
+PR #20 merged Pass 10.6 telemetry and analytics. Deployed-browser and mobile review covered desktop, portrait, short landscape, chart readability, drawer focus/close behavior, post-match disclosure hierarchy, and saved-run selection. PR #21 merged the follow-up mobile match-end recovery fix; both pull requests are verified.
 
-## PR E - Page, header, and analytics polish - later
+## PR E - Page, header, and analytics polish - active
 
 Retain Pass 10.7, compact post-match styling, and shared-site regression review.
 
