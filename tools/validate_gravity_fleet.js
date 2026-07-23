@@ -12,6 +12,7 @@ const cameraPath = path.join(root, "games", "gravity-fleet", "camera.mjs");
 const levelsPath = path.join(root, "games", "gravity-fleet", "levels.mjs");
 const performancePath = path.join(root, "games", "gravity-fleet", "performance.mjs");
 const runtimePath = path.join(root, "games", "gravity-fleet", "runtime.mjs");
+const telemetryPath = path.join(root, "games", "gravity-fleet", "telemetry.mjs");
 const fixtureRoot = path.join(__dirname, "fixtures", "gravity-fleet");
 
 function readJson(name) {
@@ -55,6 +56,7 @@ function runCommands(api, fixture) {
   const { LEVELS } = await import(pathToFileURL(levelsPath));
   const { createPerformanceMonitor } = await import(pathToFileURL(performancePath));
   const { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STEP_SECONDS } = await import(pathToFileURL(runtimePath));
+  const { createTelemetryChartScheduler, createTelemetryProjection } = await import(pathToFileURL(telemetryPath));
   const commandFixture = readJson("level-1-command-sequence.json");
   const savedFixture = readJson("saved-run-v1.json");
 
@@ -75,6 +77,18 @@ function runCommands(api, fixture) {
   assert.ok(first.engine.state.launchEvents.every(event => event.ships > 0));
   assert.ok(first.engine.state.largestLaunch <= first.engine.state.launchEvents.reduce((max, event) => Math.max(max, event.ships), 0));
   assert.equal(first.engine.state.shipTransits, first.engine.state.wormholeUses, "transit counters must stay consistent");
+  const liveProjection = createTelemetryProjection({
+    state: first.engine.state,
+    counts: first.engine.counts(),
+    commandMode: "Launch"
+  });
+  assert.equal(liveProjection.factions.player.ships, first.engine.counts().playerShips, "live projection must preserve the canonical Cyan ship total");
+  assert.equal(liveProjection.factions.player.worlds, first.engine.counts().playerPlanets, "live projection must preserve the canonical Cyan world total");
+  assert.equal(liveProjection.rivals.worlds, first.engine.counts().rivalPlanets, "live projection must preserve the canonical rival world total");
+  assert.equal(liveProjection.metrics.largestLaunch, first.engine.state.largestLaunch, "live projection must preserve the canonical largest launch");
+  assert.equal(liveProjection.metrics.shipTransits, first.engine.state.shipTransits, "live projection must preserve the canonical transit total");
+  assert.deepEqual(liveProjection.charts.fleetStrength, first.engine.state.shipCountTimeline, "live charts must use the engine timeline without recomputing totals");
+  assert.deepEqual(liveProjection.charts.systemControl, first.engine.state.ownershipTimeline, "system-control charts must use the engine timeline");
 
   const commandEngine = api.createGravityFleetEngine({ randomSource: api.createSeededRandom(9) });
   commandEngine.begin();
@@ -184,6 +198,15 @@ function runCommands(api, fixture) {
     assert.equal(run.outcome, outcome);
     assert.deepEqual(api.GRAVITY_FLEET_RUN_SCHEMA.filter(key => !(key in run)), [], "serialized run schema should retain all keys");
     assert.equal(run.shipTransits, run.wormholeUses);
+    const runProjection = createTelemetryProjection({ run });
+    const highlights = Object.fromEntries(runProjection.outcome.highlights.map(item => [item.key, item.value]));
+    assert.equal(runProjection.outcome.result.score, run.score, "outcome summary and saved run must share the canonical score");
+    assert.equal(runProjection.outcome.result.durationSeconds, run.durationSeconds, "outcome summary and saved run must share the canonical duration");
+    assert.equal(highlights.captures, run.planetsCaptured, "post-match captures must preserve the saved-run total");
+    assert.equal(highlights.destroyed, run.shipsDestroyed, "post-match destroyed ships must preserve the saved-run total");
+    assert.equal(highlights.transits, run.shipTransits, "post-match transits must preserve the saved-run total");
+    assert.deepEqual(runProjection.charts.fleetStrength, run.shipCountTimeline, "post-match fleet chart must use the saved timeline");
+    assert.deepEqual(runProjection.charts.systemControl, run.ownershipTimeline, "post-match control chart must use the saved timeline");
   }
 
   assert.equal(savedFixture.storageKey, api.GRAVITY_FLEET_STORAGE_KEY);
@@ -193,10 +216,60 @@ function runCommands(api, fixture) {
   assert.equal(api.readSavedRuns(storage).length, savedFixture.runs.length);
   assert.equal(api.writeSavedRun(storage, savedFixture.runs[0]), true);
   assert.equal(JSON.parse(storage.value(api.GRAVITY_FLEET_STORAGE_KEY)).length, 2);
+  const legacyRunBeforeProjection = JSON.stringify(savedFixture.runs[0]);
+  const legacyProjection = createTelemetryProjection({ run: savedFixture.runs[0] });
+  assert.equal(legacyProjection.outcome.result.score, savedFixture.runs[0].score, "legacy saved-run score must remain renderable");
+  assert.equal(legacyProjection.outcome.result.durationSeconds, savedFixture.runs[0].durationSeconds, "legacy saved-run duration must remain renderable");
+  assert.equal(legacyProjection.metrics.shipTransits, savedFixture.runs[0].shipTransits ?? savedFixture.runs[0].wormholeUses ?? 0, "legacy transit fallback must remain compatible");
+  assert.equal(JSON.stringify(savedFixture.runs[0]), legacyRunBeforeProjection, "projection must not mutate saved-run records");
 
-  const combinedSource = [corePath, levelsPath].map(file => fs.readFileSync(file, "utf8")).join("\n");
+  let schedulerCanRun = true;
+  let timerId = 0;
+  const scheduled = new Map();
+  const renderReasons = [];
+  const chartScheduler = createTelemetryChartScheduler({
+    render: event => renderReasons.push(event.reason),
+    shouldRun: () => schedulerCanRun,
+    schedule: callback => {
+      const id = ++timerId;
+      scheduled.set(id, callback);
+      return id;
+    },
+    cancel: id => scheduled.delete(id)
+  });
+  chartScheduler.sync();
+  assert.equal(renderReasons.length, 0, "closed charts must not render");
+  assert.equal(scheduled.size, 0, "closed charts must not schedule continuous work");
+  chartScheduler.open();
+  assert.deepEqual(renderReasons, ["open"], "opening the drawer must draw immediately");
+  assert.equal(scheduled.size, 1, "visible running charts must schedule one update");
+  const firstChartTimer = scheduled.entries().next().value;
+  scheduled.delete(firstChartTimer[0]);
+  firstChartTimer[1]();
+  assert.deepEqual(renderReasons, ["open", "interval"], "visible charts must render on their interval");
+  assert.equal(scheduled.size, 1, "the visible scheduler must retain only one future update");
+  schedulerCanRun = false;
+  chartScheduler.sync();
+  assert.equal(scheduled.size, 0, "paused or hidden charts must cancel future work");
+  chartScheduler.close();
+  assert.equal(scheduled.size, 0, "closing the drawer must leave no scheduled chart work");
+  const rendersBeforeFinal = renderReasons.length;
+  chartScheduler.final();
+  assert.equal(renderReasons.length, rendersBeforeFinal + 1, "match end must render one final chart state");
+  assert.equal(renderReasons.at(-1), "final");
+  assert.equal(scheduled.size, 0, "final rendering must not restart chart scheduling");
+
+  const combinedSource = [corePath, levelsPath, telemetryPath].map(file => fs.readFileSync(file, "utf8")).join("\n");
   const forbidden = ["document", "window", "matchMedia", "localStorage", "getBoundingClientRect", "devicePixelRatio", "screen.orientation"];
   assert.deepEqual(forbidden.filter(token => combinedSource.includes(token)), [], "engine modules must be presentation-neutral");
+  const labSource = fs.readFileSync(path.join(root, "games", "gravity-fleet-lab.js"), "utf8");
+  const labMarkup = fs.readFileSync(path.join(root, "games", "gravity-fleet-lab.html"), "utf8");
+  assert.match(labSource, /createTelemetryProjection/, "browser surfaces must consume the shared telemetry projection");
+  assert.match(labSource, /createTelemetryChartScheduler/, "mobile charts must use the visibility-aware scheduler");
+  assert.doesNotMatch(labSource, /mobileDrawerEvents/, "the primary mobile drawer must not render the full event feed");
+  assert.match(labMarkup, /id="mobileFleetChart"/, "mobile drawer must include the real fleet-strength chart");
+  assert.match(labMarkup, /id="mobileSystemDonut"/, "mobile drawer must include the real system-mix donut");
+  assert.match(labMarkup, /<summary>All match statistics<\/summary>/, "lower-priority analytics must use the All match statistics disclosure");
 
   const disabledMonitor = createPerformanceMonitor();
   assert.equal(disabledMonitor.enabled, false);
@@ -318,7 +391,7 @@ function runCommands(api, fixture) {
   });
   assert.deepEqual(worldBounds, immutableWorldBeforeResize, "camera resize must not mutate gameplay coordinates");
 
-  console.log(`Gravity Fleet validation passed: ${LEVELS.length} levels, deterministic command fixture, win/loss paths, saved-run schema, telemetry, pause/resume, touch-command cancellation, configurable wormhole lifespan, core boundary, render-independent fixed timestep, and invertible desktop/portrait/landscape cameras.`);
+  console.log(`Gravity Fleet validation passed: ${LEVELS.length} levels, deterministic command fixture, win/loss paths, shared telemetry projection parity, saved-run compatibility, hidden-chart scheduling, pause/resume, touch-command cancellation, configurable wormhole lifespan, core boundary, render-independent fixed timestep, and invertible desktop/portrait/landscape cameras.`);
 })().catch(error => {
   console.error(error.stack || error);
   process.exitCode = 1;

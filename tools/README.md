@@ -18,6 +18,11 @@ inverse pointer transforms, and camera resize isolation from gameplay state.
 The mobile-shell checks cover engine pause/resume without advancement or
 catch-up, gesture cancellation, Clear Wormhole command behavior, and the
 configured preparation, activation, countdown, and absolute-expiry lifecycle.
+Pass 10.6 checks also compare the shared live and saved-run telemetry projection
+with canonical engine/run totals, retain legacy saved-run fallbacks without
+mutating records, verify the mobile drawer and post-match structural contract,
+and exercise chart scheduling: no closed/paused work, immediate opening render,
+one visible interval at a time, and one final match-end render.
 
 `fetch_kroger_products.py` is the backend-oriented data pull for the static Shrinkflation Tracker. It uses Kroger's official developer API only; it does **not** scrape grocery pages, automate a browser, or expose credentials to frontend JavaScript.
 

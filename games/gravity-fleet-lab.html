@@ -120,20 +120,28 @@
               <div><p class="eyebrow">Live command data</p><h3 id="mobileTelemetryTitle">Match telemetry</h3></div>
               <button class="mobile-drawer-close" id="mobileTelemetryClose" type="button" aria-label="Close match telemetry">×</button>
             </header>
-            <dl class="mobile-drawer-metrics">
-              <div><dt>Red</dt><dd id="mobileDrawerRed">0 worlds · 0 ships</dd></div>
-              <div><dt>Orange</dt><dd id="mobileDrawerOrange">0 worlds · 0 ships</dd></div>
-              <div><dt>Central star</dt><dd id="mobileDrawerStar">Neutral</dd></div>
-              <div><dt>Largest launch</dt><dd id="mobileDrawerLaunch">0 ships</dd></div>
-              <div><dt>Deep-space fights</dt><dd id="mobileDrawerFights">0</dd></div>
-              <div><dt>Ship transits</dt><dd id="mobileDrawerTransits">0</dd></div>
-            </dl>
-            <section class="mobile-drawer-events" aria-labelledby="mobileEventsTitle">
-              <h4 id="mobileEventsTitle">Recent events</h4>
-              <ul id="mobileDrawerEvents"><li>Telemetry will appear after launch.</li></ul>
+            <section class="mobile-drawer-fleet" aria-labelledby="mobileFleetTitle">
+              <div class="mobile-drawer-section-title"><h4 id="mobileFleetTitle">Fleet strength over time</h4><span>Cyan · Red · Orange</span></div>
+              <canvas id="mobileFleetChart" width="520" height="176" aria-label="Live fleet strength over time for Cyan, Red, and Orange"></canvas>
             </section>
+            <div class="mobile-drawer-secondary">
+              <section class="mobile-drawer-system" aria-labelledby="mobileSystemTitle">
+                <h4 id="mobileSystemTitle">System mix</h4>
+                <canvas id="mobileSystemDonut" width="220" height="180" aria-label="Live controlled-world share for Cyan, Red, and Orange"></canvas>
+                <div class="mobile-system-legend" id="mobileSystemLegend" aria-label="Controlled-world share"></div>
+              </section>
+              <dl class="mobile-drawer-metrics">
+                <div><dt>Largest launch</dt><dd id="mobileDrawerLaunch">0 ships</dd></div>
+                <div><dt>In flight</dt><dd id="mobileDrawerInFlight">0 ships</dd></div>
+                <div><dt>Deep-space fights</dt><dd id="mobileDrawerFights">0</dd></div>
+                <div><dt>Ship transits</dt><dd id="mobileDrawerTransits">0</dd></div>
+                <div><dt>Star control</dt><dd id="mobileDrawerStar">Neutral</dd></div>
+                <div><dt>Wormholes</dt><dd id="mobileDrawerWormholes">0 Cyan · 0 AI</dd></div>
+              </dl>
+            </div>
+            <p class="mobile-drawer-latest" id="mobileDrawerLatest">Latest: telemetry will appear after launch.</p>
             <div class="mobile-drawer-actions">
-              <button class="button" id="mobileDrawerPause" type="button">Pause match</button>
+              <button class="button primary mobile-drawer-primary-action" id="mobileDrawerPause" type="button">Close telemetry</button>
               <button class="button" id="mobileResetMatch" type="button">Reset match</button>
               <button class="button" id="mobileChooseLevel" type="button">Choose level</button>
             </div>
@@ -180,16 +188,18 @@
               <p class="eyebrow" id="gameOutcomeEyebrow">Match complete</p>
               <h3 id="gameOutcomeTitle">System claimed</h3>
               <p id="gameOutcomeSummary" class="outcome-summary">Level 1 - First Orbit complete.</p>
-              <dl class="outcome-stats" aria-label="Match result details">
-                <div><dt>Level</dt><dd id="gameOutcomeLevel">First Orbit</dd></div>
+              <dl class="outcome-result-strip" aria-label="Match result">
+                <div><dt>Outcome</dt><dd id="gameOutcomeResult">Victory</dd></div>
                 <div><dt>Score</dt><dd id="gameOutcomeScore">0</dd></div>
                 <div><dt>Duration</dt><dd id="gameOutcomeDuration">0:00</dd></div>
               </dl>
               <dl class="mobile-outcome-highlights" aria-label="Match analytics highlights">
                 <div><dt>Planets captured</dt><dd id="gameOutcomeCaptures">0</dd></div>
-                <div><dt>Largest launch</dt><dd id="gameOutcomeLargestLaunch">0</dd></div>
                 <div><dt>Ships destroyed</dt><dd id="gameOutcomeDestroyed">0</dd></div>
+                <div><dt>Largest launch</dt><dd id="gameOutcomeLargestLaunch">0</dd></div>
                 <div><dt>Ship transits</dt><dd id="gameOutcomeTransits">0</dd></div>
+                <div><dt>Cyan wormholes</dt><dd id="gameOutcomeWormholes">0</dd></div>
+                <div><dt>Peak advantage</dt><dd id="gameOutcomePeakAdvantage">0</dd></div>
               </dl>
               <p class="mobile-outcome-signal" id="gameOutcomeSignal">Telemetry captured for review.</p>
               <div class="outcome-actions" aria-label="Choose what to do next">
@@ -297,10 +307,21 @@
       <div class="section-heading centered"><p class="eyebrow">Session telemetry</p><h2 id="analytics-title">Post-match analytics dashboard</h2><p>Launch spikes and fleet pressure stream while you play; after victory or defeat, the dashboard compares your score with mock sample runs loaded from JSON.</p></div>
       <div id="dashboardEmpty" class="panel empty-dashboard"><h3>No match analyzed yet</h3><p>Complete a match to render KPIs, timelines, heatmap, local history, and benchmark context.</p></div>
       <div id="dashboard" class="dashboard" hidden>
-        <div class="kpi-grid" id="kpiGrid"></div>
-        <div class="chart-grid">
-          <article class="panel chart-card"><h3>Ship count over time</h3><canvas id="shipChart" width="620" height="240"></canvas></article>
-          <article class="panel chart-card"><h3>Planet ownership over time</h3><canvas id="ownershipChart" width="620" height="240"></canvas></article>
+        <div class="analytics-result-strip" id="analyticsResultStrip" aria-label="Selected match result"></div>
+        <div class="analytics-highlight-grid" id="analyticsHighlights" aria-label="Selected match highlights"></div>
+        <div class="chart-grid analytics-primary-charts">
+          <article class="panel chart-card"><h3>Fleet strength over time</h3><canvas id="shipChart" width="620" height="240"></canvas></article>
+          <article class="panel chart-card"><h3>System control over time</h3><canvas id="ownershipChart" width="620" height="240"></canvas></article>
+        </div>
+        <div class="analytics-narrative">
+          <article class="panel"><p class="eyebrow">Most important turning point</p><p id="analyticsTurningPoint"></p></article>
+          <article class="panel"><p class="eyebrow">Run insight</p><p id="analyticsRunInsight"></p></article>
+        </div>
+        <details class="analytics-all-statistics" id="analyticsAllStatistics">
+          <summary>All match statistics</summary>
+          <div class="kpi-grid" id="kpiGrid"></div>
+        </details>
+        <div class="chart-grid analytics-detail-charts">
           <article class="panel chart-card heatmap-card">
             <div class="panel-title-row">
               <h3>Minimap heatmap</h3>
