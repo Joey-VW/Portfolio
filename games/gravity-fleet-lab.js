@@ -1,4 +1,4 @@
-import { createGravityFleetEngine, readSavedRuns, writeSavedRun, GRAVITY_FLEET_STORAGE_KEY } from "./gravity-fleet/core.mjs";
+import { createGravityFleetEngine, readSavedRuns, writeSavedRun, GRAVITY_FLEET_STORAGE_KEY, WORMHOLE_LIFESPAN_PROFILES } from "./gravity-fleet/core.mjs";
 import { LEVELS, teamMeta, activeTeamKeys, contestTeamKeys, colors, BASE_WORLD_BOUNDS, BASE_LAUNCH_RADIUS, BASE_PULL_RADIUS, MIN_LAUNCH_SPEED, MAX_LAUNCH_SPEED, LAUNCH_POWER_CURVE, MAX_SPEED, BASE_WORM_MAX_RANGE, BASE_WORM_INFLUENCE, BASE_TOTAL_SHIP_CAP, PLANET_MOTION_MULTIPLIER, TAU } from "./gravity-fleet/levels.mjs";
 import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
 import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STEP_SECONDS } from "./gravity-fleet/runtime.mjs";
@@ -39,9 +39,10 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     pressure: document.querySelector("#pressureSnapshot"), launchPulse: document.querySelector("#launchPulse"), liveTelemetry: document.querySelector("#liveTelemetryModule"), liveTelemetryBadge: document.querySelector("#liveTelemetryBadge"), backToGame: document.querySelector("#backToGame"),
     insights: document.querySelector("#insights"), leaderboard: document.querySelector("#leaderboard"), recent: document.querySelector("#recentRuns"), clearRecent: document.querySelector("#clearLocalRuns"), recentStatus: document.querySelector("#recentRunsStatus"),
     tutorialCanvases: [...document.querySelectorAll("[data-tutorial-demo]")],
-    mobileHud: document.querySelector("#mobileGameHud"), mobileHudLevel: document.querySelector("#mobileHudLevel"), mobileHudTimer: document.querySelector("#mobileHudTimer"), mobileHudShips: document.querySelector("#mobileHudShips"), mobileHudWorlds: document.querySelector("#mobileHudWorlds"), mobileHudRivals: document.querySelector("#mobileHudRivals"), mobileHudTraveling: document.querySelector("#mobileHudTraveling"), mobileHudFps: document.querySelector("#mobileHudFps"), mobileHudStatus: document.querySelector("#mobileHudStatus"),
-    mobileTelemetryToggle: document.querySelector("#mobileTelemetryToggle"), mobileTelemetryDrawer: document.querySelector("#mobileTelemetryDrawer"), mobileTelemetryClose: document.querySelector("#mobileTelemetryClose"), mobileDrawerBackdrop: document.querySelector("#mobileDrawerBackdrop"), mobileDrawerRed: document.querySelector("#mobileDrawerRed"), mobileDrawerOrange: document.querySelector("#mobileDrawerOrange"), mobileDrawerStar: document.querySelector("#mobileDrawerStar"), mobileDrawerLaunch: document.querySelector("#mobileDrawerLaunch"), mobileDrawerFights: document.querySelector("#mobileDrawerFights"), mobileDrawerTransits: document.querySelector("#mobileDrawerTransits"), mobileDrawerEvents: document.querySelector("#mobileDrawerEvents"), mobileReset: document.querySelector("#mobileResetMatch"), mobileChooseLevel: document.querySelector("#mobileChooseLevel"),
-    mobileShellStatus: document.querySelector("#mobileShellStatus"), mobileShellStatusTitle: document.querySelector("#mobileShellStatusTitle"), mobileShellStatusMessage: document.querySelector("#mobileShellStatusMessage"), mobileShellDiagnostic: document.querySelector("#mobileShellDiagnostic"), mobileShellActions: document.querySelector("#mobileShellActions"), mobileShellRetry: document.querySelector("#mobileShellRetry"), mobileShellReturn: document.querySelector("#mobileShellReturn"), mobileMatchExit: document.querySelector("#mobileMatchExit")
+    mobileHud: document.querySelector("#mobileGameHud"), mobileHudLevel: document.querySelector("#mobileHudLevel"), mobileHudTimer: document.querySelector("#mobileHudTimer"), mobileHudShips: document.querySelector("#mobileHudShips"), mobileHudWorlds: document.querySelector("#mobileHudWorlds"), mobileHudRivals: document.querySelector("#mobileHudRivals"), mobileHudRedShips: document.querySelector("#mobileHudRedShips"), mobileHudOrangeShips: document.querySelector("#mobileHudOrangeShips"), mobileHudOrangeWorlds: document.querySelector("#mobileHudOrangeWorlds"), mobileHudStatus: document.querySelector("#mobileHudStatus"), mobilePause: document.querySelector("#mobilePauseToggle"),
+    mobileTelemetryToggle: document.querySelector("#mobileTelemetryToggle"), mobileTelemetryDrawer: document.querySelector("#mobileTelemetryDrawer"), mobileTelemetryClose: document.querySelector("#mobileTelemetryClose"), mobileDrawerBackdrop: document.querySelector("#mobileDrawerBackdrop"), mobileDrawerRed: document.querySelector("#mobileDrawerRed"), mobileDrawerOrange: document.querySelector("#mobileDrawerOrange"), mobileDrawerStar: document.querySelector("#mobileDrawerStar"), mobileDrawerLaunch: document.querySelector("#mobileDrawerLaunch"), mobileDrawerFights: document.querySelector("#mobileDrawerFights"), mobileDrawerTransits: document.querySelector("#mobileDrawerTransits"), mobileDrawerEvents: document.querySelector("#mobileDrawerEvents"), mobileDrawerPause: document.querySelector("#mobileDrawerPause"), mobileReset: document.querySelector("#mobileResetMatch"), mobileChooseLevel: document.querySelector("#mobileChooseLevel"),
+    mobileShellStatus: document.querySelector("#mobileShellStatus"), mobileShellStatusTitle: document.querySelector("#mobileShellStatusTitle"), mobileShellStatusMessage: document.querySelector("#mobileShellStatusMessage"), mobileShellDiagnostic: document.querySelector("#mobileShellDiagnostic"), mobileShellActions: document.querySelector("#mobileShellActions"), mobileShellRetry: document.querySelector("#mobileShellRetry"), mobileShellReturn: document.querySelector("#mobileShellReturn"), mobileMatchExit: document.querySelector("#mobileMatchExit"),
+    mobileShell: document.querySelector("#mobileMatchShell"), mobileShellTop: document.querySelector("#mobileShellTop"), mobileTacticalViewport: document.querySelector("#mobileTacticalViewport"), mobileShellCommand: document.querySelector("#mobileShellCommand"), mobileShellTelemetry: document.querySelector("#mobileShellTelemetry"), mobileTelemetryHandle: document.querySelector("#mobileTelemetryHandle"), mobileCommandFeedback: document.querySelector("#mobileCommandFeedback"), mobilePausedNotice: document.querySelector("#mobilePausedNotice"), mobileClearWormhole: document.querySelector("#mobileClearWormhole")
   };
 
   const modalElements = [ui.overlay, ui.tutorial, ui.outcome].filter(Boolean);
@@ -178,6 +179,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   let activeModal = null;
   let modalOrigin = null;
   const inertedBackground = new Map();
+  const shellInertedBackground = new Map();
   let commandDockSignature = "";
   let syncGravityDevLab = () => {};
   let updateGravityDevActions = () => {};
@@ -193,11 +195,18 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   let mobilePresentationDismissed = false;
   let mobileShellState = "idle";
   let mobileShellTimer = 0;
+  let mobileFeedbackTimer = 0;
   let lastSuccessfulDrawAt = 0;
   let lastSuccessfulSimulationAt = 0;
   let lastRuntimeError = "";
-  const mobileDiagnosticsEnabled = new URLSearchParams(window.location.search).get("gravityDebug") === "1";
-  const developmentMetricsEnabled = mobileDiagnosticsEnabled || ["localhost", "127.0.0.1", "::1", "[::1]"].includes(window.location.hostname);
+  const gravityQuery = new URLSearchParams(window.location.search);
+  const mobileDiagnosticsEnabled = gravityQuery.get("gravityDebug") === "1";
+  const localDevelopmentHost = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(window.location.hostname);
+  const developmentMetricsEnabled = mobileDiagnosticsEnabled || localDevelopmentHost;
+  const requestedMobileShell = gravityQuery.get("gravityMobileShell");
+  const mobileShellFlavor = developmentMetricsEnabled && requestedMobileShell === "legacy" ? "legacy" : "modern";
+  const usesModernMobileShell = () => mobileShellFlavor === "modern";
+  const mobileDomPlacements = new Map();
   const performanceMonitor = createPerformanceMonitor({ enabled: developmentMetricsEnabled });
   const runtime = createFixedStepRuntime();
   let animationFrameId = 0;
@@ -206,6 +215,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     reducedMotion: reduced,
     effectsEnabled: presentationProfile().effectsEnabled,
     trailsEnabled: allowsShipTrails(),
+    playerWormholeLifespan: WORMHOLE_LIFESPAN_PROFILES.desktopClassic,
     monitor: performanceMonitor,
     createId: () => crypto.randomUUID()
   });
@@ -215,7 +225,17 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     if (event.type === "launchPulse" && ui.launchPulse) ui.launchPulse.textContent = `+${event.detail} launch`;
   });
   if (developmentMetricsEnabled) window.gravityFleetDiagnostics = Object.freeze({
-    snapshot: () => ({ ...performanceMonitor.snapshot(), runtime: runtime.snapshot(), profile: presentationProfile().id, camera: camera.diagnostics(), pointer: lastCameraPointer }),
+    snapshot: () => ({
+      ...performanceMonitor.snapshot(),
+      runtime: runtime.snapshot(),
+      profile: presentationProfile().id,
+      shell: { flavor: mobileShellFlavor, state: mobileShellState, drawerOpen: mobileDrawerOpen },
+      input: { mode: wormMode ? "wormhole" : "launch", activePointerId },
+      match: { running: Boolean(state?.running), paused: Boolean(state?.paused), acceptingInput: Boolean(state?.acceptingInput) },
+      camera: camera.diagnostics(),
+      pointer: lastCameraPointer,
+      playerWormhole: playerWormholes()[0] || null
+    }),
     engine
   });
 
@@ -242,7 +262,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
 
   function deriveCommandDockMode() {
     if (state?.ended) return "post-game";
-    if (state?.running && state?.acceptingInput) return "live";
+    if (state?.startedAt && (state?.running || state?.paused)) return "live";
     return "pre-game";
   }
 
@@ -307,7 +327,8 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     const playerShips = c.playerShips || 0;
     let readiness = `${playerShips} Cyan ships · ${inFlight} in flight`;
     let status = "Hold LMB near a Cyan planet to gather a launch field.";
-    if (wormMode) status = engine.pendingWorm ? "Choose a wormhole exit point." : "Choose a wormhole entrance point.";
+    if (state.paused) status = "Match paused. Resume to issue gameplay commands.";
+    else if (wormMode) status = "Drag from a wormhole entrance to its exit.";
     else if (l?.active && selected > 0) {
       readiness = `${selected} ships selected · Release to launch`;
       status = `Release to launch ${selected} Cyan ships toward the current aim.`;
@@ -346,8 +367,8 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     }
     if (mode !== "live") setWormMode(false);
     if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(mode === "live" && isTouchCapable());
-    if (ui.reset) ui.reset.disabled = mode !== "live";
-    if (ui.worm) ui.worm.disabled = mode !== "live";
+    if (ui.reset) ui.reset.disabled = mode !== "live" || state.paused;
+    if (ui.worm) ui.worm.disabled = mode !== "live" || state.paused;
     const run = completedRun;
     setText(ui.dockPostOutcome, run ? `${run.outcome} - ${run.levelName}` : "Match complete");
     setText(ui.dockPostLevel, run ? `Level ${run.levelId} - ${run.levelName}` : `Level ${level.id} - ${level.name}`);
@@ -368,25 +389,67 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     if (ui.mobileTelemetryDrawer) ui.mobileTelemetryDrawer.hidden = true;
     if (ui.mobileDrawerBackdrop) ui.mobileDrawerBackdrop.hidden = true;
     ui.mobileTelemetryToggle?.setAttribute("aria-expanded", "false");
+    ui.mobileTelemetryHandle?.setAttribute("aria-expanded", "false");
     if (ui.mobileHud) ui.mobileHud.inert = false;
     if (ui.mobileModeControls) ui.mobileModeControls.inert = false;
+    if (ui.mobileTacticalViewport) ui.mobileTacticalViewport.inert = false;
+    if (ui.mobileShellCommand) ui.mobileShellCommand.inert = false;
     document.body.classList.remove("gravity-mobile-drawer-open");
     resetRuntimeTiming();
-    if (restoreFocus) ui.mobileTelemetryToggle?.focus({ preventScroll: true });
+    if (restoreFocus) (usesModernMobileShell() ? ui.mobileTelemetryHandle : ui.mobileTelemetryToggle)?.focus({ preventScroll: true });
   }
 
   function openMobileTelemetryDrawer() {
-    if (!usesMobilePresentation() || !state?.running || state?.ended) return;
+    if (!usesMobilePresentation() || !state?.startedAt || state?.ended) return;
+    cancelActiveGesture();
     mobileDrawerOpen = true;
     if (ui.mobileTelemetryDrawer) ui.mobileTelemetryDrawer.hidden = false;
     if (ui.mobileDrawerBackdrop) ui.mobileDrawerBackdrop.hidden = false;
     ui.mobileTelemetryToggle?.setAttribute("aria-expanded", "true");
+    ui.mobileTelemetryHandle?.setAttribute("aria-expanded", "true");
     if (ui.mobileHud) ui.mobileHud.inert = true;
     if (ui.mobileModeControls) ui.mobileModeControls.inert = true;
+    if (ui.mobileTacticalViewport) ui.mobileTacticalViewport.inert = true;
+    if (ui.mobileShellCommand) ui.mobileShellCommand.inert = true;
     document.body.classList.add("gravity-mobile-drawer-open");
     resetRuntimeTiming();
     updateMobileHud(counts(), true);
     ui.mobileTelemetryClose?.focus({ preventScroll: true });
+  }
+
+  function moveIntoMobileShell(element, target) {
+    if (!element || !target || mobileDomPlacements.has(element)) return;
+    const placeholder = document.createComment(`gravity-fleet-${element.id || "mobile-node"}-placeholder`);
+    element.parentNode?.insertBefore(placeholder, element);
+    mobileDomPlacements.set(element, placeholder);
+    target.append(element);
+  }
+
+  function mountModernMobileShell() {
+    if (!usesModernMobileShell() || !ui.mobileShell) return;
+    ui.mobileShell.hidden = false;
+    moveIntoMobileShell(canvas, ui.mobileTacticalViewport);
+    moveIntoMobileShell(ui.mobileHud, ui.mobileShellTop);
+    moveIntoMobileShell(ui.mobileModeControls, ui.mobileShellCommand);
+    moveIntoMobileShell(ui.mobileDrawerBackdrop, ui.mobileShellTelemetry);
+    moveIntoMobileShell(ui.mobileTelemetryDrawer, ui.mobileShellTelemetry);
+  }
+
+  function restoreModernMobileShell() {
+    mobileDomPlacements.forEach((placeholder, element) => {
+      if (placeholder.parentNode) placeholder.parentNode.replaceChild(element, placeholder);
+    });
+    mobileDomPlacements.clear();
+    if (ui.mobileShell) ui.mobileShell.hidden = true;
+  }
+
+  function syncVisualViewportVariables() {
+    if (!gameStage) return;
+    const viewport = window.visualViewport;
+    gameStage.style.setProperty("--gravity-viewport-left", `${viewport?.offsetLeft || 0}px`);
+    gameStage.style.setProperty("--gravity-viewport-top", `${viewport?.offsetTop || 0}px`);
+    gameStage.style.setProperty("--gravity-viewport-width", `${viewport?.width || window.innerWidth}px`);
+    gameStage.style.setProperty("--gravity-viewport-height", `${viewport?.height || window.innerHeight}px`);
   }
 
   function portalGameStage() {
@@ -396,16 +459,24 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     stagePortalParent.insertBefore(stagePortalPlaceholder, gameStage);
     document.body.append(gameStage);
     gameStage.classList.add("gravity-mobile-stage");
+    mountModernMobileShell();
+    syncVisualViewportVariables();
     cameraViewportDirty = true;
   }
 
   function restoreGameStage() {
     if (!gameStage || gameStage.parentElement !== document.body) return;
+    setMobileShellBackgroundInert(false);
+    restoreModernMobileShell();
     if (stagePortalPlaceholder?.parentNode) stagePortalPlaceholder.parentNode.replaceChild(gameStage, stagePortalPlaceholder);
     else if (stagePortalParent) stagePortalParent.append(gameStage);
     stagePortalPlaceholder = null;
     stagePortalParent = null;
     gameStage.classList.remove("gravity-mobile-stage");
+    gameStage.style.removeProperty("--gravity-viewport-left");
+    gameStage.style.removeProperty("--gravity-viewport-top");
+    gameStage.style.removeProperty("--gravity-viewport-width");
+    gameStage.style.removeProperty("--gravity-viewport-height");
     cameraViewportDirty = true;
   }
 
@@ -432,6 +503,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   }
 
   function mobileTacticalCssRect(visibleRect, orientation) {
+    if (usesModernMobileShell() && ui.mobileTacticalViewport?.contains(canvas)) return visibleRect;
     const portrait = orientation === CAMERA_ORIENTATIONS.portrait;
     const safeTop = readCameraSafeArea("top");
     const safeRight = readCameraSafeArea("right");
@@ -507,25 +579,45 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     const observer = new ResizeObserver(() => scheduleCameraViewportUpdate());
     observer.observe(gameStage);
     observer.observe(canvas);
-    window.addEventListener("resize", () => scheduleCameraViewportUpdate());
-    window.visualViewport?.addEventListener("resize", () => scheduleCameraViewportUpdate());
-    window.visualViewport?.addEventListener("scroll", () => scheduleCameraViewportUpdate());
+    const handleViewportChange = () => {
+      syncVisualViewportVariables();
+      scheduleCameraViewportUpdate();
+    };
+    window.addEventListener("resize", handleViewportChange);
+    window.visualViewport?.addEventListener("resize", handleViewportChange);
+    window.visualViewport?.addEventListener("scroll", handleViewportChange);
     scheduleCameraViewportUpdate({ cancelGestures: false });
   }
 
   function syncMobilePresentation() {
     const profile = presentationProfile();
     engine.setPresentationPolicy({ effectsEnabled: profile.effectsEnabled, trailsEnabled: profile.trailsEnabled });
-    if (gameStage?.parentElement === document.body && (!usesMobilePresentation() || !state?.running || mobilePresentationDismissed || mobileShellState === "idle" || mobileShellState === "failed")) restoreGameStage();
-    const preparing = Boolean(usesMobilePresentation() && state?.running && mobileShellState === "preparing");
-    const active = Boolean(usesMobilePresentation() && state?.running && mobileShellState === "ready" && !mobilePresentationDismissed);
+    const mountedMatch = Boolean(state?.startedAt && !state?.ended);
+    if (gameStage?.parentElement === document.body && (!usesMobilePresentation() || !mountedMatch || mobilePresentationDismissed || mobileShellState === "idle" || mobileShellState === "failed")) restoreGameStage();
+    const preparing = Boolean(usesMobilePresentation() && mountedMatch && mobileShellState === "preparing");
+    const active = Boolean(usesMobilePresentation() && mountedMatch && mobileShellState === "ready" && !mobilePresentationDismissed);
+    const mobileShellVisible = preparing || active;
     document.documentElement.classList.toggle("gravity-mobile-preparing", preparing);
     document.body.classList.toggle("gravity-mobile-preparing", preparing);
     document.documentElement.classList.toggle("gravity-mobile-match", active);
     document.body.classList.toggle("gravity-mobile-match", active);
-    if (ui.mobileHud) ui.mobileHud.hidden = !(active && state?.acceptingInput && !state?.ended);
-    if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(active && state?.acceptingInput && !state?.ended);
+    document.documentElement.classList.toggle("gravity-mobile-shell-modern", mobileShellVisible && usesModernMobileShell());
+    document.body.classList.toggle("gravity-mobile-shell-modern", mobileShellVisible && usesModernMobileShell());
+    document.documentElement.classList.toggle("gravity-mobile-shell-legacy", mobileShellVisible && !usesModernMobileShell());
+    document.body.classList.toggle("gravity-mobile-shell-legacy", mobileShellVisible && !usesModernMobileShell());
+    document.documentElement.dataset.gravityMatchState = state?.paused ? "paused" : active ? "running" : "inactive";
+    setMobileShellBackgroundInert(Boolean(mobileShellVisible && gameStage?.parentElement === document.body));
+    if (ui.mobileShell && usesModernMobileShell()) ui.mobileShell.hidden = !mobileShellVisible;
+    if (ui.mobileHud) ui.mobileHud.hidden = !(active && !state?.ended);
+    if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(active && !state?.ended);
     if (ui.mobileMatchExit) ui.mobileMatchExit.hidden = !(preparing || active);
+    if (ui.mobilePausedNotice) ui.mobilePausedNotice.hidden = !state?.paused;
+    if (ui.mobilePause) {
+      ui.mobilePause.setAttribute("aria-pressed", String(Boolean(state?.paused)));
+      ui.mobilePause.setAttribute("aria-label", state?.paused ? "Resume match" : "Pause match");
+    }
+    setText(ui.mobileDrawerPause, state.paused ? "Resume match" : "Pause match");
+    engine.setPlayerWormholeLifespan(active && usesModernMobileShell() ? WORMHOLE_LIFESPAN_PROFILES.mobileTactical : WORMHOLE_LIFESPAN_PROFILES.desktopClassic);
     if (!active || state?.ended) closeMobileTelemetryDrawer();
     mobileHudSignature = "";
     scheduleCameraViewportUpdate({ cancelGestures: false });
@@ -561,19 +653,23 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
 
   function mobileSurfaceDetails() {
     const stage = visibleSurfaceDetails(gameStage);
+    const shell = visibleSurfaceDetails(ui.mobileShell);
+    const tactical = visibleSurfaceDetails(ui.mobileTacticalViewport);
     const surface = visibleSurfaceDetails(canvas);
     const hud = visibleSurfaceDetails(ui.mobileHud);
     const controls = visibleSurfaceDetails(ui.mobileModeControls);
     const exit = visibleSurfaceDetails(ui.mobileMatchExit);
-    const stackingValid = stage.position === "fixed" && stage.zIndex >= 900 && hud.zIndex > stage.zIndex && controls.zIndex > stage.zIndex && exit.zIndex > stage.zIndex;
-    return { stage, surface, hud, controls, exit, stackingValid, valid: gameStage?.parentElement === document.body && [stage, surface, hud, controls, exit].every(item => item.valid) && stackingValid && canvas.width > 0 && canvas.height > 0 };
+    const stackingValid = usesModernMobileShell()
+      ? stage.position === "fixed" && stage.zIndex >= 900 && shell.valid && tactical.valid
+      : stage.position === "fixed" && stage.zIndex >= 900 && hud.zIndex > stage.zIndex && controls.zIndex > stage.zIndex && exit.zIndex > stage.zIndex;
+    return { stage, shell, tactical, surface, hud, controls, exit, stackingValid, valid: gameStage?.parentElement === document.body && [stage, surface, hud, controls, exit].every(item => item.valid) && stackingValid && canvas.width > 0 && canvas.height > 0 };
   }
 
   function rollbackMobileShell(reason) {
     window.clearTimeout(mobileShellTimer);
     lastRuntimeError = reason instanceof Error ? `${reason.name}: ${reason.message}` : String(reason);
-    state.running = false;
-    state.acceptingInput = false;
+    engine.command("pause");
+    state = engine.state;
     cancelActiveGesture({ cancelPending: true });
     closeMobileTelemetryDrawer();
     hideGameOverlays();
@@ -590,7 +686,10 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     requestAnimationFrame(() => requestAnimationFrame(() => {
       try {
         let surface = mobileSurfaceDetails();
-        if (!surface.stage.valid || !surface.surface.valid || !surface.exit.valid || gameStage?.parentElement !== document.body) throw new Error("Mobile game surface is not viewport-visible in its body-level shell.");
+        const preparationVisible = usesModernMobileShell()
+          ? surface.stage.valid && surface.shell.valid && surface.tactical.valid && surface.surface.valid
+          : surface.stage.valid && surface.surface.valid && surface.exit.valid;
+        if (!preparationVisible || gameStage?.parentElement !== document.body) throw new Error("Mobile game surface is not viewport-visible in its body-level shell.");
         cameraViewportDirty = true;
         updateCameraViewport();
         draw();
@@ -604,6 +703,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
         window.clearTimeout(mobileShellTimer);
         setMobileShellStatus("ready", "", "");
         updateHud(counts(), true);
+        canvas.focus({ preventScroll: true });
       } catch (error) {
         rollbackMobileShell(error);
       }
@@ -623,18 +723,19 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     panel.setAttribute("aria-live", "polite");
     document.body.append(panel);
     const update = () => {
-      const { stage, surface, hud, controls, exit } = mobileSurfaceDetails();
+      const { stage, shell, tactical, surface, hud, controls, exit } = mobileSurfaceDetails();
       const cameraState = camera.diagnostics();
       const inertChildren = [...document.body.children].filter(element => element.inert).map(element => element.id || element.className || element.tagName).join(", ") || "none";
       const focused = document.activeElement?.id ? `#${document.activeElement.id}` : document.activeElement?.tagName || "none";
       panel.textContent = [
-        `shell: ${mobileShellState}`, `input: ${document.documentElement.dataset.gravityInput || "unknown"}`, `viewport: ${window.innerWidth} × ${window.innerHeight}`,
+        `shell: ${mobileShellFlavor}/${mobileShellState}`, `input: ${document.documentElement.dataset.gravityInput || "unknown"}/${wormMode ? "wormhole" : "launch"}`, `viewport: ${window.innerWidth} × ${window.innerHeight}`,
         `stage parent: ${gameStage?.parentElement === document.body ? "body" : gameStage?.parentElement?.className || "none"}`, `stage: ${Math.round(stage.rect?.width || 0)} × ${Math.round(stage.rect?.height || 0)} ${stage.position} z:${stage.zIndex} ${stage.display}/${stage.visibility}/${stage.opacity} intersect:${stage.intersects}`,
         `canvas CSS: ${Math.round(surface.rect?.width || 0)} × ${Math.round(surface.rect?.height || 0)} z:${surface.zIndex} ${surface.display}/${surface.visibility}/${surface.opacity} intersect:${surface.intersects}`,
+        `shell/tactical: ${Math.round(shell.rect?.width || 0)} × ${Math.round(shell.rect?.height || 0)} / ${Math.round(tactical.rect?.width || 0)} × ${Math.round(tactical.rect?.height || 0)}`,
         `HUD: z:${hud.zIndex} ${hud.display}/${hud.visibility}/${hud.opacity} intersect:${hud.intersects}`, `controls: z:${controls.zIndex} ${controls.display}/${controls.visibility}/${controls.opacity} intersect:${controls.intersects}`, `exit: z:${exit.zIndex} ${exit.display}/${exit.visibility}/${exit.opacity} intersect:${exit.intersects}`,
         `panel contains stage: ${Boolean(document.querySelector(".sim-panel")?.contains(gameStage))}`, `focus: ${focused}`, `modal: ${activeModal?.id || "none"}`, `inert body children: ${inertChildren}`,
         `canvas backing: ${canvas.width} × ${canvas.height}`, `camera: ${cameraState.orientation} ${cameraState.rotationDegrees}deg scale:${cameraState.scale.toFixed(3)}`,
-        `tactical: ${Math.round(cameraState.tacticalRect.x)},${Math.round(cameraState.tacticalRect.y)} ${Math.round(cameraState.tacticalRect.width)} × ${Math.round(cameraState.tacticalRect.height)}`, `running/input/ended: ${Boolean(state?.running)}/${Boolean(state?.acceptingInput)}/${Boolean(state?.ended)}`,
+        `tactical: ${Math.round(cameraState.tacticalRect.x)},${Math.round(cameraState.tacticalRect.y)} ${Math.round(cameraState.tacticalRect.width)} × ${Math.round(cameraState.tacticalRect.height)}`, `running/paused/input/ended: ${Boolean(state?.running)}/${Boolean(state?.paused)}/${Boolean(state?.acceptingInput)}/${Boolean(state?.ended)}`,
         `sim/draw: ${Math.round(lastSuccessfulSimulationAt)} / ${Math.round(lastSuccessfulDrawAt)}`, `FPS: ${observedFps}`, `error: ${lastRuntimeError || "none"}`
       ].join("\n");
       requestAnimationFrame(update);
@@ -643,26 +744,52 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   }
 
   function mobileInputStatus() {
-    if (wormMode) return engine.pendingWorm ? "Tap to place the wormhole exit" : "Tap to place the wormhole entrance";
+    if (state?.paused) return "Match paused - resume to issue commands";
+    const activeWormhole = playerWormholes()[0];
+    if (activeWormhole?.lifespan) {
+      const phase = activeWormhole.phase === "active" ? "active" : "armed";
+      return `Wormhole ${phase} - ${Math.max(0, activeWormhole.remainingSeconds || 0).toFixed(1)}s remaining`;
+    }
+    if (wormMode) return "Touch and drag from wormhole entrance to exit";
     const selected = state?.launcher?.selectedShipIds?.length || 0;
     if (selected) return `${selected} ships selected - release to launch`;
-    return "Hold and drag from a Cyan world to launch";
+    return "Touch and drag from a Cyan world to launch";
+  }
+
+  function announceMobileFeedback(message, tone = "info") {
+    window.clearTimeout(mobileFeedbackTimer);
+    if (!ui.mobileCommandFeedback) return;
+    ui.mobileCommandFeedback.dataset.tone = tone;
+    setText(ui.mobileCommandFeedback, message);
+    mobileFeedbackTimer = window.setTimeout(() => {
+      setText(ui.mobileCommandFeedback, "");
+      delete ui.mobileCommandFeedback.dataset.tone;
+    }, reduced ? 1400 : 2200);
   }
 
   function updateMobileHud(c = counts(), force = false) {
     if (!ui.mobileHud || !usesMobilePresentation()) return;
     const star = state.planets.find(planet => planet.isStar);
-    const signature = [Math.floor(state.elapsed), c.playerShips, c.playerPlanets, c.rivalPlanets, c.travelingShips, c.enemyPlanets, c.enemyShips, c.orangePlanets, c.orangeShips, star?.owner, state.largestLaunch, state.deepSpaceCombats, state.shipTransits, wormMode, engine.pendingWorm ? 1 : 0, state.launcher?.selectedShipIds?.length || 0, state.events[0]?.message, observedFps].join("|");
+    const activeWormhole = playerWormholes()[0];
+    const signature = [Math.floor(state.elapsed), state.paused ? 1 : 0, c.playerShips, c.playerPlanets, c.rivalPlanets, c.travelingShips, c.enemyPlanets, c.enemyShips, c.orangePlanets, c.orangeShips, star?.owner, state.largestLaunch, state.deepSpaceCombats, state.shipTransits, wormMode, state.launcher?.selectedShipIds?.length || 0, activeWormhole?.phase, activeWormhole?.remainingSeconds?.toFixed(1), state.events[0]?.message].join("|");
     if (!force && signature === mobileHudSignature) return;
     mobileHudSignature = signature;
     setText(ui.mobileHudLevel, `Level ${state.levelId} - ${state.levelName}`);
     setText(ui.mobileHudTimer, fmt(state.elapsed));
     setText(ui.mobileHudShips, c.playerShips);
     setText(ui.mobileHudWorlds, c.playerPlanets);
-    setText(ui.mobileHudRivals, c.rivalPlanets);
-    setText(ui.mobileHudTraveling, c.travelingShips);
-    setText(ui.mobileHudFps, observedFps ? `${observedFps} fps` : "--");
+    setText(ui.mobileHudRivals, c.enemyPlanets);
+    setText(ui.mobileHudRedShips, c.enemyShips);
+    setText(ui.mobileHudOrangeShips, c.orangeShips);
+    setText(ui.mobileHudOrangeWorlds, c.orangePlanets);
     setText(ui.mobileHudStatus, mobileInputStatus());
+    if (ui.mobilePause) {
+      ui.mobilePause.setAttribute("aria-pressed", String(Boolean(state.paused)));
+      ui.mobilePause.querySelector("span:last-child").textContent = state.paused ? "Resume" : "Pause";
+      ui.mobilePause.querySelector("span:first-child").textContent = state.paused ? "▶" : "Ⅱ";
+    }
+    ui.mobileModes.forEach(button => { button.disabled = Boolean(state.paused); });
+    if (ui.mobileClearWormhole) ui.mobileClearWormhole.disabled = Boolean(state.paused || !activeWormhole);
     setText(ui.mobileDrawerRed, `${c.enemyPlanets} worlds · ${c.enemyShips} ships`);
     setText(ui.mobileDrawerOrange, `${c.orangePlanets} worlds · ${c.orangeShips} ships`);
     setText(ui.mobileDrawerStar, star ? teamLabel(star.owner) : "Neutral");
@@ -695,6 +822,19 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     inertedBackground.clear();
     document.documentElement.classList.remove("gravity-modal-open");
     document.body.classList.remove("gravity-modal-open");
+  }
+
+  function setMobileShellBackgroundInert(inert) {
+    if (inert) {
+      [...document.body.children].forEach(element => {
+        if (element === gameStage || modalElements.includes(element) || shellInertedBackground.has(element)) return;
+        shellInertedBackground.set(element, element.inert);
+        element.inert = true;
+      });
+      return;
+    }
+    shellInertedBackground.forEach((wasInert, element) => { element.inert = wasInert; });
+    shellInertedBackground.clear();
   }
 
   function trapModalTab(event) {
@@ -1305,17 +1445,27 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     engine.command("cancelWormhole");
     if (cancelPending) wormMode = false;
     releaseActivePointerCapture();
+    syncModeControls();
     updateCommandDock();
   }
 
-  function setWormMode(value) {
-    wormMode = Boolean(value);
-    if (!wormMode) engine.command("cancelWormhole");
+  function syncModeControls() {
     ui.worm.setAttribute("aria-pressed", String(wormMode));
-    ui.worm.textContent = wormMode ? (engine.pendingWorm ? "Tap wormhole exit" : "Wormhole Mode: entrance") : "Wormhole Mode";
+    ui.worm.textContent = wormMode ? "Wormhole Mode: drag to place" : "Wormhole Mode";
     ui.mobileModes.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.gameMode === (wormMode ? "wormhole" : "launch"))));
+    document.documentElement.dataset.gravityCommandMode = wormMode ? "wormhole" : "launch";
+  }
+
+  function setWormMode(value, { announce = false } = {}) {
+    const next = Boolean(value);
+    if (next !== wormMode || state?.launcher?.active || state?.wormDrag?.active) cancelActiveGesture();
+    wormMode = next;
+    if (wormMode) engine.command("cancelLaunch");
+    else engine.command("cancelWormhole");
+    syncModeControls();
     updateCommandDock();
     updateMobileHud(counts(), true);
+    if (announce) announceMobileFeedback(`${wormMode ? "Wormhole" : "Launch"} mode selected.`);
   }
 
   function buildRunMapSnapshot(levelConfig = activeLevel(), planets = state.planets) {
@@ -1324,6 +1474,8 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
 
   function reset(showOverlay = true) {
     window.clearTimeout(mobileShellTimer);
+    window.clearTimeout(mobileFeedbackTimer);
+    setText(ui.mobileCommandFeedback, "");
     mobileShellState = "idle";
     hideOutcomeOverlay();
     closeMobileTelemetryDrawer();
@@ -1331,6 +1483,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     mobilePresentationDismissed = false;
     const profile = presentationProfile();
     engine.setPresentationPolicy({ effectsEnabled: profile.effectsEnabled, trailsEnabled: profile.trailsEnabled });
+    engine.setPlayerWormholeLifespan(WORMHOLE_LIFESPAN_PROFILES.desktopClassic);
     state = engine.reset(selectedLevelId);
     cameraViewportDirty = true;
     resetRuntimeTiming(true);
@@ -1368,6 +1521,28 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     performanceMonitor.resetFrameTiming();
   }
 
+  function toggleMobilePause() {
+    if (!state?.startedAt || state.ended || !usesMobilePresentation()) return;
+    cancelActiveGesture();
+    if (state.paused) {
+      if (!engine.command("resume")) return;
+      state = engine.state;
+      resetRuntimeTiming(true);
+      scheduleLiveTelemetryUpdate();
+      announceMobileFeedback("Match resumed.");
+    } else {
+      engine.command("pause");
+      state = engine.state;
+      window.clearTimeout(liveTelemetryTimer);
+      liveTelemetryTimer = 0;
+      resetRuntimeTiming(true);
+      announceMobileFeedback("Match paused. Simulation and telemetry are frozen.");
+    }
+    syncMobilePresentation();
+    updateHud(counts(), true);
+    performanceMonitor.measure("canvasDraw", draw);
+  }
+
   function scheduleAnimationFrame() {
     if (!animationFrameId && !document.hidden) animationFrameId = requestAnimationFrame(tick);
   }
@@ -1388,7 +1563,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     performanceMonitor.setGauge("simulationStepsPerFrame", frame.steps);
     performanceMonitor.setGauge("droppedSimulationMs", runtime.snapshot().droppedSimulationSeconds * 1000);
 
-    if (state.running && (now - lastHudUpdateAt >= profile.hudIntervalMs || state.ended)) {
+    if ((state.running || state.paused) && (now - lastHudUpdateAt >= profile.hudIntervalMs || state.ended)) {
       lastHudUpdateAt = now;
       performanceMonitor.measure("hudDom", () => updateHud(result?.counts || counts()));
     }
@@ -1420,7 +1595,9 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     mobilePresentationDismissed = false;
     hideGameOverlays();
     updateLiveTelemetry();
-    addEvent("Match started. Hold left click to form a launch field; right-click drag to place a wormhole.");
+    addEvent(usesMobilePresentation()
+      ? "Match started. Select Launch or Wormhole, then touch, drag, and release."
+      : "Match started. Hold left click to form a launch field; right-click drag to place a wormhole.");
     addEvent("The neutral central star is capturable and anchors the system.");
     updateTelemetryBadgeVisibility();
     updateHud(undefined, true);
@@ -1520,7 +1697,9 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     const { sceneCtx, width, height } = setupTutorialCanvas(canvas);
     clearTutorialScene(sceneCtx, width, height);
     const planet = { x: width * .2, y: height * .52 };
-    const field = { x: width * .58, y: height * .53 };
+    const field = usesMobilePresentation()
+      ? { ...planet }
+      : { x: width * .58, y: height * .53 };
     const target = { x: width * .82, y: height * .31 };
     const cycle = 5.2;
     const progress = reduced ? .48 : (time % cycle) / cycle;
@@ -2245,6 +2424,19 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
           ctx.beginPath();
           ctx.arc(point.x, point.y, levelWormInfluence(), 0, TAU);
           ctx.stroke();
+          if (wormhole.owner === "player" && wormhole.lifespan) {
+            const ratio = clamp(wormhole.lifeRatio ?? 1, 0, 1);
+            ctx.shadowBlur = 0;
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "rgba(255,255,255,.12)";
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 31, -Math.PI / 2, TAU - Math.PI / 2);
+            ctx.stroke();
+            ctx.strokeStyle = wormhole.phase === "active" ? colors.gold : colors.worm;
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 31, -Math.PI / 2, -Math.PI / 2 + TAU * ratio);
+            ctx.stroke();
+          }
         }
         ctx.setLineDash(enabled ? [] : [5, 6]);
         ctx.strokeStyle = colors.worm;
@@ -2555,6 +2747,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     if (!state.acceptingInput || mobileDrawerOpen) return;
     const point = canvasPoint(event);
     const coarse = usesCoarseTargets(event);
+    const mobilePrimaryPointer = usesMobilePresentation() && coarse && event.button === 0;
     if (event.button === 2) {
       const hit = hitPlayerWormholeEntrance(point);
       if (hit) { deletePlayerWormhole(hit.wormhole); return; }
@@ -2564,8 +2757,15 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
       return;
     }
     const wormHit = hitPlayerWormholeEntrance(point);
-    if (wormHit) { toggleWormholeEntrance(wormHit); return; }
-    if (wormMode) { placeWormFallback(point); return; }
+    if (!mobilePrimaryPointer && wormHit) { toggleWormholeEntrance(wormHit); return; }
+    if (wormMode) {
+      if (!mobilePrimaryPointer) { placeWormFallback(point); return; }
+      startWormDrag(point);
+      activePointerId = event.pointerId;
+      canvas.setPointerCapture(event.pointerId);
+      event.preventDefault();
+      return;
+    }
     if (!createLauncher(point, coarse)) return;
     activePointerId = event.pointerId;
     canvas.setPointerCapture(event.pointerId);
@@ -2578,13 +2778,27 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   });
   canvas.addEventListener("pointerup", event => {
     const point = canvasPoint(event);
-    if (state.wormDrag?.active) { updateWormDrag(point); finalizeWormDrag(); releaseActivePointerCapture(); return; }
+    if (state.wormDrag?.active) {
+      updateWormDrag(point);
+      const valid = Boolean(state.wormDrag.endpoint?.length >= 24);
+      finalizeWormDrag();
+      releaseActivePointerCapture();
+      if (usesMobilePresentation()) announceMobileFeedback(valid ? "Wormhole stabilized." : "Wormhole cancelled - drag farther to place it.", valid ? "success" : "error");
+      updateHud(counts(), true);
+      return;
+    }
     if (!state.launcher?.active) return;
     updateLauncher(point, 0);
+    const launchedShips = state.launcher.selectedShipIds?.length || 0;
     releaseLauncher();
     releaseActivePointerCapture();
+    if (usesMobilePresentation() && launchedShips) announceMobileFeedback(`${launchedShips} Cyan ship${launchedShips === 1 ? "" : "s"} launched.`, "success");
   });
-  canvas.addEventListener("pointercancel", () => cancelActiveGesture());
+  canvas.addEventListener("pointercancel", () => {
+    const interrupted = Boolean(state.launcher?.active || state.wormDrag?.active);
+    cancelActiveGesture();
+    if (interrupted && usesMobilePresentation()) announceMobileFeedback("Command cancelled.");
+  });
   canvas.addEventListener("lostpointercapture", () => { activePointerId = null; });
 
 
@@ -2690,9 +2904,18 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     scrollGameIntoView();
   });
   ui.worm.addEventListener("click", () => setWormMode(!wormMode));
-  ui.mobileModes.forEach(button => button.addEventListener("click", () => setWormMode(button.dataset.gameMode === "wormhole")));
+  ui.mobileModes.forEach(button => button.addEventListener("click", () => setWormMode(button.dataset.gameMode === "wormhole", { announce: true })));
+  ui.mobilePause?.addEventListener("click", toggleMobilePause);
   ui.mobileTelemetryToggle?.addEventListener("click", () => mobileDrawerOpen ? closeMobileTelemetryDrawer({ restoreFocus: true }) : openMobileTelemetryDrawer());
+  ui.mobileTelemetryHandle?.addEventListener("click", () => mobileDrawerOpen ? closeMobileTelemetryDrawer({ restoreFocus: true }) : openMobileTelemetryDrawer());
+  ui.mobileClearWormhole?.addEventListener("click", () => {
+    if (!deletePlayerWormhole()) return;
+    announceMobileFeedback("Cyan wormhole collapsed.", "success");
+    updateHud(counts(), true);
+    performanceMonitor.measure("canvasDraw", draw);
+  });
   ui.mobileTelemetryClose?.addEventListener("click", () => closeMobileTelemetryDrawer({ restoreFocus: true }));
+  ui.mobileDrawerPause?.addEventListener("click", toggleMobilePause);
   ui.mobileTelemetryDrawer?.addEventListener("keydown", event => {
     if (event.key !== "Tab" || !mobileDrawerOpen) return;
     const controls = focusableModalControls(ui.mobileTelemetryDrawer);
@@ -2731,6 +2954,10 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     if (event.key === "Escape" && mobileDrawerOpen) {
       event.preventDefault();
       closeMobileTelemetryDrawer({ restoreFocus: true });
+    } else if (event.key === "Escape" && usesMobilePresentation() && (state?.launcher?.active || state?.wormDrag?.active)) {
+      event.preventDefault();
+      cancelActiveGesture();
+      announceMobileFeedback("Command cancelled.");
     }
   });
   coarsePointerQuery.addEventListener("change", syncInputCapability);

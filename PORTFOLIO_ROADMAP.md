@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: July 22, 2026
+- Last reviewed: July 23, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -36,7 +36,7 @@ Status labels:
 | 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 12. | Pass 06 |
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
 | 09. Mobile layout corrections and responsive bug fixes | NEXT | Resolve the confirmed mobile and responsive findings in `MOBILE_QA_REPORT.md`. | Pass 08 structural integration |
-| 10. Gravity Fleet modernization | IN PROGRESS | PR A / Passes 10.0-10.1 and PR B / Pass 10.2 are merged; Human Checkpoint 1 is recorded. Pass 10.3 camera implementation is complete in the current PR C slice, with preview/device camera QA and Pass 10.4 mobile-shell work next. | Pass 06, Pass 07, merged PRs #13, #15, #16, #17, and Pass 09 shared-header coordination |
+| 10. Gravity Fleet modernization | IN PROGRESS | PR A / Passes 10.0-10.1, PR B / Pass 10.2, and PR #18 / Pass 10.3 are merged; Human Checkpoint 1 is recorded. PR #19 / Passes 10.4-10.5 passed automated validation, Cloudflare-preview desktop QA, and physical-device QA on an iPhone 17 Pro Max. Pass 10.6 is next. | Pass 06, Pass 07, merged PRs #13, #15, #16, #17, #18, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 
@@ -583,7 +583,7 @@ Pass 09 acceptance criteria:
 
 ## Pass 10 - Gravity Fleet modernization
 
-**Status: IN PROGRESS.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. Pass 10.3 camera implementation is complete in the current PR C slice, with Cloudflare/device camera review and Pass 10.4 dedicated-shell work next. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
+**Status: IN PROGRESS.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 passed automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. Launch, Wormhole, Clear Wormhole, Pause/Resume, input cancellation, camera framing, shell lifecycle, and wormhole-lifespan behavior passed. The mobile Launch tutorial illustration was corrected to begin from the owned Cyan planet. Pass 10.6 is next. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
 
 Authoritative supporting documents:
 
@@ -613,6 +613,7 @@ Given the same initial state, random seed, fixed simulation steps, and gameplay 
 - [x] PR #13, `Optimize Gravity Fleet for polished mobile play`, merged into `main`. Its mobile prototype and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical reference evidence, including its recorded thermal/playthrough observation.
 - [x] PR #15, `Extract Gravity Fleet shared game core`, merged into `main` as PR A / Passes 10.0-10.1.
 - [x] PR #16, `Add Gravity Fleet fixed-step runtime`, merged into `main` as PR B / Pass 10.2.
+- [x] PR #18, `Introduce Gravity Fleet camera and viewport system`, merged into `main` as Pass 10.3 through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`.
 - [x] The shared core and fixed runtime are present on current `main`; future work starts cleanly from current `main`.
 - [x] Keep unrelated shared-file changes out of Gravity Fleet implementation pull requests.
 - [x] Deliver modernization through coherent, behavior-preserving pull requests rather than one rewrite commit.
@@ -620,17 +621,18 @@ Given the same initial state, random seed, fixed simulation steps, and gameplay 
 
 Recommended next branch name:
 
-`gravity-fleet-camera-mobile-shell`
+`gravity-fleet-mobile-shell-touch-controls`
 
 Recommended pull-request grouping:
 
 1. **PR A - Core contracts and extraction:** merged through PR #15, Passes 10.0 and 10.1.
 2. **PR B - Runtime and desktop restoration:** merged through PR #16, Pass 10.2 implementation and automated validation.
 3. **Checkpoint 1 - desktop/mobile runtime evidence:** complete July 22, 2026.
-4. **PR C - Camera and mobile shell:** in progress; Pass 10.3 implementation complete and Pass 10.4 next.
-5. **PR D - Touch controls and telemetry:** later, Passes 10.5 and 10.6.
-6. **PR E - Page, header, and analytics polish:** later, Pass 10.7.
-7. **PR F - Integrated QA and cleanup:** later, Pass 10.8.
+4. **PR C - Camera:** merged through PR #18, Pass 10.3.
+5. **PR #19 - Mobile shell and touch controls:** Passes 10.4-10.5 implementation, automated validation, Cloudflare-preview desktop QA, and iPhone 17 Pro Max device QA complete; merge pending.
+6. **Next - Mobile telemetry:** Pass 10.6.
+7. **PR E - Page, header, and analytics polish:** later, Pass 10.7.
+8. **PR F - Integrated QA and cleanup:** later, Pass 10.8.
 
 Do not ask an implementation agent to complete all remaining pull requests in one task.
 
@@ -710,7 +712,7 @@ Acceptance criteria: **complete for the merged implementation.** Current desktop
 
 **Purpose:** Solve portrait composition with a world camera rather than shrinking or CSS-rotating the complete interface.
 
-**Implementation complete; Cloudflare preview and physical-device camera review pending.** See `docs/gravity-fleet/pr-c-camera.md` for the coordinate-space, viewport, diagnostics, and validation contract.
+**Merged through PR #18 on July 23, 2026 UTC at `8041c60f05ba9f99979bc968d8ac67af6231c68e`; Cloudflare preview and physical-device camera review remain pending.** See `docs/gravity-fleet/pr-c-camera.md` for the coordinate-space, viewport, diagnostics, and validation contract.
 
 - [x] Create a camera abstraction that owns world-to-screen and screen-to-world transforms, rotation, scale, translation, tactical viewport dimensions, safe gameplay bounds, orientation mode, and resize handling.
 - [x] Introduce an identity-equivalent desktop camera and verify exact coordinate mapping in the deterministic validator.
@@ -743,6 +745,8 @@ Automated camera and gameplay checks pass. Observable desktop parity, portrait s
 
 **Purpose:** Replace independently fixed overlays with one safe-area-aware layout system.
 
+**Implementation and QA complete in PR #19; merge pending.** Cloudflare-preview desktop review and iPhone 17 Pro Max portrait and landscape review passed. The composed shell is the default mobile presentation. Developers can recover the earlier presentation with `?gravityDebug=1&gravityMobileShell=legacy`; `?gravityDebug=1&gravityMobileShell=modern` selects the replacement explicitly. The tactical canvas is measured from the shell-owned viewport rather than interim top/bottom reservations. See `docs/gravity-fleet/mobile-shell-touch-controls.md` for the shell, pause, gesture, and rollback contract.
+
 Required shell regions:
 
 ```text
@@ -753,10 +757,10 @@ Mobile match shell
 └── Telemetry handle and drawer host
 ```
 
-- [ ] Build the shell behind an explicit development flag while retaining the current proven mobile shell as a fallback.
-- [ ] Make the shell own the visual viewport only during active mobile gameplay.
-- [ ] Reserve layout space between major regions rather than positioning all controls over a full-screen canvas.
-- [ ] In portrait, provide:
+- [x] Build the shell behind an explicit development flag while retaining the current proven mobile shell as a fallback.
+- [x] Make the shell own the visual viewport only during active mobile gameplay.
+- [x] Reserve layout space between major regions rather than positioning all controls over a full-screen canvas.
+- [x] In portrait, provide:
   - mission/level;
   - timer;
   - compact Cyan, Red, and Orange status;
@@ -766,14 +770,14 @@ Mobile match shell
   - large Launch and Wormhole controls;
   - smaller Clear Wormhole control;
   - compact telemetry handle.
-- [ ] Move the public FPS display to development mode.
-- [ ] Remove permanent instructional paragraphs from the tactical field; use brief contextual feedback.
-- [ ] In landscape, provide a compact one-row HUD, wide tactical viewport, side or compact-corner controls, and a telemetry side sheet where practical.
-- [ ] Add a true Pause state that stops simulation, AI, timers, and telemetry sampling while leaving the interface responsive.
-- [ ] Ensure Resume resets timing without a large elapsed-time jump.
-- [ ] Keep setup, tutorial, outcome, and return flows accessible and viewport-safe.
-- [ ] Cut over only after portrait and landscape play, setup, pause, drawer, outcome, and return flows work without a black screen.
-- [ ] Remove the old mobile shell only after the replacement reaches parity.
+- [x] Move the public FPS display to development mode.
+- [x] Remove permanent instructional paragraphs from the tactical field; use brief contextual feedback.
+- [x] In landscape, provide a compact one-row HUD, wide tactical viewport, side or compact-corner controls, and a telemetry side sheet where practical.
+- [x] Add a true Pause state that stops simulation, AI, timers, and telemetry sampling while leaving the interface responsive.
+- [x] Ensure Resume resets timing without a large elapsed-time jump.
+- [x] Keep setup, tutorial, outcome, and return flows accessible and viewport-safe in the source implementation.
+- [x] Cut over only after portrait and landscape play, setup, pause, drawer, outcome, and return flows work without a black screen.
+- [ ] Remove the old mobile shell only after the replacement reaches parity. Parity is proven; retain the legacy shell temporarily as a development rollback path until Pass 10.8 cleanup.
 
 Acceptance criteria:
 
@@ -790,49 +794,51 @@ Acceptance criteria:
 
 **Purpose:** Make touch commands deliberate, visible, and consistent with presentation-neutral engine commands.
 
-- [ ] Make Launch and Wormhole explicit, mutually exclusive modes.
-- [ ] Selecting one mode deactivates the other and safely cancels an incomplete gesture.
-- [ ] Expose the selected mode visually and programmatically.
-- [ ] Preserve desktop mouse controls.
+**Implementation and QA complete in PR #19; merge pending.** The selected mobile lifecycle policy is a 0.75-second preparation window, a 2.5-second active countdown beginning on first eligible Cyan transit, and a 10-second absolute maximum. Automated lifecycle validation and iPhone 17 Pro Max testing confirmed placement, activation, visible countdown, expiry, Clear Wormhole, Pause/Resume, and cancellation behavior. The roadmap's broader two-configuration comparison remains deferred rather than claimed complete.
+
+- [x] Make Launch and Wormhole explicit, mutually exclusive modes.
+- [x] Selecting one mode deactivates the other and safely cancels an incomplete gesture.
+- [x] Expose the selected mode visually and programmatically.
+- [x] Preserve desktop mouse controls.
 
 **Launch gesture:**
 
-- [ ] Touch an owned Cyan world.
-- [ ] Drag to gather and aim.
-- [ ] Show live selection and trajectory feedback.
-- [ ] Release to launch.
-- [ ] Cancel on pointer cancellation, pause, drawer opening, orientation change, or mode switch.
+- [x] Touch an owned Cyan world.
+- [x] Drag to gather and aim.
+- [x] Show live selection and trajectory feedback.
+- [x] Release to launch.
+- [x] Cancel on pointer cancellation, pause, drawer opening, orientation change, or mode switch.
 
 **Wormhole gesture:**
 
-- [ ] Select Wormhole.
-- [ ] Touch the entrance.
-- [ ] Drag toward the exit.
-- [ ] Show entrance, exit, direction, maximum range, and valid/invalid state.
-- [ ] Release to create.
-- [ ] Cancel too-short or invalid gestures clearly.
-- [ ] Remove two-tap placement as the primary mobile behavior.
+- [x] Select Wormhole.
+- [x] Touch the entrance.
+- [x] Drag toward the exit.
+- [x] Show entrance, exit, direction, maximum range, and valid/invalid state.
+- [x] Release to create.
+- [x] Cancel too-short or invalid gestures clearly.
+- [x] Remove two-tap placement as the primary mobile behavior.
 
 **Clear Wormhole:**
 
-- [ ] Add a dedicated Clear or Collapse control.
-- [ ] Disable it when no Cyan wormhole exists.
-- [ ] Collapse the current Cyan wormhole immediately.
-- [ ] Never use it as a placement action.
-- [ ] Provide brief visual confirmation.
+- [x] Add a dedicated Clear or Collapse control.
+- [x] Disable it when no Cyan wormhole exists.
+- [x] Collapse the current Cyan wormhole immediately.
+- [x] Never use it as a placement action.
+- [x] Provide brief visual confirmation.
 
 **Wormhole lifecycle experiment:**
 
-- [ ] Make lifespan configuration-owned rather than embedded in mobile presentation code.
-- [ ] Prototype a short preparation period.
-- [ ] Begin the active countdown when the first eligible Cyan ship enters.
-- [ ] Test collapse approximately 2-3 seconds after activation.
-- [ ] Keep a longer absolute maximum for an unused wormhole.
-- [ ] Display remaining life with a visible ring or equivalent indicator.
-- [ ] Playtest at least two configurations before finalizing values.
+- [x] Make lifespan configuration-owned rather than embedded in mobile presentation code.
+- [x] Prototype a short preparation period.
+- [x] Begin the active countdown when the first eligible Cyan ship enters.
+- [x] Test collapse approximately 2-3 seconds after activation.
+- [x] Keep a longer absolute maximum for an unused wormhole.
+- [x] Display remaining life with a visible ring or equivalent indicator.
+- [ ] Playtest at least two configurations before finalizing values. The retained configuration passed device QA; comparative tuning is deferred.
 
-- [ ] Update mobile tutorial content for Launch drag, Wormhole drag, Clear Wormhole, Pause, and telemetry access.
-- [ ] Keep desktop instructions specific to mouse controls.
+- [x] Update mobile tutorial content for Launch drag, Wormhole drag, Clear Wormhole, Pause, and telemetry access.
+- [x] Keep desktop instructions specific to mouse controls.
 
 Acceptance criteria:
 
@@ -844,6 +850,8 @@ Acceptance criteria:
 - Pointer cancellation never leaves stuck command state.
 - Desktop controls remain unchanged.
 - Tutorial instructions match actual behavior.
+
+**Human Checkpoint 2 complete July 23, 2026:** The PR #19 Cloudflare preview passed desktop review and portrait/landscape testing on an iPhone 17 Pro Max. Launch, Wormhole, wormhole lifespan, Clear Wormhole, Pause/Resume, input cancellation, tutorial flow, camera framing, shell startup, and return flows passed. The mobile Launch tutorial illustration was corrected to show the gesture beginning on the owned Cyan planet.
 
 ### 10.6 Redesign live telemetry and mobile post-match analytics
 

@@ -209,7 +209,7 @@ button.run-card { cursor: pointer; }
 .mobile-mode-button { min-height: 44px; padding: .5rem .7rem; border: 1px solid rgba(159,180,255,.28); border-radius: 12px; color: var(--text); background: rgba(255,255,255,.05); font: inherit; font-size: .72rem; font-weight: 900; cursor: pointer; }
 .mobile-mode-button[aria-pressed="true"] { border-color: var(--cyan); background: linear-gradient(135deg, rgba(111,248,255,.25), rgba(199,125,255,.2)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
 .mobile-mode-button[aria-pressed="true"]::after { content: " selected"; font-size: .62rem; text-transform: uppercase; }
-.mobile-game-hud, .mobile-telemetry-drawer, .mobile-drawer-backdrop { display: none; }
+.mobile-game-hud, .mobile-telemetry-drawer, .mobile-drawer-backdrop, .mobile-match-shell { display: none; }
 .game-keyboard-note { margin: .55rem 0 0; color: var(--muted); font-size: .72rem; line-height: 1.35; }
 .mobile-shell-status { position: absolute; inset: auto 1rem 1rem; z-index: 1002; width: min(28rem, calc(100% - 2rem)); margin: auto; padding: 1rem; border: 1px solid rgba(111,248,255,.48); border-radius: 18px; color: var(--text); background: rgba(5,10,26,.96); box-shadow: 0 12px 42px rgba(0,0,0,.5); }
 .mobile-shell-status h3 { margin: .15rem 0 .35rem; font-size: 1.1rem; }
@@ -293,3 +293,139 @@ html[data-gravity-input="touch"] .fine-pointer-copy,
 html[data-gravity-input="touch"] .tutorial-mouse-cue { display: none; }
 html[data-gravity-input="touch"] .coarse-pointer-copy,
 html[data-gravity-input="hybrid"] .coarse-pointer-copy { display: block; }
+
+.mobile-tutorial-actions { gap: .45rem; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: .7rem; }
+.mobile-tutorial-actions span { display: flex; align-items: center; justify-content: center; gap: .35rem; min-height: 44px; padding: .42rem; border: 1px solid rgba(159,180,255,.14); border-radius: 12px; color: var(--muted); font-size: .7rem; font-weight: 800; text-align: center; }
+.mobile-tutorial-actions b { color: var(--cyan); font-size: 1rem; }
+
+@media (max-width: 900px) and (any-pointer: coarse) {
+  body.gravity-mobile-shell-legacy .mobile-hud-primary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .45rem; }
+  body.gravity-mobile-shell-legacy .mobile-hud-mission,
+  body.gravity-mobile-shell-legacy .mobile-hud-timer { display: grid; gap: .08rem; margin: 0; }
+  body.gravity-mobile-shell-legacy .mobile-hud-primary p span { color: rgba(223,232,255,.76); font-size: .55rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+  body.gravity-mobile-shell-legacy .mobile-hud-primary p strong { color: var(--cyan); font-size: 1rem; }
+  body.gravity-mobile-shell-legacy .mobile-hud-factions { grid-column: 1 / -1; display: flex; gap: .6rem; margin: 0; }
+  body.gravity-mobile-shell-legacy .mobile-hud-factions div { display: grid; }
+  body.gravity-mobile-shell-legacy .mobile-hud-factions dt { color: var(--muted); font-size: .52rem; font-weight: 900; text-transform: uppercase; }
+  body.gravity-mobile-shell-legacy .mobile-hud-factions dd { margin: 0; font-size: .65rem; }
+  body.gravity-mobile-shell-legacy .mobile-hud-actions { position: fixed; top: max(.65rem, env(safe-area-inset-top)); right: max(.7rem, env(safe-area-inset-right)); display: flex; gap: .3rem; pointer-events: auto; }
+  body.gravity-mobile-shell-legacy .mobile-hud-action { min-width: 44px; min-height: 44px; border: 1px solid rgba(111,248,255,.4); border-radius: 999px; color: var(--text); background: rgba(3,7,18,.82); font: inherit; }
+  body.gravity-mobile-shell-legacy .mobile-hud-action span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  body.gravity-mobile-shell-legacy .mobile-hud-status { max-width: calc(100% - 15rem); }
+
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage { display: block; }
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage > :not(.mobile-match-shell):not(.mobile-shell-status) { display: none !important; }
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-match-shell:not([hidden]) {
+    position: absolute;
+    left: var(--gravity-viewport-left, 0px);
+    top: var(--gravity-viewport-top, 0px);
+    z-index: 901;
+    display: grid;
+    grid-template-areas: "top" "tactical" "command" "telemetry";
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    width: var(--gravity-viewport-width, 100vw);
+    height: var(--gravity-viewport-height, 100dvh);
+    min-width: 0;
+    min-height: 0;
+    padding: max(.35rem, var(--gravity-safe-top)) max(.38rem, var(--gravity-safe-right)) max(.3rem, var(--gravity-safe-bottom)) max(.38rem, var(--gravity-safe-left));
+    overflow: hidden;
+    color: var(--text);
+    background: radial-gradient(circle at 50% 42%, rgba(20,40,75,.72), #02040d 72%);
+    box-sizing: border-box;
+  }
+  .gravity-mobile-shell-modern .mobile-shell-top { grid-area: top; min-width: 0; }
+  .gravity-mobile-shell-modern .mobile-shell-tactical { position: relative; grid-area: tactical; min-width: 0; min-height: 0; overflow: hidden; border: 1px solid rgba(111,248,255,.22); border-radius: 16px; background: #030817; box-shadow: inset 0 0 26px rgba(111,248,255,.08); }
+  .gravity-mobile-shell-modern .mobile-shell-command { grid-area: command; min-width: 0; }
+  .gravity-mobile-shell-modern .mobile-shell-telemetry { grid-area: telemetry; display: flex; justify-content: center; min-width: 0; }
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-shell-tactical #gravityCanvas {
+    position: absolute;
+    inset: 0;
+    display: block !important;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    touch-action: none;
+  }
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-game-hud:not([hidden]) {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: .25rem;
+    padding: .18rem .12rem .38rem;
+    color: var(--text);
+    pointer-events: auto;
+    text-shadow: none;
+  }
+  .gravity-mobile-shell-modern .mobile-hud-primary { display: grid; grid-template-areas: "mission timer actions" "factions factions factions"; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .28rem .45rem; }
+  .gravity-mobile-shell-modern .mobile-hud-mission { grid-area: mission; }
+  .gravity-mobile-shell-modern .mobile-hud-timer { grid-area: timer; text-align: center; }
+  .gravity-mobile-shell-modern .mobile-hud-mission,
+  .gravity-mobile-shell-modern .mobile-hud-timer { display: grid; gap: .02rem; min-width: 0; margin: 0; }
+  .gravity-mobile-shell-modern .mobile-hud-mission span,
+  .gravity-mobile-shell-modern .mobile-hud-timer span { color: rgba(223,232,255,.62); font-size: .48rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+  .gravity-mobile-shell-modern .mobile-hud-mission strong { overflow: hidden; font-size: .66rem; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+  .gravity-mobile-shell-modern .mobile-hud-timer strong { color: var(--cyan); font-size: 1.12rem; font-variant-numeric: tabular-nums; line-height: 1; }
+  .gravity-mobile-shell-modern .mobile-hud-factions { grid-area: factions; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; margin: 0; }
+  .gravity-mobile-shell-modern .mobile-hud-factions div { min-width: 0; padding: .24rem .35rem; border: 1px solid rgba(159,180,255,.13); border-radius: 8px; background: rgba(255,255,255,.025); }
+  .gravity-mobile-shell-modern .mobile-hud-factions dt { font-size: .48rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+  .gravity-mobile-shell-modern .mobile-hud-factions dd { margin: .04rem 0 0; overflow: hidden; color: rgba(223,232,255,.78); font-size: .56rem; text-overflow: ellipsis; white-space: nowrap; }
+  .gravity-mobile-shell-modern .mobile-hud-factions b { color: var(--text); font-size: .67rem; }
+  .gravity-mobile-shell-modern .mobile-faction-cyan dt { color: var(--cyan); }
+  .gravity-mobile-shell-modern .mobile-faction-red dt { color: var(--pink); }
+  .gravity-mobile-shell-modern .mobile-faction-orange dt { color: #ffad4a; }
+  .gravity-mobile-shell-modern .mobile-hud-actions { grid-area: actions; display: flex; gap: .24rem; }
+  .gravity-mobile-shell-modern .mobile-hud-action { position: relative; display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; padding: .2rem; border: 1px solid rgba(111,248,255,.34); border-radius: 12px; color: var(--text); background: rgba(7,13,29,.82); font: inherit; font-size: .9rem; }
+  .gravity-mobile-shell-modern .mobile-hud-action span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .gravity-mobile-shell-modern .mobile-hud-action[aria-pressed="true"] { border-color: rgba(255,229,138,.68); color: #ffe58a; background: rgba(255,229,138,.1); }
+  .gravity-mobile-shell-modern .mobile-match-exit { position: relative; inset: auto; z-index: auto; min-height: 44px; padding: .2rem; letter-spacing: 0; text-transform: none; }
+  .gravity-mobile-shell-modern .mobile-hud-status { min-height: .8rem; margin: 0; color: var(--cyan); font-size: .55rem; font-weight: 800; letter-spacing: .02em; line-height: 1.25; }
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-mode-controls:not([hidden]) { position: static; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(4.5rem, .72fr); gap: .35rem; max-width: none; margin: .38rem 0 .28rem; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-mode-button { min-width: 0; min-height: 52px; padding: .42rem .35rem; border-radius: 14px; background: rgba(10,16,36,.92); }
+  .gravity-mobile-shell-modern .mobile-mode-button[aria-pressed="true"] { border-color: var(--cyan); background: linear-gradient(135deg, rgba(111,248,255,.24), rgba(199,125,255,.13)); box-shadow: 0 0 18px rgba(111,248,255,.14), inset 0 0 0 1px rgba(255,255,255,.1); }
+  .gravity-mobile-shell-modern .mobile-mode-button[data-game-mode="wormhole"][aria-pressed="true"] { border-color: rgba(199,125,255,.78); box-shadow: 0 0 18px rgba(199,125,255,.17), inset 0 0 0 1px rgba(255,255,255,.1); }
+  .gravity-mobile-shell-modern .mobile-mode-button[aria-pressed="true"]::after { content: ""; }
+  .gravity-mobile-shell-modern .mobile-clear-wormhole:not(:disabled) { border-color: rgba(255,109,122,.5); color: #ffb6c0; }
+  .gravity-mobile-shell-modern .mobile-clear-wormhole:disabled { opacity: .38; cursor: not-allowed; }
+  .gravity-mobile-shell-modern .mobile-telemetry-handle { display: inline-flex; align-items: center; justify-content: center; gap: .42rem; min-width: 10.5rem; min-height: 36px; padding: .25rem .9rem; border: 1px solid rgba(111,248,255,.35); border-radius: 14px 14px 0 0; color: var(--cyan); background: rgba(7,13,29,.92); font-family: inherit; font-size: .62rem; font-weight: 900; line-height: 1; letter-spacing: .07em; text-transform: uppercase; }
+  .gravity-mobile-shell-modern .mobile-command-feedback { position: absolute; right: .7rem; bottom: 7.3rem; left: .7rem; z-index: 3; min-height: 1rem; margin: 0; color: var(--cyan); font-size: .6rem; font-weight: 900; text-align: center; text-shadow: 0 2px 8px #02040d; pointer-events: none; }
+  .gravity-mobile-shell-modern .mobile-command-feedback[data-tone="success"] { color: var(--green); }
+  .gravity-mobile-shell-modern .mobile-command-feedback[data-tone="error"] { color: #ff9bac; }
+  .gravity-mobile-shell-modern .mobile-paused-notice:not([hidden]) { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; gap: .25rem; text-align: center; background: rgba(2,4,13,.58); backdrop-filter: blur(2px); pointer-events: none; }
+  .gravity-mobile-shell-modern .mobile-paused-notice strong { color: #ffe58a; font-size: 1rem; text-transform: uppercase; }
+  .gravity-mobile-shell-modern .mobile-paused-notice span { color: rgba(223,232,255,.8); font-size: .68rem; }
+  .gravity-mobile-shell-modern .mobile-drawer-backdrop:not([hidden]) { position: absolute; inset: 0; z-index: 8; display: block; background: rgba(0,3,12,.65); }
+  .gravity-mobile-shell-modern .mobile-telemetry-drawer:not([hidden]) { position: absolute; right: 0; bottom: 0; left: 0; z-index: 9; display: grid; gap: .72rem; max-height: min(76%, 42rem); padding: .9rem max(1rem, var(--gravity-safe-right)) max(1rem, var(--gravity-safe-bottom)) max(1rem, var(--gravity-safe-left)); overflow-y: auto; overscroll-behavior: contain; border: 1px solid rgba(111,248,255,.3); border-bottom: 0; border-radius: 22px 22px 0 0; color: var(--text); background: linear-gradient(165deg, rgba(8,14,34,.995), rgba(12,8,28,.995)); box-shadow: 0 -22px 60px rgba(0,0,0,.56); }
+  .gravity-mobile-shell-modern .mobile-drawer-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gravity-mobile-shell-modern .mobile-hud-action:focus-visible,
+  .gravity-mobile-shell-modern .mobile-mode-button:focus-visible,
+  .gravity-mobile-shell-modern .mobile-telemetry-handle:focus-visible { outline: 3px solid rgba(111,248,255,.72); outline-offset: 2px; }
+}
+
+@media (orientation: landscape) and (max-width: 900px) and (any-pointer: coarse) {
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-match-shell:not([hidden]) { grid-template-areas: "top top" "tactical command" "tactical telemetry"; grid-template-columns: minmax(0, 1fr) minmax(7.2rem, 18vw); grid-template-rows: auto minmax(0, 1fr) auto; gap: .28rem .38rem; padding-top: max(.2rem, var(--gravity-safe-top)); padding-bottom: max(.2rem, var(--gravity-safe-bottom)); }
+  .gravity-mobile-shell-modern .mobile-game-hud { padding-bottom: .18rem !important; }
+  .gravity-mobile-shell-modern .mobile-hud-primary { grid-template-areas: "mission timer factions actions"; grid-template-columns: minmax(6rem, .8fr) auto minmax(15rem, 1.6fr) auto; gap: .35rem; }
+  .gravity-mobile-shell-modern .mobile-hud-factions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gravity-mobile-shell-modern .mobile-hud-factions div { padding: .16rem .28rem; }
+  .gravity-mobile-shell-modern .mobile-hud-status { display: none; }
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-mode-controls:not([hidden]) { grid-template-columns: 1fr; align-content: center; margin: 0; }
+  body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-mode-button { min-height: 48px; }
+  .gravity-mobile-shell-modern .mobile-shell-telemetry { align-items: end; }
+  .gravity-mobile-shell-modern .mobile-telemetry-handle { width: 100%; min-width: 0; border-radius: 12px; }
+  .gravity-mobile-shell-modern .mobile-command-feedback { right: calc(max(7.2rem, 18vw) + 1rem); bottom: .7rem; }
+  .gravity-mobile-shell-modern .mobile-telemetry-drawer:not([hidden]) { top: 0; right: 0; bottom: 0; left: auto; width: min(24rem, 58%); max-height: none; border-top: 0; border-right: 0; border-bottom: 0; border-radius: 20px 0 0 20px; }
+}
+
+@media (max-width: 560px) {
+  .mobile-tutorial-actions { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-match-shell *, .mobile-match-shell *::before, .mobile-match-shell *::after { animation: none !important; transition: none !important; }
+}

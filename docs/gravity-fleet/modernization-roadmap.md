@@ -7,7 +7,9 @@
 * PR B / PR #16, `Add Gravity Fleet fixed-step runtime`, is merged. Its implementation commit is `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`.
 * Automated fixed-step validation is complete with `node tools/validate_gravity_fleet.js`.
 * Human Checkpoint 1 was completed July 22, 2026 on current `main` after PRs #15, #16, and #17 using Chrome on Windows 10 and Safari on an iPhone 14 Pro Max.
-* PR C / Pass 10.3 camera implementation is complete in the current camera slice. Pass 10.4 dedicated-shell implementation and Cloudflare/device visual review remain next.
+* PR #18, `Introduce Gravity Fleet camera and viewport system`, merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e` and completes Pass 10.3 repository work.
+* PR #19, `Build Gravity Fleet mobile shell and touch controls`, has completed Passes 10.4-10.5 implementation and QA on `gravity-fleet-mobile-shell-touch-controls`; merge is pending.
+* Automated validation, Cloudflare-preview desktop QA, and portrait/landscape QA on an iPhone 17 Pro Max passed. Pass 10.6 is next; later work remains unstarted.
 
 ## North star
 
@@ -43,10 +45,10 @@ Commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remains the successfully teste
 
 ## 1.3 Current sequencing
 
-Current work starts from latest `main`. PR A / PR #15 and PR B / PR #16 are merged; do not recreate or rebase their historical branches. Checkpoint 1 is recorded, and PR C work starts from current `main` on the focused branch:
+Current work starts from latest `main`. PR A / PR #15, PR B / PR #16, and PR #18 / Pass 10.3 are merged; do not recreate or rebase their historical branches. Checkpoint 1 is recorded, and Passes 10.4-10.5 use the focused branch:
 
 ```text
-gravity-fleet-camera-mobile-shell
+gravity-fleet-mobile-shell-touch-controls
 ```
 
 Keep unrelated shared-file changes out of Gravity Fleet pull requests. Deliver later work in coherent, behavior-preserving stages.
@@ -178,7 +180,7 @@ The Node validator covers levels, deterministic commands, controlled win/loss pa
 **Risk:** High
 **Purpose:** Solve portrait composition correctly instead of shrinking a landscape canvas.
 
-**Status: implementation complete; Cloudflare preview and physical-device visual evidence pending.** `games/gravity-fleet/camera.mjs`, the viewport adapter in `games/gravity-fleet-lab.js`, `docs/gravity-fleet/pr-c-camera.md`, and the expanded validator record the camera contract.
+**Status: merged through PR #18 on July 23, 2026 UTC at `8041c60f05ba9f99979bc968d8ac67af6231c68e`; Cloudflare preview and physical-device visual evidence remain pending.** `games/gravity-fleet/camera.mjs`, the viewport adapter in `games/gravity-fleet-lab.js`, `docs/gravity-fleet/pr-c-camera.md`, and the expanded validator record the camera contract.
 
 ### Camera responsibilities
 
@@ -277,6 +279,8 @@ Add a temporary camera-debug mode showing:
 **Risk:** Medium–High
 **Purpose:** Replace independently fixed overlays with a composed game interface.
 
+**Status: implementation and QA complete in PR #19; merge pending.** Cloudflare-preview desktop QA and iPhone 17 Pro Max portrait and landscape QA passed. The CSS Grid shell owns compact HUD, measured tactical viewport, command dock, and telemetry host regions. It is the default mobile presentation. `?gravityDebug=1&gravityMobileShell=legacy` restores the retained shell for QA, while `?gravityDebug=1&gravityMobileShell=modern` selects the replacement explicitly. DOM placement, page scrolling, focus, inert state, and viewport listeners are restored on exit or readiness rollback. See `docs/gravity-fleet/mobile-shell-touch-controls.md` for the implementation contract.
+
 The current mobile implementation uses a viewport-fixed stage plus separate fixed HUD, mode controls, return action, backdrop, and drawer.
 
 The screenshots show these regions colliding in both portrait and short landscape layouts.
@@ -360,14 +364,14 @@ Cut over only after:
 
 ### Acceptance criteria
 
-* [ ] No major controls overlap the tactical viewport’s reserved region.
-* [ ] Portrait no longer contains the current large empty lower area.
-* [ ] Landscape remains usable with short viewport height.
-* [ ] Browser safe areas are respected.
-* [ ] Pause genuinely stops the simulation.
-* [ ] Return to setup restores the page reliably.
-* [ ] No stale fixed mobile elements remain behind the new shell.
-* [ ] The old mobile shell can be removed after cutover.
+* [x] No major controls overlap the tactical viewport’s reserved region.
+* [x] Portrait no longer contains the current large empty lower area.
+* [x] Landscape remains usable with short viewport height.
+* [x] Browser safe areas are respected.
+* [x] Pause genuinely stops the simulation. Deterministic validation confirms no engine, elapsed-time, or telemetry-timeline advancement and a fresh timing epoch on Resume.
+* [x] Return to setup restores the page reliably.
+* [x] No stale fixed mobile elements remain behind the new shell.
+* [ ] The old mobile shell can be removed after cutover. Parity is proven; retain it temporarily as a development rollback path until Pass 10.8 cleanup.
 
 ---
 
@@ -376,6 +380,8 @@ Cut over only after:
 **Size:** Medium–Large
 **Risk:** Medium
 **Purpose:** Make touch commands deliberate and learnable.
+
+**Status: implementation and QA complete in PR #19; merge pending.** Launch and Wormhole share one mutually exclusive mode state and route mobile pointers through the inverse camera transform. The selected configuration is a 0.75-second preparation window, 2.5 seconds after first eligible Cyan transit, and a 10-second absolute maximum. The validator covers activation, expiry, pause cancellation, and Clear. A comparative browser playtest was not performed because no launchable browser is available in the implementation environment.
 
 The game already has drag-based wormhole functions, but mobile Wormhole mode currently routes through a two-tap fallback.
 
@@ -439,7 +445,7 @@ Recommended first prototype:
 * A visible ring communicates remaining life.
 * Clear remains available.
 
-Playtest at least two configurations before finalizing the values.
+The retained configuration passed device QA. Comparative playtesting of at least two configurations remains deferred.
 
 ### Tutorial updates
 
@@ -455,14 +461,28 @@ Desktop instructions must continue to describe mouse controls.
 
 ### Acceptance criteria
 
-* [ ] Tap-tap wormhole placement no longer occurs on mobile.
-* [ ] Launch and Wormhole modes cannot both be active.
-* [ ] Drag previews remain accurate through the camera transform.
-* [ ] Clear Wormhole is discoverable and reliable.
-* [ ] Wormhole lifespan is visible and understandable.
-* [ ] Pointer cancellation never leaves a stuck launch or wormhole state.
-* [ ] Desktop mouse behavior remains unchanged.
-* [ ] The tutorial matches actual controls.
+* [x] Tap-tap wormhole placement no longer occurs on mobile.
+* [x] Launch and Wormhole modes cannot both be active.
+* [x] Drag previews remain accurate through the camera transform.
+* [x] Clear Wormhole is discoverable and reliable.
+* [x] Wormhole lifespan is visible and understandable.
+* [x] Pointer cancellation never leaves a stuck launch or wormhole state in the engine command lifecycle.
+* [x] Desktop mouse behavior remains unchanged.
+* [x] The tutorial copy matches the implemented mobile and desktop controls.
+
+### Human Checkpoint 2 - July 23, 2026
+
+**Build tested:** PR #19 Cloudflare preview after the mobile tutorial illustration correction
+
+**Desktop:** Desktop browser review
+
+**Mobile:** iPhone 17 Pro Max
+
+* Desktop layout and controls passed.
+* Portrait and landscape mobile layouts passed.
+* Launch, Wormhole, wormhole lifespan, Clear Wormhole, Pause/Resume, and input cancellation passed.
+* Tutorial wording passed, and the mobile Launch illustration was corrected to start from the owned Cyan planet.
+* Shell startup, rendering, orientation, and return flows completed without a black screen or stuck input.
 
 ---
 
@@ -852,13 +872,17 @@ PR B is merged through PR #16. It includes Pass 10.2 fixed-step runtime work, De
 
 Completed July 22, 2026 on current `main` after PRs #15, #16, and #17. The recorded desktop and iPhone observations are in Pass 10.2.
 
-## PR C - Camera and mobile shell - in progress
+## PR C - Camera - complete
 
-PR C contains Passes 10.3-10.4. Pass 10.3 camera implementation is complete: identity-equivalent desktop mapping, portrait rotation, inverse pointer transforms, safe gameplay rectangle, orientation-aware resize behavior, and development diagnostics. Pass 10.4 dedicated mobile shell remains next. Retain the existing mobile shell until parity.
+PR #18 merged Pass 10.3 on July 23, 2026 UTC at `8041c60f05ba9f99979bc968d8ac67af6231c68e`: identity-equivalent desktop mapping, portrait rotation, inverse pointer transforms, safe gameplay rectangle, orientation-aware resize behavior, and development diagnostics.
 
-## PR D - Touch controls and telemetry - later
+## Current draft - Mobile shell and touch controls
 
-Retain the intended Passes 10.5-10.6 mobile design cutover and second device checkpoint.
+Passes 10.4-10.5 are implemented together on `gravity-fleet-mobile-shell-touch-controls`. Keep the pull request in draft until deployed-browser and physical-device evidence covers portrait, short landscape, lifecycle, gestures, fallback, and desktop regression checks.
+
+## PR D - Mobile telemetry - later
+
+Pass 10.6 remains unstarted. Do not fold its chart, content, event-feed, or post-match redesign into the shell and touch-controls draft.
 
 ## PR E - Page, header, and analytics polish - later
 
