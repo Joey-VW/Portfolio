@@ -266,9 +266,20 @@ function runCommands(api, fixture) {
   const labMarkup = fs.readFileSync(path.join(root, "games", "gravity-fleet-lab.html"), "utf8");
   assert.match(labSource, /createTelemetryProjection/, "browser surfaces must consume the shared telemetry projection");
   assert.match(labSource, /createTelemetryChartScheduler/, "mobile charts must use the visibility-aware scheduler");
+  assert.match(labSource, /showOutcomeOverlay\(run\);\s*updateTelemetryBadgeVisibility\(\);\s*updateCommandDock\(\);\s*try \{\s*mobileChartScheduler\.final\(\);/s, "match completion must present the result before optional chart work");
+  assert.match(labSource, /renderDashboard\(run\)\.catch\(error =>/, "post-match dashboard failures must be handled locally");
+  assert.match(labSource, /if \(dashboardRunId === runId\) dashboardRenderPromise = null;/, "a failed dashboard render must remain retryable");
+  assert.match(labSource, /try \{\s*mobileChartScheduler\.final\(\);[\s\S]*?\} catch \(error\) \{\s*reportPostMatchRenderFailure\(error\);\s*\}/, "final mobile chart work must not escape match completion");
+  assert.match(labSource, /if \(!state\?\.ended && \(mobileShellState === "preparing" \|\| mobileShellState === "ready"\)\) rollbackMobileShell\(reason\);/, "post-match errors must not trigger mobile shell rollback");
+  assert.match(labSource, /function chartContext\(canvasEl\)[\s\S]*?if \(!x\) return;/, "chart renderers must tolerate an unavailable 2D context");
+  assert.match(labSource, /lineChart\(ui\.shipChart, telemetry\.charts\.fleetStrength, contestTeamKeys\);/, "the post-match fleet-strength chart must receive the projected fleet series");
+  assert.match(labSource, /lineChart\(ui\.ownerChart, telemetry\.charts\.systemControl, activeTeamKeys\);/, "the post-match system-control chart must receive the projected control series");
   assert.doesNotMatch(labSource, /mobileDrawerEvents/, "the primary mobile drawer must not render the full event feed");
   assert.match(labMarkup, /id="mobileFleetChart"/, "mobile drawer must include the real fleet-strength chart");
   assert.match(labMarkup, /id="mobileSystemDonut"/, "mobile drawer must include the real system-mix donut");
+  assert.match(labMarkup, /id="viewMatchAnalysis"/, "the outcome dialog must retain the analysis action");
+  assert.match(labMarkup, /id="playAgain"/, "the outcome dialog must retain the replay action");
+  assert.match(labMarkup, /id="chooseLevel"/, "the outcome dialog must retain the level-selection action");
   assert.match(labMarkup, /<summary>All match statistics<\/summary>/, "lower-priority analytics must use the All match statistics disclosure");
 
   const disabledMonitor = createPerformanceMonitor();
