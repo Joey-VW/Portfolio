@@ -8,6 +8,7 @@ const { pathToFileURL } = require("node:url");
 
 const root = path.resolve(__dirname, "..");
 const corePath = path.join(root, "games", "gravity-fleet", "core.mjs");
+const cameraPath = path.join(root, "games", "gravity-fleet", "camera.mjs");
 const levelsPath = path.join(root, "games", "gravity-fleet", "levels.mjs");
 const performancePath = path.join(root, "games", "gravity-fleet", "performance.mjs");
 const runtimePath = path.join(root, "games", "gravity-fleet", "runtime.mjs");
@@ -50,6 +51,7 @@ function runCommands(api, fixture) {
 
 (async () => {
   const api = await import(pathToFileURL(corePath));
+  const { CAMERA_ORIENTATIONS, createGravityFleetCamera } = await import(pathToFileURL(cameraPath));
   const { LEVELS } = await import(pathToFileURL(levelsPath));
   const { createPerformanceMonitor } = await import(pathToFileURL(performancePath));
   const { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STEP_SECONDS } = await import(pathToFileURL(runtimePath));
@@ -179,7 +181,56 @@ function runCommands(api, fixture) {
   assert.equal(reducedProfile.effectsEnabled, false);
   assert.equal(reducedProfile.trailsEnabled, false);
 
-  console.log(`Gravity Fleet validation passed: ${LEVELS.length} levels, deterministic command fixture, win/loss paths, saved-run schema, telemetry, core boundary, and render-independent fixed timestep.`);
+  const worldBounds = Object.freeze({ x: 0, y: 0, width: 1280, height: 800 });
+  const desktopCamera = createGravityFleetCamera({
+    worldBounds,
+    viewport: worldBounds,
+    tacticalRect: worldBounds,
+    orientation: CAMERA_ORIENTATIONS.desktop
+  });
+  for (const point of [{ x: 0, y: 0 }, { x: 640, y: 400 }, { x: 1280, y: 800 }, { x: 140, y: 400 }]) {
+    assert.deepEqual(desktopCamera.worldToScreen(point), point, "desktop camera should begin as an identity transform");
+    assert.deepEqual(desktopCamera.screenToWorld(point), point, "desktop inverse should preserve existing mouse coordinates");
+  }
+
+  const portraitTacticalRect = { x: 18, y: 108, width: 394, height: 692 };
+  const portraitCamera = createGravityFleetCamera({
+    worldBounds,
+    viewport: { x: 0, y: 0, width: 430, height: 932 },
+    tacticalRect: portraitTacticalRect,
+    orientation: CAMERA_ORIENTATIONS.portrait
+  });
+  const portraitSnapshot = portraitCamera.diagnostics();
+  assert.equal(portraitSnapshot.rotationDegrees, -90);
+  assert.ok(portraitCamera.worldToScreen({ x: 140, y: 400 }).y > portraitSnapshot.screenCenter.y, "the Cyan starting side should frame toward the bottom in portrait");
+  const worldCorners = [
+    { x: 0, y: 0 }, { x: 1280, y: 0 }, { x: 1280, y: 800 }, { x: 0, y: 800 }
+  ];
+  for (const point of worldCorners) {
+    const screen = portraitCamera.worldToScreen(point);
+    assert.ok(screen.x >= portraitTacticalRect.x - 1e-7 && screen.x <= portraitTacticalRect.x + portraitTacticalRect.width + 1e-7, "portrait world corner should fit the tactical width");
+    assert.ok(screen.y >= portraitTacticalRect.y - 1e-7 && screen.y <= portraitTacticalRect.y + portraitTacticalRect.height + 1e-7, "portrait world corner should fit the tactical height");
+    const roundTrip = portraitCamera.screenToWorld(screen);
+    assert.ok(Math.abs(roundTrip.x - point.x) < 1e-7 && Math.abs(roundTrip.y - point.y) < 1e-7, "inverse camera hit testing should remain accurate at world corners");
+  }
+
+  const landscapeCamera = createGravityFleetCamera({
+    worldBounds,
+    viewport: { x: 0, y: 0, width: 856, height: 375 },
+    tacticalRect: { x: 18, y: 54, width: 820, height: 257 },
+    orientation: CAMERA_ORIENTATIONS.landscape
+  });
+  assert.equal(landscapeCamera.diagnostics().rotationDegrees, 0, "mobile landscape should retain native world orientation");
+  const immutableWorldBeforeResize = { ...worldBounds };
+  portraitCamera.configure({
+    worldBounds,
+    viewport: { x: 0, y: 0, width: 390, height: 844 },
+    tacticalRect: { x: 18, y: 96, width: 354, height: 626 },
+    orientation: CAMERA_ORIENTATIONS.portrait
+  });
+  assert.deepEqual(worldBounds, immutableWorldBeforeResize, "camera resize must not mutate gameplay coordinates");
+
+  console.log(`Gravity Fleet validation passed: ${LEVELS.length} levels, deterministic command fixture, win/loss paths, saved-run schema, telemetry, core boundary, render-independent fixed timestep, and invertible desktop/portrait/landscape cameras.`);
 })().catch(error => {
   console.error(error.stack || error);
   process.exitCode = 1;
