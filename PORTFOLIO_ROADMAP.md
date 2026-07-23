@@ -35,8 +35,8 @@ Status labels:
 | 06. Gravity Fleet game flow | DONE | Match flow, navigation, terminology, level-three fairness, and command states feel intentional. | None |
 | 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 12. | Pass 06 |
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
-| 09. Mobile layout corrections and responsive bug fixes | NEXT | Resolve the confirmed mobile and responsive findings in `MOBILE_QA_REPORT.md`. | Pass 08 structural integration |
-| 10. Gravity Fleet modernization | IN PROGRESS | Passes 10.0-10.5 are merged and Human Checkpoints 1-2 are recorded. Pass 10.6 repository implementation and deterministic validation are complete; deployed-browser and physical-device telemetry/analytics QA remain pending. | Pass 06, Pass 07, merged PRs #13, #15, #16, #17, #18, #19, and Pass 09 shared-header coordination |
+| 09. Mobile layout corrections and responsive bug fixes | IN REVIEW | Source corrections merged through PRs #6-#12; remaining work is the documented regression and deployment verification. | Pass 08 structural integration |
+| 10. Gravity Fleet modernization | IN PROGRESS | Passes 10.0-10.6 are merged and verified, including telemetry PR #20 and the match-end recovery in PR #21. Active work is Pass 10.7 page, header, and analytics polish. | Pass 06, Pass 07, merged PRs #13, #15-#21, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 
@@ -44,8 +44,8 @@ The recommended execution order is:
 
 1. Completed governance and feature passes.
 2. Completed faithful Pass 08 publishing-system integration.
-3. Pass 09 mobile layout corrections and responsive bug fixes.
-4. Pass 10 staged Gravity Fleet modernization, including shared-core extraction, desktop restoration, mobile camera/shell work, and device verification.
+3. Pass 09 regression and deployment verification.
+4. Pass 10.7 Gravity Fleet page, header, and analytics polish.
 5. Pass 11 custom-domain and production-route release.
 6. Pass 12 final repository validation and release QA.
 7. Deferred backend and operational automation work.
@@ -510,7 +510,7 @@ Cloudflare preview and production checks were not available in that audit. Verif
 
 ## Pass 09 - Mobile layout corrections and responsive bug fixes
 
-**Status: IN REVIEW.** `MOBILE_QA_REPORT.md` is the detailed evidence source for this first mobile QA pass. Its screenshots are before evidence and supporting visual references, not a replacement for updated captures after implementation. The audit covered 14 routes at 360×800, 375×812, 390×844, and 430×932 and found no document-level horizontal overflow at those widths; the confirmed findings below remain active.
+**Status: IN REVIEW.** Source corrections were merged through PRs #6-#12. `MOBILE_QA_REPORT.md` remains the detailed evidence source for the first mobile QA pass, and its screenshots are before evidence and supporting visual references, not a replacement for updated captures after implementation. The remaining work is the regression and deployment verification in 09.7.
 
 Implement these subsections as focused, independently reviewable handoffs while preserving the build-light architecture and the Pass 08 preservation contract.
 
@@ -518,50 +518,50 @@ Implement these subsections as focused, independently reviewable handoffs while 
 
 Relevant files: `projects/multi-platform-publishing-system/demo/assets/js/config.js`, `projects/multi-platform-publishing-system/demo/assets/js/background-video.js`, and `projects/multi-platform-publishing-system/demo/assets/css/styles.css`.
 
-- [ ] Normalize the configured fallback image against `document.baseURI`, or an equivalently reliable project-scoped base, before placing it in the CSS custom property.
-- [ ] Eliminate the incorrect request to `/projects/multi-platform-publishing-system/demo/assets/css/assets/background_image_clean.jpg` and resolve the approved image at `/projects/multi-platform-publishing-system/demo/assets/background_image_clean.jpg`.
-- [ ] Verify normal loading, direct nested-page loads, reduced motion, empty manifest, and forced video failure.
-- [ ] Preserve every approved image, video, manifest entry, transition, and recovery behavior.
+- [x] Normalize the configured fallback image against `document.baseURI`, or an equivalently reliable project-scoped base, before placing it in the CSS custom property.
+- [x] Eliminate the incorrect request to `/projects/multi-platform-publishing-system/demo/assets/css/assets/background_image_clean.jpg` and resolve the approved image at `/projects/multi-platform-publishing-system/demo/assets/background_image_clean.jpg`.
+- [x] Verify normal loading, direct nested-page loads, reduced motion, empty manifest, and forced video failure.
+- [x] Preserve every approved image, video, manifest entry, transition, and recovery behavior.
 
 ### 09.2 Improve Postcard Atlas mobile navigation
 
 The primary navigation is dense, wraps across multiple rows, has approximately 36-39px navigation targets, and consumes excessive narrow-screen header height.
 
-- [ ] Bring primary navigation and portfolio-return controls to approximately 44px touch targets.
-- [ ] Keep navigation clear at 320, 360, 375, 390, and 430px without merely adding padding and making the header taller.
-- [ ] Preserve Postcard Atlas identity, keyboard navigation, focus behavior, current-page indication, internal Home behavior, and the separate portfolio-return action.
-- [ ] After inspecting the implementation, choose either a compact accessible disclosure menu or a well-designed scrollable navigation row.
+- [x] Bring primary navigation and portfolio-return controls to approximately 44px touch targets.
+- [x] Keep navigation clear at 320, 360, 375, 390, and 430px without merely adding padding and making the header taller.
+- [x] Preserve Postcard Atlas identity, keyboard navigation, focus behavior, current-page indication, internal Home behavior, and the separate portfolio-return action.
+- [x] After inspecting the implementation, choose either a compact accessible disclosure menu or a well-designed scrollable navigation row.
 
 ### 09.3 Increase shared portfolio touch targets
 
 The report measures `Read case study` links at about 25.6px, footer links at about 23.5px, the shared brand link slightly below 44px, EV section navigation at about 43.2px, and EV/Shrinkflation back-to-top controls at about 43.8px. Relevant source families include `styles.css`, `script.js`, `projects/ev-true-cost.css`, and `projects/shrinkflation-tracker.css`.
 
-- [ ] Give important mobile controls comfortable touch areas of approximately 44 CSS pixels where practical while keeping visual weight restrained.
-- [ ] Preserve desktop spacing, homepage print/PDF behavior, explicit links and labels, focus states, and semantics.
+- [x] Give important mobile controls comfortable touch areas of approximately 44 CSS pixels where practical while keeping visual weight restrained.
+- [x] Preserve desktop spacing, homepage print/PDF behavior, explicit links and labels, focus states, and semantics.
 
 ### 09.4 Increase Gravity Fleet heatmap toggle targets
 
 The Movement/Combat controls measure about 32px high. Relevant file: `games/gravity-fleet-lab.css`.
 
-- [ ] Use approximately 44px targets on mobile/coarse-pointer layouts while retaining compact desktop behavior.
-- [ ] Keep controls on one row where practical or wrap them cleanly at 320-390px.
-- [ ] Prevent collisions with analytics panels, post-match controls, and back-to-game navigation.
+- [x] Use approximately 44px targets on mobile/coarse-pointer layouts while retaining compact desktop behavior.
+- [x] Keep controls on one row where practical or wrap them cleanly at 320-390px.
+- [x] Prevent collisions with analytics panels, post-match controls, and back-to-game navigation.
 
 ### 09.5 Harden debug/dev tools on production hosts
 
 Prior local-storage state can allow Showcase or Gravity Fleet debug controls to persist on a production host. Relevant files include `script.js`, `games/gravity-fleet-lab.js`, and their fixed-panel rules in `styles.css` and game CSS.
 
-- [ ] Ensure an ordinary production visitor with no explicit debug query sees no debug toggles or panels.
-- [ ] Ensure persisted debug state cannot independently enable production debug UI; retain convenient localhost behavior.
-- [ ] Keep explicit production debug access usable and safe-area aware when intentionally invoked.
-- [ ] Verify with a clean profile and stale debug local-storage values.
+- [x] Ensure an ordinary production visitor with no explicit debug query sees no debug toggles or panels.
+- [x] Ensure persisted debug state cannot independently enable production debug UI; retain convenient localhost behavior.
+- [x] Keep explicit production debug access usable and safe-area aware when intentionally invoked.
+- [x] Verify with a clean profile and stale debug local-storage values.
 
 ### 09.6 Narrow-screen typography polish
 
 After functional and accessibility corrections, consider the EV and publishing-system hero headings that wrap to four lines at 360px.
 
-- [ ] Improve first-viewport balance below 375px where possible while preserving hierarchy and readability.
-- [ ] Do not force truncation, tiny text, or clipping; leave this unchanged if correction would weaken the design more than it helps.
+- [x] Improve first-viewport balance below 375px where possible while preserving hierarchy and readability.
+- [x] Do not force truncation, tiny text, or clipping; leave this unchanged if correction would weaken the design more than it helps.
 
 ### 09.7 Mobile regression and deployment verification
 
@@ -583,7 +583,7 @@ Pass 09 acceptance criteria:
 
 ## Pass 10 - Gravity Fleet modernization
 
-**Status: IN PROGRESS.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. Pass 10.6 repository work now provides one shared telemetry projection, visibility-aware mobile charts, a chart-led telemetry drawer, and compact post-match analytics. Deterministic parity, legacy saved-run compatibility, and hidden-chart scheduling checks pass; deployed-browser and physical-device QA remain pending. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
+**Status: IN PROGRESS.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. PR #20 completed Pass 10.6 telemetry and analytics, and PR #21 corrected mobile match-end recovery; both are merged and verified following deployed-browser and mobile review. Active work is now Pass 10.7. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
 
 Authoritative supporting documents:
 
@@ -614,6 +614,8 @@ Given the same initial state, random seed, fixed simulation steps, and gameplay 
 - [x] PR #15, `Extract Gravity Fleet shared game core`, merged into `main` as PR A / Passes 10.0-10.1.
 - [x] PR #16, `Add Gravity Fleet fixed-step runtime`, merged into `main` as PR B / Pass 10.2.
 - [x] PR #18, `Introduce Gravity Fleet camera and viewport system`, merged into `main` as Pass 10.3 through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`.
+- [x] PR #20, `Add Gravity Fleet mobile telemetry analytics`, merged into `main` as Pass 10.6.
+- [x] PR #21, `Fix Gravity Fleet mobile match-end recovery`, merged into `main`; its follow-up verification completes Pass 10.6.
 - [x] The shared core and fixed runtime are present on current `main`; future work starts cleanly from current `main`.
 - [x] Keep unrelated shared-file changes out of Gravity Fleet implementation pull requests.
 - [x] Deliver modernization through coherent, behavior-preserving pull requests rather than one rewrite commit.
@@ -630,8 +632,8 @@ Recommended pull-request grouping:
 3. **Checkpoint 1 - desktop/mobile runtime evidence:** complete July 22, 2026.
 4. **PR C - Camera:** merged through PR #18, Pass 10.3.
 5. **PR #19 - Mobile shell and touch controls:** merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b`.
-6. **Current draft - Mobile telemetry:** Pass 10.6 repository implementation and automated validation complete; preview/device QA pending.
-7. **PR E - Page, header, and analytics polish:** later, Pass 10.7.
+6. **PR #20 and PR #21 - Mobile telemetry and match-end recovery:** merged and verified; Pass 10.6 is complete.
+7. **PR E - Page, header, and analytics polish:** active, Pass 10.7.
 8. **PR F - Integrated QA and cleanup:** later, Pass 10.8.
 
 Do not ask an implementation agent to complete all remaining pull requests in one task.
@@ -897,7 +899,7 @@ Acceptance criteria:
 - [x] Place lower-priority values beneath an expandable `All match statistics` region.
 - [x] Preserve full desktop analytical depth.
 
-**Repository implementation complete July 23, 2026:** `games/gravity-fleet/telemetry.mjs` is the presentation-neutral projection and chart-scheduling boundary. The deterministic validator verifies live/run parity, legacy saved-run compatibility, zero scheduled chart work while closed or paused, immediate opening render, one-second visible cadence, and one final match-end render. Browser inspection was unavailable in the implementation workspace, so desktop, mobile portrait, short-landscape, focus, canvas readability, and Cloudflare-preview checks remain pending before Pass 10.6 is considered fully accepted.
+**Complete and verified:** PR #20 merged the presentation-neutral telemetry projection and chart-scheduling boundary in `games/gravity-fleet/telemetry.mjs`; PR #21 then fixed mobile match-end recovery. Deterministic validation covers live/run parity, legacy saved-run compatibility, zero scheduled chart work while closed or paused, immediate opening render, one-second visible cadence, and one final match-end render. Deployed-browser and mobile review verified the telemetry and analytics presentation, completing Pass 10.6.
 
 Acceptance criteria:
 
