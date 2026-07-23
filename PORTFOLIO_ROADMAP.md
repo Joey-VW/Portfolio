@@ -36,7 +36,7 @@ Status labels:
 | 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 12. | Pass 06 |
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
 | 09. Mobile layout corrections and responsive bug fixes | NEXT | Resolve the confirmed mobile and responsive findings in `MOBILE_QA_REPORT.md`. | Pass 08 structural integration |
-| 10. Gravity Fleet modernization | IN PROGRESS | PR A / Passes 10.0-10.1, PR B / Pass 10.2, and PR #18 / Pass 10.3 are merged; Human Checkpoint 1 is recorded. PR #19 / Passes 10.4-10.5 passed automated validation, Cloudflare-preview desktop QA, and physical-device QA on an iPhone 17 Pro Max. Pass 10.6 is next. | Pass 06, Pass 07, merged PRs #13, #15, #16, #17, #18, and Pass 09 shared-header coordination |
+| 10. Gravity Fleet modernization | IN PROGRESS | Passes 10.0-10.5 are merged and Human Checkpoints 1-2 are recorded. Pass 10.6 repository implementation and deterministic validation are complete; deployed-browser and physical-device telemetry/analytics QA remain pending. | Pass 06, Pass 07, merged PRs #13, #15, #16, #17, #18, #19, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 
@@ -583,7 +583,7 @@ Pass 09 acceptance criteria:
 
 ## Pass 10 - Gravity Fleet modernization
 
-**Status: IN PROGRESS.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 passed automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. Launch, Wormhole, Clear Wormhole, Pause/Resume, input cancellation, camera framing, shell lifecycle, and wormhole-lifespan behavior passed. The mobile Launch tutorial illustration was corrected to begin from the owned Cyan planet. Pass 10.6 is next. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
+**Status: IN PROGRESS.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. Pass 10.6 repository work now provides one shared telemetry projection, visibility-aware mobile charts, a chart-led telemetry drawer, and compact post-match analytics. Deterministic parity, legacy saved-run compatibility, and hidden-chart scheduling checks pass; deployed-browser and physical-device QA remain pending. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
 
 Authoritative supporting documents:
 
@@ -629,8 +629,8 @@ Recommended pull-request grouping:
 2. **PR B - Runtime and desktop restoration:** merged through PR #16, Pass 10.2 implementation and automated validation.
 3. **Checkpoint 1 - desktop/mobile runtime evidence:** complete July 22, 2026.
 4. **PR C - Camera:** merged through PR #18, Pass 10.3.
-5. **PR #19 - Mobile shell and touch controls:** Passes 10.4-10.5 implementation, automated validation, Cloudflare-preview desktop QA, and iPhone 17 Pro Max device QA complete; merge pending.
-6. **Next - Mobile telemetry:** Pass 10.6.
+5. **PR #19 - Mobile shell and touch controls:** merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b`.
+6. **Current draft - Mobile telemetry:** Pass 10.6 repository implementation and automated validation complete; preview/device QA pending.
 7. **PR E - Page, header, and analytics polish:** later, Pass 10.7.
 8. **PR F - Integrated QA and cleanup:** later, Pass 10.8.
 
@@ -857,8 +857,8 @@ Acceptance criteria:
 
 **Purpose:** Preserve Gravity Fleet's analytical identity while using progressive disclosure and avoiding hidden chart cost.
 
-- [ ] Create one structured telemetry view model used by desktop live telemetry, mobile HUD, mobile drawer, outcome summary, full analytics, and saved-run rendering.
-- [ ] Prevent individual surfaces from independently recalculating gameplay totals.
+- [x] Create one structured telemetry view model used by desktop live telemetry, mobile HUD, mobile drawer, outcome summary, full analytics, and saved-run rendering.
+- [x] Prevent individual surfaces from independently recalculating gameplay totals.
 
 **Always-visible mobile HUD:**
 
@@ -871,31 +871,33 @@ Acceptance criteria:
 
 **Mobile telemetry drawer:**
 
-- [ ] Make Fleet Strength over Time the primary live chart.
-- [ ] Add the real System Mix donut with compact faction legend.
-- [ ] Add compact label/value metrics for largest launch, ships in flight, deep-space fights, ship transits, star control, and wormholes where space permits.
-- [ ] Provide Close or Resume as the primary action.
-- [ ] Keep Reset and Choose Level visually secondary.
-- [ ] Remove the full recent-event feed from the primary drawer.
-- [ ] Move event history to post-match analytics, an optional Log disclosure, a single latest-event line, or development mode.
-- [ ] In landscape, prefer a side sheet so telemetry does not consume the limited vertical field.
+- [x] Make Fleet Strength over Time the primary live chart.
+- [x] Add the real System Mix donut with compact faction legend.
+- [x] Add compact label/value metrics for largest launch, ships in flight, deep-space fights, ship transits, star control, and wormholes where space permits.
+- [x] Provide Close or Resume as the primary action.
+- [x] Keep Reset and Choose Level visually secondary.
+- [x] Remove the full recent-event feed from the primary drawer.
+- [x] Move event history to post-match analytics, an optional Log disclosure, a single latest-event line, or development mode.
+- [x] In landscape, prefer a side sheet so telemetry does not consume the limited vertical field.
 
 **Chart scheduling:**
 
-- [ ] Do not redraw charts while the drawer is closed.
-- [ ] Draw immediately when the drawer opens.
-- [ ] Update visible charts approximately once per second.
-- [ ] Stop chart rendering when the drawer closes.
-- [ ] Stop sampling when paused or hidden.
-- [ ] Render one final state when the match ends.
+- [x] Do not redraw charts while the drawer is closed.
+- [x] Draw immediately when the drawer opens.
+- [x] Update visible charts approximately once per second.
+- [x] Stop chart rendering when the drawer closes.
+- [x] Stop sampling when paused or hidden.
+- [x] Render one final state when the match ends.
 
 **Mobile post-match hierarchy:**
 
-- [ ] Add one result strip containing outcome, score, and duration.
-- [ ] Add a compact two-column highlight grid for captures, destroyed ships, largest launch, transits, wormholes, and peak advantage.
-- [ ] Follow with fleet-strength and system-control charts, the most important turning point, and a concise run insight.
-- [ ] Place lower-priority values beneath an expandable `All match statistics` region.
-- [ ] Preserve full desktop analytical depth.
+- [x] Add one result strip containing outcome, score, and duration.
+- [x] Add a compact two-column highlight grid for captures, destroyed ships, largest launch, transits, wormholes, and peak advantage.
+- [x] Follow with fleet-strength and system-control charts, the most important turning point, and a concise run insight.
+- [x] Place lower-priority values beneath an expandable `All match statistics` region.
+- [x] Preserve full desktop analytical depth.
+
+**Repository implementation complete July 23, 2026:** `games/gravity-fleet/telemetry.mjs` is the presentation-neutral projection and chart-scheduling boundary. The deterministic validator verifies live/run parity, legacy saved-run compatibility, zero scheduled chart work while closed or paused, immediate opening render, one-second visible cadence, and one final match-end render. Browser inspection was unavailable in the implementation workspace, so desktop, mobile portrait, short-landscape, focus, canvas readability, and Cloudflare-preview checks remain pending before Pass 10.6 is considered fully accepted.
 
 Acceptance criteria:
 

@@ -8,8 +8,8 @@
 * Automated fixed-step validation is complete with `node tools/validate_gravity_fleet.js`.
 * Human Checkpoint 1 was completed July 22, 2026 on current `main` after PRs #15, #16, and #17 using Chrome on Windows 10 and Safari on an iPhone 14 Pro Max.
 * PR #18, `Introduce Gravity Fleet camera and viewport system`, merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e` and completes Pass 10.3 repository work.
-* PR #19, `Build Gravity Fleet mobile shell and touch controls`, has completed Passes 10.4-10.5 implementation and QA on `gravity-fleet-mobile-shell-touch-controls`; merge is pending.
-* Automated validation, Cloudflare-preview desktop QA, and portrait/landscape QA on an iPhone 17 Pro Max passed. Pass 10.6 is next; later work remains unstarted.
+* PR #19, `Build Gravity Fleet mobile shell and touch controls`, merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after completing Passes 10.4-10.5 implementation and QA.
+* Pass 10.6 repository implementation and deterministic validation are complete on the focused telemetry branch. Deployed-browser and physical-device telemetry/analytics QA remain pending; later work remains unstarted.
 
 ## North star
 
@@ -615,15 +615,29 @@ Place lower-priority metrics under an expandable “All match statistics” regi
 
 ### Acceptance criteria
 
-* [ ] Fleet Strength is available live on mobile.
-* [ ] System Mix is available live on mobile.
-* [ ] Charts do not render continuously while hidden.
-* [ ] The event feed no longer consumes the primary drawer.
-* [ ] Landscape telemetry remains usable.
-* [ ] Outcome, score, and duration are visible together on mobile.
-* [ ] Post-match metrics no longer require one large card per value.
-* [ ] Desktop live and post-match analytics retain their existing depth.
-* [ ] Desktop and mobile display the same underlying telemetry totals.
+* [x] Fleet Strength is available live on mobile.
+* [x] System Mix is available live on mobile.
+* [x] Charts do not render continuously while hidden.
+* [x] The event feed no longer consumes the primary drawer.
+* [ ] Landscape telemetry remains usable. The side-sheet implementation is present; browser/device inspection remains pending.
+* [x] Outcome, score, and duration are visible together on mobile.
+* [x] Post-match metrics no longer require one large card per value.
+* [ ] Desktop live and post-match analytics retain their existing depth. The full data surfaces remain in source; desktop browser regression inspection remains pending.
+* [x] Desktop and mobile display the same underlying telemetry totals.
+
+### Repository completion status - July 23, 2026
+
+Implemented:
+
+* One pure telemetry projection shared by desktop live telemetry, the mobile HUD and drawer, the outcome overlay, the full dashboard, and local saved-run cards.
+* Fleet Strength over Time and controlled-world System Mix charts in the mobile drawer.
+* A compact tactical metric grid, one latest-event line, Close/Resume primary action, and secondary Reset/Choose Level actions.
+* A portrait bottom sheet and short-landscape side sheet.
+* A chart scheduler that draws immediately on open, updates every second only while visible and running, cancels work when closed, paused, or hidden, and draws one final state at match end.
+* A compact result strip, two-column highlights, fleet/control charts, turning point, run insight, and expandable `All match statistics` region.
+* Deterministic projection parity, scheduler-state, and legacy saved-run compatibility checks.
+
+Automated checks pass. Browser tooling was unavailable in the implementation workspace, so desktop, portrait, short-landscape, keyboard/focus, canvas readability, and Cloudflare-preview review remain pending.
 
 ---
 
@@ -876,13 +890,13 @@ Completed July 22, 2026 on current `main` after PRs #15, #16, and #17. The recor
 
 PR #18 merged Pass 10.3 on July 23, 2026 UTC at `8041c60f05ba9f99979bc968d8ac67af6231c68e`: identity-equivalent desktop mapping, portrait rotation, inverse pointer transforms, safe gameplay rectangle, orientation-aware resize behavior, and development diagnostics.
 
-## Current draft - Mobile shell and touch controls
+## Mobile shell and touch controls - complete
 
-Passes 10.4-10.5 are implemented together on `gravity-fleet-mobile-shell-touch-controls`. Keep the pull request in draft until deployed-browser and physical-device evidence covers portrait, short landscape, lifecycle, gestures, fallback, and desktop regression checks.
+PR #19 merged Passes 10.4-10.5 on July 23, 2026 UTC at `9cf984ef417851726b49c8f7b9f37f24636fe21b`.
 
-## PR D - Mobile telemetry - later
+## Current draft - Mobile telemetry
 
-Pass 10.6 remains unstarted. Do not fold its chart, content, event-feed, or post-match redesign into the shell and touch-controls draft.
+Pass 10.6 repository work and automated validation are complete. Keep the pull request in draft until deployed-browser and physical-device evidence covers desktop, portrait, short landscape, chart readability, drawer focus/close behavior, post-match disclosure hierarchy, and saved-run selection.
 
 ## PR E - Page, header, and analytics polish - later
 

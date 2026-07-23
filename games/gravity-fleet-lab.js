@@ -3,6 +3,7 @@ import { LEVELS, teamMeta, activeTeamKeys, contestTeamKeys, colors, BASE_WORLD_B
 import { createPerformanceMonitor } from "./gravity-fleet/performance.mjs";
 import { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STEP_SECONDS } from "./gravity-fleet/runtime.mjs";
 import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/camera.mjs";
+import { createTelemetryChartScheduler, createTelemetryProjection } from "./gravity-fleet/telemetry.mjs";
 
 (() => {
   "use strict";
@@ -26,21 +27,21 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     start: document.querySelector("#startMatch"), dockMissionSetup: document.querySelector("#dockMissionSetup"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"), mobileModes: [...document.querySelectorAll("[data-game-mode]")], mobileModeControls: document.querySelector("#mobileModeControls"),
     overlay: document.querySelector("#gameStartOverlay"), levelPicker: document.querySelector("#levelPicker"), levelName: document.querySelector("#selectedLevelName"), levelDescription: document.querySelector("#selectedLevelDescription"), levelDifficulty: document.querySelector("#selectedLevelDifficulty"),
     tutorial: document.querySelector("#gameTutorialOverlay"), tutorialGo: document.querySelector("#tutorialGo"),
-    outcome: document.querySelector("#gameOutcomeOverlay"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeLevel: document.querySelector("#gameOutcomeLevel"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"), outcomeCaptures: document.querySelector("#gameOutcomeCaptures"), outcomeLargestLaunch: document.querySelector("#gameOutcomeLargestLaunch"), outcomeDestroyed: document.querySelector("#gameOutcomeDestroyed"), outcomeTransits: document.querySelector("#gameOutcomeTransits"), outcomeSignal: document.querySelector("#gameOutcomeSignal"),
+    outcome: document.querySelector("#gameOutcomeOverlay"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeResult: document.querySelector("#gameOutcomeResult"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"), outcomeCaptures: document.querySelector("#gameOutcomeCaptures"), outcomeLargestLaunch: document.querySelector("#gameOutcomeLargestLaunch"), outcomeDestroyed: document.querySelector("#gameOutcomeDestroyed"), outcomeTransits: document.querySelector("#gameOutcomeTransits"), outcomeWormholes: document.querySelector("#gameOutcomeWormholes"), outcomePeakAdvantage: document.querySelector("#gameOutcomePeakAdvantage"), outcomeSignal: document.querySelector("#gameOutcomeSignal"),
     viewAnalysis: document.querySelector("#viewMatchAnalysis"), playAgain: document.querySelector("#playAgain"), chooseLevel: document.querySelector("#chooseLevel"), analytics: document.querySelector("#analytics"), analyticsTitle: document.querySelector("#analytics-title"),
     timer: document.querySelector("#matchTimer"), readout: document.querySelector("#fleetReadout"), feed: document.querySelector("#eventFeed"),
     commandDock: document.querySelector(".command-dock"), commandModeLabel: document.querySelector("#commandModeLabel"), commandStates: [...document.querySelectorAll("[data-command-state]")],
     dockLiveObjective: document.querySelector("#dockLiveObjective"), dockLiveSource: document.querySelector("#dockLiveSource"), dockLiveAim: document.querySelector("#dockLiveAim"), dockLiveReadiness: document.querySelector("#dockLiveReadiness"), dockLiveStatus: document.querySelector("#dockLiveStatus"),
     dockPostOutcome: document.querySelector("#dockPostOutcome"), dockPostLevel: document.querySelector("#dockPostLevel"), dockPostScore: document.querySelector("#dockPostScore"), dockPostDuration: document.querySelector("#dockPostDuration"), dockPostSignal: document.querySelector("#dockPostSignal"), dockViewAnalysis: document.querySelector("#dockViewAnalysis"), dockPlayAgain: document.querySelector("#dockPlayAgain"),
     factionModule: document.querySelector(".faction-module"), telemetryModule: document.querySelector("#liveTelemetryModule"), telemetryHeading: document.querySelector("#liveTelemetryModule h3"), eventRail: document.querySelector(".event-rail"), eventRailLabel: document.querySelector(".event-rail-head span"),
-    empty: document.querySelector("#dashboardEmpty"), dashboard: document.querySelector("#dashboard"), kpis: document.querySelector("#kpiGrid"),
+    empty: document.querySelector("#dashboardEmpty"), dashboard: document.querySelector("#dashboard"), kpis: document.querySelector("#kpiGrid"), analyticsResultStrip: document.querySelector("#analyticsResultStrip"), analyticsHighlights: document.querySelector("#analyticsHighlights"), analyticsTurningPoint: document.querySelector("#analyticsTurningPoint"), analyticsRunInsight: document.querySelector("#analyticsRunInsight"), analyticsAllStatistics: document.querySelector("#analyticsAllStatistics"),
     shipChart: document.querySelector("#shipChart"), ownerChart: document.querySelector("#ownershipChart"), heatmap: document.querySelector("#heatmap"), heatmapControls: document.querySelector("#heatmapControls"), heatmapSummary: document.querySelector("#heatmapSummary"), captures: document.querySelector("#captureTimeline"),
     liveFleetChart: document.querySelector("#liveFleetChart"), liveLaunchChart: document.querySelector("#liveLaunchChart"), liveSystemDonut: document.querySelector("#liveSystemDonut"),
     pressure: document.querySelector("#pressureSnapshot"), launchPulse: document.querySelector("#launchPulse"), liveTelemetry: document.querySelector("#liveTelemetryModule"), liveTelemetryBadge: document.querySelector("#liveTelemetryBadge"), backToGame: document.querySelector("#backToGame"),
     insights: document.querySelector("#insights"), leaderboard: document.querySelector("#leaderboard"), recent: document.querySelector("#recentRuns"), clearRecent: document.querySelector("#clearLocalRuns"), recentStatus: document.querySelector("#recentRunsStatus"),
     tutorialCanvases: [...document.querySelectorAll("[data-tutorial-demo]")],
     mobileHud: document.querySelector("#mobileGameHud"), mobileHudLevel: document.querySelector("#mobileHudLevel"), mobileHudTimer: document.querySelector("#mobileHudTimer"), mobileHudShips: document.querySelector("#mobileHudShips"), mobileHudWorlds: document.querySelector("#mobileHudWorlds"), mobileHudRivals: document.querySelector("#mobileHudRivals"), mobileHudRedShips: document.querySelector("#mobileHudRedShips"), mobileHudOrangeShips: document.querySelector("#mobileHudOrangeShips"), mobileHudOrangeWorlds: document.querySelector("#mobileHudOrangeWorlds"), mobileHudStatus: document.querySelector("#mobileHudStatus"), mobilePause: document.querySelector("#mobilePauseToggle"),
-    mobileTelemetryToggle: document.querySelector("#mobileTelemetryToggle"), mobileTelemetryDrawer: document.querySelector("#mobileTelemetryDrawer"), mobileTelemetryClose: document.querySelector("#mobileTelemetryClose"), mobileDrawerBackdrop: document.querySelector("#mobileDrawerBackdrop"), mobileDrawerRed: document.querySelector("#mobileDrawerRed"), mobileDrawerOrange: document.querySelector("#mobileDrawerOrange"), mobileDrawerStar: document.querySelector("#mobileDrawerStar"), mobileDrawerLaunch: document.querySelector("#mobileDrawerLaunch"), mobileDrawerFights: document.querySelector("#mobileDrawerFights"), mobileDrawerTransits: document.querySelector("#mobileDrawerTransits"), mobileDrawerEvents: document.querySelector("#mobileDrawerEvents"), mobileDrawerPause: document.querySelector("#mobileDrawerPause"), mobileReset: document.querySelector("#mobileResetMatch"), mobileChooseLevel: document.querySelector("#mobileChooseLevel"),
+    mobileTelemetryToggle: document.querySelector("#mobileTelemetryToggle"), mobileTelemetryDrawer: document.querySelector("#mobileTelemetryDrawer"), mobileTelemetryClose: document.querySelector("#mobileTelemetryClose"), mobileDrawerBackdrop: document.querySelector("#mobileDrawerBackdrop"), mobileFleetChart: document.querySelector("#mobileFleetChart"), mobileSystemDonut: document.querySelector("#mobileSystemDonut"), mobileSystemLegend: document.querySelector("#mobileSystemLegend"), mobileDrawerStar: document.querySelector("#mobileDrawerStar"), mobileDrawerLaunch: document.querySelector("#mobileDrawerLaunch"), mobileDrawerInFlight: document.querySelector("#mobileDrawerInFlight"), mobileDrawerFights: document.querySelector("#mobileDrawerFights"), mobileDrawerTransits: document.querySelector("#mobileDrawerTransits"), mobileDrawerWormholes: document.querySelector("#mobileDrawerWormholes"), mobileDrawerLatest: document.querySelector("#mobileDrawerLatest"), mobileDrawerPause: document.querySelector("#mobileDrawerPause"), mobileReset: document.querySelector("#mobileResetMatch"), mobileChooseLevel: document.querySelector("#mobileChooseLevel"),
     mobileShellStatus: document.querySelector("#mobileShellStatus"), mobileShellStatusTitle: document.querySelector("#mobileShellStatusTitle"), mobileShellStatusMessage: document.querySelector("#mobileShellStatusMessage"), mobileShellDiagnostic: document.querySelector("#mobileShellDiagnostic"), mobileShellActions: document.querySelector("#mobileShellActions"), mobileShellRetry: document.querySelector("#mobileShellRetry"), mobileShellReturn: document.querySelector("#mobileShellReturn"), mobileMatchExit: document.querySelector("#mobileMatchExit"),
     mobileShell: document.querySelector("#mobileMatchShell"), mobileShellTop: document.querySelector("#mobileShellTop"), mobileTacticalViewport: document.querySelector("#mobileTacticalViewport"), mobileShellCommand: document.querySelector("#mobileShellCommand"), mobileShellTelemetry: document.querySelector("#mobileShellTelemetry"), mobileTelemetryHandle: document.querySelector("#mobileTelemetryHandle"), mobileCommandFeedback: document.querySelector("#mobileCommandFeedback"), mobilePausedNotice: document.querySelector("#mobilePausedNotice"), mobileClearWormhole: document.querySelector("#mobileClearWormhole")
   };
@@ -208,6 +209,11 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   const usesModernMobileShell = () => mobileShellFlavor === "modern";
   const mobileDomPlacements = new Map();
   const performanceMonitor = createPerformanceMonitor({ enabled: developmentMetricsEnabled });
+  const mobileChartScheduler = createTelemetryChartScheduler({
+    intervalMs: 1000,
+    shouldRun: () => Boolean(mobileDrawerOpen && usesMobilePresentation() && state?.running && !state?.paused && !state?.ended && !document.hidden),
+    render: () => performanceMonitor.measure("chart", () => renderMobileTelemetryCharts(currentTelemetryProjection()))
+  });
   const runtime = createFixedStepRuntime();
   let animationFrameId = 0;
   const engine = createGravityFleetEngine({
@@ -287,34 +293,12 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     return hit && dist(point, hit) <= hit.radius + 44 ? planetDisplayName(hit) : "Open space";
   }
 
-  // Older local runs only recorded a combined portal count and per-ship wormhole uses.
-  // Keep those records readable while new runs make the two measures explicit.
-  function playerPortalCount(run) {
-    if (Number.isFinite(run?.playerWormholesCreated)) return run.playerWormholesCreated;
-    return Math.max(0, (run?.wormholesCreated || 0) - (run?.aiWormholesCreated || 0));
-  }
-
-  function aiPortalCount(run) {
-    if (Number.isFinite(run?.aiWormholesCreated)) return run.aiWormholesCreated;
-    return 0;
-  }
-
-  function shipTransitCount(run) {
-    return run?.shipTransits ?? run?.wormholeUses ?? 0;
-  }
-
   function strongestMatchSignal(run = completedRun) {
-    if (!run) return "Telemetry captured";
-    const signals = [
-      [run.largestLaunch > 0, `Largest launch: ${run.largestLaunch} ships`],
-      [run.peakFleetAdvantage > 0, `Peak fleet advantage: +${run.peakFleetAdvantage} ships`],
-      [run.planetsCaptured > 0, `Planets captured: ${run.planetsCaptured}`],
-      [run.shipsDestroyed > 0, `Ships destroyed: ${run.shipsDestroyed}`],
-      [shipTransitCount(run) > 0, `Ship transits: ${shipTransitCount(run)}`],
-      [playerPortalCount(run) > 0, `Cyan portals deployed: ${playerPortalCount(run)}`],
-      [run.deepSpaceCombats > 0, `Deep-space fights: ${run.deepSpaceCombats}`]
-    ];
-    return signals.find(([ok]) => ok)?.[1] || "Telemetry captured for review";
+    const highlights = run ? createTelemetryProjection({ run }).outcome?.highlights || [] : [];
+    const strongest = ["largestLaunch", "peakAdvantage", "captures", "destroyed", "transits", "wormholes"]
+      .map(key => highlights.find(highlight => highlight.key === key))
+      .find(highlight => Number(highlight?.value) > 0);
+    return strongest ? `${strongest.label}: ${strongest.value}` : "Telemetry captured for review";
   }
 
   function liveDockContext(c = counts()) {
@@ -370,10 +354,11 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     if (ui.reset) ui.reset.disabled = mode !== "live" || state.paused;
     if (ui.worm) ui.worm.disabled = mode !== "live" || state.paused;
     const run = completedRun;
-    setText(ui.dockPostOutcome, run ? `${run.outcome} - ${run.levelName}` : "Match complete");
-    setText(ui.dockPostLevel, run ? `Level ${run.levelId} - ${run.levelName}` : `Level ${level.id} - ${level.name}`);
-    setText(ui.dockPostScore, run?.score ?? state?.outcomeScore ?? 0);
-    setText(ui.dockPostDuration, fmt(run?.durationSeconds ?? state?.elapsed ?? 0));
+    const post = run ? currentTelemetryProjection(null, run).outcome.result : null;
+    setText(ui.dockPostOutcome, post ? `${post.outcome} - ${post.levelName}` : "Match complete");
+    setText(ui.dockPostLevel, post ? `Level ${post.levelId} - ${post.levelName}` : `Level ${level.id} - ${level.name}`);
+    setText(ui.dockPostScore, post?.score ?? state?.outcomeScore ?? 0);
+    setText(ui.dockPostDuration, post?.durationLabel ?? fmt(state?.elapsed ?? 0));
     setText(ui.dockPostSignal, strongestMatchSignal(run));
   }
 
@@ -386,6 +371,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   function closeMobileTelemetryDrawer({ restoreFocus = false } = {}) {
     if (!mobileDrawerOpen && ui.mobileTelemetryDrawer?.hidden) return;
     mobileDrawerOpen = false;
+    mobileChartScheduler.close();
     if (ui.mobileTelemetryDrawer) ui.mobileTelemetryDrawer.hidden = true;
     if (ui.mobileDrawerBackdrop) ui.mobileDrawerBackdrop.hidden = true;
     ui.mobileTelemetryToggle?.setAttribute("aria-expanded", "false");
@@ -414,6 +400,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     document.body.classList.add("gravity-mobile-drawer-open");
     resetRuntimeTiming();
     updateMobileHud(counts(), true);
+    mobileChartScheduler.open();
     ui.mobileTelemetryClose?.focus({ preventScroll: true });
   }
 
@@ -616,7 +603,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
       ui.mobilePause.setAttribute("aria-pressed", String(Boolean(state?.paused)));
       ui.mobilePause.setAttribute("aria-label", state?.paused ? "Resume match" : "Pause match");
     }
-    setText(ui.mobileDrawerPause, state.paused ? "Resume match" : "Pause match");
+    setText(ui.mobileDrawerPause, state.paused ? "Resume match" : "Close telemetry");
     engine.setPlayerWormholeLifespan(active && usesModernMobileShell() ? WORMHOLE_LIFESPAN_PROFILES.mobileTactical : WORMHOLE_LIFESPAN_PROFILES.desktopClassic);
     if (!active || state?.ended) closeMobileTelemetryDrawer();
     mobileHudSignature = "";
@@ -769,19 +756,22 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
 
   function updateMobileHud(c = counts(), force = false) {
     if (!ui.mobileHud || !usesMobilePresentation()) return;
-    const star = state.planets.find(planet => planet.isStar);
+    const telemetry = currentTelemetryProjection(c);
     const activeWormhole = playerWormholes()[0];
-    const signature = [Math.floor(state.elapsed), state.paused ? 1 : 0, c.playerShips, c.playerPlanets, c.rivalPlanets, c.travelingShips, c.enemyPlanets, c.enemyShips, c.orangePlanets, c.orangeShips, star?.owner, state.largestLaunch, state.deepSpaceCombats, state.shipTransits, wormMode, state.launcher?.selectedShipIds?.length || 0, activeWormhole?.phase, activeWormhole?.remainingSeconds?.toFixed(1), state.events[0]?.message].join("|");
+    const cyan = telemetry.factions.player;
+    const red = telemetry.factions.enemy;
+    const orange = telemetry.factions.orange;
+    const signature = [Math.floor(telemetry.timer.seconds), telemetry.status.paused ? 1 : 0, cyan.ships, cyan.worlds, telemetry.rivals.worlds, telemetry.metrics.inFlight, red.worlds, red.ships, orange.worlds, orange.ships, telemetry.metrics.starOwner, telemetry.metrics.largestLaunch, telemetry.metrics.deepSpaceCombats, telemetry.metrics.shipTransits, telemetry.status.commandMode, state.launcher?.selectedShipIds?.length || 0, activeWormhole?.phase, activeWormhole?.remainingSeconds?.toFixed(1), telemetry.status.latestEvent?.message].join("|");
     if (!force && signature === mobileHudSignature) return;
     mobileHudSignature = signature;
-    setText(ui.mobileHudLevel, `Level ${state.levelId} - ${state.levelName}`);
-    setText(ui.mobileHudTimer, fmt(state.elapsed));
-    setText(ui.mobileHudShips, c.playerShips);
-    setText(ui.mobileHudWorlds, c.playerPlanets);
-    setText(ui.mobileHudRivals, c.enemyPlanets);
-    setText(ui.mobileHudRedShips, c.enemyShips);
-    setText(ui.mobileHudOrangeShips, c.orangeShips);
-    setText(ui.mobileHudOrangeWorlds, c.orangePlanets);
+    setText(ui.mobileHudLevel, `Level ${telemetry.level.id} - ${telemetry.level.name}`);
+    setText(ui.mobileHudTimer, telemetry.timer.label);
+    setText(ui.mobileHudShips, cyan.ships);
+    setText(ui.mobileHudWorlds, cyan.worlds);
+    setText(ui.mobileHudRivals, telemetry.rivals.worlds);
+    setText(ui.mobileHudRedShips, red.ships);
+    setText(ui.mobileHudOrangeShips, orange.ships);
+    setText(ui.mobileHudOrangeWorlds, orange.worlds);
     setText(ui.mobileHudStatus, mobileInputStatus());
     if (ui.mobilePause) {
       ui.mobilePause.setAttribute("aria-pressed", String(Boolean(state.paused)));
@@ -790,15 +780,18 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     }
     ui.mobileModes.forEach(button => { button.disabled = Boolean(state.paused); });
     if (ui.mobileClearWormhole) ui.mobileClearWormhole.disabled = Boolean(state.paused || !activeWormhole);
-    setText(ui.mobileDrawerRed, `${c.enemyPlanets} worlds · ${c.enemyShips} ships`);
-    setText(ui.mobileDrawerOrange, `${c.orangePlanets} worlds · ${c.orangeShips} ships`);
-    setText(ui.mobileDrawerStar, star ? teamLabel(star.owner) : "Neutral");
-    setText(ui.mobileDrawerLaunch, `${state.largestLaunch} ships`);
-    setText(ui.mobileDrawerFights, state.deepSpaceCombats);
-    setText(ui.mobileDrawerTransits, state.shipTransits);
-    if (ui.mobileDrawerEvents) ui.mobileDrawerEvents.innerHTML = state.events.length
-      ? state.events.slice(0, 5).map(event => `<li>${event.t}s · ${event.message}</li>`).join("")
-      : "<li>Telemetry will appear after launch.</li>";
+    setText(ui.mobileDrawerStar, telemetry.metrics.starOwnerLabel);
+    setText(ui.mobileDrawerLaunch, `${telemetry.metrics.largestLaunch} ships`);
+    setText(ui.mobileDrawerInFlight, `${telemetry.metrics.inFlight ?? 0} ships`);
+    setText(ui.mobileDrawerFights, telemetry.metrics.deepSpaceCombats);
+    setText(ui.mobileDrawerTransits, telemetry.metrics.shipTransits);
+    setText(ui.mobileDrawerWormholes, `${telemetry.metrics.playerWormholesCreated} Cyan · ${telemetry.metrics.aiWormholesCreated} AI`);
+    setText(ui.mobileDrawerLatest, telemetry.status.latestEvent
+      ? `Latest: ${telemetry.status.latestEvent.t}s · ${telemetry.status.latestEvent.message}`
+      : "Latest: telemetry will appear after launch.");
+    if (ui.mobileSystemLegend) ui.mobileSystemLegend.innerHTML = telemetry.systemMix.legend
+      .map(item => `<span class="legend-${item.key}"><b>${item.label}</b> ${item.percent}%</span>`)
+      .join("");
   }
 
   function focusableModalControls(element) {
@@ -937,18 +930,23 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
 
   function showOutcomeOverlay(run) {
     completedRun = run;
+    const telemetry = currentTelemetryProjection(null, run);
+    const outcome = telemetry.outcome;
+    const highlights = Object.fromEntries(outcome.highlights.map(item => [item.key, item.value]));
     deactivateModal(ui.overlay);
     deactivateModal(ui.tutorial);
-    const won = run.outcome === "Victory";
+    const won = outcome.result.outcome === "Victory";
     if (ui.outcomeTitle) ui.outcomeTitle.textContent = won ? "System claimed" : "Fleet lost";
-    if (ui.outcomeSummary) ui.outcomeSummary.textContent = `${won ? "Victory" : "Defeat"} on Level ${run.levelId} - ${run.levelName}. Choose your next step.`;
-    if (ui.outcomeLevel) ui.outcomeLevel.textContent = `Level ${run.levelId} - ${run.levelName}`;
-    if (ui.outcomeScore) ui.outcomeScore.textContent = run.score;
-    if (ui.outcomeDuration) ui.outcomeDuration.textContent = fmt(run.durationSeconds);
-    setText(ui.outcomeCaptures, run.planetsCaptured || 0);
-    setText(ui.outcomeLargestLaunch, `${run.largestLaunch || 0} ships`);
-    setText(ui.outcomeDestroyed, run.shipsDestroyed || 0);
-    setText(ui.outcomeTransits, shipTransitCount(run));
+    if (ui.outcomeSummary) ui.outcomeSummary.textContent = `Level ${outcome.result.levelId} - ${outcome.result.levelName} complete. Choose your next step.`;
+    setText(ui.outcomeResult, outcome.result.outcome);
+    setText(ui.outcomeScore, outcome.result.score);
+    setText(ui.outcomeDuration, outcome.result.durationLabel);
+    setText(ui.outcomeCaptures, highlights.captures);
+    setText(ui.outcomeLargestLaunch, highlights.largestLaunch);
+    setText(ui.outcomeDestroyed, highlights.destroyed);
+    setText(ui.outcomeTransits, highlights.transits);
+    setText(ui.outcomeWormholes, highlights.wormholes);
+    setText(ui.outcomePeakAdvantage, highlights.peakAdvantage > 0 ? `+${highlights.peakAdvantage}` : highlights.peakAdvantage);
     setText(ui.outcomeSignal, strongestMatchSignal(run));
     syncMobilePresentation();
     activateModal(ui.outcome, ui.viewAnalysis, canvas);
@@ -1194,18 +1192,19 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
 
 
   function updateHud(c = counts(), force = false) {
+    const telemetry = currentTelemetryProjection(c);
     const playerWormhole = playerWormholes()[0];
     const wormStatus = playerWormhole ? `Cyan Active · Entry ${playerWormhole.aEntryEnabled ? "A" : "-"}/${playerWormhole.bEntryEnabled ? "B" : "-"}` : "Ready";
-    const signature = [Math.floor(state.elapsed), ...contestTeamKeys.flatMap(key => [c.teams[key]?.planets || 0, c.teams[key]?.ships || 0]), c.neutralPlanets, wormStatus].join("|");
+    const signature = [Math.floor(telemetry.timer.seconds), ...contestTeamKeys.flatMap(key => [telemetry.factions[key].worlds, telemetry.factions[key].ships]), telemetry.factions.neutral.worlds, wormStatus].join("|");
     if (force || signature !== state.lastHudSignature) {
       state.lastHudSignature = signature;
       const teamRows = contestTeamKeys.map(key => {
-        const team = c.teams[key] || { planets: 0, ships: 0 };
-        return `<div class="faction-row faction-${key}" style="--team-color:${colors[key]}"><span class="team-dot" aria-hidden="true"></span><strong>${teamMeta[key].label}</strong><span><b>${team.planets}</b> planets</span><span><b>${team.ships}</b> ships</span></div>`;
+        const team = telemetry.factions[key];
+        return `<div class="faction-row faction-${key}" style="--team-color:${colors[key]}"><span class="team-dot" aria-hidden="true"></span><strong>${team.label}</strong><span><b>${team.worlds}</b> planets</span><span><b>${team.ships}</b> ships</span></div>`;
       }).join("");
-      const utility = `<div class="utility-row"><span>Neutral bodies <b>${c.neutralPlanets}</b></span><span>Wormhole <b>${wormStatus}</b></span></div>`;
+      const utility = `<div class="utility-row"><span>Neutral bodies <b>${telemetry.factions.neutral.worlds}</b></span><span>Wormhole <b>${wormStatus}</b></span></div>`;
       ui.readout.innerHTML = `${teamRows}${utility}`;
-      setText(ui.timer, fmt(state.elapsed));
+      setText(ui.timer, telemetry.timer.label);
     }
     updateCommandDock(c);
     updateMobileHud(c, force);
@@ -1390,6 +1389,15 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
 
   function addEvent(message) { engine.addEvent(message); }
   function counts() { return engine.counts(); }
+
+  function currentTelemetryProjection(c = counts(), run = null) {
+    return createTelemetryProjection({
+      state: run ? null : state,
+      counts: run ? null : c,
+      run,
+      commandMode: wormMode ? "Wormhole" : "Launch"
+    });
+  }
   function teamLabel(key) { return teamMeta[key]?.label || key; }
   function playerWormholes() { return state.wormholes.filter(wormhole => wormhole.owner === "player"); }
 
@@ -1510,6 +1518,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     if (!run || completedRun === run) return;
     completedRun = run;
     writeSavedRun(localStorage, run);
+    mobileChartScheduler.final();
     performanceMonitor.measure("chart", () => { ensureDashboardRendered(run); updateLiveTelemetry(counts(), true); });
     updateTelemetryBadgeVisibility();
     updateCommandDock();
@@ -1529,12 +1538,14 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
       state = engine.state;
       resetRuntimeTiming(true);
       scheduleLiveTelemetryUpdate();
+      mobileChartScheduler.sync({ renderImmediately: true });
       announceMobileFeedback("Match resumed.");
     } else {
       engine.command("pause");
       state = engine.state;
       window.clearTimeout(liveTelemetryTimer);
       liveTelemetryTimer = 0;
+      mobileChartScheduler.sync();
       resetRuntimeTiming(true);
       announceMobileFeedback("Match paused. Simulation and telemetry are frozen.");
     }
@@ -1912,36 +1923,38 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     x.fillText(`${Math.round((leading?.value || 0) / totalPlanets * 100)}%`, cx, cy + 11);
   }
 
-  function liveTelemetrySignature(c) {
-    const lastShipSnapshot = state.shipCountTimeline.at(-1) || {};
-    const recentLaunch = state.launchEvents.at(-1) || {};
-    const star = state.planets.find(p => p.isStar);
+  function liveTelemetrySignature(telemetry) {
+    const lastShipSnapshot = telemetry.charts.fleetStrength.at(-1) || {};
+    const recentLaunch = telemetry.charts.launches.at(-1) || {};
     return JSON.stringify([
-      ...activeTeamKeys.flatMap(key => [c.teams[key]?.planets || 0, c.teams[key]?.ships || 0]),
-      c.travelingShips, state.deepSpaceCombats, state.wormholesCreated, state.playerWormholesCreated, state.aiWormholesCreated, state.shipTransits, state.largestLaunch,
-      state.shipCountTimeline.length, ...contestTeamKeys.map(key => lastShipSnapshot[key] || 0),
-      state.launchEvents.length, recentLaunch.team || "", recentLaunch.ships || 0,
-      star?.owner || "neutral", state.elapsed < state.liveSpikeUntil
+      ...activeTeamKeys.flatMap(key => [telemetry.factions[key]?.worlds || 0, telemetry.factions[key]?.ships || 0]),
+      telemetry.metrics.inFlight, telemetry.metrics.deepSpaceCombats, telemetry.metrics.wormholesCreated, telemetry.metrics.playerWormholesCreated, telemetry.metrics.aiWormholesCreated, telemetry.metrics.shipTransits, telemetry.metrics.largestLaunch,
+      telemetry.charts.fleetStrength.length, ...contestTeamKeys.map(key => lastShipSnapshot[key] || 0),
+      telemetry.charts.launches.length, recentLaunch.team || "", recentLaunch.ships || 0,
+      telemetry.metrics.starOwner, state.elapsed < state.liveSpikeUntil
     ]);
   }
 
+  function renderMobileTelemetryCharts(telemetry) {
+    if (!telemetry) return;
+    lineChart(ui.mobileFleetChart, telemetry.charts.fleetStrength.slice(-40), contestTeamKeys, 8);
+    donutChart(ui.mobileSystemDonut, telemetry.systemMix.planets, telemetry.systemMix.ships, contestTeamKeys);
+  }
+
   function updateLiveTelemetry(c = counts(), force = false) {
-    const signature = liveTelemetrySignature(c);
+    const telemetry = currentTelemetryProjection(c);
+    const signature = liveTelemetrySignature(telemetry);
     if (!force && signature === state.lastLiveSignature) return false;
     state.lastLiveSignature = signature;
-    const deferCharts = !presentationProfile().chartsDuringMatch && state.running && !state.ended && !state.dashboardRendered;
-    if (!deferCharts) {
-      const keys = contestTeamKeys;
-      lineChart(ui.liveFleetChart, state.shipCountTimeline.slice(-40), keys, 8);
-      barChart(ui.liveLaunchChart, state.launchEvents, keys);
-      donutChart(ui.liveSystemDonut, Object.fromEntries(activeTeamKeys.map(key => [key, c.teams[key]?.planets || 0])), Object.fromEntries(contestTeamKeys.map(key => [key, c.teams[key]?.ships || 0])), activeTeamKeys);
+    const drawDesktopCharts = !usesMobilePresentation() || state.ended || state.dashboardRendered;
+    if (drawDesktopCharts) {
+      lineChart(ui.liveFleetChart, telemetry.charts.fleetStrength.slice(-40), contestTeamKeys, 8);
+      barChart(ui.liveLaunchChart, telemetry.charts.launches, contestTeamKeys);
+      donutChart(ui.liveSystemDonut, telemetry.systemMix.planets, telemetry.systemMix.ships, activeTeamKeys);
     }
-    const recentPlayerLaunch = [...state.launchEvents].reverse().find(e => e.team === "player")?.ships || 0;
-    const star = state.planets.find(p => p.isStar);
-    const starOwnerLabel = star ? teamLabel(star.owner) : "Neutral";
     if (ui.pressure) ui.pressure.innerHTML = [
-      ["In flight", c.travelingShips], ["Last launch", recentPlayerLaunch], ["Fights", state.deepSpaceCombats],
-      ["Star", starOwnerLabel], ["Portals deployed", `${state.wormholesCreated} total · ${state.playerWormholesCreated} Cyan / ${state.aiWormholesCreated} AI`], ["Ship transits", state.shipTransits], ["Max wave", state.largestLaunch]
+      ["In flight", telemetry.metrics.inFlight ?? 0], ["Last launch", telemetry.metrics.lastPlayerLaunch], ["Fights", telemetry.metrics.deepSpaceCombats],
+      ["Star", telemetry.metrics.starOwnerLabel], ["Portals deployed", `${telemetry.metrics.wormholesCreated} total · ${telemetry.metrics.playerWormholesCreated} Cyan / ${telemetry.metrics.aiWormholesCreated} AI`], ["Ship transits", telemetry.metrics.shipTransits], ["Max wave", telemetry.metrics.largestLaunch]
     ].map(([label, value]) => `<div class="pressure-chip"><span>${label}</span><strong>${value}</strong></div>`).join("");
     if (ui.liveTelemetry) ui.liveTelemetry.classList.toggle("spike", state.elapsed < state.liveSpikeUntil);
     if (ui.launchPulse && state.elapsed >= state.liveSpikeUntil) ui.launchPulse.textContent = state.ended ? "Recorded" : "Streaming";
@@ -1957,78 +1970,6 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
       if (!document.hidden && state?.running && !state.ended) performanceMonitor.measure("chart", updateLiveTelemetry);
       scheduleLiveTelemetryUpdate();
     }, interval);
-  }
-
-  function captureLabel(planetId) {
-    return planetId === "star" ? "the central star" : String(planetId || "unknown body").toUpperCase();
-  }
-
-  function largestRecordedTurningPoint(run) {
-    const ships = Array.isArray(run.shipCountTimeline) ? run.shipCountTimeline : [];
-    const ownership = Array.isArray(run.ownershipTimeline) ? run.ownershipTimeline : [];
-    let largest = null;
-    for (let index = 1; index < Math.min(ships.length, ownership.length); index++) {
-      const previousFleetMargin = (ships[index - 1].player || 0) - Math.max(ships[index - 1].enemy || 0, ships[index - 1].orange || 0);
-      const fleetMargin = (ships[index].player || 0) - Math.max(ships[index].enemy || 0, ships[index].orange || 0);
-      const previousOwnershipMargin = (ownership[index - 1].player || 0) - ((ownership[index - 1].enemy || 0) + (ownership[index - 1].orange || 0));
-      const ownershipMargin = (ownership[index].player || 0) - ((ownership[index].enemy || 0) + (ownership[index].orange || 0));
-      const fleetDelta = fleetMargin - previousFleetMargin;
-      const ownershipDelta = ownershipMargin - previousOwnershipMargin;
-      const magnitude = Math.abs(fleetDelta) + Math.abs(ownershipDelta) * 12;
-      if (!largest || magnitude > largest.magnitude) largest = { t: ships[index].t, fleetDelta, ownershipDelta, magnitude };
-    }
-    if (!largest?.magnitude) return "Turning point: the sampled fleet and ownership margins stayed nearly level throughout the run.";
-    const direction = largest.fleetDelta >= 0 ? "improved" : "fell";
-    const ownershipNote = largest.ownershipDelta
-      ? `; the ownership margin ${largest.ownershipDelta > 0 ? "improved" : "fell"} by ${Math.abs(largest.ownershipDelta)}`
-      : "";
-    return `Largest recorded swing: near ${fmt(largest.t)}, Cyan's fleet margin ${direction} by ${Math.abs(largest.fleetDelta)} ships between telemetry samples${ownershipNote}.`;
-  }
-
-  function replaySuggestion(run) {
-    const playerCaptures = (run.captures || []).filter(capture => capture.owner === "player");
-    const capturedStar = playerCaptures.some(capture => capture.planet === "star");
-    if (run.levelId === 2) {
-      return shipTransitCount(run)
-        ? "Replay idea for Wide Periapsis: place the first wormhole toward an outer neutral route, then compare whether the first Cyan capture arrives sooner."
-        : "Replay idea for Wide Periapsis: test one early wormhole toward a distant neutral body and compare the opening capture time with this run.";
-    }
-    if (run.levelId === 3) {
-      return run.shipsLost > run.shipsDestroyed
-        ? "Replay idea for Broken Helix: consolidate the first two gains before committing across another long lane, then compare the ship-loss exchange."
-        : "Replay idea for Broken Helix: protect the stronger exchange by staging the next push from two nearby Cyan planets instead of one long route.";
-    }
-    return capturedStar
-      ? "Replay idea for First Orbit: repeat the central-star capture, then test a smaller follow-up wave to see whether Cyan retains more ships."
-      : "Replay idea for First Orbit: secure a nearby neutral body first, then contest the central star and compare the opening capture time.";
-  }
-
-  function buildRunInsights(run) {
-    const captures = (run.captures || []).filter(capture => capture.owner === "player").sort((a, b) => a.t - b.t);
-    const playerLaunches = (run.launchEventLog || []).filter(event => event.team === "player").sort((a, b) => a.t - b.t);
-    const firstCapture = captures[0];
-    const firstLaunch = playerLaunches[0];
-    const opening = firstCapture
-      ? `Opening pace: Cyan's first capture was ${captureLabel(firstCapture.planet)} at ${fmt(firstCapture.t)}, after ${playerLaunches.filter(event => event.t <= firstCapture.t).length} recorded launch actions.`
-      : firstLaunch
-        ? `Opening pace: the first Cyan launch was recorded at ${fmt(firstLaunch.t)}, but no Cyan capture followed before the match ended.`
-        : "Opening pace: no Cyan launch or capture was recorded before the match ended.";
-    const exchangeRecord = run.shipsLost
-      ? `${run.shipsDestroyed || 0} ships destroyed for ${run.shipsLost} lost (${(run.shipsDestroyed / run.shipsLost).toFixed(2)} exchange ratio)`
-      : `${run.shipsDestroyed || 0} ships destroyed with no Cyan losses recorded`;
-    const efficiency = `Fleet efficiency: ${exchangeRecord}, with an average Cyan launch of ${run.averageLaunchSize || 0} ships.`;
-    const sequence = captures.length
-      ? `Capture sequence: ${captures.slice(0, 4).map(capture => `${captureLabel(capture.planet)} at ${fmt(capture.t)}`).join(", ")}${captures.length > 4 ? `, plus ${captures.length - 4} later capture${captures.length - 4 === 1 ? "" : "s"}` : ""}.`
-      : "Capture sequence: Cyan recorded no completed captures in this run.";
-    const combat = `Combat record: ${run.deepSpaceCombats || 0} deep-space fights, ${run.blasterHits || 0} blaster hits, and ${run.enemyMajorLaunches || 0} major AI assaults were recorded; the final outcome was ${run.outcome}.`;
-    const playerPortals = playerPortalCount(run);
-    const aiPortals = aiPortalCount(run);
-    const transits = shipTransitCount(run);
-    const portalDetail = `${playerPortals} Cyan portal${playerPortals === 1 ? "" : "s"} deployed${aiPortals ? ` and ${aiPortals} AI portal${aiPortals === 1 ? "" : "s"} deployed` : ""}`;
-    const wormholes = transits
-      ? `Wormhole telemetry: ${portalDetail}; ${transits} ship transit${transits === 1 ? "" : "s"} and ${run.wormholePulls || 0} ship pulls were recorded.`
-      : `Wormhole telemetry: ${portalDetail}; no ship transits were recorded.`;
-    return [opening, efficiency, sequence, combat, wormholes, largestRecordedTurningPoint(run), replaySuggestion(run)];
   }
 
   function escapeHtml(value) {
@@ -2050,11 +1991,12 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   }
 
   function runFacts(run) {
+    const result = createTelemetryProjection({ run }).outcome.result;
     return [
-      ["Level", run.levelName || `Level ${run.levelId || "?"}`],
-      ["Outcome", run.outcome || "Unknown"],
-      ["Score", run.score ?? 0],
-      ["Duration", fmt(run.durationSeconds || 0)],
+      ["Level", result.levelName],
+      ["Outcome", result.outcome],
+      ["Score", result.score],
+      ["Duration", result.durationLabel],
       ["Time", formatRunTimestamp(run.endedAt)]
     ];
   }
@@ -2235,22 +2177,30 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
   }
 
   async function renderDashboard(run) {
+    const telemetry = createTelemetryProjection({ run });
+    const analytics = telemetry.outcome;
     ui.empty.hidden = true;
     ui.dashboard.hidden = false;
-    ui.kpis.innerHTML = [
-      ["Level", run.levelName || "Classic"], ["Outcome", run.outcome], ["Final score", run.score], ["Duration", fmt(run.durationSeconds)], ["Planets captured", run.planetsCaptured],
-      ["Launch actions", run.launchEvents], ["Largest launch", run.largestLaunch || 0], ["Avg launch", run.averageLaunchSize], ["Peak advantage", run.peakFleetAdvantage || 0], ["Ships destroyed", run.shipsDestroyed], ["Deep-space fights", run.deepSpaceCombats], ["Cyan portals deployed", playerPortalCount(run)], ["AI portals deployed", aiPortalCount(run)], ["Ship transits", shipTransitCount(run)]
-    ].map(([a, b]) => `<article class="kpi-card"><span>${a}</span><strong>${b}</strong></article>`).join("");
-    lineChart(ui.shipChart, run.shipCountTimeline || [], contestTeamKeys);
-    lineChart(ui.ownerChart, run.ownershipTimeline || [], activeTeamKeys);
+    if (ui.analyticsResultStrip) ui.analyticsResultStrip.innerHTML = [
+      ["Outcome", analytics.result.outcome],
+      ["Score", analytics.result.score],
+      ["Duration", analytics.result.durationLabel]
+    ].map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join("");
+    if (ui.analyticsHighlights) ui.analyticsHighlights.innerHTML = analytics.highlights
+      .map(item => `<article><span>${item.label}</span><strong>${item.key === "peakAdvantage" && item.value > 0 ? "+" : ""}${item.value}</strong></article>`)
+      .join("");
+    ui.kpis.innerHTML = analytics.allStatistics
+      .map(item => `<article class="kpi-card"><span>${item.label}</span><strong>${item.value}</strong></article>`)
+      .join("");
+    if (ui.analyticsAllStatistics) ui.analyticsAllStatistics.open = !usesMobilePresentation();
+    setText(ui.analyticsTurningPoint, analytics.turningPoint);
+    setText(ui.analyticsRunInsight, analytics.runInsight);
+    lineChart(ui.shipChart, telemetry.charts.fleetStrength, contestTeamKeys);
+    lineChart(ui.ownerChart, telemetry.charts.systemControl, activeTeamKeys);
     drawRunHeatmap(run);
-    const matchEvents = [
-      ...(run.captures || []).map(c => ({ t: c.t, label: `${teamMeta[c.owner]?.label || c.owner} capture`, detail: c.planet })),
-      ...(run.launchEventLog || []).filter(e => e.major || e.team === "player").map(e => ({ t: e.t, label: `${teamMeta[e.team]?.label || e.team} launch`, detail: `${e.ships} ships${e.targetPlanetId ? ` → ${e.targetPlanetId}` : ""}` })),
-      ...(run.wormholeEvents || []).map(event => ({ t: event.t, label: `${teamMeta[event.owner]?.label || event.owner} portal deployed`, detail: "one-way wormhole stabilized" }))
-    ].sort((a, b) => a.t - b.t).slice(0, 12);
+    const matchEvents = analytics.events.slice(0, 12);
     ui.captures.innerHTML = (matchEvents.length ? matchEvents : [{ t: 0, label: "No major events", detail: "Keep pressuring the map" }]).map((e, i) => `<div class="board-row"><span>${i + 1}</span><strong>${e.label}</strong><span>${e.t}s · ${e.detail}</span></div>`).join("");
-    ui.insights.innerHTML = buildRunInsights(run).map(insight => `<li>${insight}</li>`).join("");
+    ui.insights.innerHTML = analytics.insights.map(insight => `<li>${insight}</li>`).join("");
     renderRecentRuns(dashboardRunId);
     const samples = await loadBenchmarkRuns();
     if (dashboardRunId !== runIdentity(run)) return;
@@ -2915,7 +2865,10 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     performanceMonitor.measure("canvasDraw", draw);
   });
   ui.mobileTelemetryClose?.addEventListener("click", () => closeMobileTelemetryDrawer({ restoreFocus: true }));
-  ui.mobileDrawerPause?.addEventListener("click", toggleMobilePause);
+  ui.mobileDrawerPause?.addEventListener("click", () => {
+    if (state.paused) toggleMobilePause();
+    closeMobileTelemetryDrawer({ restoreFocus: true });
+  });
   ui.mobileTelemetryDrawer?.addEventListener("keydown", event => {
     if (event.key !== "Tab" || !mobileDrawerOpen) return;
     const controls = focusableModalControls(ui.mobileTelemetryDrawer);
@@ -2979,6 +2932,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
       animationFrameId = 0;
       window.clearTimeout(liveTelemetryTimer);
       liveTelemetryTimer = 0;
+      mobileChartScheduler.sync();
       runtime.reset();
       return;
     }
@@ -2986,6 +2940,7 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     frameWindowStartedAt = performance.now();
     frameWindowCount = 0;
     scheduleLiveTelemetryUpdate();
+    mobileChartScheduler.sync({ renderImmediately: mobileDrawerOpen });
     scheduleAnimationFrame();
   });
 
