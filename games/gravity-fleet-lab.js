@@ -1697,7 +1697,9 @@ import { CAMERA_ORIENTATIONS, createGravityFleetCamera } from "./gravity-fleet/c
     const { sceneCtx, width, height } = setupTutorialCanvas(canvas);
     clearTutorialScene(sceneCtx, width, height);
     const planet = { x: width * .2, y: height * .52 };
-    const field = { x: width * .58, y: height * .53 };
+    const field = usesMobilePresentation()
+      ? { ...planet }
+      : { x: width * .58, y: height * .53 };
     const target = { x: width * .82, y: height * .31 };
     const cycle = 5.2;
     const progress = reduced ? .48 : (time % cycle) / cycle;
