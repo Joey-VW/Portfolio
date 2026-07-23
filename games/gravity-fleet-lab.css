@@ -288,7 +288,13 @@ button.run-card { cursor: pointer; }
   .mobile-drawer-fleet canvas { display: block; width: 100%; height: clamp(8rem, 22vh, 11rem); margin-top: .4rem; border-radius: 10px; background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(0,0,0,.12)); }
   .mobile-drawer-secondary { display: grid; grid-template-columns: minmax(8.5rem, .72fr) minmax(0, 1.28fr); gap: .55rem; }
   .mobile-drawer-system { display: grid; grid-template-rows: auto minmax(6.5rem, 1fr) auto; align-items: center; }
-  .mobile-drawer-system canvas { display: block; width: 100%; max-width: 11rem; height: 8rem; justify-self: center; }
+  .mobile-drawer-system canvas {
+    display: block;
+    width: min(100%, 9rem);
+    height: auto;
+    aspect-ratio: 1;
+    justify-self: center;
+  }
   .mobile-system-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem .5rem; color: var(--muted); font-size: .52rem; }
   .mobile-system-legend span::before { content: ""; display: inline-block; width: .42rem; height: .42rem; margin-right: .22rem; border-radius: 999px; background: currentColor; }
   .mobile-system-legend .legend-player { color: #6ff8ff; }
@@ -450,7 +456,7 @@ html[data-gravity-input="hybrid"] .coarse-pointer-copy { display: block; }
   .gravity-mobile-shell-modern .mobile-telemetry-drawer:not([hidden]) { top: 0; right: 0; bottom: 0; left: auto; width: min(31rem, 68%); max-height: none; border-top: 0; border-right: 0; border-bottom: 0; border-radius: 20px 0 0 20px; }
   .gravity-mobile-shell-modern .mobile-drawer-fleet canvas { height: 7.4rem; }
   .gravity-mobile-shell-modern .mobile-drawer-secondary { grid-template-columns: minmax(7.2rem, .62fr) minmax(0, 1.38fr); }
-  .gravity-mobile-shell-modern .mobile-drawer-system canvas { height: 6.5rem; }
+  .gravity-mobile-shell-modern .mobile-drawer-system canvas { height: auto; }
   .gravity-mobile-shell-modern .mobile-drawer-actions { grid-template-columns: 1.25fr repeat(2, minmax(0, 1fr)); }
   .gravity-mobile-shell-modern .mobile-drawer-actions .mobile-drawer-primary-action { grid-column: auto; }
 }
@@ -463,7 +469,7 @@ html[data-gravity-input="hybrid"] .coarse-pointer-copy { display: block; }
   .mobile-drawer-secondary { grid-template-columns: 1fr; }
   .mobile-drawer-system { grid-template-columns: minmax(7rem, .7fr) minmax(0, 1.3fr); grid-template-rows: auto auto; }
   .mobile-drawer-system h4 { grid-column: 1 / -1; }
-  .mobile-drawer-system canvas { height: 6.5rem; }
+  .mobile-drawer-system canvas { height: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
