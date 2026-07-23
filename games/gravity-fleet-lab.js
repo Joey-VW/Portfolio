@@ -24,7 +24,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   let selectedLevelId = 1;
 
   const ui = {
-    start: document.querySelector("#startMatch"), dockMissionSetup: document.querySelector("#dockMissionSetup"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"), mobileModes: [...document.querySelectorAll("[data-game-mode]")], mobileModeControls: document.querySelector("#mobileModeControls"),
+    start: document.querySelector("#startMatch"), heroPlay: document.querySelector("#heroPlay"), heroAnalytics: document.querySelector("#heroAnalytics"), missionBriefing: document.querySelector("#missionBriefing"), dockMissionSetup: document.querySelector("#dockMissionSetup"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"), mobileModes: [...document.querySelectorAll("[data-game-mode]")], mobileModeControls: document.querySelector("#mobileModeControls"),
     overlay: document.querySelector("#gameStartOverlay"), levelPicker: document.querySelector("#levelPicker"), levelName: document.querySelector("#selectedLevelName"), levelDescription: document.querySelector("#selectedLevelDescription"), levelDifficulty: document.querySelector("#selectedLevelDifficulty"),
     tutorial: document.querySelector("#gameTutorialOverlay"), tutorialGo: document.querySelector("#tutorialGo"),
     outcome: document.querySelector("#gameOutcomeOverlay"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeResult: document.querySelector("#gameOutcomeResult"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"), outcomeCaptures: document.querySelector("#gameOutcomeCaptures"), outcomeLargestLaunch: document.querySelector("#gameOutcomeLargestLaunch"), outcomeDestroyed: document.querySelector("#gameOutcomeDestroyed"), outcomeTransits: document.querySelector("#gameOutcomeTransits"), outcomeWormholes: document.querySelector("#gameOutcomeWormholes"), outcomePeakAdvantage: document.querySelector("#gameOutcomePeakAdvantage"), outcomeSignal: document.querySelector("#gameOutcomeSignal"),
@@ -194,6 +194,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   let staticMapLayer = null;
   let staticMapLayerLevel = null;
   let mobilePresentationDismissed = false;
+  let mobileMatchReturnState = null;
   let mobileShellState = "idle";
   let mobileShellTimer = 0;
   let mobileFeedbackTimer = 0;
@@ -671,6 +672,14 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   }
 
   function beginMobileShell() {
+    if (!mobileMatchReturnState) {
+      mobileMatchReturnState = {
+        scrollX: window.scrollX,
+        scrollY: window.scrollY,
+        focus: document.activeElement instanceof HTMLElement ? document.activeElement : null
+      };
+      history.pushState({ ...(history.state || {}), gravityFleetMatch: true }, "", "#match");
+    }
     portalGameStage();
     setMobileShellStatus("preparing", "Preparing tactical map", "Checking the game surface before entering the mobile match.");
     mobileShellTimer = window.setTimeout(() => rollbackMobileShell("Mobile shell readiness timed out after 2500ms."), 2500);
@@ -1629,6 +1638,21 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     state.acceptingInput = true;
     syncMobilePresentation();
     scrollGameIntoView();
+  }
+
+  function leaveMobileMatch({ restoreReturn = true } = {}) {
+    const returnState = mobileMatchReturnState;
+    window.clearTimeout(mobileShellTimer);
+    setMobileShellStatus("idle", "", "");
+    reset(true);
+    if (history.state?.gravityFleetMatch) history.back();
+    if (!restoreReturn || !returnState) return;
+    mobileMatchReturnState = null;
+    requestAnimationFrame(() => {
+      window.scrollTo({ left: returnState.scrollX, top: returnState.scrollY, behavior: "auto" });
+      const target = returnState.focus?.isConnected ? returnState.focus : ui.start;
+      target?.focus({ preventScroll: true });
+    });
   }
 
   function setupTutorialCanvas(canvas) {
@@ -2876,6 +2900,16 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     (selectedButton || fallback)?.focus({ preventScroll: true });
   }
 
+  ui.heroPlay?.addEventListener("click", event => {
+    event.preventDefault();
+    scrollGameIntoView();
+    ui.start?.focus({ preventScroll: true });
+  });
+  ui.heroAnalytics?.addEventListener("click", event => {
+    event.preventDefault();
+    scrollElementWithOffset(ui.analytics, gravityDevSettings.navigation.matchAnalysisOffset);
+    ui.analyticsTitle?.focus({ preventScroll: true });
+  });
   ui.start.addEventListener("click", startSelectedLevel);
   ui.dockMissionSetup?.addEventListener("click", returnToMissionSetupAction);
   ui.tutorialGo?.addEventListener("click", beginMatch);
@@ -2934,15 +2968,10 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     beginMatch();
   });
   ui.mobileShellReturn?.addEventListener("click", () => {
-    setMobileShellStatus("idle", "", "");
-    reset(true);
-    scrollGameIntoView();
+    leaveMobileMatch();
   });
   ui.mobileMatchExit?.addEventListener("click", () => {
-    window.clearTimeout(mobileShellTimer);
-    setMobileShellStatus("idle", "", "");
-    reset(true);
-    scrollGameIntoView();
+    leaveMobileMatch();
   });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && mobileDrawerOpen) {
@@ -2966,6 +2995,18 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     cancelActiveGesture({ cancelPending: true });
     scheduleCameraViewportUpdate({ cancelGestures: false });
     resetRuntimeTiming(true);
+  });
+  const missionBriefingQuery = window.matchMedia("(min-width: 901px)");
+  const syncMissionBriefing = () => { if (ui.missionBriefing) ui.missionBriefing.open = missionBriefingQuery.matches; };
+  missionBriefingQuery.addEventListener("change", syncMissionBriefing);
+  syncMissionBriefing();
+  window.addEventListener("popstate", event => {
+    if (usesMobilePresentation() && (mobileShellState === "preparing" || mobileShellState === "ready") && !event.state?.gravityFleetMatch) {
+      leaveMobileMatch();
+    } else if (event.state?.gravityFleetMatch && !state?.running) {
+      scrollGameIntoView();
+      ui.start?.focus({ preventScroll: true });
+    }
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {

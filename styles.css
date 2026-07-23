@@ -1907,6 +1907,58 @@ textarea:focus {
 }
 .projects-header-spacer { display: none; }
 
+@media (max-width: 980px) {
+  .topbar:has(.project-context-nav):not(.projects-index-topbar) {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .35rem;
+    padding: .5rem;
+    border-radius: 1.5rem;
+  }
+
+  .topbar:has(.project-context-nav):not(.projects-index-topbar) .brand-mark {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+    min-height: 44px;
+  }
+
+  .topbar:has(.project-context-nav):not(.projects-index-topbar) .brand-copy { display: none; }
+  .topbar:has(.project-context-nav):not(.projects-index-topbar) .project-context-nav { display: contents; }
+
+  .topbar:has(.project-context-nav):not(.projects-index-topbar) .nav-return {
+    grid-column: 1;
+    grid-row: 1;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    font-size: 0;
+  }
+
+  .topbar:has(.project-context-nav):not(.projects-index-topbar) .nav-return svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .topbar:has(.project-context-nav):not(.projects-index-topbar) .project-context-nav > a:not(.nav-return) {
+    grid-column: 3;
+    grid-row: 1;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: .45rem .65rem;
+    font-size: .72rem;
+    white-space: nowrap;
+  }
+}
+
 .nav-return svg {
   width: 1.05rem;
   height: 1.05rem;

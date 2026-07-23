@@ -2,7 +2,11 @@
 .gravity-hero { grid-template-columns: 1.35fr .65fr; align-items: stretch; }
 .lab-brief, .sim-panel, .chart-card, .empty-dashboard { padding: clamp(.9rem, 2vw, 1.25rem); }
 .lab-brief { background: rgba(9, 14, 34, .66); }
-.lab-brief h2, .chart-card h3 { margin-top: 0; }
+.lab-brief summary { display: flex; align-items: center; justify-content: space-between; gap: .75rem; color: var(--text); cursor: pointer; font-size: 1.05rem; font-weight: 900; }
+.lab-brief summary::-webkit-details-marker { display: none; }
+.lab-brief summary span:last-child { color: var(--cyan); transition: transform .18s ease; }
+.lab-brief[open] summary span:last-child { transform: rotate(180deg); }
+.lab-brief ol { margin: 1rem 0 0; }
 .lab-brief li { margin-bottom: .75rem; }
 .lab-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
 .sim-panel { display: grid; gap: .75rem; }
@@ -212,7 +216,8 @@ button.run-card { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .game-outcome-overlay, .game-tutorial-overlay, .tutorial-scene *, .telemetry-status-dot, .back-to-game { animation: none !important; transition: none !important; } .live-telemetry-badge { transition: none !important; } }
 
 @media (max-width: 1180px) { .telemetry-board { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "fleet launch" "mix stats"; } .donut-tile canvas { min-height: 170px; } .pressure-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 900px) { .gravity-hero, .chart-grid, .insight-grid, .analytics-narrative { grid-template-columns: 1fr; } .game-heading-row { align-items: start; flex-direction: column; } .game-control-hint { justify-content: flex-start; text-align: left; } .control-panel.command-dock { grid-template-columns: 1fr; grid-template-areas: "command" "factions" "telemetry" "events"; } .telemetry-board { grid-template-columns: 1fr; grid-template-areas: "fleet" "launch" "mix" "stats"; } .kpi-grid { grid-template-columns: repeat(2, 1fr); } .analytics-highlight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .faction-row { grid-template-columns: auto minmax(4.5rem, 1fr) auto auto; } }
+@media (min-width: 901px) { .lab-brief > summary { display: none; } .lab-brief > ol { display: block; } }
+@media (max-width: 900px) { .gravity-hero, .chart-grid, .insight-grid, .analytics-narrative { grid-template-columns: 1fr; } .gravity-hero { gap: 1rem; } .gravity-hero .hero-summary { display: none; } .gravity-hero .hero-actions { margin-top: 1.1rem; } .gravity-hero-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } .gravity-hero-actions .button { justify-content: center; min-height: 44px; white-space: normal; text-align: center; } .lab-brief { padding: .85rem 1rem; } .lab-brief ol { margin-bottom: 0; } .game-heading-row { align-items: start; flex-direction: column; } .game-control-hint { justify-content: flex-start; text-align: left; } .control-panel.command-dock { grid-template-columns: 1fr; grid-template-areas: "command" "factions" "telemetry" "events"; } .telemetry-board { grid-template-columns: 1fr; grid-template-areas: "fleet" "launch" "mix" "stats"; } .kpi-grid { grid-template-columns: repeat(2, 1fr); } .analytics-highlight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .faction-row { grid-template-columns: auto minmax(4.5rem, 1fr) auto auto; } }
 @media (max-width: 560px) { .kpi-grid, .control-cluster, .command-preflight, .command-live-context, .command-post-summary, .command-post-actions, .pressure-grid { grid-template-columns: 1fr; } .donut-key { flex-direction: column; align-items: center; gap: .15rem; } .faction-row { grid-template-columns: auto 1fr; } .faction-row span:not(.team-dot) { grid-column: 2; } .timer-shell strong { font-size: 1.45rem; } .start-card { width: min(38rem, 100%); text-align: left; } .level-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; } .level-option { min-height: 52px; padding: .5rem .3rem; } .level-option span { font-size: .62rem; } .analytics-result-strip { gap: .2rem; padding: .45rem; } .analytics-result-strip div { padding: .45rem .35rem; } .analytics-result-strip span { font-size: .52rem; } .analytics-result-strip strong { font-size: 1.05rem; } }
 @media (max-width: 560px) { .panel-title-row { align-items: flex-start; flex-direction: column; } .run-card-facts { grid-template-columns: 1fr; } .run-source { justify-self: start; } }
 @media (max-width: 560px), (pointer: coarse) { .heatmap-controls { flex-wrap: wrap; border-radius: 18px; } .heatmap-controls button { min-height: 44px; } }
@@ -220,6 +225,7 @@ button.run-card { cursor: pointer; }
 @media print { #gravityCanvas, .chart-card canvas, .minimap-heatmap { break-inside: avoid; box-shadow: none !important; } .control-panel button, .game-start-overlay, .game-tutorial-overlay, .game-outcome-overlay, .live-telemetry-badge, .back-to-game, .gravity-dev-lab, .clear-local-runs, .heatmap-controls { display: none !important; } }
 
 @media (max-width: 560px) { .sim-panel { padding: .7rem; } }
+@media (max-width: 340px) { .gravity-hero-actions { grid-template-columns: 1fr; } }
 .mobile-mode-controls { position: absolute; z-index: 4; right: .55rem; top: .55rem; gap: .35rem; max-width: calc(100% - 1.1rem); padding: .3rem; border: 1px solid rgba(111,248,255,.38); border-radius: 16px; background: rgba(5,8,20,.94); box-shadow: 0 8px 22px rgba(0,0,0,.35); }
 .mobile-mode-button { min-height: 44px; padding: .5rem .7rem; border: 1px solid rgba(159,180,255,.28); border-radius: 12px; color: var(--text); background: rgba(255,255,255,.05); font: inherit; font-size: .72rem; font-weight: 900; cursor: pointer; }
 .mobile-mode-button[aria-pressed="true"] { border-color: var(--cyan); background: linear-gradient(135deg, rgba(111,248,255,.25), rgba(199,125,255,.2)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
