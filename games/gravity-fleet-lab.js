@@ -653,6 +653,10 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   }
 
   function rollbackMobileShell(reason) {
+    // A completed match owns the mobile shell through its outcome dialog. Runtime
+    // diagnostics may still report optional analytics work after the match ends,
+    // but that must never replace a valid result with the start-failure panel.
+    if (state?.ended) return;
     window.clearTimeout(mobileShellTimer);
     lastRuntimeError = reason instanceof Error ? `${reason.name}: ${reason.message}` : String(reason);
     engine.command("pause");
@@ -700,7 +704,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   function initMobileDiagnostics() {
     const reportError = reason => {
       lastRuntimeError = reason instanceof Error ? `${reason.name}: ${reason.message}` : String(reason);
-      if (mobileShellState === "preparing" || mobileShellState === "ready") rollbackMobileShell(reason);
+      if (!state?.ended && (mobileShellState === "preparing" || mobileShellState === "ready")) rollbackMobileShell(reason);
     };
     window.addEventListener("error", event => reportError(event.error || event.message));
     window.addEventListener("unhandledrejection", event => reportError(event.reason));
@@ -1518,11 +1522,19 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     if (!run || completedRun === run) return;
     completedRun = run;
     writeSavedRun(localStorage, run);
-    mobileChartScheduler.final();
-    performanceMonitor.measure("chart", () => { ensureDashboardRendered(run); updateLiveTelemetry(counts(), true); });
+    window.clearTimeout(mobileShellTimer);
+    showOutcomeOverlay(run);
     updateTelemetryBadgeVisibility();
     updateCommandDock();
-    showOutcomeOverlay(run);
+    try {
+      mobileChartScheduler.final();
+      performanceMonitor.measure("chart", () => {
+        updateLiveTelemetry(counts(), true);
+        void ensureDashboardRendered(run);
+      });
+    } catch (error) {
+      reportPostMatchRenderFailure(error);
+    }
   }
 
   function resetRuntimeTiming(resetRender = false) {
@@ -1840,9 +1852,22 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
 
 
 
+  function chartContext(canvasEl) {
+    if (!canvasEl || typeof canvasEl.getContext !== "function") return null;
+    try {
+      return canvasEl.getContext("2d");
+    } catch (error) {
+      reportPostMatchRenderFailure(error);
+      return null;
+    }
+  }
+
   function lineChart(canvasEl, series, keys, pad = 28) {
     if (!canvasEl) return;
-    const x = canvasEl.getContext("2d");
+    const x = chartContext(canvasEl);
+    if (!x) return;
+    series = Array.isArray(series) ? series : [];
+    keys = Array.isArray(keys) ? keys : [];
     x.clearRect(0, 0, canvasEl.width, canvasEl.height);
     x.strokeStyle = "rgba(255,255,255,.12)";
     x.strokeRect(pad, pad, canvasEl.width - pad * 1.5, canvasEl.height - pad * 1.7);
@@ -1862,7 +1887,10 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
 
   function barChart(canvasEl, events, keys) {
     if (!canvasEl) return;
-    const x = canvasEl.getContext("2d");
+    const x = chartContext(canvasEl);
+    if (!x) return;
+    events = Array.isArray(events) ? events : [];
+    keys = Array.isArray(keys) ? keys : [];
     x.clearRect(0, 0, canvasEl.width, canvasEl.height);
     const items = events.slice(-24);
     const max = Math.max(1, ...items.map(e => e.ships || 0));
@@ -1879,7 +1907,11 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
 
   function donutChart(canvasEl, planetValues, shipValues, keys) {
     if (!canvasEl) return;
-    const x = canvasEl.getContext("2d");
+    const x = chartContext(canvasEl);
+    if (!x) return;
+    planetValues = planetValues || {};
+    shipValues = shipValues || {};
+    keys = Array.isArray(keys) ? keys : [];
     x.clearRect(0, 0, canvasEl.width, canvasEl.height);
     const cx = canvasEl.width / 2;
     const cy = canvasEl.height / 2 + 2;
@@ -2079,7 +2111,8 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     const heatmap = normalizeRunHeatmap(run);
     const mapSnapshot = mapSnapshotForRun(run);
     const layer = heatmap[heatmapMode] || [];
-    const drawing = ui.heatmap.getContext("2d");
+    const drawing = chartContext(ui.heatmap);
+    if (!drawing) return;
     const width = ui.heatmap.width;
     const height = ui.heatmap.height;
     drawing.clearRect(0, 0, width, height);
@@ -2172,8 +2205,16 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     dashboardRunId = runId;
     dashboardRun = run;
     state.dashboardRendered = true;
-    dashboardRenderPromise = renderDashboard(run);
+    dashboardRenderPromise = renderDashboard(run).catch(error => {
+      reportPostMatchRenderFailure(error);
+      if (dashboardRunId === runId) dashboardRenderPromise = null;
+    });
     return dashboardRenderPromise;
+  }
+
+  function reportPostMatchRenderFailure(error) {
+    lastRuntimeError = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.error("Gravity Fleet post-match analytics could not finish rendering.", error);
   }
 
   async function renderDashboard(run) {
