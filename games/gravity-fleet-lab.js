@@ -28,7 +28,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     overlay: document.querySelector("#gameStartOverlay"), closeMissionSetup: document.querySelector("#closeMissionSetup"), levelPicker: document.querySelector("#levelPicker"), levelName: document.querySelector("#selectedLevelName"), levelDescription: document.querySelector("#selectedLevelDescription"), levelDifficulty: document.querySelector("#selectedLevelDifficulty"),
     tutorial: document.querySelector("#gameTutorialOverlay"), tutorialGo: document.querySelector("#tutorialGo"),
     outcome: document.querySelector("#gameOutcomeOverlay"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeResult: document.querySelector("#gameOutcomeResult"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"), outcomeCaptures: document.querySelector("#gameOutcomeCaptures"), outcomeLargestLaunch: document.querySelector("#gameOutcomeLargestLaunch"), outcomeDestroyed: document.querySelector("#gameOutcomeDestroyed"), outcomeTransits: document.querySelector("#gameOutcomeTransits"), outcomeWormholes: document.querySelector("#gameOutcomeWormholes"), outcomePeakAdvantage: document.querySelector("#gameOutcomePeakAdvantage"), outcomeSignal: document.querySelector("#gameOutcomeSignal"),
-    viewAnalysis: document.querySelector("#viewMatchAnalysis"), playAgain: document.querySelector("#playAgain"), chooseLevel: document.querySelector("#chooseLevel"), analytics: document.querySelector("#analytics"), analyticsTitle: document.querySelector("#analytics-title"),
+    viewAnalysis: document.querySelector("#viewMatchAnalysis"), playAgain: document.querySelector("#playAgain"), chooseLevel: document.querySelector("#chooseLevel"), analytics: document.querySelector("#analytics"), analyticsTitle: document.querySelector("#analytics-title"), analyticsRunContext: document.querySelector("#analyticsRunContext"),
     timer: document.querySelector("#matchTimer"), readout: document.querySelector("#fleetReadout"), feed: document.querySelector("#eventFeed"),
     commandDock: document.querySelector(".command-dock"), commandModeLabel: document.querySelector("#commandModeLabel"), commandStates: [...document.querySelectorAll("[data-command-state]")],
     dockLiveObjective: document.querySelector("#dockLiveObjective"), dockLiveSource: document.querySelector("#dockLiveSource"), dockLiveAim: document.querySelector("#dockLiveAim"), dockLiveReadiness: document.querySelector("#dockLiveReadiness"), dockLiveStatus: document.querySelector("#dockLiveStatus"),
@@ -175,6 +175,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   let dashboardRunId = null;
   let dashboardRenderPromise = null;
   let dashboardRun = null;
+  let dashboardRunSource = null;
   let heatmapMode = "movement";
   let benchmarkRunsPromise = null;
   let activeModal = null;
@@ -370,7 +371,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   }
 
   function availableAnalyticsRun() {
-    return completedRun || loadLocalRuns()[0] || null;
+    return dashboardRun || completedRun || null;
   }
 
   function updateHeroAnalyticsVisibility() {
@@ -378,6 +379,19 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     if (ui.heroAnalytics) ui.heroAnalytics.hidden = !run;
     ui.heroAnalytics?.parentElement?.classList.toggle("analytics-unavailable", !run);
     return run;
+  }
+
+  function updateAnalyticsRunContext(run, source) {
+    if (!ui.analyticsRunContext) return;
+    if (!run || !source) {
+      ui.analyticsRunContext.hidden = true;
+      return;
+    }
+    const level = run.levelName || `Level ${run.levelId || ""}`.trim();
+    ui.analyticsRunContext.hidden = false;
+    setText(ui.analyticsRunContext, source === "saved"
+      ? `Saved match - ${level} - ${formatRunTimestamp(run.endedAt)}`
+      : `Current match - ${level}`);
   }
 
   function updateMissionSetupTriggerVisibility() {
@@ -2249,12 +2263,18 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     ui.leaderboard.innerHTML = `<p class="benchmark-context">Selected run ranks #${rank} of ${ranked.length} and scores at the ${percentile}th percentile of the ${samples.length}-run mock benchmark.</p>${ranked.map((candidate, index) => runCardMarkup(candidate, { source: candidate.current ? "Selected local run" : "Mock benchmark", name: candidate.name, rank: index + 1, selected: candidate.current })).join("")}`;
   }
 
-  function ensureDashboardRendered(run) {
+  function ensureDashboardRendered(run, source = run === completedRun ? "current" : "saved") {
     if (!run) return Promise.resolve();
     const runId = runIdentity(run);
-    if (dashboardRunId === runId && dashboardRenderPromise) return dashboardRenderPromise;
+    if (dashboardRunId === runId && dashboardRenderPromise) {
+      dashboardRunSource = source;
+      updateAnalyticsRunContext(run, source);
+      updateHeroAnalyticsVisibility();
+      return dashboardRenderPromise;
+    }
     dashboardRunId = runId;
     dashboardRun = run;
+    dashboardRunSource = source;
     state.dashboardRendered = true;
     dashboardRenderPromise = renderDashboard(run).catch(error => {
       reportPostMatchRenderFailure(error);
@@ -2273,6 +2293,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     const analytics = telemetry.outcome;
     ui.empty.hidden = true;
     ui.dashboard.hidden = false;
+    updateAnalyticsRunContext(run, dashboardRunSource);
     if (ui.analyticsResultStrip) ui.analyticsResultStrip.innerHTML = [
       ["Outcome", analytics.result.outcome],
       ["Score", analytics.result.score],
@@ -2862,7 +2883,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
       return;
     }
     setText(ui.recentStatus, `Showing ${run.levelName || "recorded run"} from ${formatRunTimestamp(run.endedAt)}.`);
-    ensureDashboardRendered(run);
+    ensureDashboardRendered(run, "saved");
   });
   ui.clearRecent?.addEventListener("click", () => {
     if (!loadLocalRuns().length) return;
@@ -2940,7 +2961,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
       updateHeroAnalyticsVisibility();
       return;
     }
-    ensureDashboardRendered(run).then(() => {
+    ensureDashboardRendered(run, dashboardRunSource || (run === completedRun ? "current" : "saved")).then(() => {
       if (dashboardRunId !== runIdentity(run)) return;
       scrollElementWithOffset(ui.analytics, gravityDevSettings.navigation.matchAnalysisOffset);
       ui.analyticsTitle?.focus({ preventScroll: true });

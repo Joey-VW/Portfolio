@@ -63,13 +63,31 @@ function runCommands(api, fixture) {
   assert.equal(LEVELS.length, 3, "the existing three levels must remain registered");
   assert.equal(PLANET_MOTION_MULTIPLIER, 1.26, "base planet motion must retain the 5% increase");
   assert.equal(LEVELS[0].orbitSpeedMultiplier, 1, "Level 1 must remain the orbit-speed baseline");
-  assert.ok(Math.abs(LEVELS[1].orbitSpeedMultiplier / LEVELS[0].orbitSpeedMultiplier - 1.10) < 1e-12, "Level 2 must be exactly 10% faster than Level 1");
-  assert.ok(Math.abs(LEVELS[2].orbitSpeedMultiplier / LEVELS[1].orbitSpeedMultiplier - 1.10) < 1e-12, "Level 3 must be exactly 10% faster than Level 2");
+  const orbitPathIds = ["inner", "middle", "outer"];
+  const configuredOrbitSpeed = (level, pathId) => level.orbitPaths[pathId].speed * PLANET_MOTION_MULTIPLIER * level.orbitSpeedMultiplier;
+  for (const pathId of orbitPathIds) {
+    const levelOneSpeed = configuredOrbitSpeed(LEVELS[0], pathId);
+    const levelTwoSpeed = configuredOrbitSpeed(LEVELS[1], pathId);
+    const levelThreeSpeed = configuredOrbitSpeed(LEVELS[2], pathId);
+    assert.ok(Math.abs(levelTwoSpeed / levelOneSpeed - 1.10) < 1e-12, `Level 2 ${pathId} orbit must be effectively 10% faster than Level 1`);
+    assert.ok(Math.abs(levelThreeSpeed / levelTwoSpeed - 1.10) < 1e-12, `Level 3 ${pathId} orbit must be effectively 10% faster than Level 2`);
+  }
   for (const level of LEVELS) {
     const engine = api.createGravityFleetEngine({ levelId: level.id, randomSource: api.createSeededRandom(1000 + level.id) });
     assert.equal(engine.state.levelId, level.id);
     assert.equal(engine.state.planets.length, level.planetSeeds.length);
     assert.ok(engine.state.ships.length > 0, `level ${level.id} should initialize ships`);
+    for (const pathId of orbitPathIds) {
+      const planet = engine.state.planets.find(candidate => candidate.orbitPathId === pathId);
+      assert.ok(planet, `level ${level.id} must initialize a planet on the ${pathId} orbit`);
+      const expectedSpeed = configuredOrbitSpeed(level, pathId);
+      assert.ok(Math.abs(planet.orbitSpeed - expectedSpeed) < 1e-12, `level ${level.id} ${pathId} planet must receive its configured effective orbit speed`);
+      const initialAngle = planet.orbitAngle;
+      engine.begin();
+      engine.step(FIXED_SIMULATION_STEP_SECONDS);
+      assert.ok(Math.abs(planet.orbitAngle - initialAngle - expectedSpeed * FIXED_SIMULATION_STEP_SECONDS) < 1e-12, `level ${level.id} ${pathId} planet must advance at its configured effective orbit speed`);
+      engine.command("pause");
+    }
   }
 
   const first = runCommands(api, commandFixture);

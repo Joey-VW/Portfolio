@@ -79,9 +79,9 @@ export const LEVELS = [
     homeProduction: { player: 1.32, enemy: 1.34, orange: 1.3 },
     aiTuning: { enemy: { thinkOffset: -.45, aggressionBase: .04 }, orange: { thinkOffset: -.3, aggressionBase: .035 } },
     orbitPaths: {
-      inner: { id: "inner", label: "Inner slingshot", semiMajor: 285, eccentricity: 0.02, phase: -0.34, projectionScale: 0.61, speed: 0.0058 },
-      middle: { id: "middle", label: "Home braid", semiMajor: 535, eccentricity: 0.03, phase: 0.08, projectionScale: 0.56, speed: 0.0028 },
-      outer: { id: "outer", label: "Outer picket", semiMajor: 610, eccentricity: 0.035, phase: 0.23, projectionScale: 0.53, speed: 0.0045 }
+      inner: { id: "inner", label: "Inner slingshot", semiMajor: 285, eccentricity: 0.02, phase: -0.34, projectionScale: 0.61, speed: 0.0064 },
+      middle: { id: "middle", label: "Home braid", semiMajor: 535, eccentricity: 0.03, phase: 0.08, projectionScale: 0.56, speed: 0.0031 },
+      outer: { id: "outer", label: "Outer picket", semiMajor: 610, eccentricity: 0.035, phase: 0.23, projectionScale: 0.53, speed: 0.0051 }
     },
     planetSeeds: []
   },
@@ -104,9 +104,9 @@ export const LEVELS = [
     playerHomeGraceSeconds: 10,
     aiTuning: { enemy: { thinkOffset: -.75, aggressionBase: .075 }, orange: { thinkOffset: -.6, aggressionBase: .065 } },
     orbitPaths: {
-      inner: { id: "inner", label: "Inner knife-edge", semiMajor: 305, eccentricity: 0.018, phase: -0.48, projectionScale: 0.59, speed: 0.0052 },
-      middle: { id: "middle", label: "Home helix", semiMajor: 560, eccentricity: 0.04, phase: -0.05, projectionScale: 0.53, speed: 0.00245 },
-      outer: { id: "outer", label: "Outer siege ring", semiMajor: 635, eccentricity: 0.045, phase: 0.31, projectionScale: 0.50, speed: 0.0039 }
+      inner: { id: "inner", label: "Inner knife-edge", semiMajor: 305, eccentricity: 0.018, phase: -0.48, projectionScale: 0.59, speed: 0.0064 },
+      middle: { id: "middle", label: "Home helix", semiMajor: 560, eccentricity: 0.04, phase: -0.05, projectionScale: 0.53, speed: 0.0031 },
+      outer: { id: "outer", label: "Outer siege ring", semiMajor: 635, eccentricity: 0.045, phase: 0.31, projectionScale: 0.50, speed: 0.0051 }
     },
     planetSeeds: []
   }
