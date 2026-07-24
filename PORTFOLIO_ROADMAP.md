@@ -39,6 +39,7 @@ Status labels:
 | 10. Gravity Fleet modernization | IN PROGRESS | Passes 10.0-10.6 are merged and verified, including telemetry PR #20 and the match-end recovery in PR #21. Active work is Pass 10.7 page, header, and analytics polish. | Pass 06, Pass 07, merged PRs #13, #15-#21, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
+| 13. PHX Transit Pulse | IN REVIEW | Complete data-feasibility research, normalized contract, metrics classification, compact fixtures, and staged implementation plan without shipping a dashboard. Discovery may proceed independently of earlier release and device-QA work. | Official Valley Metro data terms and live-feed verification |
 
 The recommended execution order is:
 
@@ -1113,6 +1114,11 @@ Reconsider only after the shared engine and renderer are separated and profiling
 - Joe Wisto explicitly approves the architectural change.
 
 Possible later options are modular Canvas 2D, a PixiJS renderer prototype behind the same engine, or Phaser only if Gravity Fleet becomes a substantially larger game product. A framework must not be used to solve header wrapping, hero overflow, telemetry hierarchy, or control placement.
+
+
+## Pass 13 - PHX Transit Pulse
+
+**Status: IN REVIEW.** Pass 13.0 establishes data feasibility and metric contracts only. Detailed scope, evidence, risks, and future acceptance criteria live in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md). It does not expose a dashboard, a live map, a production relay, persistent storage, or an unfinished project.
 
 
 ## Pass 11 - Production deployment and custom-domain release

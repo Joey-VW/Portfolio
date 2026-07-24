@@ -1,5 +1,26 @@
 [
   {
+    "slug": "phx-transit-pulse",
+    "createdAt": "2026-07-24",
+    "status": "in-progress",
+    "visibility": "hidden",
+    "title": "PHX Transit Pulse",
+    "category": "Transit Data Feasibility",
+    "summary": "A research and data-contract foundation for an independent GTFS-Realtime operations dashboard using publicly available Valley Metro transit data.",
+    "value": "Tests the practical boundaries of public transit feeds before presenting operational metrics, with transparent freshness, provenance, and replay requirements.",
+    "stack": [
+      "GTFS",
+      "GTFS-Realtime",
+      "Static JSON",
+      "Cloudflare Pages Functions (planned)",
+      "MapLibre (planned)",
+      "Data contracts"
+    ],
+    "href": "/projects/phx-transit-pulse.html",
+    "repo": "https://github.com/Joey-VW/Portfolio",
+    "featured": false
+  },
+  {
     "slug": "shrinkflation-tracker",
     "createdAt": "2026-07-10",
     "status": "ready",
