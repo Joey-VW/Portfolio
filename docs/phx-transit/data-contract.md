@@ -17,7 +17,9 @@ All timestamps are RFC 3339 UTC strings in normalized JSON. `null` means the sou
 | `data` | object | Normalized payload | Yes | Entity arrays are empty only with explicit `meta.mode`/health explanation. | `{"vehicles":[]}` |
 | `meta.feeds.<name>.feedTimestamp` | string/null | GTFS-RT `FeedHeader.timestamp` | No | `null` when absent/unreadable. Semantics: producer creation time. | `null` |
 | `meta.feeds.<name>.fetchedAt` | string/null | Derived, relay clock | Yes for a relay response | Time relay received upstream response; `null` in an access-failure fixture with no relay fetch. | `2026-07-24T00:00:00Z` |
-| `meta.feeds.<name>.ageSeconds` | number/null | Derived | No | `generatedAt - feedTimestamp`; null if timestamp absent. | `null` |
+| `meta.feeds.<name>.observedAgeSeconds` | number/null | Derived | No | `generatedAt - feedTimestamp`; null if timestamp is absent. | `null` |
+| `meta.feeds.<name>.oldestEntityTimestamp` | string/null | Derived from decoded entities | No | Oldest usable entity timestamp in the response; null when no timestamped entities were decoded. | `null` |
+| `meta.feeds.<name>.newestEntityTimestamp` | string/null | Derived from decoded entities | No | Newest usable entity timestamp in the response; null when no timestamped entities were decoded. | `null` |
 | `meta.feeds.<name>.entityCount` | integer/null | Derived | No | Count decoded entities; null on failed decode. | `0` |
 | `meta.feeds.<name>.status` | enum | Derived HTTP/decode state | Yes | `unverified`, `healthy`, `stale`, `error`, `unavailable`. | `unavailable` |
 
