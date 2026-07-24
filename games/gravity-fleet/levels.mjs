@@ -17,7 +17,7 @@ export const MAX_SPEED = 255;
 export const BASE_WORM_MAX_RANGE = 285;
 export const BASE_WORM_INFLUENCE = 88;
 export const BASE_TOTAL_SHIP_CAP = 420;
-export const PLANET_MOTION_MULTIPLIER = 1.2;
+export const PLANET_MOTION_MULTIPLIER = 1.26;
 export const TAU = Math.PI * 2;
 export const HEATMAP_WIDTH = 24;
 export const HEATMAP_HEIGHT = 15;
@@ -75,13 +75,13 @@ export const LEVELS = [
     shipCap: 470,
     startingShips: { player: 20, enemy: 22, orange: 21 },
     neutralDefenders: 5,
-    orbitSpeedMultiplier: 1.07,
+    orbitSpeedMultiplier: 1.10,
     homeProduction: { player: 1.32, enemy: 1.34, orange: 1.3 },
     aiTuning: { enemy: { thinkOffset: -.45, aggressionBase: .04 }, orange: { thinkOffset: -.3, aggressionBase: .035 } },
     orbitPaths: {
-      inner: { id: "inner", label: "Inner slingshot", semiMajor: 285, eccentricity: 0.02, phase: -0.34, projectionScale: 0.61, speed: 0.0058 },
-      middle: { id: "middle", label: "Home braid", semiMajor: 535, eccentricity: 0.03, phase: 0.08, projectionScale: 0.56, speed: 0.0028 },
-      outer: { id: "outer", label: "Outer picket", semiMajor: 610, eccentricity: 0.035, phase: 0.23, projectionScale: 0.53, speed: 0.0045 }
+      inner: { id: "inner", label: "Inner slingshot", semiMajor: 285, eccentricity: 0.02, phase: -0.34, projectionScale: 0.61, speed: 0.0064 },
+      middle: { id: "middle", label: "Home braid", semiMajor: 535, eccentricity: 0.03, phase: 0.08, projectionScale: 0.56, speed: 0.0031 },
+      outer: { id: "outer", label: "Outer picket", semiMajor: 610, eccentricity: 0.035, phase: 0.23, projectionScale: 0.53, speed: 0.0051 }
     },
     planetSeeds: []
   },
@@ -99,14 +99,14 @@ export const LEVELS = [
     shipCap: 520,
     startingShips: { player: 28, enemy: 18, orange: 18 },
     neutralDefenders: 8,
-    orbitSpeedMultiplier: 1.14,
+    orbitSpeedMultiplier: 1.21,
     homeProduction: { player: 1.34, enemy: 1.46, orange: 1.42 },
     playerHomeGraceSeconds: 10,
     aiTuning: { enemy: { thinkOffset: -.75, aggressionBase: .075 }, orange: { thinkOffset: -.6, aggressionBase: .065 } },
     orbitPaths: {
-      inner: { id: "inner", label: "Inner knife-edge", semiMajor: 305, eccentricity: 0.018, phase: -0.48, projectionScale: 0.59, speed: 0.0052 },
-      middle: { id: "middle", label: "Home helix", semiMajor: 560, eccentricity: 0.04, phase: -0.05, projectionScale: 0.53, speed: 0.00245 },
-      outer: { id: "outer", label: "Outer siege ring", semiMajor: 635, eccentricity: 0.045, phase: 0.31, projectionScale: 0.50, speed: 0.0039 }
+      inner: { id: "inner", label: "Inner knife-edge", semiMajor: 305, eccentricity: 0.018, phase: -0.48, projectionScale: 0.59, speed: 0.0064 },
+      middle: { id: "middle", label: "Home helix", semiMajor: 560, eccentricity: 0.04, phase: -0.05, projectionScale: 0.53, speed: 0.0031 },
+      outer: { id: "outer", label: "Outer siege ring", semiMajor: 635, eccentricity: 0.045, phase: 0.31, projectionScale: 0.50, speed: 0.0051 }
     },
     planetSeeds: []
   }
