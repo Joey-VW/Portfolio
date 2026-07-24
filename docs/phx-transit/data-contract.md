@@ -3,7 +3,7 @@
 **Version:** `0.1-draft`
 **Basis:** GTFS Schedule and GTFS-Realtime specifications; Valley Metro field population is unverified as of 2026-07-24.
 
-All timestamps are RFC 3339 UTC strings in normalized JSON. `null` means the source did not provide a usable value; an omitted optional property means it was not applicable or intentionally not exposed. IDs are opaque strings and must never be numerically coerced. A response must include `meta`; entities may be empty only with an explicit health/mode explanation.
+All timestamps are RFC 3339 UTC strings in normalized JSON. `null` means the source did not provide a usable value; an omitted optional property means it was not applicable or intentionally not exposed. IDs are opaque strings and must never be numerically coerced. Every response uses one envelope: root `contractVersion`, required `meta`, and root `data`. `meta` owns all envelope/provenance fields (`generatedAt`, `mode`, `source`, and applicable `feeds`); root `data` owns entity arrays. Entities may be empty only with an explicit health/mode explanation.
 
 ## Envelope and feed metadata
 
@@ -12,10 +12,11 @@ All timestamps are RFC 3339 UTC strings in normalized JSON. `null` means the sou
 | `contractVersion` | string | Direct, relay | Yes | Reject unknown major version. | `0.1-draft` |
 | `meta.generatedAt` | string | Derived, relay clock | Yes | Time relay finished normalization. | `2026-07-24T00:00:00Z` |
 | `meta.mode` | enum | Derived | Yes | `live`, `replay`, `stale`, `offline`, `error`. | `error` |
-| `meta.source` | object | Direct/relay provenance | Yes | Keep source URL only when approved for public display. | `{"agency":"Valley Metro"}` |
-| `meta.feeds.<name>` | object | Direct + derived health | Yes | One object per requested feed; unavailable is explicit. | See `feed-health.json`. |
+| `meta.source` | object | Direct/relay provenance | Yes | Includes agency and approved discovery URL/capture kind; no unapproved key-bearing endpoint. | `{"agency":"Valley Metro"}` |
+| `meta.feeds` | object | Direct + derived health | Yes | Contains only feeds applicable to the response; unavailable is explicit. | See `feed-health.json`. |
+| `data` | object | Normalized payload | Yes | Entity arrays are empty only with explicit `meta.mode`/health explanation. | `{"vehicles":[]}` |
 | `meta.feeds.<name>.feedTimestamp` | string/null | GTFS-RT `FeedHeader.timestamp` | No | `null` when absent/unreadable. Semantics: producer creation time. | `null` |
-| `meta.feeds.<name>.fetchedAt` | string | Derived, relay clock | Yes | Time relay received upstream response. | `2026-07-24T00:00:00Z` |
+| `meta.feeds.<name>.fetchedAt` | string/null | Derived, relay clock | Yes for a relay response | Time relay received upstream response; `null` in an access-failure fixture with no relay fetch. | `2026-07-24T00:00:00Z` |
 | `meta.feeds.<name>.ageSeconds` | number/null | Derived | No | `generatedAt - feedTimestamp`; null if timestamp absent. | `null` |
 | `meta.feeds.<name>.entityCount` | integer/null | Derived | No | Count decoded entities; null on failed decode. | `0` |
 | `meta.feeds.<name>.status` | enum | Derived HTTP/decode state | Yes | `unverified`, `healthy`, `stale`, `error`, `unavailable`. | `unavailable` |
