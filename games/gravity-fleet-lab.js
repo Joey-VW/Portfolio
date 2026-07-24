@@ -24,8 +24,8 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   let selectedLevelId = 1;
 
   const ui = {
-    start: document.querySelector("#startMatch"), heroPlay: document.querySelector("#heroPlay"), heroAnalytics: document.querySelector("#heroAnalytics"), missionBriefing: document.querySelector("#missionBriefing"), dockMissionSetup: document.querySelector("#dockMissionSetup"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"), mobileModes: [...document.querySelectorAll("[data-game-mode]")], mobileModeControls: document.querySelector("#mobileModeControls"),
-    overlay: document.querySelector("#gameStartOverlay"), levelPicker: document.querySelector("#levelPicker"), levelName: document.querySelector("#selectedLevelName"), levelDescription: document.querySelector("#selectedLevelDescription"), levelDifficulty: document.querySelector("#selectedLevelDifficulty"),
+    start: document.querySelector("#startMatch"), heroPlay: document.querySelector("#heroPlay"), heroAnalytics: document.querySelector("#heroAnalytics"), missionBriefing: document.querySelector("#missionBriefing"), dockMissionSetup: document.querySelector("#dockMissionSetup"), missionSetupTrigger: document.querySelector("#missionSetupTrigger"), reset: document.querySelector("#resetMatch"), worm: document.querySelector("#wormholeMode"), mobileModes: [...document.querySelectorAll("[data-game-mode]")], mobileModeControls: document.querySelector("#mobileModeControls"),
+    overlay: document.querySelector("#gameStartOverlay"), closeMissionSetup: document.querySelector("#closeMissionSetup"), levelPicker: document.querySelector("#levelPicker"), levelName: document.querySelector("#selectedLevelName"), levelDescription: document.querySelector("#selectedLevelDescription"), levelDifficulty: document.querySelector("#selectedLevelDifficulty"),
     tutorial: document.querySelector("#gameTutorialOverlay"), tutorialGo: document.querySelector("#tutorialGo"),
     outcome: document.querySelector("#gameOutcomeOverlay"), outcomeTitle: document.querySelector("#gameOutcomeTitle"), outcomeSummary: document.querySelector("#gameOutcomeSummary"), outcomeResult: document.querySelector("#gameOutcomeResult"), outcomeScore: document.querySelector("#gameOutcomeScore"), outcomeDuration: document.querySelector("#gameOutcomeDuration"), outcomeCaptures: document.querySelector("#gameOutcomeCaptures"), outcomeLargestLaunch: document.querySelector("#gameOutcomeLargestLaunch"), outcomeDestroyed: document.querySelector("#gameOutcomeDestroyed"), outcomeTransits: document.querySelector("#gameOutcomeTransits"), outcomeWormholes: document.querySelector("#gameOutcomeWormholes"), outcomePeakAdvantage: document.querySelector("#gameOutcomePeakAdvantage"), outcomeSignal: document.querySelector("#gameOutcomeSignal"),
     viewAnalysis: document.querySelector("#viewMatchAnalysis"), playAgain: document.querySelector("#playAgain"), chooseLevel: document.querySelector("#chooseLevel"), analytics: document.querySelector("#analytics"), analyticsTitle: document.querySelector("#analytics-title"),
@@ -367,6 +367,22 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     if (!element) return;
     element.hidden = !visible;
     element.setAttribute("aria-hidden", String(!visible));
+  }
+
+  function availableAnalyticsRun() {
+    return completedRun || loadLocalRuns()[0] || null;
+  }
+
+  function updateHeroAnalyticsVisibility() {
+    const run = availableAnalyticsRun();
+    if (ui.heroAnalytics) ui.heroAnalytics.hidden = !run;
+    ui.heroAnalytics?.parentElement?.classList.toggle("analytics-unavailable", !run);
+    return run;
+  }
+
+  function updateMissionSetupTriggerVisibility() {
+    if (!ui.missionSetupTrigger) return;
+    ui.missionSetupTrigger.hidden = Boolean(state?.running || state?.ended || activeModal);
   }
 
   function closeMobileTelemetryDrawer({ restoreFocus = false } = {}) {
@@ -879,6 +895,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     const destination = focusTarget || (restoreFocus && origin?.isConnected && !origin.inert ? origin : canvas);
     if (destination?.isConnected && !destination.inert) destination.focus({ preventScroll: true });
     setOverlayVisible(element, false);
+    updateMissionSetupTriggerVisibility();
   }
 
   function activateModal(element, initialFocus, origin = document.activeElement) {
@@ -890,6 +907,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     setBackgroundInert(true);
     document.addEventListener("keydown", trapModalTab, true);
     document.addEventListener("focusin", keepModalFocus, true);
+    updateMissionSetupTriggerVisibility();
     window.requestAnimationFrame(() => (initialFocus || focusableModalControls(element)[0] || element).focus({ preventScroll: true }));
   }
 
@@ -933,6 +951,11 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     hideOutcomeOverlay();
     const selectedButton = ui.levelPicker?.querySelector(`[data-level-id="${selectedLevelId}"]`);
     activateModal(ui.overlay, selectedButton || ui.start);
+  }
+
+  function dismissMissionSetup() {
+    if (activeModal !== ui.overlay) return;
+    deactivateModal(ui.overlay, { focusTarget: canvas });
   }
 
   function showTutorialOverlay() {
@@ -1514,6 +1537,8 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     ui.timer.textContent = "0:00";
     if (showOverlay) showStartOverlay(); else hideGameOverlays();
     updateTelemetryBadgeVisibility();
+    updateHeroAnalyticsVisibility();
+    updateMissionSetupTriggerVisibility();
     ui.feed.innerHTML = "<li>Fleet telemetry will stream here.</li>";
     commandDockSignature = "";
     updateHud(undefined, true);
@@ -1544,6 +1569,8 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     } catch (error) {
       reportPostMatchRenderFailure(error);
     }
+    updateHeroAnalyticsVisibility();
+    updateMissionSetupTriggerVisibility();
   }
 
   function resetRuntimeTiming(resetRender = false) {
@@ -2842,6 +2869,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     if (!window.confirm("Clear all Gravity Fleet runs saved in this browser? This cannot be undone.")) return;
     localStorage.removeItem(GRAVITY_FLEET_STORAGE_KEY);
     renderRecentRuns(dashboardRunId);
+    updateHeroAnalyticsVisibility();
     setText(ui.recentStatus, "Local run history cleared.");
     ui.recent?.focus({ preventScroll: true });
   });
@@ -2907,8 +2935,21 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   });
   ui.heroAnalytics?.addEventListener("click", event => {
     event.preventDefault();
-    scrollElementWithOffset(ui.analytics, gravityDevSettings.navigation.matchAnalysisOffset);
-    ui.analyticsTitle?.focus({ preventScroll: true });
+    const run = availableAnalyticsRun();
+    if (!run) {
+      updateHeroAnalyticsVisibility();
+      return;
+    }
+    ensureDashboardRendered(run).then(() => {
+      if (dashboardRunId !== runIdentity(run)) return;
+      scrollElementWithOffset(ui.analytics, gravityDevSettings.navigation.matchAnalysisOffset);
+      ui.analyticsTitle?.focus({ preventScroll: true });
+    });
+  });
+  ui.closeMissionSetup?.addEventListener("click", dismissMissionSetup);
+  ui.missionSetupTrigger?.addEventListener("click", () => {
+    if (state?.running || state?.ended) return;
+    showStartOverlay();
   });
   ui.start.addEventListener("click", startSelectedLevel);
   ui.dockMissionSetup?.addEventListener("click", returnToMissionSetupAction);
@@ -2974,7 +3015,10 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     leaveMobileMatch();
   });
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && mobileDrawerOpen) {
+    if (event.key === "Escape" && activeModal === ui.overlay) {
+      event.preventDefault();
+      dismissMissionSetup();
+    } else if (event.key === "Escape" && mobileDrawerOpen) {
       event.preventDefault();
       closeMobileTelemetryDrawer({ restoreFocus: true });
     } else if (event.key === "Escape" && usesMobilePresentation() && (state?.launcher?.active || state?.wormDrag?.active)) {

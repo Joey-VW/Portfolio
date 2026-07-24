@@ -79,6 +79,7 @@
         </div>
         <div class="game-stage">
           <canvas id="gravityCanvas" width="1280" height="800" tabindex="-1" aria-label="Interactive orbital RTS map with planets, ships, and wormholes" aria-describedby="gameKeyboardNote"></canvas>
+          <button class="mission-setup-trigger" id="missionSetupTrigger" type="button" hidden>Choose level</button>
           <p id="gameKeyboardNote" class="game-keyboard-note">The tactical map is pointer and touch controlled. Mission, telemetry, mode, and return controls remain available by keyboard.</p>
           <section class="mobile-shell-status" id="mobileShellStatus" aria-live="assertive" hidden>
             <p class="eyebrow">Preparing tactical map</p>
@@ -170,6 +171,7 @@
           </button>
           <div class="game-start-overlay" id="gameStartOverlay" role="dialog" aria-modal="true" aria-labelledby="setupTitle" tabindex="-1">
             <div class="start-card">
+              <button class="mission-setup-close" id="closeMissionSetup" type="button" aria-label="Close mission setup">×</button>
               <p class="eyebrow">Gravity Fleet Lab</p>
               <h3 id="setupTitle">Enter the orbital front</h3>
               <p id="selectedLevelName" class="level-title">Level 1 - First Orbit</p>

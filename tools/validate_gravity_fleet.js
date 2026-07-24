@@ -53,7 +53,7 @@ function runCommands(api, fixture) {
 (async () => {
   const api = await import(pathToFileURL(corePath));
   const { CAMERA_ORIENTATIONS, createGravityFleetCamera } = await import(pathToFileURL(cameraPath));
-  const { LEVELS } = await import(pathToFileURL(levelsPath));
+  const { LEVELS, PLANET_MOTION_MULTIPLIER } = await import(pathToFileURL(levelsPath));
   const { createPerformanceMonitor } = await import(pathToFileURL(performancePath));
   const { createFixedStepRuntime, selectPresentationProfile, FIXED_SIMULATION_STEP_SECONDS } = await import(pathToFileURL(runtimePath));
   const { createTelemetryChartScheduler, createTelemetryProjection } = await import(pathToFileURL(telemetryPath));
@@ -61,6 +61,10 @@ function runCommands(api, fixture) {
   const savedFixture = readJson("saved-run-v1.json");
 
   assert.equal(LEVELS.length, 3, "the existing three levels must remain registered");
+  assert.equal(PLANET_MOTION_MULTIPLIER, 1.26, "base planet motion must retain the 5% increase");
+  assert.equal(LEVELS[0].orbitSpeedMultiplier, 1, "Level 1 must remain the orbit-speed baseline");
+  assert.ok(Math.abs(LEVELS[1].orbitSpeedMultiplier / LEVELS[0].orbitSpeedMultiplier - 1.10) < 1e-12, "Level 2 must be exactly 10% faster than Level 1");
+  assert.ok(Math.abs(LEVELS[2].orbitSpeedMultiplier / LEVELS[1].orbitSpeedMultiplier - 1.10) < 1e-12, "Level 3 must be exactly 10% faster than Level 2");
   for (const level of LEVELS) {
     const engine = api.createGravityFleetEngine({ levelId: level.id, randomSource: api.createSeededRandom(1000 + level.id) });
     assert.equal(engine.state.levelId, level.id);
