@@ -1,82 +1,83 @@
 # PHX Transit Pulse architecture study
 
 **Pass:** 13.0 - Data feasibility and metric contract
-**Research access date:** 2026-07-24 UTC
+**Verification date:** 2026-07-24
 **Working identity:** PHX Transit Pulse - Independent GTFS-Realtime Operations Lab
 
-> Independent portfolio prototype using publicly available Valley Metro transit data. Not affiliated with or endorsed by Valley Metro or the City of Phoenix.
+> Independent portfolio prototype using Valley Metro transit data. Not affiliated with or endorsed by Valley Metro or the City of Phoenix.
 
-This is a feasibility record, not a claim that a production dashboard is live. No Valley Metro logos, credentials, raw feeds, or key-bearing URLs are committed.
+This is a feasibility record, not production approval. No dashboard, relay, live
+ingestion layer, credentials, or provider replay data is implemented or committed
+in this pass.
 
-## Sources and access record
+## Verified source architecture
 
-| Source | Purpose | URL | Result on 2026-07-24 UTC | Limitation |
-| --- | --- | --- | --- | --- |
-| Valley Metro GTFS path | Initial static-feed access attempt | https://www.valleymetro.org/gtfs | The implementation workspace proxy returned `HTTP/1.1 403 Forbidden` before origin connection. | No archive, feed payload, headers, or field coverage were observed from this path. |
-| Valley Metro Developers Resources | Current official developer discovery and terms page | https://www.valleymetro.org/contact/developers-resources | Verified outside the restricted implementation workspace. It directs developers to City of Phoenix Open Data for static and realtime bus/light-rail GTFS and publishes Valley Metro developer terms. | It does not itself expose or prove the current feed payloads, update cadence, field coverage, or City dataset-specific controls. |
-| City of Phoenix Open Data transportation group | Official City catalog path linked by Valley Metro | https://www.phoenixopendata.com/group/transportation1 | Confirmed as the official linked catalog destination through Valley Metro Developers Resources. | The exact current dataset records, download URLs, CORS behavior, keys, and feed responses remain unverified in this pass. |
-| GTFS Schedule Reference | Static schema | https://gtfs.org/documentation/schedule/reference/ | Specification URL recorded as the contract authority; not independently fetched in the implementation workspace. | Does not prove Valley Metro field coverage. |
-| GTFS-Realtime Reference | Protobuf entities and timestamp semantics | https://gtfs.org/documentation/realtime/reference/ | Specification URL recorded as the contract authority; not independently fetched in the implementation workspace. | Does not prove Valley Metro field coverage. |
-| Cloudflare Pages Functions | Future server-side relay suitability | https://developers.cloudflare.com/pages/functions/ | Documentation URL recorded for later implementation review; not independently fetched in the implementation workspace. | Requires later account/runtime confirmation. |
-| Cloudflare Cache | Edge caching design | https://developers.cloudflare.com/workers/runtime-apis/cache/ | Documentation URL recorded for later implementation review; not independently fetched in the implementation workspace. | Cache behavior must be tested in deployed preview. |
-| MapLibre GL JS | Future map renderer | https://maplibre.org/maplibre-gl-js/docs/ | Documentation URL recorded for later implementation review; not independently fetched in the implementation workspace. | MapLibre does not supply production tiles. |
+The original City of Phoenix static GTFS package and Valley Metro Vehicle
+Positions, Trip Updates, and Service Alerts GTFS-Realtime feeds were downloaded,
+decoded, and joined during Pass 13.0. All four feed types are technically usable.
+Identifiers present in the inspected realtime snapshots joined to the static
+package. The unmodified static package passed MobilityData Canonical GTFS
+Schedule Validator 8.0.1 with zero errors; its repository evidence is
+`data/phx-transit/verification/static-validator/gtfs-schedule-260724-1945.json`.
 
-The current official discovery path is Valley Metro Developers Resources, followed by its linked City of Phoenix Open Data transportation group and the GTFS datasets published there. The initial workspace could not reach the Valley Metro or City origins because its proxy returned `HTTP/1.1 403 Forbidden` before origin connection. The separate official-source review verified the discovery page and terms, but did not retrieve or decode a current static archive, vehicle-position feed, trip-update feed, alert feed, or key-bearing endpoint. No payload sizes, timestamps, entities, cadence, joins, CORS behavior, or rate limits are claimed.
+This technical result does not establish authorization for public ingestion,
+polling, caching, retention, or redistribution. The provider terms inquiry is
+pending. Public live ingestion and any public or committed provider replay remain
+blocked until the applicable terms permit them.
 
-## Official terms, licensing, and discovery conclusion
+## Evidence and decision classes
 
-Valley Metro Developers Resources states that static and realtime GTFS for bus and light rail are available through City of Phoenix Open Data. Its developer terms grant a limited, revocable license for covered Web Services API data, require registration for API use, prohibit misleading affiliation and unauthorized trademark use, provide the data without availability or accuracy warranties, and require the attribution legend `Route and arrival data provided by permission of Valley Metro` unless Valley Metro agrees otherwise in writing.
+| Class | Current record |
+| --- | --- |
+| Provider-defined fact | GTFS Schedule and GTFS-Realtime source fields, identifiers, timestamps, and enumerated relationships retain their source meaning. Provider terms and attribution control permitted use. |
+| Verified observation | Static and all three realtime feed types parsed; observed identifiers joined; the original static ZIP passed canonical validation with zero errors; daytime cadence and anomaly evidence was recorded. |
+| PHX Transit methodology choice | Preserve source values and provenance, expose feed and entity freshness separately, and label non-live modes explicitly. Keep any required API key server-side and outside source control. |
+| Provisional choice | A future narrow server-side relay is preferred over direct browser requests so credentials, bounded fetching, validation, caching, and normalization can remain centralized. Its exact backend and decoder are not selected or implemented. |
+| Deferred decision | Provider-authorized polling, caching, retention and replay; final protobuf runtime; relay platform details; map renderer, tile/style service, and production hosting configuration. |
 
-The page lists GTFS resources and separately defines terms for the Valley Metro Web Services API. This pass does not assume without confirmation that every City-hosted GTFS dataset, static download, or GTFS-Realtime endpoint is governed identically by the Web Services API section. Before live ingestion or public replay capture, record the final City dataset URLs, access date, dataset-specific license or terms, required attribution, registration or key policy, permitted redistribution of normalized derivatives, allowed caching/polling behavior, and any rate limit. Apply the stricter feed-specific terms where they differ.
+## Approved work boundary
 
-Do not place a key-bearing URL, token, cookie, or credential in source, fixtures, browser code, or documentation. Preserve the independent-project disclaimer and do not use Valley Metro marks in a way that implies sponsorship, endorsement, or affiliation.
+Pass 13.1 may begin using the clearly labeled synthetic fixtures already approved
+for repository use. Captured provider protobuf, extracted static files, and
+captured or normalized provider replay data must not be committed until provider
+terms expressly permit the intended use. Synthetic data must not be presented as
+live, recorded provider service, or evidence of provider performance.
 
-## What is established and what is not
+## Preferred future data path
 
-GTFS establishes the expected static join keys: `route_id` in `routes.txt`/`trips.txt`, `trip_id` in `trips.txt`/`stop_times.txt`, `stop_id` in `stops.txt`/`stop_times.txt`, `shape_id` in `trips.txt`/`shapes.txt`, and service IDs in `calendar.txt` and/or `calendar_dates.txt`. GTFS-Realtime can carry `TripDescriptor.trip_id`, `route_id`, `VehicleDescriptor.id`, `VehiclePosition`, `TripUpdate`, and alert informed entities. Whether Valley Metro actually populates each field, and whether its values match static IDs, is **not verified**.
+Subject to provider terms, a narrow server-side relay remains the preferred live
+model:
 
-No cadence test was run because no live feed endpoint could be accessed from the implementation workspace. Thus response status, protobuf content type, payload size, feed header timestamp, entity count, oldest/newest entity timestamp, data age, and identifier coverage are all recorded as unavailable rather than estimated. The empty fixtures are intentional access-failure snapshots, not synthetic Valley Metro service data.
+1. Fetch only approved official sources at an authorized cadence.
+2. Keep `VALLEY_METRO_API_KEY` in server-side secret storage, never in browser
+   code, URLs in documentation, fixtures, logs, or source control.
+3. Decode bounded responses, retain source timestamps, validate fields, and join
+   approved static lookups without inventing corrections.
+4. Return a versioned normalized response with explicit live, stale, very stale,
+   feed-error, replay, offline, and no-data states.
+5. Bound requests and cache only as provider terms allow.
 
-## Proposed data path
+The relay is a recommendation, not an accepted backend design and not part of
+this pass. No protobuf runtime, Cloudflare Function design, map provider, tile
+service, retention store, or production polling cadence is finally selected.
 
-1. Download and review the official static archive from the verified City dataset record. Validate required files, record archive/version date, and create a small static lookup artifact only if the applicable terms allow it.
-2. A narrow future Cloudflare Pages Function fetches only confirmed official realtime feeds. It decodes protobuf, validates a bounded response, joins permitted static lookup data, removes unsupported fields, and emits versioned normalized JSON.
-3. The Function uses a single upstream fetch per feed per cache interval, with `Cache-Control`, edge cache, timeout, size limit, conditional requests if supported, and a circuit breaker. It returns its own `fetchedAt`, upstream timestamp, age, and mode instead of concealing an upstream failure.
-4. Browsers poll the normalized endpoint, not Valley Metro directly. The initial proposal is one combined snapshot every 30 seconds while visible and no polling while hidden; retry with capped exponential backoff after failure. This is a hypothesis pending dataset terms and actual update cadence.
-5. The browser renders a live snapshot or a versioned, clearly labeled recorded replay. It never portrays replay, stale data, or an unavailable feed as live.
+## Security, licensing, and presentation constraints
 
-### Modes and feed health
+- Treat the API key as a secret even though the observed service used a query
+  parameter. It must remain server-side and outside source control.
+- Do not use a proxy to bypass provider controls or imply that successful access
+  grants redistribution rights.
+- Preserve the independent-project disclaimer and required attribution once the
+  governing terms are confirmed.
+- Never conceal replay, stale data, an upstream error, offline operation, or an
+  empty result behind a live label.
+- Provide a usable text alternative if a future map is added, and preserve
+  keyboard access, non-color status labels, and reduced-motion behavior.
 
-| Mode | Condition | UI behavior |
-| --- | --- | --- |
-| Live | All required feed checks pass and age is within a later, data-backed threshold. | Show capture and feed timestamps. |
-| Replay | User selected a committed recorded fixture. | Prominent `Recorded replay` label and capture date. |
-| Stale | Last usable normalized snapshot exceeds threshold but remains displayable. | Freeze metrics, timestamp, and warning; do not calculate new performance claims. |
-| Offline | Browser has no network or relay cannot be reached. | Offer replay if bundled; otherwise explain unavailable state. |
-| Error | Upstream response/decode/schema validation failed. | Show feed-specific error, last known age if any, and retry timing. |
+## Remaining gates
 
-Use thresholds only after observing agency cadence. Until then, `staleAfterSeconds` must be null rather than an invented SLA.
-
-## Direct browser versus relay
-
-Direct browser decoding would expose endpoint URLs, multiply upstream requests by visitors, depend on CORS, and require a client protobuf decoder. It also cannot safely hold any required credential. A relay adds a deployment component but centralizes validation, caching, CORS, normalization, and replay selection. **Recommendation:** use a narrow Pages Function relay only after terms, endpoints, CORS, registration, and key policy are confirmed. Do not add a proxy merely to bypass provider restrictions.
-
-Decoding options are: a maintained generated protobuf client bundled into a future worker, a small reviewed GTFS-Realtime decoder compatible with the Workers runtime, or upstream JSON only if the official City dataset supplies it. Choose after confirming runtime compatibility, package size, license, and security review. No library or package manager was added in this pass.
-
-## Map, accessibility, and tiles
-
-MapLibre GL JS is suitable for an interactive vector map, but requires a separate, licensed tile/style provider. Evaluate an agency-approved source, a commercial provider with a public production key policy, or self-hosting only with explicit operational approval. Do not use a public/demo tile endpoint as production infrastructure. Preserve provider attribution exactly as licensed, include the required Valley Metro data attribution when applicable, and do not imitate agency branding.
-
-Provide a text route/vehicle list and route-detail summary that remain useful when the map fails. Respect `prefers-reduced-motion`: stop nonessential marker interpolation, disable animated camera transitions, and use timestamped state changes instead. Ensure keyboard route filtering, focusable detail controls, non-color status labels, and accessible map alternatives.
-
-## Volume estimate
-
-Assumption: one combined normalized response per visible visitor every 30 seconds, 10 hours/day, 22 weekdays/month; edge cache coalesces upstream fetches to one fetch/feed/30 seconds continuously during those same hours. One active browser produces 1,200 requests/day. One hundred concurrent active browsers produces 120,000 browser requests/day; the relay makes approximately 1,200 upstream fetches/feed/day, or 3,600/day for three feeds. Payload sizes are unknown, so no bandwidth or cost estimate is claimed. Actual TTL, feed cadence, traffic, registration requirements, and provider terms must replace these assumptions before release.
-
-## Licensing, attribution, and decisions
-
-Before ingesting or redistributing static or realtime data, obtain and record the applicable dataset license, required attribution, redistribution permissions, caching limit, rate limit, acceptable-use terms, and registration or API-key policy. An endpoint visible in a catalog is not permission to redistribute its key. Store secrets only as deployment secrets, never browser JSON or source.
-
-**Recommended:** static lookup artifact plus a bounded, cached server-side normalization layer, browser polling of one normalized snapshot, transparent health modes, required attribution, and recorded replay fallback.
-
-**Rejected for now:** direct browser polling/decoding, client-held credentials, raw-feed archiving, unlimited history, unlicensed public tiles, and analytics labels that imply agency KPIs. These alternatives either amplify upstream load, weaken reliability/privacy, or exceed the verified evidence.
+The provider response must resolve registration and key policy, attribution,
+polling and caching limits, retention, normalized derivative and replay
+permission, and static-data terms before public live ingestion or captured
+replay work begins. Runtime, backend, map, and tile decisions follow those gates
+and later technical evaluation.

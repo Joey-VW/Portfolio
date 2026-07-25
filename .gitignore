@@ -17,3 +17,10 @@ venv/
 
 
 tools/captures/
+
+# PHX Transit local source data and raw feed captures
+data/phx-transit/googletransit/
+
+# Local GTFS-Realtime validator runtime artifacts
+gtfsrthsql.*
+http%3A%2F%2F*

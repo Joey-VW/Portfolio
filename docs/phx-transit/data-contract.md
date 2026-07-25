@@ -1,61 +1,111 @@
 # PHX Transit Pulse normalized frontend data contract
 
-**Version:** `0.1-draft`
-**Basis:** GTFS Schedule and GTFS-Realtime specifications; Valley Metro field population is unverified as of 2026-07-24.
+**Version:** `0.2-draft`
+**Basis:** Pass 13.0 static, Vehicle Positions, Trip Updates, Service Alerts,
+cadence, and validator evidence.
 
-All timestamps are RFC 3339 UTC strings in normalized JSON. `null` means the source did not provide a usable value; an omitted optional property means it was not applicable or intentionally not exposed. IDs are opaque strings and must never be numerically coerced. Every response uses one envelope: root `contractVersion`, required `meta`, and root `data`. `meta` owns all envelope/provenance fields (`generatedAt`, `mode`, `source`, and applicable `feeds`); root `data` owns entity arrays. Entities may be empty only with an explicit health/mode explanation.
+This contract describes a future normalized boundary; it does not implement live
+ingestion. IDs remain opaque strings. Timestamps normalize to RFC 3339 UTC while
+retaining their source and meaning. `null` means no usable source value was
+provided. Valid zero and negative values must survive presence checks and
+normalization.
 
-## Envelope and feed metadata
+## Envelope and health
 
-| Field | Type | Class / source | Required | Missing and timestamp behavior | Normalization / example |
-| --- | --- | --- | --- | --- | --- |
-| `contractVersion` | string | Direct, relay | Yes | Reject unknown major version. | `0.1-draft` |
-| `meta.generatedAt` | string | Derived, relay clock | Yes | Time relay finished normalization. | `2026-07-24T00:00:00Z` |
-| `meta.mode` | enum | Derived | Yes | `live`, `replay`, `stale`, `offline`, `error`. | `error` |
-| `meta.source` | object | Direct/relay provenance | Yes | Includes agency and approved discovery URL/capture kind; no unapproved key-bearing endpoint. | `{"agency":"Valley Metro"}` |
-| `meta.feeds` | object | Direct + derived health | Yes | Contains only feeds applicable to the response; unavailable is explicit. | See `feed-health.json`. |
-| `data` | object | Normalized payload | Yes | Entity arrays are empty only with explicit `meta.mode`/health explanation. | `{"vehicles":[]}` |
-| `meta.feeds.<name>.feedTimestamp` | string/null | GTFS-RT `FeedHeader.timestamp` | No | `null` when absent/unreadable. Semantics: producer creation time. | `null` |
-| `meta.feeds.<name>.fetchedAt` | string/null | Derived, relay clock | Yes for a relay response | Time relay received upstream response; `null` in an access-failure fixture with no relay fetch. | `2026-07-24T00:00:00Z` |
-| `meta.feeds.<name>.observedAgeSeconds` | number/null | Derived | No | `generatedAt - feedTimestamp`; null if timestamp is absent. | `null` |
-| `meta.feeds.<name>.oldestEntityTimestamp` | string/null | Derived from decoded entities | No | Oldest usable entity timestamp in the response; null when no timestamped entities were decoded. | `null` |
-| `meta.feeds.<name>.newestEntityTimestamp` | string/null | Derived from decoded entities | No | Newest usable entity timestamp in the response; null when no timestamped entities were decoded. | `null` |
-| `meta.feeds.<name>.entityCount` | integer/null | Derived | No | Count decoded entities; null on failed decode. | `0` |
-| `meta.feeds.<name>.status` | enum | Derived HTTP/decode state | Yes | `unverified`, `healthy`, `stale`, `error`, `unavailable`. | `unavailable` |
+Every response contains `contractVersion`, `meta`, and `data`. `meta.generatedAt`
+is the normalizer time and must not replace an upstream timestamp.
 
-## Vehicles
+Each feed records independently:
 
-| Field | Type | Class / source | Required | Missing and timestamp behavior | Normalization / example |
-| --- | --- | --- | --- | --- | --- |
-| `id` | string | Direct `vehicle.vehicle.id` or entity ID | Yes | Exclude entity if no stable ID after documented fallback. | `vehicle-opaque-id` |
-| `tripId`, `routeId` | string/null | Direct `TripDescriptor` | No | Null when feed omits it; do not infer route from display text. | `null` |
-| `latitude`, `longitude` | number | Direct `VehiclePosition.position` | Yes for map | Exclude from map when either missing/out of bounds. | `33.4484` |
-| `bearing`, `speedMetersPerSecond` | number/null | Direct position fields | No | Null if absent; no zero substitution. | `null` |
-| `occupancyStatus`, `currentStatus` | string/null | Direct GTFS-RT enums | No | Convert enum to stable lower-case token. | `null` |
-| `observedAt` | string/null | Direct `VehiclePosition.timestamp` | No | Vehicle observation time; fall back to feed timestamp only in separate `effectiveObservedAt` with provenance. | `null` |
-| `route` | object/null | Joined static/live | No | Null if `routeId` cannot join. | `{"shortName":"72","mode":"bus"}` |
-| `isStale` | boolean | Derived | Yes | True only by validated future threshold; otherwise false with no SLA claim. | `false` |
+- `feedTimestamp`, from `FeedHeader.timestamp`;
+- `fetchedAt`, from the future relay clock;
+- `oldestEntityTimestamp` and `newestEntityTimestamp`, when entities provide
+  timestamps;
+- `entityCount`, diagnostics, and a feed status.
 
-## Routes, trips, stops, and alerts
+Vehicle and Trip Update entity timestamps are retained on their entities. Feed
+freshness and entity freshness are separate: a fresh header does not make an old
+vehicle current. Missing timestamps remain unknown rather than inheriting a
+fabricated source time.
 
-| Entity / field | Type | Class / source | Required | Missing and timestamp behavior | Normalization / example |
-| --- | --- | --- | --- | --- | --- |
-| `routes[].id`, `shortName`, `longName`, `mode` | strings/null | Joined static `routes.txt` | `id` Yes | Keep source text; map `route_type` to documented mode token. | `72`, `bus` |
-| `trips[].id`, `routeId`, `serviceId`, `headsign`, `shapeId` | strings/null | Joined static `trips.txt` | `id`, `routeId` Yes in lookup | No guessed service. `serviceId` uses calendar/calendar_dates evaluation. | `weekday-service` |
-| `stops[].id`, `name`, `latitude`, `longitude` | strings/numbers | Joined static `stops.txt` | `id` Yes | Exclude malformed coordinates. | `stop-123` |
-| `alerts[].id` | string | Direct GTFS-RT entity ID | Yes | Exclude if no entity ID. | `alert-opaque-id` |
-| `alerts[].informedEntities` | array | Direct `Alert.informed_entity` | Yes | Empty means agency supplied no selector. | `[]` |
-| `alerts[].header`, `description`, `url` | localized string/null | Direct GTFS-RT alert fields | No | Select documented preferred locale; preserve plain text. | `null` |
-| `alerts[].activePeriod` | array | Direct GTFS-RT `active_period` | No | Start/end are source epoch times converted to UTC; open interval allowed. | `[]` |
+The normalized state vocabulary is explicit:
 
-## Delay observations and history
+| State | Meaning |
+| --- | --- |
+| `live` | Usable current source data under the documented freshness rules. |
+| `stale` | Usable entity or feed data beyond its stale threshold. |
+| `very_stale` | Vehicle data older than 300 seconds; never portray it as current movement. |
+| `feed_error` | Fetch, HTTP, decode, or schema validation failed. |
+| `replay` | Clearly labeled synthetic fixture or, only if later permitted, captured replay. |
+| `offline` | The client cannot reach the future normalized service. |
+| `no_data` | Request succeeded but yielded no eligible records; do not convert this to zero service. |
 
-| Field | Type | Class / source | Required | Missing and timestamp behavior | Normalization / example |
-| --- | --- | --- | --- | --- | --- |
-| `delayObservations[].tripId`, `stopId` | string/null | Direct/joined `TripUpdate.stop_time_update` | No | Null IDs cannot join; retain only for feed diagnostics. | `null` |
-| `scheduledTime` | string/null | Joined static `stop_times.txt` plus service date | No | Requires calendar resolution and timezone-safe conversion. | `null` |
-| `predictedTime`, `delaySeconds` | string/number/null | Direct GTFS-RT time/delay | No | Do not derive delay from one without a validated schedule join. | `null` |
-| `snapshotId`, `capturedAt` | string | Future history-dependent | Yes in retained store | Relay capture time, not vehicle time. | `snapshot-20260724...` |
-| `rolling[]` | array | Future history-dependent | No | Only present when retention window and completeness are documented. | `[]` |
+An error can expose last-known data only with its original timestamps and stale
+state. Empty arrays require a matching state and explanation.
 
-The relay must retain a source-field audit internally during development, but frontend output contains only approved fields. Static join failure produces `null` joined data plus a health counter, never a fabricated route, trip, stop, shape, or service assignment.
+## Vehicle records
+
+A vehicle may contain an ID, position, bearing, speed, vehicle timestamp, route,
+trip, direction, stop, current status, and static enrichment. The observed feed
+contains valid position-only records. A stable vehicle ID plus plausible
+coordinates is sufficient to retain a vehicle even when route, trip, stop,
+direction, or status enrichment is missing. Missing enrichment stays `null` or
+`unknown`; it is not inferred from display text.
+
+Duplicate `vehicle.id` values and implausible coordinates or speeds were observed
+by formal validation. Consumers must flag them and keep source values available
+for diagnostics, but must not silently repair them. The exact canonical-record
+deduplication policy and the exact map/metric exclusion thresholds remain
+decisions required before live implementation. Until then, duplicates and
+implausible records are ineligible for aggregate claims rather than arbitrarily
+corrected. Zero speed is valid and must not be treated as missing.
+
+## Trip updates and predictions
+
+Retain trip ID, route ID, service date, vehicle ID, entity timestamp,
+`schedule_relationship`, and stop-time updates when present. Cancelled trips and
+skipped stops are explicit source states, not missing data and not silently
+removed. Arrival/departure epoch times and signed delay values preserve zero and
+negative values.
+
+One formal finding showed non-monotonic sequential stop prediction timestamps.
+Do not reorder or rewrite source predictions as though corrected. Flag the
+sequence, retain original stop sequence and time provenance, and exclude it from
+calculations that require monotonicity until a documented policy is accepted.
+Exact exclusion or repair behavior remains a decision required.
+
+Static schedule enrichment may add route, trip, stop, scheduled time, headsign,
+shape, and service information only after a successful ID and service-date join.
+A failed or absent join produces `null` enrichment and a diagnostic, never an
+invented assignment or scheduled value.
+
+## Service alerts
+
+Retain alert ID, localized header and description, optional localized URL, cause,
+effect, all active periods, and all informed-entity selectors. The observed feeds
+require support for multiple active periods and route, stop, direction, and trip
+targeting. Open periods and missing URLs are valid.
+
+Substantive alert comparison must ignore feed-header-only timestamp changes. It
+compares normalized alert content and targeting while retaining the new header
+timestamp for freshness. The exact stable alert-content hash and locale ordering
+remain implementation decisions; comparison must not discard meaningful period,
+text, cause, effect, URL, or selector changes.
+
+## Defensive processing rules
+
+1. Preserve raw source meaning and provenance; never fabricate corrected values.
+2. Distinguish absent scalar fields from present zero or negative values.
+3. Validate coordinates, speeds, IDs, enum values, timestamps, and joins, and
+   report quality counts separately from service metrics.
+4. Retain position-only vehicles while labeling missing context.
+5. Preserve cancellation, skipped-stop, and multi-period alert states.
+6. Never infer that a frozen-snapshot stale-header warning describes the original
+   live response.
+7. Treat uncertain cross-feed validator findings as unresolved until reproduced
+   with a controlled paired-feed test.
+8. Do not expose provider-derived replay data unless provider terms permit it.
+
+Deduplication precedence, implausibility thresholds, prediction exclusion/repair,
+locale selection, history retention, and cross-feed reconciliation require later
+methodology decisions and tests.
