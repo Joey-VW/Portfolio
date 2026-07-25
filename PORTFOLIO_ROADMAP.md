@@ -505,13 +505,13 @@ The case study and demo remain `noindex` in the currently shipped source. That d
 
 ### 08.2 Evidence transferred to later gates
 
-`MOBILE_QA_REPORT.md` provides the first mobile QA evidence for the merged source. It confirms no document-level horizontal overflow across 14 routes at 360×800, 375×812, 390×844, and 430×932, but identifies a fallback-image defect and several mobile/responsive issues. Pass 09 owns their correction and regression evidence.
+The initial merged-source mobile audit found no document-level horizontal overflow across 14 routes at 360x800, 375x812, 390x844, and 430x932. Its actionable findings were transferred into Pass 09, including Postcard Atlas fallback behavior and navigation, shared touch targets, Gravity Fleet controls, production debug gating, and narrow-screen typography.
 
-Cloudflare preview and production checks were not available in that audit. Verify actual videos, external map behavior, headers, redirects, metadata, caching, direct loads, and production console/network behavior in Pass 11 and Pass 12. Do not mark those deployment-only checks as completed based on local evidence.
+Cloudflare preview and production checks were not available during that audit. Verify actual videos, external map behavior, headers, redirects, metadata, caching, direct loads, and production console/network behavior in Pass 11 and Pass 12. Do not mark those deployment-only checks as completed based on local evidence.
 
 ## Pass 09 - Mobile layout corrections and responsive bug fixes
 
-**Status: IN REVIEW.** Source corrections were merged through PRs #6-#12. `MOBILE_QA_REPORT.md` remains the detailed evidence source for the first mobile QA pass, and its screenshots are before evidence and supporting visual references, not a replacement for updated captures after implementation. The remaining work is the regression and deployment verification in 09.7.
+**Status: IN REVIEW.** Source corrections were merged through PRs #6-#12. The first mobile audit's actionable findings are now preserved in subsections 09.1-09.6, while its generated screenshot set and standalone report have been retired as obsolete working artifacts. The remaining work is the regression and deployment verification in 09.7.
 
 Implement these subsections as focused, independently reviewable handoffs while preserving the build-light architecture and the Pass 08 preservation contract.
 
@@ -576,7 +576,7 @@ Implementation note (July 20, 2026): The fallback URL normalization, compact hor
 
 Pass 09 acceptance criteria:
 
-- Every High and Medium finding in `MOBILE_QA_REPORT.md` is fixed or explicitly dispositioned with rationale.
+- Every High and Medium finding transferred from the initial mobile audit into subsections 09.1-09.5 is fixed or explicitly dispositioned with rationale.
 - Every changed route has updated mobile evidence, and no new horizontal overflow or clipped content is introduced.
 - Touch targets meet the repository guideline where practical, production debug tools are absent for ordinary visitors, and Postcard Atlas fallback behavior works on nested routes and under reduced motion/video failure.
 - Relevant interactions still work, console and network checks show no new local failures, and a Cloudflare pull-request preview is reviewed where deployment behavior is involved.
