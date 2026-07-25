@@ -36,7 +36,7 @@ Status labels:
 | 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 12. | Pass 06 |
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
 | 09. Mobile layout corrections and responsive bug fixes | IN REVIEW | Source corrections merged through PRs #6-#12; remaining work is the documented regression and deployment verification. | Pass 08 structural integration |
-| 10. Gravity Fleet modernization | IN PROGRESS | Passes 10.0-10.6 are merged and verified, including telemetry PR #20 and the match-end recovery in PR #21. Active work is Pass 10.7 page, header, and analytics polish. | Pass 06, Pass 07, merged PRs #13, #15-#21, and Pass 09 shared-header coordination |
+| 10. Gravity Fleet modernization | IN REVIEW | Passes 10.0-10.7 are merged, including the page-shell polish in PR #23 and setup/orbit-speed follow-up in PR #25. Pass 10.8 integrated QA, cleanup verification, and release approval remain open. | Pass 06, Pass 07, merged PRs #13, #15-#21, #23, #25, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 | 13. PHX Transit Pulse | PASS 13.1 COMPLETE; PROVIDER TERMS PENDING | The hidden synthetic dashboard, deterministic replay, explicit states, accessible map alternative, and human browser QA are complete; future mobile-density polish is deferred. | Official Valley Metro terms for live ingestion and provider replay |
@@ -45,8 +45,8 @@ The recommended execution order is:
 
 1. Completed governance and feature passes.
 2. Completed faithful Pass 08 publishing-system integration.
-3. Pass 09 regression and deployment verification.
-4. Pass 10.7 Gravity Fleet page, header, and analytics polish.
+3. Pass 09.7 regression and deployment verification.
+4. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
 5. Pass 11 custom-domain and production-route release.
 6. Pass 12 final repository validation and release QA.
 7. Deferred backend and operational automation work.
@@ -584,7 +584,7 @@ Pass 09 acceptance criteria:
 
 ## Pass 10 - Gravity Fleet modernization
 
-**Status: IN PROGRESS.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. PR #20 completed Pass 10.6 telemetry and analytics, and PR #21 corrected mobile match-end recovery; both are merged and verified following deployed-browser and mobile review. Active work is now Pass 10.7. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
+**Status: IN REVIEW.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. PR #20 completed Pass 10.6 telemetry and analytics, and PR #21 corrected mobile match-end recovery; both are merged and verified following deployed-browser and mobile review. PR #23 completed Pass 10.7 page, header, and analytics polish, and PR #25 added the approved setup and orbit-speed follow-up. Pass 10.8 integrated QA, cleanup verification, and release approval remain open. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
 
 Authoritative supporting documents:
 
@@ -634,8 +634,8 @@ Recommended pull-request grouping:
 4. **PR C - Camera:** merged through PR #18, Pass 10.3.
 5. **PR #19 - Mobile shell and touch controls:** merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b`.
 6. **PR #20 and PR #21 - Mobile telemetry and match-end recovery:** merged and verified; Pass 10.6 is complete.
-7. **PR E - Page, header, and analytics polish:** active, Pass 10.7.
-8. **PR F - Integrated QA and cleanup:** later, Pass 10.8.
+7. **PR #23 and PR #25 - Page, header, analytics, setup, and orbit-speed polish:** merged; Pass 10.7 is complete.
+8. **Next - Integrated QA and cleanup:** Pass 10.8 remains open pending the documented validation matrix, final cleanup verification, and release approval.
 
 Do not ask an implementation agent to complete all remaining pull requests in one task.
 
