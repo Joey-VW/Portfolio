@@ -29,12 +29,22 @@ coverage policies without silently repairing source data.
 **Eligible to begin:** Yes, using only existing approved, clearly labeled
 synthetic fixtures. Do not use captured or normalized provider records.
 
-- Build an accessible, responsive shell and explicit live/stale/very-stale,
-  feed-error, replay, offline, and no-data states.
-- Keep synthetic demonstrations visibly labeled and make no provider-performance
-  or live-service claim.
-- Verify map alternatives if a map is later selected, keyboard flow, reduced
-  motion, and desktop/mobile layouts.
+- [x] Build the responsive, map-dominant dashboard shell from local synthetic fixtures.
+- [x] Add deterministic replay plus current, stale, very-stale, feed-error,
+  offline, and no-data demonstrations.
+- [x] Add keyboard-operable replay, filters, selectors, SVG records, and an
+  equivalent route/vehicle table.
+- [x] Keep synthetic demonstrations permanently labeled and make no
+  provider-performance or live-service claim.
+- [ ] Complete human browser QA at the full viewport matrix, 200 percent zoom,
+  keyboard-only navigation, reduced motion, and the Cloudflare preview.
+
+The Pass 13.1 fixtures live only in `data/phx-transit/synthetic/`.
+`operations-replay.json` contains fictional routes, stops, ordered frames,
+vehicle positions, feed ages, alerts, and explicit cancelled/skipped states.
+`state-scenarios.json` defines inspectable application-state presentations. Both
+fixtures declare `providerData: false`; replay is fixed-time and contains no
+randomness or provider-derived geometry or records.
 
 ## Pass 13.2 - Live ingestion and feed health - blocked by terms
 
