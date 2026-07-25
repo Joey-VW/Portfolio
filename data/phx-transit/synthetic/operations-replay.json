@@ -1,0 +1,72 @@
+{
+  "contractVersion": "0.2-draft",
+  "meta": {
+    "fixtureKind": "synthetic-operations-demo",
+    "mode": "replay",
+    "source": "fictional portfolio demonstration",
+    "providerData": false,
+    "timezone": "America/Phoenix",
+    "frameIntervalMs": 3200
+  },
+  "routes": [
+    {"id":"AQUA","label":"Aqua 7","mode":"bus","color":"cyan","path":"M72 386 C180 330 240 300 340 250 S520 170 760 128","direction":"Canyon Market to Sol Junction"},
+    {"id":"EMBER","label":"Ember 22","mode":"bus","color":"magenta","path":"M92 116 C210 140 298 182 390 260 S565 374 760 410","direction":"Copper Yard to Mesa Point"},
+    {"id":"SUNLINE","label":"Sunline R","mode":"rail","color":"amber","path":"M110 260 L760 260","direction":"West Exchange to East Exchange"}
+  ],
+  "stops": [
+    {"id":"ST-FICTION-01","label":"Sol Junction","x":340,"y":250},
+    {"id":"ST-FICTION-02","label":"Copper Exchange","x":390,"y":260},
+    {"id":"ST-FICTION-03","label":"Canyon Market","x":145,"y":350},
+    {"id":"ST-FICTION-04","label":"Prism Center","x":610,"y":260}
+  ],
+  "frames": [
+    {
+      "timestamp":"2032-04-18T16:00:00-07:00",
+      "feeds":{"vehicle_positions":{"ageSeconds":12,"status":"healthy"},"trip_updates":{"ageSeconds":18,"status":"healthy"},"service_alerts":{"ageSeconds":24,"status":"healthy"}},
+      "vehicles":[
+        {"id":"DEMO-BUS-071","routeId":"AQUA","tripId":"TRIP-A7-01","mode":"bus","x":166,"y":337,"ageSeconds":18,"freshness":"fresh","status":"In transit","stop":"Canyon Market","direction":"Sol Junction"},
+        {"id":"DEMO-BUS-224","routeId":"EMBER","tripId":"TRIP-E22-04","mode":"bus","x":270,"y":169,"ageSeconds":42,"freshness":"fresh","status":"In transit","stop":"Copper Exchange","direction":"Mesa Point"},
+        {"id":"DEMO-RAIL-03","routeId":"SUNLINE","tripId":"TRIP-SR-03","mode":"rail","x":485,"y":260,"ageSeconds":9,"freshness":"fresh","status":"At stop","stop":"Prism Center","direction":"East Exchange"},
+        {"id":"DEMO-BUS-UNK","routeId":null,"tripId":null,"mode":"unknown","x":620,"y":352,"ageSeconds":126,"freshness":"stale","status":"Position only","stop":null,"direction":null}
+      ],
+      "alerts":[{"id":"DEMO-ALERT-PLAZA","title":"Plaza access adjustment","effect":"Stop relocation","period":"16:00–16:12 synthetic time","routes":["EMBER"],"stops":["ST-FICTION-02"]}],
+      "tripStates":[{"tripId":"TRIP-E22-09","routeId":"EMBER","state":"cancelled","label":"Synthetic trip cancelled"}]
+    },
+    {
+      "timestamp":"2032-04-18T16:01:00-07:00",
+      "feeds":{"vehicle_positions":{"ageSeconds":16,"status":"healthy"},"trip_updates":{"ageSeconds":23,"status":"healthy"},"service_alerts":{"ageSeconds":84,"status":"stale"}},
+      "vehicles":[
+        {"id":"DEMO-BUS-071","routeId":"AQUA","tripId":"TRIP-A7-01","mode":"bus","x":240,"y":298,"ageSeconds":22,"freshness":"fresh","status":"In transit","stop":"Sol Junction","direction":"Sol Junction"},
+        {"id":"DEMO-BUS-224","routeId":"EMBER","tripId":"TRIP-E22-04","mode":"bus","x":340,"y":221,"ageSeconds":34,"freshness":"fresh","status":"Approaching","stop":"Copper Exchange","direction":"Mesa Point"},
+        {"id":"DEMO-RAIL-03","routeId":"SUNLINE","tripId":"TRIP-SR-03","mode":"rail","x":548,"y":260,"ageSeconds":13,"freshness":"fresh","status":"In transit","stop":"Prism Center","direction":"East Exchange"},
+        {"id":"DEMO-BUS-UNK","routeId":null,"tripId":null,"mode":"unknown","x":626,"y":346,"ageSeconds":186,"freshness":"stale","status":"Position only","stop":null,"direction":null}
+      ],
+      "alerts":[{"id":"DEMO-ALERT-PLAZA","title":"Plaza access adjustment","effect":"Stop relocation","period":"16:00–16:12 synthetic time","routes":["EMBER"],"stops":["ST-FICTION-02"]}],
+      "tripStates":[{"tripId":"TRIP-E22-09","routeId":"EMBER","state":"cancelled","label":"Synthetic trip cancelled"}]
+    },
+    {
+      "timestamp":"2032-04-18T16:02:00-07:00",
+      "feeds":{"vehicle_positions":{"ageSeconds":28,"status":"healthy"},"trip_updates":{"ageSeconds":38,"status":"intermediate"},"service_alerts":{"ageSeconds":20,"status":"healthy"}},
+      "vehicles":[
+        {"id":"DEMO-BUS-071","routeId":"AQUA","tripId":"TRIP-A7-01","mode":"bus","x":338,"y":250,"ageSeconds":31,"freshness":"fresh","status":"At stop","stop":"Sol Junction","direction":"Sol Junction"},
+        {"id":"DEMO-BUS-224","routeId":"EMBER","tripId":"TRIP-E22-04","mode":"bus","x":410,"y":276,"ageSeconds":47,"freshness":"fresh","status":"In transit","stop":"Prism Center","direction":"Mesa Point"},
+        {"id":"DEMO-RAIL-03","routeId":"SUNLINE","tripId":"TRIP-SR-03","mode":"rail","x":612,"y":260,"ageSeconds":18,"freshness":"fresh","status":"At stop","stop":"Prism Center","direction":"East Exchange"},
+        {"id":"DEMO-BUS-UNK","routeId":null,"tripId":null,"mode":"unknown","x":630,"y":341,"ageSeconds":246,"freshness":"stale","status":"Position only","stop":null,"direction":null}
+      ],
+      "alerts":[{"id":"DEMO-ALERT-PLAZA","title":"Plaza access adjustment","effect":"Stop relocation","period":"16:00–16:12 synthetic time","routes":["EMBER"],"stops":["ST-FICTION-02"]},{"id":"DEMO-ALERT-PRISM","title":"Prism Center platform change","effect":"Boarding change","period":"16:02–16:18 synthetic time","routes":["SUNLINE"],"stops":["ST-FICTION-04"]}],
+      "tripStates":[{"tripId":"TRIP-SR-08","routeId":"SUNLINE","state":"skipped_stop","label":"Prism Center stop skipped"}]
+    },
+    {
+      "timestamp":"2032-04-18T16:03:00-07:00",
+      "feeds":{"vehicle_positions":{"ageSeconds":67,"status":"degraded"},"trip_updates":{"ageSeconds":29,"status":"healthy"},"service_alerts":{"ageSeconds":19,"status":"healthy"}},
+      "vehicles":[
+        {"id":"DEMO-BUS-071","routeId":"AQUA","tripId":"TRIP-A7-01","mode":"bus","x":450,"y":202,"ageSeconds":71,"freshness":"fresh","status":"In transit","stop":"Prism Center","direction":"Sol Junction"},
+        {"id":"DEMO-BUS-224","routeId":"EMBER","tripId":"TRIP-E22-04","mode":"bus","x":492,"y":333,"ageSeconds":101,"freshness":"stale","status":"In transit","stop":"Prism Center","direction":"Mesa Point"},
+        {"id":"DEMO-RAIL-03","routeId":"SUNLINE","tripId":"TRIP-SR-03","mode":"rail","x":680,"y":260,"ageSeconds":24,"freshness":"fresh","status":"In transit","stop":"East Exchange","direction":"East Exchange"},
+        {"id":"DEMO-BUS-UNK","routeId":null,"tripId":null,"mode":"unknown","x":633,"y":338,"ageSeconds":306,"freshness":"very_stale","status":"Position only","stop":null,"direction":null}
+      ],
+      "alerts":[{"id":"DEMO-ALERT-PRISM","title":"Prism Center platform change","effect":"Boarding change","period":"16:02–16:18 synthetic time","routes":["SUNLINE"],"stops":["ST-FICTION-04"]}],
+      "tripStates":[{"tripId":"TRIP-SR-08","routeId":"SUNLINE","state":"skipped_stop","label":"Prism Center stop skipped"}]
+    }
+  ]
+}

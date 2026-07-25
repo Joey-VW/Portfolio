@@ -1,0 +1,1 @@
+treat dashboard-concept-1.png as the desired structural and format presentation.
