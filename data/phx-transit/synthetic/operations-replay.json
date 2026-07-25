@@ -9,64 +9,203 @@
     "frameIntervalMs": 3200
   },
   "routes": [
-    {"id":"AQUA","label":"Aqua 7","mode":"bus","color":"cyan","path":"M72 386 C180 330 240 300 340 250 S520 170 760 128","direction":"Canyon Market to Sol Junction"},
-    {"id":"EMBER","label":"Ember 22","mode":"bus","color":"magenta","path":"M92 116 C210 140 298 182 390 260 S565 374 760 410","direction":"Copper Yard to Mesa Point"},
-    {"id":"SUNLINE","label":"Sunline R","mode":"rail","color":"amber","path":"M110 260 L760 260","direction":"West Exchange to East Exchange"}
+    {
+      "id": "COPPER",
+      "label": "Copper 17",
+      "mode": "bus",
+      "color": "blue",
+      "path": "M70 180 C210 165 315 222 440 190 S695 130 842 188",
+      "direction": "Desert Ridge to Central Exchange"
+    },
+    {
+      "id": "SKY",
+      "label": "Sky 29",
+      "mode": "bus",
+      "color": "cyan",
+      "path": "M88 505 C230 438 315 350 446 326 S665 334 840 258",
+      "direction": "Westgate to Mesa Gateway"
+    },
+    {
+      "id": "CACTUS",
+      "label": "Cactus 60",
+      "mode": "bus",
+      "color": "teal",
+      "path": "M132 72 C240 150 270 274 390 350 S625 474 824 508",
+      "direction": "North Mountain to Chandler Market"
+    },
+    {
+      "id": "SUNLINE",
+      "label": "Sunline Rail",
+      "mode": "rail",
+      "color": "magenta",
+      "path": "M454 42 C472 160 430 248 468 360 S520 505 500 578",
+      "direction": "Uptown to South Central"
+    },
+    {
+      "id": "MESA",
+      "label": "Mesa Rail",
+      "mode": "rail",
+      "color": "amber",
+      "path": "M72 380 C248 358 350 392 520 370 S718 350 852 392",
+      "direction": "Capitol to East Valley"
+    }
   ],
   "stops": [
-    {"id":"ST-FICTION-01","label":"Sol Junction","x":340,"y":250},
-    {"id":"ST-FICTION-02","label":"Copper Exchange","x":390,"y":260},
-    {"id":"ST-FICTION-03","label":"Canyon Market","x":145,"y":350},
-    {"id":"ST-FICTION-04","label":"Prism Center","x":610,"y":260}
+    {"id": "ST-FICTION-01", "label": "Desert Ridge", "x":128, "y":176, "routes": ["COPPER"]},
+    {"id": "ST-FICTION-02", "label": "Copper Square", "x":438, "y":190, "routes": ["COPPER", "SUNLINE"]},
+    {"id": "ST-FICTION-03", "label": "Central Exchange", "x":468, "y":360, "routes": ["SKY", "SUNLINE", "MESA"]},
+    {"id": "ST-FICTION-04", "label": "Westgate", "x":118, "y":490, "routes": ["SKY"]},
+    {"id": "ST-FICTION-05", "label": "Mesa Gateway", "x":810, "y":274, "routes": ["SKY"]},
+    {"id": "ST-FICTION-06", "label": "Canyon Market", "x":326, "y":310, "routes": ["CACTUS"]},
+    {"id": "ST-FICTION-07", "label": "Tempe Junction", "x":650, "y":454, "routes": ["CACTUS", "MESA"]},
+    {"id": "ST-FICTION-08", "label": "South Central", "x":504, "y":548, "routes": ["SUNLINE"]}
   ],
   "frames": [
     {
-      "timestamp":"2032-04-18T16:00:00-07:00",
-      "feeds":{"vehicle_positions":{"ageSeconds":12,"status":"healthy"},"trip_updates":{"ageSeconds":18,"status":"healthy"},"service_alerts":{"ageSeconds":24,"status":"healthy"}},
-      "vehicles":[
-        {"id":"DEMO-BUS-071","routeId":"AQUA","tripId":"TRIP-A7-01","mode":"bus","x":166,"y":337,"ageSeconds":18,"freshness":"fresh","status":"In transit","stop":"Canyon Market","direction":"Sol Junction"},
-        {"id":"DEMO-BUS-224","routeId":"EMBER","tripId":"TRIP-E22-04","mode":"bus","x":270,"y":169,"ageSeconds":42,"freshness":"fresh","status":"In transit","stop":"Copper Exchange","direction":"Mesa Point"},
-        {"id":"DEMO-RAIL-03","routeId":"SUNLINE","tripId":"TRIP-SR-03","mode":"rail","x":485,"y":260,"ageSeconds":9,"freshness":"fresh","status":"At stop","stop":"Prism Center","direction":"East Exchange"},
-        {"id":"DEMO-BUS-UNK","routeId":null,"tripId":null,"mode":"unknown","x":620,"y":352,"ageSeconds":126,"freshness":"stale","status":"Position only","stop":null,"direction":null}
+      "timestamp": "2032-04-18T10:42:00-07:00",
+      "feeds": {
+        "vehicle_positions": {"ageSeconds": 12, "status": "healthy"},
+        "trip_updates": {"ageSeconds": 18, "status": "healthy"},
+        "service_alerts": {"ageSeconds": 24, "status": "healthy"}
+      },
+      "vehicles": [
+        {"id": "DEMO-BUS-017", "routeId": "COPPER", "tripId": "TRIP-C17-01", "mode": "bus", "x": 176, "y": 175, "ageSeconds": 18, "freshness": "fresh", "status": "In transit", "stop": "Desert Ridge", "direction": "Central Exchange"},
+        {"id": "DEMO-BUS-117", "routeId": "COPPER", "tripId": "TRIP-C17-06", "mode": "bus", "x": 664, "y": 145, "ageSeconds": 28, "freshness": "fresh", "status": "Approaching", "stop": "Central Exchange", "direction": "Desert Ridge"},
+        {"id": "DEMO-BUS-029", "routeId": "SKY", "tripId": "TRIP-S29-02", "mode": "bus", "x": 246, "y": 422, "ageSeconds": 22, "freshness": "fresh", "status": "In transit", "stop": "Westgate", "direction": "Mesa Gateway"},
+        {"id": "DEMO-BUS-129", "routeId": "SKY", "tripId": "TRIP-S29-08", "mode": "bus", "x": 704, "y": 320, "ageSeconds": 36, "freshness": "fresh", "status": "In transit", "stop": "Mesa Gateway", "direction": "Westgate"},
+        {"id": "DEMO-BUS-060", "routeId": "CACTUS", "tripId": "TRIP-C60-03", "mode": "bus", "x": 276, "y": 275, "ageSeconds": 44, "freshness": "fresh", "status": "At stop", "stop": "Canyon Market", "direction": "Chandler Market"},
+        {"id": "DEMO-BUS-160", "routeId": "CACTUS", "tripId": "TRIP-C60-09", "mode": "bus", "x": 706, "y": 486, "ageSeconds": 20, "freshness": "fresh", "status": "In transit", "stop": "Tempe Junction", "direction": "North Mountain"},
+        {"id": "DEMO-RAIL-01", "routeId": "SUNLINE", "tripId": "TRIP-SR-01", "mode": "rail", "x": 456, "y": 126, "ageSeconds": 8, "freshness": "fresh", "status": "In transit", "stop": "Copper Square", "direction": "South Central"},
+        {"id": "DEMO-RAIL-02", "routeId": "SUNLINE", "tripId": "TRIP-SR-05", "mode": "rail", "x": 492, "y": 470, "ageSeconds": 16, "freshness": "fresh", "status": "At stop", "stop": "South Central", "direction": "Uptown"},
+        {"id": "DEMO-RAIL-03", "routeId": "MESA", "tripId": "TRIP-MR-03", "mode": "rail", "x": 674, "y": 356, "ageSeconds": 11, "freshness": "fresh", "status": "In transit", "stop": "Tempe Junction", "direction": "East Valley"},
+        {"id": "DEMO-POSITION-ONLY", "routeId": null, "tripId": null, "mode": "unknown", "x": 744, "y": 528, "ageSeconds": 126, "freshness": "stale", "status": "Position only", "stop": null, "direction": null}
       ],
-      "alerts":[{"id":"DEMO-ALERT-PLAZA","title":"Plaza access adjustment","effect":"Stop relocation","period":"16:00–16:12 synthetic time","routes":["EMBER"],"stops":["ST-FICTION-02"]}],
-      "tripStates":[{"tripId":"TRIP-E22-09","routeId":"EMBER","state":"cancelled","label":"Synthetic trip cancelled"}]
+      "alerts": [
+        {"id": "DEMO-ALERT-PLATFORM", "title": "Central platform change", "effect": "Boarding change", "severity": "major", "displayTime": "10:39", "period": "10:39–11:05 synthetic time", "routes": ["SUNLINE"], "stops": ["ST-FICTION-02"], "x": 448, "y": 212},
+        {"id": "DEMO-ALERT-DETOUR", "title": "Copper 17 detour", "effect": "Detour", "severity": "warning", "displayTime": "10:31", "period": "10:31–10:58 synthetic time", "routes": ["COPPER"], "stops": ["ST-FICTION-01"], "x": 280, "y": 190},
+        {"id": "DEMO-ALERT-INFO", "title": "Mesa Gateway stop relocation", "effect": "Stop moved", "severity": "info", "displayTime": "10:22", "period": "10:22–11:12 synthetic time", "routes": ["SKY"], "stops": ["ST-FICTION-05"], "x": 790, "y": 282}
+      ],
+      "tripStates": [
+        {"tripId": "TRIP-C17-11", "routeId": "COPPER", "state": "cancelled", "label": "Synthetic trip cancelled"},
+        {"tripId": "TRIP-S29-10", "routeId": "SKY", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Mesa Gateway"},
+        {"tripId": "TRIP-S29-12", "routeId": "SKY", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Westgate"}
+      ],
+      "routeSignals": [
+        {"routeId": "COPPER", "activeVehicles": 2, "predictedDelayMinutes": 7.8, "coverage": 0.82, "status": "alert"},
+        {"routeId": "SKY", "activeVehicles": 2, "predictedDelayMinutes": 5.1, "coverage": 0.79, "status": "watch"},
+        {"routeId": "CACTUS", "activeVehicles": 2, "predictedDelayMinutes": 3.2, "coverage": 0.88, "status": "healthy"},
+        {"routeId": "SUNLINE", "activeVehicles": 2, "predictedDelayMinutes": 2.4, "coverage": 0.93, "status": "watch"},
+        {"routeId": "MESA", "activeVehicles": 1, "predictedDelayMinutes": 1.7, "coverage": 0.91, "status": "healthy"}
+      ]
     },
     {
-      "timestamp":"2032-04-18T16:01:00-07:00",
-      "feeds":{"vehicle_positions":{"ageSeconds":16,"status":"healthy"},"trip_updates":{"ageSeconds":23,"status":"healthy"},"service_alerts":{"ageSeconds":84,"status":"stale"}},
-      "vehicles":[
-        {"id":"DEMO-BUS-071","routeId":"AQUA","tripId":"TRIP-A7-01","mode":"bus","x":240,"y":298,"ageSeconds":22,"freshness":"fresh","status":"In transit","stop":"Sol Junction","direction":"Sol Junction"},
-        {"id":"DEMO-BUS-224","routeId":"EMBER","tripId":"TRIP-E22-04","mode":"bus","x":340,"y":221,"ageSeconds":34,"freshness":"fresh","status":"Approaching","stop":"Copper Exchange","direction":"Mesa Point"},
-        {"id":"DEMO-RAIL-03","routeId":"SUNLINE","tripId":"TRIP-SR-03","mode":"rail","x":548,"y":260,"ageSeconds":13,"freshness":"fresh","status":"In transit","stop":"Prism Center","direction":"East Exchange"},
-        {"id":"DEMO-BUS-UNK","routeId":null,"tripId":null,"mode":"unknown","x":626,"y":346,"ageSeconds":186,"freshness":"stale","status":"Position only","stop":null,"direction":null}
+      "timestamp": "2032-04-18T10:43:00-07:00",
+      "feeds": {
+        "vehicle_positions": {"ageSeconds": 16, "status": "healthy"},
+        "trip_updates": {"ageSeconds": 23, "status": "healthy"},
+        "service_alerts": {"ageSeconds": 44, "status": "intermediate"}
+      },
+      "vehicles": [
+        {"id": "DEMO-BUS-017", "routeId": "COPPER", "tripId": "TRIP-C17-01", "mode": "bus", "x": 254, "y": 184, "ageSeconds": 20, "freshness": "fresh", "status": "In transit", "stop": "Copper Square", "direction": "Central Exchange"},
+        {"id": "DEMO-BUS-117", "routeId": "COPPER", "tripId": "TRIP-C17-06", "mode": "bus", "x": 602, "y": 154, "ageSeconds": 34, "freshness": "fresh", "status": "In transit", "stop": "Central Exchange", "direction": "Desert Ridge"},
+        {"id": "DEMO-BUS-029", "routeId": "SKY", "tripId": "TRIP-S29-02", "mode": "bus", "x": 316, "y": 366, "ageSeconds": 26, "freshness": "fresh", "status": "Approaching", "stop": "Central Exchange", "direction": "Mesa Gateway"},
+        {"id": "DEMO-BUS-129", "routeId": "SKY", "tripId": "TRIP-S29-08", "mode": "bus", "x": 642, "y": 335, "ageSeconds": 42, "freshness": "fresh", "status": "In transit", "stop": "Mesa Gateway", "direction": "Westgate"},
+        {"id": "DEMO-BUS-060", "routeId": "CACTUS", "tripId": "TRIP-C60-03", "mode": "bus", "x": 332, "y": 320, "ageSeconds": 48, "freshness": "fresh", "status": "In transit", "stop": "Canyon Market", "direction": "Chandler Market"},
+        {"id": "DEMO-BUS-160", "routeId": "CACTUS", "tripId": "TRIP-C60-09", "mode": "bus", "x": 650, "y": 466, "ageSeconds": 25, "freshness": "fresh", "status": "At stop", "stop": "Tempe Junction", "direction": "North Mountain"},
+        {"id": "DEMO-RAIL-01", "routeId": "SUNLINE", "tripId": "TRIP-SR-01", "mode": "rail", "x": 449, "y": 188, "ageSeconds": 12, "freshness": "fresh", "status": "At stop", "stop": "Copper Square", "direction": "South Central"},
+        {"id": "DEMO-RAIL-02", "routeId": "SUNLINE", "tripId": "TRIP-SR-05", "mode": "rail", "x": 482, "y": 410, "ageSeconds": 19, "freshness": "fresh", "status": "In transit", "stop": "Central Exchange", "direction": "Uptown"},
+        {"id": "DEMO-RAIL-03", "routeId": "MESA", "tripId": "TRIP-MR-03", "mode": "rail", "x": 620, "y": 360, "ageSeconds": 14, "freshness": "fresh", "status": "In transit", "stop": "Tempe Junction", "direction": "East Valley"},
+        {"id": "DEMO-POSITION-ONLY", "routeId": null, "tripId": null, "mode": "unknown", "x": 748, "y": 524, "ageSeconds": 186, "freshness": "stale", "status": "Position only", "stop": null, "direction": null}
       ],
-      "alerts":[{"id":"DEMO-ALERT-PLAZA","title":"Plaza access adjustment","effect":"Stop relocation","period":"16:00–16:12 synthetic time","routes":["EMBER"],"stops":["ST-FICTION-02"]}],
-      "tripStates":[{"tripId":"TRIP-E22-09","routeId":"EMBER","state":"cancelled","label":"Synthetic trip cancelled"}]
+      "alerts": [
+        {"id": "DEMO-ALERT-PLATFORM", "title": "Central platform change", "effect": "Boarding change", "severity": "major", "displayTime": "10:39", "period": "10:39–11:05 synthetic time", "routes": ["SUNLINE"], "stops": ["ST-FICTION-02"], "x": 448, "y": 212},
+        {"id": "DEMO-ALERT-DETOUR", "title": "Copper 17 detour", "effect": "Detour", "severity": "warning", "displayTime": "10:31", "period": "10:31–10:58 synthetic time", "routes": ["COPPER"], "stops": ["ST-FICTION-01"], "x": 280, "y": 190},
+        {"id": "DEMO-ALERT-INFO", "title": "Mesa Gateway stop relocation", "effect": "Stop moved", "severity": "info", "displayTime": "10:22", "period": "10:22–11:12 synthetic time", "routes": ["SKY"], "stops": ["ST-FICTION-05"], "x": 790, "y": 282}
+      ],
+      "tripStates": [
+        {"tripId": "TRIP-C17-11", "routeId": "COPPER", "state": "cancelled", "label": "Synthetic trip cancelled"},
+        {"tripId": "TRIP-S29-10", "routeId": "SKY", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Mesa Gateway"},
+        {"tripId": "TRIP-C60-12", "routeId": "CACTUS", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Tempe Junction"}
+      ],
+      "routeSignals": [
+        {"routeId": "COPPER", "activeVehicles": 2, "predictedDelayMinutes": 8.4, "coverage": 0.82, "status": "alert"},
+        {"routeId": "SKY", "activeVehicles": 2, "predictedDelayMinutes": 5.6, "coverage": 0.79, "status": "watch"},
+        {"routeId": "CACTUS", "activeVehicles": 2, "predictedDelayMinutes": 3.6, "coverage": 0.88, "status": "healthy"},
+        {"routeId": "SUNLINE", "activeVehicles": 2, "predictedDelayMinutes": 2.1, "coverage": 0.93, "status": "watch"},
+        {"routeId": "MESA", "activeVehicles": 1, "predictedDelayMinutes": 1.5, "coverage": 0.91, "status": "healthy"}
+      ]
     },
     {
-      "timestamp":"2032-04-18T16:02:00-07:00",
-      "feeds":{"vehicle_positions":{"ageSeconds":28,"status":"healthy"},"trip_updates":{"ageSeconds":38,"status":"intermediate"},"service_alerts":{"ageSeconds":20,"status":"healthy"}},
-      "vehicles":[
-        {"id":"DEMO-BUS-071","routeId":"AQUA","tripId":"TRIP-A7-01","mode":"bus","x":338,"y":250,"ageSeconds":31,"freshness":"fresh","status":"At stop","stop":"Sol Junction","direction":"Sol Junction"},
-        {"id":"DEMO-BUS-224","routeId":"EMBER","tripId":"TRIP-E22-04","mode":"bus","x":410,"y":276,"ageSeconds":47,"freshness":"fresh","status":"In transit","stop":"Prism Center","direction":"Mesa Point"},
-        {"id":"DEMO-RAIL-03","routeId":"SUNLINE","tripId":"TRIP-SR-03","mode":"rail","x":612,"y":260,"ageSeconds":18,"freshness":"fresh","status":"At stop","stop":"Prism Center","direction":"East Exchange"},
-        {"id":"DEMO-BUS-UNK","routeId":null,"tripId":null,"mode":"unknown","x":630,"y":341,"ageSeconds":246,"freshness":"stale","status":"Position only","stop":null,"direction":null}
+      "timestamp": "2032-04-18T10:44:00-07:00",
+      "feeds": {
+        "vehicle_positions": {"ageSeconds": 28, "status": "healthy"},
+        "trip_updates": {"ageSeconds": 38, "status": "intermediate"},
+        "service_alerts": {"ageSeconds": 20, "status": "healthy"}
+      },
+      "vehicles": [
+        {"id": "DEMO-BUS-017", "routeId": "COPPER", "tripId": "TRIP-C17-01", "mode": "bus", "x": 334, "y": 207, "ageSeconds": 28, "freshness": "fresh", "status": "Approaching", "stop": "Copper Square", "direction": "Central Exchange"},
+        {"id": "DEMO-BUS-117", "routeId": "COPPER", "tripId": "TRIP-C17-06", "mode": "bus", "x": 532, "y": 173, "ageSeconds": 44, "freshness": "fresh", "status": "In transit", "stop": "Copper Square", "direction": "Desert Ridge"},
+        {"id": "DEMO-BUS-029", "routeId": "SKY", "tripId": "TRIP-S29-02", "mode": "bus", "x": 392, "y": 334, "ageSeconds": 32, "freshness": "fresh", "status": "In transit", "stop": "Central Exchange", "direction": "Mesa Gateway"},
+        {"id": "DEMO-BUS-129", "routeId": "SKY", "tripId": "TRIP-S29-08", "mode": "bus", "x": 574, "y": 340, "ageSeconds": 51, "freshness": "fresh", "status": "In transit", "stop": "Central Exchange", "direction": "Westgate"},
+        {"id": "DEMO-BUS-060", "routeId": "CACTUS", "tripId": "TRIP-C60-03", "mode": "bus", "x": 394, "y": 352, "ageSeconds": 58, "freshness": "fresh", "status": "At stop", "stop": "Central Exchange", "direction": "Chandler Market"},
+        {"id": "DEMO-BUS-160", "routeId": "CACTUS", "tripId": "TRIP-C60-09", "mode": "bus", "x": 586, "y": 432, "ageSeconds": 31, "freshness": "fresh", "status": "In transit", "stop": "Tempe Junction", "direction": "North Mountain"},
+        {"id": "DEMO-RAIL-01", "routeId": "SUNLINE", "tripId": "TRIP-SR-01", "mode": "rail", "x": 446, "y": 252, "ageSeconds": 17, "freshness": "fresh", "status": "In transit", "stop": "Central Exchange", "direction": "South Central"},
+        {"id": "DEMO-RAIL-02", "routeId": "SUNLINE", "tripId": "TRIP-SR-05", "mode": "rail", "x": 470, "y": 354, "ageSeconds": 22, "freshness": "fresh", "status": "At stop", "stop": "Central Exchange", "direction": "Uptown"},
+        {"id": "DEMO-RAIL-03", "routeId": "MESA", "tripId": "TRIP-MR-03", "mode": "rail", "x": 560, "y": 366, "ageSeconds": 18, "freshness": "fresh", "status": "In transit", "stop": "Central Exchange", "direction": "East Valley"},
+        {"id": "DEMO-POSITION-ONLY", "routeId": null, "tripId": null, "mode": "unknown", "x": 752, "y": 520, "ageSeconds": 246, "freshness": "stale", "status": "Position only", "stop": null, "direction": null}
       ],
-      "alerts":[{"id":"DEMO-ALERT-PLAZA","title":"Plaza access adjustment","effect":"Stop relocation","period":"16:00–16:12 synthetic time","routes":["EMBER"],"stops":["ST-FICTION-02"]},{"id":"DEMO-ALERT-PRISM","title":"Prism Center platform change","effect":"Boarding change","period":"16:02–16:18 synthetic time","routes":["SUNLINE"],"stops":["ST-FICTION-04"]}],
-      "tripStates":[{"tripId":"TRIP-SR-08","routeId":"SUNLINE","state":"skipped_stop","label":"Prism Center stop skipped"}]
+      "alerts": [
+        {"id": "DEMO-ALERT-PLATFORM", "title": "Central platform change", "effect": "Boarding change", "severity": "major", "displayTime": "10:39", "period": "10:39–11:05 synthetic time", "routes": ["SUNLINE"], "stops": ["ST-FICTION-02"], "x": 448, "y": 212},
+        {"id": "DEMO-ALERT-INFO", "title": "Mesa Gateway stop relocation", "effect": "Stop moved", "severity": "info", "displayTime": "10:22", "period": "10:22–11:12 synthetic time", "routes": ["SKY"], "stops": ["ST-FICTION-05"], "x": 790, "y": 282}
+      ],
+      "tripStates": [
+        {"tripId": "TRIP-C17-11", "routeId": "COPPER", "state": "cancelled", "label": "Synthetic trip cancelled"},
+        {"tripId": "TRIP-S29-10", "routeId": "SKY", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Mesa Gateway"},
+        {"tripId": "TRIP-C60-12", "routeId": "CACTUS", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Tempe Junction"},
+        {"tripId": "TRIP-SR-10", "routeId": "SUNLINE", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Copper Square"}
+      ],
+      "routeSignals": [
+        {"routeId": "COPPER", "activeVehicles": 2, "predictedDelayMinutes": 6.2, "coverage": 0.82, "status": "watch"},
+        {"routeId": "SKY", "activeVehicles": 2, "predictedDelayMinutes": 6.0, "coverage": 0.79, "status": "watch"},
+        {"routeId": "CACTUS", "activeVehicles": 2, "predictedDelayMinutes": 4.0, "coverage": 0.88, "status": "healthy"},
+        {"routeId": "SUNLINE", "activeVehicles": 2, "predictedDelayMinutes": 3.0, "coverage": 0.93, "status": "watch"},
+        {"routeId": "MESA", "activeVehicles": 1, "predictedDelayMinutes": 1.4, "coverage": 0.91, "status": "healthy"}
+      ]
     },
     {
-      "timestamp":"2032-04-18T16:03:00-07:00",
-      "feeds":{"vehicle_positions":{"ageSeconds":67,"status":"degraded"},"trip_updates":{"ageSeconds":29,"status":"healthy"},"service_alerts":{"ageSeconds":19,"status":"healthy"}},
-      "vehicles":[
-        {"id":"DEMO-BUS-071","routeId":"AQUA","tripId":"TRIP-A7-01","mode":"bus","x":450,"y":202,"ageSeconds":71,"freshness":"fresh","status":"In transit","stop":"Prism Center","direction":"Sol Junction"},
-        {"id":"DEMO-BUS-224","routeId":"EMBER","tripId":"TRIP-E22-04","mode":"bus","x":492,"y":333,"ageSeconds":101,"freshness":"stale","status":"In transit","stop":"Prism Center","direction":"Mesa Point"},
-        {"id":"DEMO-RAIL-03","routeId":"SUNLINE","tripId":"TRIP-SR-03","mode":"rail","x":680,"y":260,"ageSeconds":24,"freshness":"fresh","status":"In transit","stop":"East Exchange","direction":"East Exchange"},
-        {"id":"DEMO-BUS-UNK","routeId":null,"tripId":null,"mode":"unknown","x":633,"y":338,"ageSeconds":306,"freshness":"very_stale","status":"Position only","stop":null,"direction":null}
+      "timestamp": "2032-04-18T10:45:00-07:00",
+      "feeds": {
+        "vehicle_positions": {"ageSeconds": 67, "status": "degraded"},
+        "trip_updates": {"ageSeconds": 29, "status": "healthy"},
+        "service_alerts": {"ageSeconds": 19, "status": "healthy"}
+      },
+      "vehicles": [
+        {"id": "DEMO-BUS-017", "routeId": "COPPER", "tripId": "TRIP-C17-01", "mode": "bus", "x": 412, "y": 196, "ageSeconds": 71, "freshness": "fresh", "status": "At stop", "stop": "Copper Square", "direction": "Central Exchange"},
+        {"id": "DEMO-BUS-117", "routeId": "COPPER", "tripId": "TRIP-C17-06", "mode": "bus", "x": 470, "y": 183, "ageSeconds": 101, "freshness": "stale", "status": "In transit", "stop": "Copper Square", "direction": "Desert Ridge"},
+        {"id": "DEMO-BUS-029", "routeId": "SKY", "tripId": "TRIP-S29-02", "mode": "bus", "x": 462, "y": 326, "ageSeconds": 44, "freshness": "fresh", "status": "At stop", "stop": "Central Exchange", "direction": "Mesa Gateway"},
+        {"id": "DEMO-BUS-129", "routeId": "SKY", "tripId": "TRIP-S29-08", "mode": "bus", "x": 510, "y": 333, "ageSeconds": 63, "freshness": "fresh", "status": "Approaching", "stop": "Central Exchange", "direction": "Westgate"},
+        {"id": "DEMO-BUS-060", "routeId": "CACTUS", "tripId": "TRIP-C60-03", "mode": "bus", "x": 454, "y": 380, "ageSeconds": 68, "freshness": "fresh", "status": "In transit", "stop": "Tempe Junction", "direction": "Chandler Market"},
+        {"id": "DEMO-BUS-160", "routeId": "CACTUS", "tripId": "TRIP-C60-09", "mode": "bus", "x": 530, "y": 404, "ageSeconds": 38, "freshness": "fresh", "status": "In transit", "stop": "Central Exchange", "direction": "North Mountain"},
+        {"id": "DEMO-RAIL-01", "routeId": "SUNLINE", "tripId": "TRIP-SR-01", "mode": "rail", "x": 458, "y": 316, "ageSeconds": 24, "freshness": "fresh", "status": "Approaching", "stop": "Central Exchange", "direction": "South Central"},
+        {"id": "DEMO-RAIL-02", "routeId": "SUNLINE", "tripId": "TRIP-SR-05", "mode": "rail", "x": 450, "y": 292, "ageSeconds": 28, "freshness": "fresh", "status": "In transit", "stop": "Copper Square", "direction": "Uptown"},
+        {"id": "DEMO-RAIL-03", "routeId": "MESA", "tripId": "TRIP-MR-03", "mode": "rail", "x": 500, "y": 374, "ageSeconds": 24, "freshness": "fresh", "status": "At stop", "stop": "Central Exchange", "direction": "East Valley"},
+        {"id": "DEMO-POSITION-ONLY", "routeId": null, "tripId": null, "mode": "unknown", "x": 756, "y": 516, "ageSeconds": 306, "freshness": "very_stale", "status": "Position only", "stop": null, "direction": null}
       ],
-      "alerts":[{"id":"DEMO-ALERT-PRISM","title":"Prism Center platform change","effect":"Boarding change","period":"16:02–16:18 synthetic time","routes":["SUNLINE"],"stops":["ST-FICTION-04"]}],
-      "tripStates":[{"tripId":"TRIP-SR-08","routeId":"SUNLINE","state":"skipped_stop","label":"Prism Center stop skipped"}]
+      "alerts": [
+        {"id": "DEMO-ALERT-PLATFORM", "title": "Central platform change", "effect": "Boarding change", "severity": "major", "displayTime": "10:39", "period": "10:39–11:05 synthetic time", "routes": ["SUNLINE"], "stops": ["ST-FICTION-02"], "x": 448, "y": 212},
+        {"id": "DEMO-ALERT-INFO", "title": "Mesa Gateway stop relocation", "effect": "Stop moved", "severity": "info", "displayTime": "10:22", "period": "10:22–11:12 synthetic time", "routes": ["SKY"], "stops": ["ST-FICTION-05"], "x": 790, "y": 282}
+      ],
+      "tripStates": [
+        {"tripId": "TRIP-S29-10", "routeId": "SKY", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Mesa Gateway"},
+        {"tripId": "TRIP-C60-12", "routeId": "CACTUS", "state": "skipped_stop", "label": "Synthetic skipped stop", "stop": "Tempe Junction"}
+      ],
+      "routeSignals": [
+        {"routeId": "COPPER", "activeVehicles": 1, "predictedDelayMinutes": 5.4, "coverage": 0.76, "status": "watch"},
+        {"routeId": "SKY", "activeVehicles": 2, "predictedDelayMinutes": 5.8, "coverage": 0.79, "status": "watch"},
+        {"routeId": "CACTUS", "activeVehicles": 2, "predictedDelayMinutes": 3.7, "coverage": 0.88, "status": "healthy"},
+        {"routeId": "SUNLINE", "activeVehicles": 2, "predictedDelayMinutes": 2.7, "coverage": 0.93, "status": "watch"},
+        {"routeId": "MESA", "activeVehicles": 1, "predictedDelayMinutes": 1.3, "coverage": 0.91, "status": "healthy"}
+      ]
     }
   ]
 }

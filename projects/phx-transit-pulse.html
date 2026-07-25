@@ -4,82 +4,222 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#050a18">
-  <meta name="description" content="A deterministic synthetic transit-operations dashboard demonstrating accessible feed, vehicle, route, and alert inspection.">
+  <meta name="theme-color" content="#020914">
+  <meta name="description" content="A polished synthetic GTFS-Realtime operations dashboard demonstrating feed, vehicle, route, trip, and alert inspection.">
   <title>PHX Transit Pulse | Synthetic Operations Demo</title>
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/projects/phx-transit-pulse.css">
 </head>
 <body class="phx-transit">
-  <a class="skip-link" href="#dashboard">Skip to operations dashboard</a>
-  <header class="topbar phx-portfolio-bar" aria-label="Portfolio navigation">
-    <a class="brand-mark" href="/index.html"><span class="brand-glyph">JW</span><span class="brand-copy"><strong>Joe Wisto</strong><small>Systems • Automation • Analytics • BI</small></span></a>
-    <nav class="topnav project-context-nav" aria-label="Project navigation"><a class="nav-return" href="/index.html">← Go back</a><a href="/projects/">All projects</a></nav>
-  </header>
-  <main id="dashboard" class="phx-dashboard" data-app-state="loading">
-    <header class="phx-command">
-      <div class="phx-identity">
-        <p class="phx-kicker">Independent GTFS-Realtime Operations Lab</p>
-        <h1>PHX Transit <span>Pulse</span></h1>
-        <p class="phx-deck">A fictional system snapshot designed to explore transparent transit-operations interfaces.</p>
-      </div>
-      <div class="phx-status-cluster">
-        <span class="phx-demo-badge">◇ Synthetic operations demo</span>
-        <div class="phx-clock"><span>Replay time</span><strong data-replay-time>Loading fixture…</strong><small data-frame-label>Synthetic replay</small></div>
-        <div class="phx-primary-state" data-primary-state><span aria-hidden="true">●</span> Loading synthetic replay</div>
-      </div>
-    </header>
-
-    <section class="phx-controls" aria-label="Dashboard controls">
-      <div class="phx-replay" role="group" aria-label="Synthetic replay controls">
-        <button type="button" data-action="restart" aria-label="Restart synthetic replay">↺</button>
-        <button type="button" data-action="previous" aria-label="Previous replay frame">‹</button>
-        <button class="phx-play" type="button" data-action="play" aria-label="Play synthetic replay"><span aria-hidden="true">▶</span><span data-play-label>Play</span></button>
-        <button type="button" data-action="next" aria-label="Next replay frame">›</button>
-        <label class="phx-progress"><span>Frame</span><input type="range" min="0" value="0" step="1" data-timeline aria-label="Synthetic replay frame"></label>
-      </div>
-      <div class="phx-filter-set">
-        <label>Mode<select data-mode-filter><option value="all">All modes</option><option value="bus">Bus</option><option value="rail">Light rail</option><option value="unknown">Unknown</option></select></label>
-        <label>Route<select data-route-filter><option value="all">All routes</option></select></label>
-        <label>Demo state<select data-scenario><option value="current">Synthetic replay - current</option></select></label>
-        <button type="button" data-action="reset">Reset system view</button>
-      </div>
-    </section>
-
-    <section class="phx-state-note" aria-live="polite" aria-atomic="true"><strong data-state-title>Synthetic replay</strong><span data-state-message>Loading fictional operations fixture.</span></section>
-    <section class="phx-kpis" aria-label="Current synthetic snapshot signals" data-kpis></section>
-
-    <div class="phx-workspace">
-      <section class="phx-map-panel" aria-labelledby="map-title">
-        <header><div><p class="phx-section-label">Operations surface</p><h2 id="map-title">Synthetic system map</h2></div><button type="button" data-action="reset">System view</button></header>
-        <div class="phx-map-wrap" data-map-wrap>
-          <svg class="phx-map" viewBox="0 0 840 500" role="group" aria-labelledby="map-svg-title map-svg-desc" data-map>
-            <title id="map-svg-title">Fictional transit operations schematic</title>
-            <desc id="map-svg-desc">An abstract grid with three fictional routes, stops, and selectable vehicle positions. The record list after the map contains equivalent information.</desc>
-            <defs><pattern id="phx-grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="currentColor" stroke-width="1"/></pattern></defs>
-            <rect class="map-grid" width="840" height="500" fill="url(#phx-grid)"/>
-            <g class="map-districts" aria-hidden="true"><path d="M45 85H795M45 180H795M45 340H795M180 35V465M330 35V465M540 35V465M700 35V465"/></g>
-            <g data-map-routes></g><g data-map-stops></g><g data-map-vehicles></g>
-          </svg>
-          <div class="phx-map-empty" data-map-empty hidden><strong>Operational picture unavailable</strong><span>No vehicle positions can be plotted for this selected demonstration state.</span></div>
+  <a class="skip-link" href="#operations">Skip to operations dashboard</a>
+  <main class="phx-dashboard" data-app-state="loading">
+    <aside class="phx-sidebar" aria-label="Dashboard controls and project context">
+      <div class="phx-brand">
+        <svg class="phx-mark" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M33 58c-8-5-14-11-17-19 6 4 11 5 15 4-8-5-13-12-14-21 6 7 12 10 18 9-5-7-6-14-2-24 3 8 7 13 13 17 5 4 8 9 8 15 0 9-7 16-21 19Z"/>
+          <path d="M10 46C5 38 5 29 10 19c1 10 5 18 12 23-3 3-7 4-12 4Zm42 1c5-8 6-16 3-25 7 8 9 17 5 27-3 0-6-1-8-2Z"/>
+        </svg>
+        <div>
+          <span>Phoenix</span>
+          <strong>Transit Pulse</strong>
+          <small>GTFS-Realtime operations lab</small>
         </div>
-        <footer class="phx-legend" aria-label="Map legend"><span><i class="bus"></i>Bus</span><span><i class="rail"></i>Rail</span><span><i class="stale"></i>Stale</span><span><i class="alert"></i>Alert affected</span><small>Schematic only - not an authoritative city map</small></footer>
+      </div>
+
+      <section class="phx-demo-note" aria-labelledby="demo-note-title">
+        <span class="phx-demo-chip"><i aria-hidden="true"></i> Synthetic replay</span>
+        <h1 id="demo-note-title">Mock data only</h1>
+        <p>This portfolio dashboard is not connected to Valley Metro. Every route, vehicle, alert, and metric shown is fictional.</p>
       </section>
 
-      <aside class="phx-rail" aria-label="Operations inspection panels">
-        <section class="phx-panel" aria-labelledby="feed-title"><header><p class="phx-section-label">Signal integrity</p><h2 id="feed-title">Feed health</h2></header><div data-feed-health></div><p class="phx-panel-note">Feed age describes the fixture envelope. Vehicle age is evaluated separately per record.</p></section>
-        <details class="phx-panel" open><summary><span><small>System notices</small>Active alerts</span><b data-alert-count>0</b></summary><div data-alerts></div></details>
-        <details class="phx-panel" open><summary><span><small>Inspector</small>Selected record</span></summary><div data-inspector class="phx-inspector"><p>Select a route, alert, or vehicle to inspect its fictional record.</p></div></details>
-      </aside>
-    </div>
+      <section class="phx-control-stack" aria-label="Synthetic dashboard controls">
+        <label class="phx-field">
+          <span>Demonstration state</span>
+          <select data-scenario>
+            <option value="current">Synthetic replay - current</option>
+          </select>
+        </label>
 
-    <section class="phx-analysis" aria-labelledby="records-title">
-      <div class="phx-composition"><header><p class="phx-section-label">Snapshot only</p><h2>Fleet composition</h2></header><div data-composition></div><p>No historical performance or reliability claim is calculated.</p></div>
-      <div class="phx-records"><header><div><p class="phx-section-label">Accessible map alternative</p><h2 id="records-title">Route and vehicle records</h2></div><span data-record-count></span></header><div class="phx-table-wrap"><table><thead><tr><th>Record</th><th>Route / mode</th><th>Freshness</th><th>Status</th><th>Stop / direction</th></tr></thead><tbody data-records></tbody></table></div></div>
+        <div class="phx-field">
+          <span>Vehicle mode</span>
+          <div class="phx-segmented" role="group" aria-label="Filter by vehicle mode">
+            <button type="button" class="is-active" data-mode="all" aria-pressed="true">All</button>
+            <button type="button" data-mode="bus" aria-pressed="false">Bus</button>
+            <button type="button" data-mode="rail" aria-pressed="false">Rail</button>
+          </div>
+        </div>
+
+        <label class="phx-field">
+          <span>Route</span>
+          <select data-route-filter>
+            <option value="all">All fictional routes</option>
+          </select>
+        </label>
+
+        <div class="phx-replay" role="group" aria-label="Synthetic replay controls">
+          <div class="phx-replay-buttons">
+            <button type="button" data-action="restart" aria-label="Restart synthetic replay">↺</button>
+            <button type="button" data-action="previous" aria-label="Previous replay frame">‹</button>
+            <button class="phx-play" type="button" data-action="play" aria-label="Play synthetic replay">
+              <span aria-hidden="true" data-play-icon>▶</span><span data-play-label>Play</span>
+            </button>
+            <button type="button" data-action="next" aria-label="Next replay frame">›</button>
+          </div>
+          <label class="phx-timeline">
+            <span>Replay frame <b data-frame-count>1 / 4</b></span>
+            <input type="range" min="0" value="0" step="1" data-timeline aria-label="Synthetic replay frame">
+          </label>
+        </div>
+
+        <button class="phx-reset" type="button" data-action="reset">Reset dashboard view</button>
+      </section>
+
+      <details class="phx-methodology">
+        <summary>What the real feeds can support</summary>
+        <p>Vehicle positions, timestamps, trip updates, service alerts, cancellations, skipped stops, and static route, trip, stop, and mode enrichment.</p>
+        <p>Predicted route delay is shown only as a provisional mock calculation. Historical reliability, headway, bunching, and on-time performance are intentionally excluded.</p>
+      </details>
+
+      <nav class="phx-project-links" aria-label="Portfolio navigation">
+        <a href="/index.html">← Back to portfolio</a>
+        <a href="/projects/">All projects</a>
+      </nav>
+    </aside>
+
+    <section id="operations" class="phx-operations">
+      <header class="phx-topline">
+        <div class="phx-live-state" data-primary-state>
+          <span aria-hidden="true"></span>
+          <strong>Synthetic replay</strong>
+          <small>Last updated <b data-replay-time>Loading fixture…</b></small>
+        </div>
+        <div class="phx-location">
+          <span>Phoenix, AZ</span>
+          <strong data-clock-time>Replay clock</strong>
+        </div>
+      </header>
+
+      <section class="phx-state-note" aria-live="polite" aria-atomic="true">
+        <strong data-state-title>Synthetic replay</strong>
+        <span data-state-message>Loading fictional operations fixture.</span>
+      </section>
+
+      <div class="phx-ops-grid">
+        <section class="phx-snapshot" aria-labelledby="snapshot-title">
+          <header class="phx-panel-heading">
+            <div><span>Operations at a glance</span><h2 id="snapshot-title">Current snapshot</h2></div>
+          </header>
+          <div class="phx-kpis" data-kpis></div>
+        </section>
+
+        <section class="phx-map-panel" aria-labelledby="map-title">
+          <header class="phx-map-toolbar">
+            <label>
+              <span class="sr-only">Network view</span>
+              <select aria-label="Network view">
+                <option>Phoenix synthetic network</option>
+              </select>
+            </label>
+            <div class="phx-map-filter" aria-label="Current map filter">
+              <span data-map-filter>All modes</span>
+            </div>
+          </header>
+          <div class="phx-map-wrap">
+            <svg class="phx-map" viewBox="0 0 900 620" role="group" aria-labelledby="map-title map-desc" data-map>
+              <desc id="map-desc">An abstract Phoenix-area street grid with five fictional transit routes, stops, alerts, and keyboard-selectable vehicle positions. An equivalent accessible record table follows the dashboard.</desc>
+              <defs>
+                <pattern id="minor-grid" width="34" height="34" patternUnits="userSpaceOnUse">
+                  <path d="M34 0H0V34" fill="none" stroke="currentColor" stroke-width="1"/>
+                </pattern>
+                <filter id="route-glow" x="-25%" y="-25%" width="150%" height="150%">
+                  <feGaussianBlur stdDeviation="4" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <rect class="map-base" width="900" height="620"/>
+              <rect class="map-grid" width="900" height="620" fill="url(#minor-grid)"/>
+              <g class="map-roads" aria-hidden="true">
+                <path d="M25 92H870M20 166H885M10 245H890M20 323H875M25 408H890M15 505H880M92 20V605M180 10V610M282 20V600M380 0V620M575 5V615M675 15V610M792 5V615"/>
+                <path d="M40 570 205 390 310 300 440 215 590 115 770 40M120 30 205 160 310 250 460 330 585 445 760 590"/>
+              </g>
+              <g class="map-city-labels" aria-hidden="true">
+                <text x="54" y="148">Peoria</text><text x="206" y="278">Glendale</text>
+                <text x="420" y="300" class="is-primary">PHOENIX</text><text x="650" y="220">Scottsdale</text>
+                <text x="676" y="402">Tempe</text><text x="790" y="470">Mesa</text><text x="620" y="548">Chandler</text>
+              </g>
+              <g data-map-routes></g>
+              <g data-map-stops></g>
+              <g data-map-alerts></g>
+              <g data-map-vehicles></g>
+            </svg>
+            <div class="phx-map-empty" data-map-empty hidden>
+              <strong>Operational picture unavailable</strong>
+              <span>No vehicle positions can be plotted for this demonstration state.</span>
+            </div>
+            <div class="phx-map-legend" aria-label="Map legend">
+              <span><i class="bus"></i>Bus</span>
+              <span><i class="rail"></i>Light rail</span>
+              <span><i class="delay"></i>Provisional delay</span>
+              <span><i class="alert"></i>Alert</span>
+            </div>
+            <span class="phx-map-caption">Fictional schematic - not an authoritative city map</span>
+          </div>
+        </section>
+
+        <aside class="phx-right-rail" aria-label="Alert and route snapshot panels">
+          <section class="phx-panel phx-alert-panel" aria-labelledby="alerts-title">
+            <header class="phx-panel-heading">
+              <div><span>System notices</span><h2 id="alerts-title">Active alerts</h2></div>
+              <b data-alert-count>0</b>
+            </header>
+            <div class="phx-alert-list" data-alerts></div>
+          </section>
+
+          <section class="phx-panel phx-route-panel" aria-labelledby="routes-title">
+            <header class="phx-panel-heading">
+              <div><span>Provisional methodology</span><h2 id="routes-title">Route snapshot</h2></div>
+            </header>
+            <div class="phx-route-table" data-route-signals></div>
+          </section>
+        </aside>
+
+        <section class="phx-insights" aria-label="Snapshot detail visuals">
+          <article class="phx-panel phx-chart-card">
+            <header><span>Vehicle freshness</span><small>Timestamp age</small></header>
+            <div class="phx-freshness-bars" data-freshness-chart></div>
+          </article>
+          <article class="phx-panel phx-chart-card">
+            <header><span>Trip exceptions</span><small>Explicit source states</small></header>
+            <div class="phx-exceptions" data-trip-exceptions></div>
+          </article>
+          <article class="phx-panel phx-chart-card">
+            <header><span>Fleet mix</span><small>Static enrichment</small></header>
+            <div class="phx-donut-wrap" data-fleet-mix></div>
+          </article>
+          <article class="phx-panel phx-chart-card phx-feed-card">
+            <header><span>Feed freshness</span><small>Header age</small></header>
+            <div data-feed-health></div>
+          </article>
+          <article class="phx-panel phx-chart-card phx-inspector-card">
+            <header><span>Selected record</span><small>Click a route, alert, or vehicle</small></header>
+            <div data-inspector class="phx-inspector"><p>No record selected.</p></div>
+          </article>
+        </section>
+      </div>
+
+      <details class="phx-record-drawer">
+        <summary>Open accessible route and vehicle records <span data-record-count></span></summary>
+        <div class="phx-table-wrap">
+          <table>
+            <thead><tr><th>Record</th><th>Route / mode</th><th>Freshness</th><th>Status</th><th>Stop / direction</th></tr></thead>
+            <tbody data-records></tbody>
+          </table>
+        </div>
+      </details>
+      <footer class="phx-disclaimer"><strong>Independent portfolio prototype.</strong> All displayed operations and metrics are intentionally fictional. No live provider data is requested or presented.</footer>
+      <p class="sr-only" aria-live="polite" aria-atomic="true" data-announcer></p>
     </section>
-    <footer class="phx-disclaimer"><strong>Independent portfolio prototype.</strong> All operations shown here are intentionally fictional. This demonstration is not affiliated with or endorsed by Valley Metro or the City of Phoenix. Live ingestion, provider replay, production analytics, and historical metrics are deliberately not included.</footer>
-    <p class="sr-only" aria-live="polite" aria-atomic="true" data-announcer></p>
   </main>
   <script src="/projects/phx-transit-pulse.js"></script>
 </body>

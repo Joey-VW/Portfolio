@@ -1,12 +1,53 @@
 {
-  "contractVersion":"0.2-draft",
-  "meta":{"fixtureKind":"synthetic-operations-demo","mode":"synthetic","source":"fictional portfolio demonstration","providerData":false},
-  "scenarios":[
-    {"id":"current","label":"Synthetic replay - current","state":"replay","message":"All displayed records are fictional and current within this replay frame."},
-    {"id":"stale","label":"Stale snapshot","state":"stale","message":"The synthetic snapshot is usable but its original timestamp is outside the current threshold.","feedStatus":"stale"},
-    {"id":"very_stale","label":"Very stale snapshot","state":"very_stale","message":"Vehicle positions are more than five synthetic minutes old and are not counted as active.","feedStatus":"very_stale"},
-    {"id":"feed_error","label":"Feed error","state":"feed_error","message":"The fictional upstream response could not be decoded. Counts are unavailable, not zero.","hideCounts":true},
-    {"id":"offline","label":"Offline","state":"offline","message":"This browser cannot reach the fictional data service. Last-known records remain visibly unavailable.","hideCounts":true},
-    {"id":"no_data","label":"No data","state":"no_data","message":"The fictional request succeeded but returned no eligible records. This does not mean zero service.","hideCounts":true,"emptyMap":true}
+  "contractVersion": "0.2-draft",
+  "meta": {
+    "fixtureKind": "synthetic-operations-demo",
+    "mode": "synthetic",
+    "source": "fictional portfolio demonstration",
+    "providerData": false
+  },
+  "scenarios": [
+    {
+      "id": "current",
+      "label": "Synthetic replay",
+      "state": "replay",
+      "message": "All displayed records are fictional and current within this replay frame."
+    },
+    {
+      "id": "stale",
+      "label": "Stale snapshot",
+      "state": "stale",
+      "message": "The synthetic snapshot is usable, but its original timestamp is outside the current threshold.",
+      "feedStatus": "stale"
+    },
+    {
+      "id": "very_stale",
+      "label": "Very stale snapshot",
+      "state": "very_stale",
+      "message": "Vehicle positions are more than five synthetic minutes old and are not counted as active.",
+      "feedStatus": "very_stale"
+    },
+    {
+      "id": "feed_error",
+      "label": "Feed error",
+      "state": "feed_error",
+      "message": "The fictional upstream response could not be decoded. Counts are unavailable, not zero.",
+      "hideCounts": true
+    },
+    {
+      "id": "offline",
+      "label": "Offline",
+      "state": "offline",
+      "message": "This browser cannot reach the fictional data service. Last-known records remain visibly unavailable.",
+      "hideCounts": true
+    },
+    {
+      "id": "no_data",
+      "label": "No data",
+      "state": "no_data",
+      "message": "The fictional request succeeded but returned no eligible records. This does not mean zero service.",
+      "hideCounts": true,
+      "emptyMap": true
+    }
   ]
 }
