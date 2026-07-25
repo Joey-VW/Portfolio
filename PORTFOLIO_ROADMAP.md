@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: July 23, 2026
+- Last reviewed: July 25, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -39,7 +39,7 @@ Status labels:
 | 10. Gravity Fleet modernization | IN PROGRESS | Passes 10.0-10.6 are merged and verified, including telemetry PR #20 and the match-end recovery in PR #21. Active work is Pass 10.7 page, header, and analytics polish. | Pass 06, Pass 07, merged PRs #13, #15-#21, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
-| 13. PHX Transit Pulse | PASS 13.1 IMPLEMENTED; HUMAN QA PENDING | The hidden dashboard shell, deterministic fictional replay, explicit states, and accessible map alternative are implemented; final browser and preview QA remain. | Official Valley Metro terms for live ingestion and provider replay |
+| 13. PHX Transit Pulse | PASS 13.1 COMPLETE; PROVIDER TERMS PENDING | The hidden synthetic dashboard, deterministic replay, explicit states, accessible map alternative, and human browser QA are complete; future mobile-density polish is deferred. | Official Valley Metro terms for live ingestion and provider replay |
 
 The recommended execution order is:
 
@@ -1116,11 +1116,6 @@ Reconsider only after the shared engine and renderer are separated and profiling
 Possible later options are modular Canvas 2D, a PixiJS renderer prototype behind the same engine, or Phaser only if Gravity Fleet becomes a substantially larger game product. A framework must not be used to solve header wrapping, hero overflow, telemetry hierarchy, or control placement.
 
 
-## Pass 13 - PHX Transit Pulse
-
-**Status: PASS 13.1 IMPLEMENTED; HUMAN QA AND PROVIDER TERMS PENDING.** The hidden, synthetic-only operations dashboard and deterministic replay are implemented with explicit stale, very-stale, feed-error, offline, and no-data presentations. Full browser-matrix and Cloudflare-preview QA remain open. Public live ingestion and provider-derived replay remain blocked by terms. Detailed scope and gates live in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
-
-
 ## Pass 11 - Production deployment and custom-domain release
 
 **Status: BLOCKED by Pass 09 and Pass 10.** Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the `pages.dev` deployment is working.
@@ -1176,6 +1171,14 @@ Every production-bound PR must complete and report this minimum gate:
 - verify the Cloudflare pull-request preview when routes, headers, redirects, or deployment behavior change
 
 Do not claim broader QA occurred unless there is evidence.
+
+## Pass 13 - PHX Transit Pulse
+
+**Status: PASS 13.1 COMPLETE; PROVIDER TERMS PENDING.** The hidden, synthetic-only operations dashboard and deterministic replay are implemented and human-verified. Human QA completed July 25, 2026 across the required responsive viewport matrix, 200 percent zoom, keyboard-only navigation, reduced-motion behavior, and the Cloudflare pull-request preview. Replay controls, filtering, map and table selection, explicit demonstration states, hidden-tab pause, console checks, and network checks passed without a functional regression.
+
+The QA review identified future opportunities to raise the map in the mobile hierarchy, reduce vertical page length, and increase dashboard information density. These are deferred UX refinements rather than Pass 13.1 release blockers. The shared back-navigation arrow observation remains a low-priority header follow-up provided the back control itself remains visible and operable.
+
+Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. Detailed QA results are recorded in [`docs/phx-transit/PHX Transit Pulse - Pass 13.1 Viewport & Interaction QA Report.md`](docs/phx-transit/PHX%20Transit%20Pulse%20-%20Pass%2013.1%20Viewport%20%26%20Interaction%20QA%20Report.md), with later scope and gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
 
 ## Deferred ideas and guardrails
 

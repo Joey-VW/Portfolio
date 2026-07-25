@@ -36,8 +36,10 @@ synthetic fixtures. Do not use captured or normalized provider records.
   equivalent route/vehicle table.
 - [x] Keep synthetic demonstrations permanently labeled and make no
   provider-performance or live-service claim.
-- [ ] Complete human browser QA at the full viewport matrix, 200 percent zoom,
+- [x] Complete human browser QA at the full viewport matrix, 200 percent zoom,
   keyboard-only navigation, reduced motion, and the Cloudflare preview.
+
+
 
 The Pass 13.1 fixtures live only in `data/phx-transit/synthetic/`.
 `operations-replay.json` contains fictional routes, stops, ordered frames,
