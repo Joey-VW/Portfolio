@@ -267,13 +267,17 @@ The additional nonstandard file was:
 
 These were reported as informational publisher extensions, not specification errors. The provider source should remain unmodified. PHX Transit Pulse should not depend on these extension fields unless their semantics are separately documented.
 
-The canonical static report was preserved locally as:
+The canonical static validator result preserved in the repository is:
 
 ```text
-data/phx-transit/verification/static-validator/gtfs-schedule-260724-1631.html
+data/phx-transit/verification/static-validator/gtfs-schedule-260724-1945.json
 ```
 
-with its companion asset directory.
+This JSON result is the authoritative static-validation artifact. The realtime
+validator's legacy static-parser incompatibility is a separate tool limitation,
+not a failure of the original provider package. Realtime content findings remain
+separate from expected frozen-snapshot age warnings, and cross-feed validator
+findings remain uncertain where they also appeared without the paired feeds.
 
 ### 4.7 Updated static-feed conclusion
 
@@ -1379,7 +1383,8 @@ Still useful:
 Retain:
 
 - this updated findings record;
-- the canonical static validation HTML report and companion assets;
+- the canonical static-validator JSON result at
+  `data/phx-transit/verification/static-validator/gtfs-schedule-260724-1945.json`;
 - the sanitized cadence CSVs;
 - verification scripts without credentials;
 - test dates and timezones;
@@ -1605,4 +1610,3 @@ The cadence and validation work added several important conclusions:
 The next major dependency is the provider's response on licensing, attribution, credential handling, polling, caching, historical retention, replay fixtures, and redistribution. Targeted anomaly review and metric-methodology finalization should proceed while that response is pending.
 
 The project is technically ready to continue beyond Pass 13.0 planning, but it is not yet approved for public live ingestion or committed replay data.
-

@@ -1,21 +1,54 @@
 # PHX Transit Pulse metric dictionary
 
-**Evidence boundary:** Valley Metro realtime field coverage and freshness were not observable from this environment on 2026-07-24. Statuses describe feasibility against the GTFS/GTFS-Realtime specifications, not a claim that Valley Metro supplies every input. All thresholds below are portfolio-defined analytical hypotheses, never official Valley Metro KPIs.
+**Evidence boundary:** Pass 13.0 verified technical feed usability, joins,
+daytime cadence, and initial formal validation. These are PHX Transit definitions,
+not official Valley Metro KPIs or production approval.
 
-| Metric | Purpose | Status / confidence | Source fields and grain | Formula, cadence, freshness | Edge cases and limitations | Definition |
-| --- | --- | --- | --- | --- | --- | --- |
-| Active vehicles | Show current visible operations volume. | Derivable from current snapshot; low until feed verified. | Vehicle entity; vehicle/trip/route; per feed snapshot. | Count valid unique vehicle IDs with coordinates, optionally route joined. Update each normalized snapshot; require healthy vehicle feed. | Duplicates, no coordinates, deadhead and stale vehicles must be disclosed. | Portfolio-defined count. |
-| Vehicles by mode | Filter bus versus rail operations. | Derivable from current snapshot; low. | Vehicle `routeId` joined to static `routes.route_type`; per snapshot/mode. | Group active vehicles by documented route-type mapping. | Missing route ID/join becomes `unknown`, not bus or rail. | Portfolio-defined grouping; route types are GTFS source data. |
-| Feed freshness | Tell users whether live data is trustworthy. | Direct/derivable; medium for protocol, low for agency. | Feed header timestamp, relay fetch time; per feed. | `generatedAt - feedTimestamp`; update every poll. | Header timestamp may be omitted or clock-skewed; show unavailable rather than age. | Portfolio-defined display. |
-| Missing or stale entities | Surface data-quality gaps. | Derivable from current snapshot; low. | Required IDs/coordinates/timestamps; per entity/feed. | Count missing required field by rule; stale only after validated threshold. | A missing optional field is not an error; no threshold before cadence study. | Portfolio-defined quality rule. |
-| Active service alerts | Show current disruption notices. | Direct/derivable; low. | Alert entity, active periods, informed entities; per alert snapshot. | Count alerts active at `generatedAt`; retain unscoped alerts separately. | Empty period semantics and localization require validation. | Portfolio-defined count, not agency severity. |
-| Average delay | Summarize predicted lateness. | Unsupported or not yet verified. | Trip-update delay/time plus static stop schedule; trip-stop observation. | Mean eligible signed delay seconds, only after service-date/timezone joins validate. | Cancellations, early arrivals, missing delay, duplicated stop updates bias results. | Portfolio-defined analytic. |
-| On-time performance | Indicate adherence to schedule. | Unsupported or not yet verified. | Validated arrival/departure observations and schedule; trip-stop. | Share within a published portfolio tolerance window. | GTFS-RT is predictive, not proof of actual arrivals; historical completeness required. | Portfolio-defined, not official OTP. |
-| Actual versus scheduled headway | Compare observed spacing to planned service. | Requires retained observations; low. | Ordered same-route/direction/stop vehicle or trip observations plus stop_times; route-direction-stop-window. | Compare observed passage intervals with scheduled intervals. | GPS proximity is not a stop passage; branching, short turns, and service calendars matter. | Portfolio-defined hypothesis. |
-| Vehicle bunching | Flag unusually close consecutive vehicles. | Requires retained observations; low. | Validated headway series; route-direction-stop-window. | Potential rule: observed headway below a documented fraction of scheduled headway. | Threshold must be agency-reviewed and route/time-of-day tested. | Portfolio-defined hypothesis. |
-| Service gaps | Flag longer-than-expected spacing. | Requires retained observations; low. | Same as headway. | Potential rule: observed headway above a documented multiple of scheduled headway. | Detours, cancellations, schedule exceptions, and incomplete observations can mimic gaps. | Portfolio-defined hypothesis. |
-| Route reliability | Summarize sustained route performance. | Requires retained observations; low. | Complete delay/headway observations; route/service-day/window. | Future composite only after independent components are validated; do not ship a score first. | Selection bias and missing coverage can rank routes falsely. | Portfolio-defined future analytic. |
-| Route status leaderboard | Prioritize routes needing inspection. | Requires retained observations; low. | Feed health, delay coverage, alerts, future reliability; route/window. | Sort only measured, labeled signals; default to no ranking if coverage is insufficient. | Unequal service frequency and incomplete joins make cross-route comparisons misleading. | Portfolio-defined display. |
-| Rolling 60-minute trends | Show change, not just a moment. | Requires retained observations; low. | Timestamped normalized snapshots and validated metric samples; route/feed/minute. | Windowed median/count/rate from retained observations. | Gaps must be visualized; never interpolate a claimed live trend. | Portfolio-defined analytic. |
+## Classification and freshness rules
 
-Immediately usable after a successful live verification: active-vehicle count, mode grouping when route joins work, feed freshness, explicit missing-field counts, and active-alert count when the corresponding feeds populate. Average delay is only eligible after real trip-update and static schedule joins prove enough coverage. Headway, bunching, service gaps, reliability, leaderboard, and rolling trends require retained observations plus human validation.
+Every metric uses exactly one classification:
+
+- **Directly supported:** available from a verified realtime feed without static
+  enrichment.
+- **Supported after static enrichment:** available only after verified static ID
+  joins.
+- **Provisional methodology:** inputs exist, but aggregation or eligibility rules
+  still need targeted validation.
+- **Deferred pending retained observations:** requires history not approved or
+  collected for repository use.
+- **Unavailable or unsupported:** evidence cannot support the claim.
+
+Evidence supports these current freshness definitions:
+
+- active vehicle: vehicle timestamp age is no more than 90 seconds;
+- stale vehicle: vehicle timestamp age is greater than 90 seconds;
+- very stale vehicle: vehicle timestamp age is greater than 300 seconds;
+- healthy realtime feed: feed-header age is no more than 30 seconds;
+- degraded realtime feed: feed-header age is greater than 60 seconds.
+
+The 30-to-60-second feed interval is neither healthy nor degraded; label it
+intermediate/stale without inventing an SLA. Missing or invalid timestamps are
+unknown. Feed-header age never substitutes for vehicle age.
+
+## Metrics
+
+| Metric | Classification | Grain and method | Limits |
+| --- | --- | --- | --- |
+| Feed freshness and health | Directly supported | Per feed, compare relay observation time with `FeedHeader.timestamp`; expose age and status. | Clock skew, absent timestamps, and frozen snapshots must remain explicit. |
+| Active vehicles | Directly supported | Per Vehicle Positions snapshot, count eligible unique IDs with plausible coordinates and vehicle age at most 90 seconds. | Duplicate-ID precedence and implausibility thresholds still require a decision; report excluded/unknown counts. |
+| Stale and very stale vehicles | Directly supported | Classify each timestamped vehicle at greater than 90 seconds and greater than 300 seconds respectively. | Missing timestamp is unknown, not fresh. |
+| Active service alerts | Directly supported | Count alerts whose source active periods include the evaluation time; preserve alerts with open/multiple periods and all targeting. | Missing URL is valid; define unbounded-period handling before implementation. |
+| Cancelled trips and skipped stops | Directly supported | Count explicit Trip Update schedule relationships at snapshot grain. | These are feed states, not proof of realized service outcomes. |
+| Vehicles by mode or route | Supported after static enrichment | Join Vehicle Position route ID to static route metadata, grouping missing joins as unknown. | Position-only vehicles remain visible but unclassified. |
+| Route/trip/stop detail | Supported after static enrichment | Join verified opaque IDs to static route, trip, stop, service, and schedule records. | Never infer missing IDs or force failed joins. |
+| Route-level predicted delay | Provisional methodology | For each eligible active trip, select one representative upcoming scheduled stop prediction, calculate signed delay against the correctly joined schedule, then aggregate those trip-level observations by route. | Representative-stop selection, cancellation/skipped-stop eligibility, duplicate handling, coverage minimums, and aggregate statistic require targeted tests. Early/on-time/late thresholds are not accepted and remain unset. |
+| Early/on-time/late categories | Unavailable or unsupported | No metric is published until tolerance thresholds and predictive-versus-observed semantics are accepted. | GTFS-Realtime predictions do not prove actual arrival performance. |
+| On-time performance | Unavailable or unsupported | No production-quality percentage is supported by current snapshot evidence. | Requires accepted thresholds, retained complete observations, schedule joins, and realized-event methodology. |
+| Actual versus scheduled headway | Deferred pending retained observations | Requires ordered route/direction/stop observations and matched schedules over time. | GPS proximity is not automatically a stop passage; branches, short turns, and calendars matter. |
+| Vehicle bunching | Deferred pending retained observations | Requires validated headway series and an accepted threshold. | No threshold is established. |
+| Service gaps | Deferred pending retained observations | Requires validated headway series, completeness evidence, and an accepted threshold. | Cancellations, detours, and missing observations can mimic gaps. |
+| Route reliability and rankings | Deferred pending retained observations | Requires validated delay/headway coverage over comparable service windows. | Do not rank routes from unequal or incomplete snapshots. |
+| Historical and rolling trends | Deferred pending retained observations | Requires authorized retention and documented window completeness. | Never interpolate missing history into a claimed live trend. |
+
+Synthetic Pass 13.1 fixtures may exercise display states and formulas but cannot
+upgrade a metric's evidence classification or support provider-performance claims.
