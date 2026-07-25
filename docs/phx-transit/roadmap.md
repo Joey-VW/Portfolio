@@ -45,6 +45,9 @@ vehicle positions, feed ages, alerts, and explicit cancelled/skipped states.
 `state-scenarios.json` defines inspectable application-state presentations. Both
 fixtures declare `providerData: false`; replay is fixed-time and contains no
 randomness or provider-derived geometry or records.
+A focused review correction keeps scenario-derived ages, counts, map markers,
+inspectors, filters, and non-map route records internally consistent without
+rewriting the underlying fixture records.
 
 ## Pass 13.2 - Live ingestion and feed health - blocked by terms
 
