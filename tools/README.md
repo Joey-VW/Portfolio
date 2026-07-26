@@ -9,12 +9,15 @@ fixtures:
 python tools/validate_phx_transit_map.py
 ```
 
-It verifies that the fixture remains explicitly synthetic, map bounds and center
-are valid, every route contains nonempty GeoJSON `LineString` geometry, and all
-stop, replay-vehicle, and geographic-alert coordinates are finite and inside the
-approved fictional Phoenix-area bounds. It also confirms stable route, stop, and
-vehicle IDs and preserves the legacy schematic `path`, `x`, and `y` fields used
-by the automatic fallback.
+It verifies that the fixture remains explicitly synthetic, map bounds are valid,
+and every route retains schematic geometry plus two geographic directional
+patterns. The `0.4-draft` fixture stores ordered stop IDs and headsigns on those
+patterns, vehicle progress along a pattern, and pattern-scoped alert segments.
+The validator checks geometry bounds, stop alignment and endpoints, derived
+vehicle placement, increasing progress across all four frames, and valid alert
+segment ranges. The browser derives geographic and schematic vehicle positions
+from the same pattern geometry so the interactive and automatic fallback maps
+stay synchronized.
 
 ## Gravity Fleet deterministic validator
 

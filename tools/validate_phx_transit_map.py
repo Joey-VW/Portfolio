@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Validate the PHX Transit Pulse synthetic geographic fixture."""
+"""Validate the PHX Transit Pulse synthetic geographic fixture and replay."""
 
 from __future__ import annotations
 
 import json
 import math
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "data" / "phx-transit" / "synthetic" / "operations-replay.json"
@@ -17,137 +16,141 @@ def require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
-def valid_coordinate(value: object) -> bool:
+def valid_number(value: object) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
-def validate_point(
-    record: dict[str, object],
-    label: str,
-    bounds: list[list[float]],
-) -> None:
-    longitude = record.get("longitude")
-    latitude = record.get("latitude")
-    require(valid_coordinate(longitude), f"{label} has an invalid longitude")
-    require(valid_coordinate(latitude), f"{label} has an invalid latitude")
-    west, south = bounds[0]
-    east, north = bounds[1]
-    require(west <= longitude <= east, f"{label} longitude is outside the approved bounds")
-    require(south <= latitude <= north, f"{label} latitude is outside the approved bounds")
+def distance(a: list[float], b: list[float]) -> float:
+    longitude_scale = math.cos(math.radians((a[1] + b[1]) / 2))
+    return math.hypot((a[0] - b[0]) * longitude_scale, a[1] - b[1])
+
+
+def point_to_segment(point: list[float], start: list[float], end: list[float]) -> float:
+    scale = math.cos(math.radians(point[1]))
+    px, py = point[0] * scale, point[1]
+    ax, ay = start[0] * scale, start[1]
+    bx, by = end[0] * scale, end[1]
+    dx, dy = bx - ax, by - ay
+    ratio = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy) if dx or dy else 0
+    ratio = max(0, min(1, ratio))
+    return math.hypot(px - (ax + ratio * dx), py - (ay + ratio * dy))
+
+
+def distance_to_line(point: list[float], coordinates: list[list[float]]) -> float:
+    return min(point_to_segment(point, start, end) for start, end in zip(coordinates, coordinates[1:]))
+
+
+def point_along(coordinates: list[list[float]], progress: float) -> list[float]:
+    lengths = [distance(start, end) for start, end in zip(coordinates, coordinates[1:])]
+    remaining = sum(lengths) * progress
+    for index, length in enumerate(lengths):
+        if remaining <= length or index == len(lengths) - 1:
+            ratio = remaining / length if length else 0
+            return [coordinates[index][axis] + (coordinates[index + 1][axis] - coordinates[index][axis]) * ratio for axis in (0, 1)]
+        remaining -= length
+    return coordinates[-1]
+
+
+def validate_coordinate(point: list[float], label: str, bounds: list[list[float]]) -> None:
+    require(len(point) == 2 and all(valid_number(value) for value in point), f"{label} is not a coordinate pair")
+    require(bounds[0][0] <= point[0] <= bounds[1][0], f"{label} longitude is outside map bounds")
+    require(bounds[0][1] <= point[1] <= bounds[1][1], f"{label} latitude is outside map bounds")
 
 
 def validate() -> tuple[int, int, int, int]:
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
     meta = data.get("meta", {})
     require(meta.get("providerData") is False, "providerData must remain false")
-    require(
-        meta.get("fixtureKind") == "synthetic-operations-demo",
-        "fixtureKind must identify the synthetic operations demo",
-    )
-    require(
-        meta.get("geography") == "fictional-phoenix-area-overlay",
-        "geography must identify the fictional overlay",
-    )
+    require(meta.get("fixtureKind") == "synthetic-operations-demo", "fixture must remain explicitly synthetic")
+    require(meta.get("geography") == "fictional-phoenix-area-overlay", "geography must identify the fictional overlay")
+    require(len(data.get("frames", [])) == 4, "deterministic replay must retain exactly four frames")
 
-    map_config = data.get("map")
-    require(isinstance(map_config, dict), "map configuration is required")
-    bounds = map_config.get("bounds")
-    require(
-        isinstance(bounds, list)
-        and len(bounds) == 2
-        and all(isinstance(point, list) and len(point) == 2 for point in bounds),
-        "map bounds must contain southwest and northeast coordinate pairs",
-    )
+    bounds = data.get("map", {}).get("bounds")
+    require(isinstance(bounds, list) and len(bounds) == 2, "map bounds are required")
     for index, point in enumerate(bounds):
-        require(all(valid_coordinate(value) for value in point), f"map bound {index} is invalid")
-    require(bounds[0][0] < bounds[1][0], "map west bound must be less than east bound")
-    require(bounds[0][1] < bounds[1][1], "map south bound must be less than north bound")
-    validate_point(
-        {"longitude": map_config.get("center", [None, None])[0],
-         "latitude": map_config.get("center", [None, None])[1]},
-        "map center",
-        bounds,
-    )
+        validate_coordinate(point, f"map bound {index}", bounds)
 
     routes = data.get("routes", [])
     route_ids = {route.get("id") for route in routes}
     require(len(route_ids) == len(routes), "route IDs must be unique")
+    patterns: dict[str, tuple[str, dict]] = {}
     for route in routes:
         route_id = route.get("id")
-        require(route.get("path"), f"route {route_id} must retain its schematic path")
-        geometry = route.get("geometry", {})
-        require(geometry.get("type") == "LineString", f"route {route_id} must use LineString geometry")
-        coordinates = geometry.get("coordinates")
-        require(
-            isinstance(coordinates, list) and len(coordinates) >= 2,
-            f"route {route_id} must contain at least two geographic coordinates",
-        )
-        for index, coordinate in enumerate(coordinates):
-            require(
-                isinstance(coordinate, list) and len(coordinate) == 2,
-                f"route {route_id} coordinate {index} must be a coordinate pair",
-            )
-            validate_point(
-                {"longitude": coordinate[0], "latitude": coordinate[1]},
-                f"route {route_id} coordinate {index}",
-                bounds,
-            )
+        require(route.get("path"), f"route {route_id} must retain a schematic path")
+        require(len(route.get("patterns", [])) >= 2, f"route {route_id} requires directional patterns")
+        for pattern in route["patterns"]:
+            pattern_id = pattern.get("id")
+            require(pattern_id not in patterns, f"pattern ID {pattern_id} is duplicated")
+            coordinates = pattern.get("geometry", {}).get("coordinates", [])
+            require(pattern.get("geometry", {}).get("type") == "LineString" and len(coordinates) >= 2,
+                    f"pattern {pattern_id} requires LineString geometry")
+            for index, coordinate in enumerate(coordinates):
+                validate_coordinate(coordinate, f"pattern {pattern_id} coordinate {index}", bounds)
+            require(pattern.get("headsign") and pattern.get("stopIds"), f"pattern {pattern_id} requires a headsign and ordered stops")
+            patterns[pattern_id] = (route_id, pattern)
 
     stops = data.get("stops", [])
-    stop_ids = {stop.get("id") for stop in stops}
-    require(len(stop_ids) == len(stops), "stop IDs must be unique")
-    for stop in stops:
-        stop_id = stop.get("id")
-        require(valid_coordinate(stop.get("x")) and valid_coordinate(stop.get("y")),
-                f"stop {stop_id} must retain schematic coordinates")
-        validate_point(stop, f"stop {stop_id}", bounds)
-        require(set(stop.get("routes", [])).issubset(route_ids),
-                f"stop {stop_id} references an unknown route")
+    stop_by_id = {stop.get("id"): stop for stop in stops}
+    require(len(stop_by_id) == len(stops), "stop IDs must be unique")
+    for stop_id, stop in stop_by_id.items():
+        point = [stop.get("longitude"), stop.get("latitude")]
+        validate_coordinate(point, f"stop {stop_id}", bounds)
+        require(set(stop.get("routes", [])).issubset(route_ids), f"stop {stop_id} references an unknown route")
+        for route_id in stop.get("routes", []):
+            matching = [pattern for owner, pattern in patterns.values() if owner == route_id and stop_id in pattern["stopIds"]]
+            require(matching, f"stop {stop_id} is absent from route {route_id} patterns")
+            require(min(distance_to_line(point, pattern["geometry"]["coordinates"]) for pattern in matching) <= 0.00005,
+                    f"stop {stop_id} is not on route {route_id}")
+    for pattern_id, (_, pattern) in patterns.items():
+        coordinates = pattern["geometry"]["coordinates"]
+        ordered = pattern["stopIds"]
+        require(distance([stop_by_id[ordered[0]]["longitude"], stop_by_id[ordered[0]]["latitude"]], coordinates[0]) <= 0.00005,
+                f"pattern {pattern_id} must begin at its first stop")
+        require(distance([stop_by_id[ordered[-1]]["longitude"], stop_by_id[ordered[-1]]["latitude"]], coordinates[-1]) <= 0.00005,
+                f"pattern {pattern_id} must end at its last stop")
 
-    frames = data.get("frames", [])
-    require(frames, "at least one replay frame is required")
-    baseline_vehicle_ids: set[object] | None = None
-    vehicle_total = 0
-    alert_total = 0
-    for frame_index, frame in enumerate(frames):
-        vehicles = frame.get("vehicles", [])
-        vehicle_ids = {vehicle.get("id") for vehicle in vehicles}
-        require(len(vehicle_ids) == len(vehicles), f"frame {frame_index} vehicle IDs must be unique")
-        if baseline_vehicle_ids is None:
-            baseline_vehicle_ids = vehicle_ids
-        else:
-            require(vehicle_ids == baseline_vehicle_ids,
-                    f"frame {frame_index} must preserve the replay vehicle ID set")
-        for vehicle in vehicles:
-            vehicle_id = vehicle.get("id")
-            require(valid_coordinate(vehicle.get("x")) and valid_coordinate(vehicle.get("y")),
-                    f"vehicle {vehicle_id} must retain schematic coordinates")
-            validate_point(vehicle, f"vehicle {vehicle_id} in frame {frame_index}", bounds)
-            require(vehicle.get("routeId") in route_ids | {None},
-                    f"vehicle {vehicle_id} references an unknown route")
-        vehicle_total += len(vehicles)
-
-        alerts = frame.get("alerts", [])
-        alert_ids = {alert.get("id") for alert in alerts}
-        require(len(alert_ids) == len(alerts), f"frame {frame_index} alert IDs must be unique")
-        for alert in alerts:
-            alert_id = alert.get("id")
-            require(valid_coordinate(alert.get("x")) and valid_coordinate(alert.get("y")),
-                    f"alert {alert_id} must retain schematic coordinates")
-            validate_point(alert, f"alert {alert_id} in frame {frame_index}", bounds)
-            require(set(alert.get("routes", [])).issubset(route_ids),
-                    f"alert {alert_id} references an unknown route")
-            require(set(alert.get("stops", [])).issubset(stop_ids),
-                    f"alert {alert_id} references an unknown stop")
-        alert_total += len(alerts)
+    progress_by_vehicle: dict[str, list[float]] = {}
+    vehicle_total = alert_total = 0
+    baseline_ids = None
+    for frame_index, frame in enumerate(data["frames"]):
+        ids = {vehicle.get("id") for vehicle in frame.get("vehicles", [])}
+        require(len(ids) == len(frame.get("vehicles", [])), f"frame {frame_index} vehicle IDs must be unique")
+        require(baseline_ids in (None, ids), f"frame {frame_index} changes the replay vehicle set")
+        baseline_ids = ids
+        for vehicle in frame["vehicles"]:
+            if vehicle.get("routeId") is None:
+                validate_coordinate([vehicle.get("longitude"), vehicle.get("latitude")], f"unassigned vehicle {vehicle['id']}", bounds)
+                continue
+            pattern_id = vehicle.get("patternId")
+            require(pattern_id in patterns, f"vehicle {vehicle['id']} references an unknown pattern")
+            route_id, pattern = patterns[pattern_id]
+            require(route_id == vehicle.get("routeId"), f"vehicle {vehicle['id']} pattern does not belong to its route")
+            progress = vehicle.get("progress")
+            require(valid_number(progress) and 0 <= progress <= 1, f"vehicle {vehicle['id']} has invalid progress")
+            point = point_along(pattern["geometry"]["coordinates"], progress)
+            validate_coordinate(point, f"vehicle {vehicle['id']} derived position", bounds)
+            require(distance_to_line(point, pattern["geometry"]["coordinates"]) <= 0.000001,
+                    f"vehicle {vehicle['id']} is off its pattern")
+            progress_by_vehicle.setdefault(vehicle["id"], []).append(progress)
+        vehicle_total += len(frame["vehicles"])
+        for alert in frame.get("alerts", []):
+            require(set(alert.get("routes", [])).issubset(route_ids), f"alert {alert['id']} references an unknown route")
+            require(set(alert.get("stops", [])).issubset(stop_by_id), f"alert {alert['id']} references an unknown stop")
+            pattern_id = alert.get("patternId")
+            segment = alert.get("segmentProgress")
+            require(pattern_id in patterns and isinstance(segment, list) and len(segment) == 2,
+                    f"alert {alert['id']} requires a valid pattern segment")
+            require(0 <= segment[0] < segment[1] <= 1, f"alert {alert['id']} has invalid segment progress")
+            require(patterns[pattern_id][0] in alert["routes"], f"alert {alert['id']} segment is not on an affected route")
+        alert_total += len(frame.get("alerts", []))
+    for vehicle_id, values in progress_by_vehicle.items():
+        require(all(after > before for before, after in zip(values, values[1:])),
+                f"vehicle {vehicle_id} progress must increase consistently along its directional pattern")
 
     return len(routes), len(stops), vehicle_total, alert_total
 
 
 if __name__ == "__main__":
-    route_count, stop_count, vehicle_count, alert_count = validate()
-    print(
-        "PHX Transit synthetic map fixture valid: "
-        f"{route_count} routes, {stop_count} stops, "
-        f"{vehicle_count} vehicle positions, {alert_count} alert positions."
-    )
+    counts = validate()
+    print(f"PHX Transit synthetic map fixture valid: {counts[0]} routes, {counts[1]} stops, "
+          f"{counts[2]} vehicle progress records, {counts[3]} valid alert segments.")

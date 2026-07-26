@@ -6,6 +6,7 @@
     routes: 'phx-routes',
     stops: 'phx-stops',
     alerts: 'phx-alerts',
+    alertSegments: 'phx-alert-segments',
     vehicles: 'phx-vehicles'
   };
   const routeColors = {
@@ -46,6 +47,15 @@
 
   function addRouteLayers(map) {
     map.addLayer({
+      id: 'phx-routes-casing', type: 'line', source: SOURCE_IDS.routes,
+      paint: {
+        'line-color': '#03101c',
+        'line-width': ['case', ['==', ['get', 'selected'], true], 10, ['==', ['get', 'mode'], 'rail'], 8, 6],
+        'line-opacity': ['case', ['==', ['get', 'visible'], true], 0.95, 0.12]
+      },
+      layout: { 'line-cap': 'round', 'line-join': 'round' }
+    });
+    map.addLayer({
       id: 'phx-routes-muted',
       type: 'line',
       source: SOURCE_IDS.routes,
@@ -84,11 +94,7 @@
     map.addLayer({
       id: 'phx-routes-alert',
       type: 'line',
-      source: SOURCE_IDS.routes,
-      filter: ['all',
-        ['==', ['get', 'visible'], true],
-        ['==', ['get', 'alertAffected'], true]
-      ],
+      source: SOURCE_IDS.alertSegments,
       paint: {
         'line-color': '#ffb34d',
         'line-width': 5,
@@ -99,6 +105,12 @@
         'line-cap': 'round',
         'line-join': 'round'
       }
+    });
+    map.addLayer({
+      id: 'phx-rail-center', type: 'line', source: SOURCE_IDS.routes,
+      filter: ['all', ['==', ['get', 'visible'], true], ['==', ['get', 'mode'], 'rail']],
+      paint: { 'line-color': '#f4eaff', 'line-width': 1.2, 'line-opacity': 0.9, 'line-dasharray': [1.2, 2] },
+      layout: { 'line-cap': 'round', 'line-join': 'round' }
     });
     map.addLayer({
       id: 'phx-routes-hit',
@@ -384,6 +396,9 @@
       const alertStops = new Set(
         (selectedAlert ? [selectedAlert] : visibleAlerts).flatMap((alert) => alert.stops)
       );
+      const alertSegmentFeatures = (selectedAlert ? [selectedAlert] : visibleAlerts)
+        .filter((alert) => alert.segmentGeometry)
+        .map((alert) => ({ type: 'Feature', id: `${alert.id}-segment`, geometry: alert.segmentGeometry, properties: { id: alert.id } }));
 
       const routeFeatures = unavailable ? [] : adapterState.data.routes.map((route) => ({
         type: 'Feature',
@@ -446,6 +461,7 @@
             id: vehicle.id,
             mode: vehicle.mode,
             freshness: vehicle.freshness,
+            bearing: vehicle.bearing,
             selected: adapterState.selection?.type === 'vehicle'
               && adapterState.selection.id === vehicle.id
           }
@@ -453,6 +469,7 @@
         .filter((feature) => feature.geometry);
 
       map.getSource(SOURCE_IDS.routes).setData(featureCollection(routeFeatures));
+      map.getSource(SOURCE_IDS.alertSegments).setData(featureCollection(alertSegmentFeatures));
       map.getSource(SOURCE_IDS.stops).setData(featureCollection(stopFeatures));
       map.getSource(SOURCE_IDS.alerts).setData(featureCollection(alertFeatures));
       map.getSource(SOURCE_IDS.vehicles).setData(featureCollection(vehicleFeatures));

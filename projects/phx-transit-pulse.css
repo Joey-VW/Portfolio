@@ -746,11 +746,33 @@
   filter: url(#route-glow);
 }
 
+.map-route-casing {
+  fill: none;
+  stroke: #03101c;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 8;
+  opacity: .95;
+}
+
+.map-route-casing.is-muted { opacity: .1; }
+
+.map-route-alert-segment {
+  fill: none;
+  stroke: var(--phx-amber);
+  stroke-dasharray: 8 7;
+  stroke-linecap: round;
+  stroke-width: 6;
+  animation: phx-route-pulse 2.4s linear infinite;
+}
+
 .map-route.blue { stroke: var(--phx-blue); }
 .map-route.cyan { stroke: var(--phx-cyan); }
 .map-route.teal { stroke: var(--phx-teal); }
 .map-route.magenta { stroke: var(--phx-magenta); }
 .map-route.amber { stroke: var(--phx-amber); }
+
+.map-route.rail { stroke-width: 5; }
 
 .map-route.is-muted {
   opacity: .16;

@@ -48,6 +48,106 @@
     return node;
   }
 
+  function geometryMetrics(coordinates) {
+    const latitude = coordinates.reduce((sum, coordinate) => sum + coordinate[1], 0) / coordinates.length;
+    const longitudeScale = Math.cos(latitude * Math.PI / 180);
+    const lengths = coordinates.slice(1).map((coordinate, index) => {
+      const previous = coordinates[index];
+      return Math.hypot((coordinate[0] - previous[0]) * longitudeScale, coordinate[1] - previous[1]);
+    });
+    return { lengths, total: lengths.reduce((sum, length) => sum + length, 0) };
+  }
+
+  function pointAlong(coordinates, progress) {
+    const safeProgress = Math.max(0, Math.min(1, progress));
+    const { lengths, total } = geometryMetrics(coordinates);
+    let remaining = total * safeProgress;
+    for (let index = 0; index < lengths.length; index += 1) {
+      if (remaining <= lengths[index] || index === lengths.length - 1) {
+        const ratio = lengths[index] ? remaining / lengths[index] : 0;
+        const start = coordinates[index];
+        const end = coordinates[index + 1];
+        return {
+          longitude: start[0] + (end[0] - start[0]) * ratio,
+          latitude: start[1] + (end[1] - start[1]) * ratio,
+          bearing: (Math.atan2(
+            (end[0] - start[0]) * Math.cos(((start[1] + end[1]) / 2) * Math.PI / 180),
+            end[1] - start[1]
+          ) * 180 / Math.PI + 360) % 360
+        };
+      }
+      remaining -= lengths[index];
+    }
+    return { longitude: coordinates[0][0], latitude: coordinates[0][1], bearing: 0 };
+  }
+
+  function sliceGeometry(coordinates, startProgress, endProgress) {
+    const { lengths, total } = geometryMetrics(coordinates);
+    const cumulative = [0];
+    lengths.forEach((length) => cumulative.push(cumulative.at(-1) + length));
+    const start = pointAlong(coordinates, startProgress);
+    const end = pointAlong(coordinates, endProgress);
+    return [[start.longitude, start.latitude], ...coordinates.filter((coordinate, index) => {
+      const progress = cumulative[index] / total;
+      return progress > startProgress && progress < endProgress;
+    }), [end.longitude, end.latitude]];
+  }
+
+  function projectToSchematic(record, map) {
+    const [[west, south], [east, north]] = map.bounds;
+    return {
+      x: 50 + ((record.longitude - west) / (east - west)) * 800,
+      y: 580 - ((record.latitude - south) / (north - south)) * 540
+    };
+  }
+
+  function hydrateFixture(data) {
+    const patterns = new Map(data.routes.flatMap((route) => route.patterns.map((pattern) => [pattern.id, { ...pattern, route }] )));
+    const stops = new Map(data.stops.map((stop) => [stop.id, stop]));
+    data.frames.forEach((frame) => {
+      frame.vehicles.forEach((vehicle) => {
+        if (!vehicle.patternId) return;
+        const pattern = patterns.get(vehicle.patternId);
+        const position = pointAlong(pattern.geometry.coordinates, vehicle.progress);
+        Object.assign(vehicle, position, projectToSchematic(position, data.map), {
+          direction: pattern.headsign
+        });
+        const orderedStops = pattern.stopIds.map((id) => stops.get(id));
+        const stopProgress = orderedStops.map((stop) => {
+          let best = { distance: Infinity, progress: 0 };
+          for (let progress = 0; progress <= 1.0001; progress += 0.002) {
+            const point = pointAlong(pattern.geometry.coordinates, progress);
+            const distance = Math.hypot(point.longitude - stop.longitude, point.latitude - stop.latitude);
+            if (distance < best.distance) best = { distance, progress };
+          }
+          return { stop, progress: best.progress };
+        });
+        const nearest = stopProgress.reduce((best, item) => (
+          Math.abs(item.progress - vehicle.progress) < Math.abs(best.progress - vehicle.progress) ? item : best
+        ));
+        const next = stopProgress.find((item) => item.progress >= vehicle.progress - 0.004) || stopProgress.at(-1);
+        const gap = Math.abs(nearest.progress - vehicle.progress);
+        vehicle.stop = next.stop.label;
+        vehicle.nearestStopId = nearest.stop.id;
+        vehicle.status = gap <= 0.012 ? 'At stop' : gap <= 0.07 ? 'Approaching' : 'In transit';
+      });
+      frame.alerts.forEach((alert) => {
+        if (!alert.patternId || !alert.segmentProgress) return;
+        const pattern = patterns.get(alert.patternId);
+        alert.segmentGeometry = {
+          type: 'LineString',
+          coordinates: sliceGeometry(pattern.geometry.coordinates, ...alert.segmentProgress)
+        };
+        const midpoint = pointAlong(pattern.geometry.coordinates, (alert.segmentProgress[0] + alert.segmentProgress[1]) / 2);
+        Object.assign(alert, midpoint, projectToSchematic(midpoint, data.map));
+        alert.segmentPath = `M${alert.segmentGeometry.coordinates.map((coordinate) => {
+          const point = projectToSchematic({ longitude: coordinate[0], latitude: coordinate[1] }, data.map);
+          return `${point.x} ${point.y}`;
+        }).join(' L')}`;
+      });
+    });
+  }
+
   function currentFrame() {
     return state.data.frames[state.frame];
   }
@@ -352,21 +452,20 @@
     const selectedAlert = state.selected?.type === 'alert'
       ? frame.alerts.find((alert) => alert.id === state.selected.id)
       : null;
-    const affectedRoutes = new Set(selectedAlert ? selectedAlert.routes : visibleAlerts(frame).flatMap((alert) => alert.routes));
     const affectedStops = new Set(selectedAlert ? selectedAlert.stops : visibleAlerts(frame).flatMap((alert) => alert.stops));
 
     if (!unavailable) {
       state.data.routes.forEach((route) => {
         const matches = matchingRouteIds.has(route.id);
         const selected = state.selected?.type === 'route' && state.selected.id === route.id;
-        const alertFocused = affectedRoutes.has(route.id);
         const className = [
           'map-route',
           route.color,
+          route.mode,
           matches ? '' : 'is-muted',
-          selected ? 'is-selected' : '',
-          alertFocused ? 'is-alert-focused' : ''
+          selected ? 'is-selected' : ''
         ].filter(Boolean).join(' ');
+        routesRoot.append(svgEl('path', { d: route.path, class: `map-route-casing${matches ? '' : ' is-muted'}` }));
         const line = svgEl('path', { d: route.path, class: className });
         routesRoot.append(line);
         if (matches) {
@@ -387,6 +486,10 @@
           });
           routesRoot.append(hit);
         }
+      });
+
+      (selectedAlert ? [selectedAlert] : visibleAlerts(frame)).forEach((alert) => {
+        if (alert.segmentPath) routesRoot.append(svgEl('path', { d: alert.segmentPath, class: 'map-route-alert-segment' }));
       });
 
       state.data.stops.forEach((stop) => {
@@ -658,7 +761,9 @@
         ['Freshness', freshnessLabels[vehicle.freshness]],
         ['Trip', unknown(vehicle.tripId)],
         ['Status', vehicle.status],
-        ['Stop', unknown(vehicle.stop)]
+        ['Next stop', unknown(vehicle.stop)],
+        ['Headsign', unknown(vehicle.direction)],
+        ['Bearing', Number.isFinite(vehicle.bearing) ? `${Math.round(vehicle.bearing)}°` : 'Unknown']
       ];
     }
     if (state.selected.type === 'route') {
@@ -968,6 +1073,7 @@
       if (!validFixture) throw new Error('Synthetic replay fixture is invalid.');
 
       state.data = data;
+      hydrateFixture(data);
       state.scenarios = scenarios.scenarios;
       $('[data-timeline]').max = String(data.frames.length - 1);
       data.routes.forEach((route) => {
