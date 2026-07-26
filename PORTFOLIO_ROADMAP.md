@@ -17,7 +17,7 @@
 Status labels:
 
 - `NEXT` - the recommended starting queue.
-- `IN REVIEW` - implementation is complete in a draft pull request and awaiting final verification.
+- `IN REVIEW` - implementation is complete and awaiting final verification or approval.
 - `READY` - clear and unblocked.
 - `BLOCKED` - waiting on another pass or an external setup step.
 - `LATER` - intentionally deferred until higher-impact work is complete.
@@ -39,17 +39,19 @@ Status labels:
 | 10. Gravity Fleet modernization | IN REVIEW | Passes 10.0-10.7 are merged, including the page-shell polish in PR #23 and setup/orbit-speed follow-up in PR #25. Pass 10.8 integrated QA, cleanup verification, and release approval remain open. | Pass 06, Pass 07, merged PRs #13, #15-#21, #23, #25, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
-| 13. PHX Transit Pulse | PASS 13.1 COMPLETE; PROVIDER TERMS PENDING | The hidden synthetic dashboard, deterministic replay, explicit states, accessible map alternative, and human browser QA are complete; future mobile-density polish is deferred. | Official Valley Metro terms for live ingestion and provider replay |
+| 13. PHX Transit Pulse | NEXT | Pass 13.1's baseline and the synthetic operations-console redesign are complete. Next are targeted regression QA on the redesigned build and the proposed interactive Phoenix-area map phase; live ingestion remains blocked by provider terms. | Current-build QA, map dependency and tile-service decisions, and provider terms only for live ingestion or provider replay |
 
 The recommended execution order is:
 
 1. Completed governance and feature passes.
 2. Completed faithful Pass 08 publishing-system integration.
-3. Pass 09.7 regression and deployment verification.
-4. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
-5. Pass 11 custom-domain and production-route release.
-6. Pass 12 final repository validation and release QA.
-7. Deferred backend and operational automation work.
+3. PHX Transit Pulse targeted regression QA on the current synthetic redesign.
+4. PHX Transit Pulse interactive geographic-map implementation using fictional operational overlays.
+5. Pass 09.7 regression and deployment verification.
+6. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
+7. Pass 11 custom-domain and production-route release.
+8. Pass 12 final repository validation and release QA.
+9. Deferred live-ingestion, backend, and operational automation work.
 
 ## Decisions already made
 
@@ -61,14 +63,14 @@ These choices remove ambiguity from later implementation work.
 4. **Project order is newest first.** Both the projects page and Showcase launcher sort by the same `createdAt` field in descending order.
 5. **The contact form should eventually submit.** Keep the current email-draft fallback until a Cloudflare endpoint is deployed and verified. Do not ship a submit button that silently fails.
 6. **Gravity Fleet work is split into game-flow and analytics passes.** The combined request is too large for one safe, reviewable change.
-7. **Global cleanup happens after prototype extraction.** In particular, keep the looping-animation prototype until the EV animation and any remaining reusable scenes have been integrated.
+7. **Prototype extraction and cleanup are complete.** The EV scene was integrated and verified, and the standalone looping-animation prototype was removed as an obsolete artifact. Future cleanup should remove only files proven superseded or temporary.
 8. **Repository-history remediation is complete.** This repository is the clean active replacement, and normal feature work proceeds from clean `main`. Do not add another history-rewrite or repository-replacement task to this roadmap.
 9. **Pass 08 has an approved source.** Its already-anonymized, fictional implementation has been relocated to the project-scoped demo route. Its preservation contract appears in Pass 08.
 10. **Gravity Fleet uses one gameplay engine with adaptive presentations.** Desktop and mobile must share level data, simulation, AI, combat, scoring, telemetry meanings, analytics, and saved-run compatibility. Camera framing, input adapters, interface composition, chart layout, render quality, and information density may differ. Do not introduce a game framework, bundler, package manager, backend, or new runtime dependency unless profiling later proves a renderer migration is justified and Joe Wisto explicitly approves it.
 
 ## Pass 01 - Project governance
 
-Implemented and verified July 15, 2026. The current registry contains five public/ready projects and three hidden/in-progress projects. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
+Implemented and verified July 15, 2026. The current registry contains five public/ready projects and four hidden/in-progress projects, including PHX Transit Pulse. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
 
 ### 01.1 Add explicit lifecycle metadata
 
@@ -294,7 +296,7 @@ Reference: GitHub scheduled workflows support cron schedules and IANA timezones,
 
 ## Pass 05 - EV hero animation
 
-Reference: `ScreenShot_7_15_2026_1_14_00_PM.png` and the car scene in `3-looping-animations(1).html`.
+Historical reference: `ScreenShot_7_15_2026_1_14_00_PM.png` and the former standalone looping-animation prototype, which was removed after successful extraction and verification.
 
 Preserve the existing desktop hero composition, especially the width, scale, and wrapping of “The Real Cost of Public Charging.” Nest the car-and-charger animation into the open lower-right area rather than converting the entire hero into two columns.
 
@@ -622,9 +624,9 @@ Given the same initial state, random seed, fixed simulation steps, and gameplay 
 - [x] Deliver modernization through coherent, behavior-preserving pull requests rather than one rewrite commit.
 - [x] Record the human desktop/mobile runtime checkpoint before beginning PR C without claiming the historical desktop candidate is a positively verified baseline.
 
-Recommended next branch name:
+Next branch scope:
 
-`gravity-fleet-mobile-shell-touch-controls`
+Start from current `main` and use a focused Pass 10.8 release-candidate QA and cleanup branch. Do not reopen completed implementation passes unless the release matrix exposes a regression.
 
 Recommended pull-request grouping:
 
@@ -917,36 +919,38 @@ Acceptance criteria:
 
 **Purpose:** Fix surrounding-page composition without mixing site layout into the engine.
 
+**Implementation:** Complete through PR #23, with the approved setup and orbit-speed follow-up in PR #25. Final cross-route, device, accessibility, and production verification remains in Pass 10.8.
+
 **Header modes:**
 
-- [ ] Full: back action, brand identity, and project navigation.
-- [ ] Compact: compact back action, centered or concise JW identity, one compact project/menu action, and one row only.
-- [ ] Active match: hide the portfolio header and use the game-level return action.
-- [ ] Prefer a stable component mode over accumulating device-specific width patches.
-- [ ] Coordinate shared `styles.css` changes with Pass 09 and verify unrelated project pages.
+- [x] Full: back action, brand identity, and project navigation.
+- [x] Compact: compact back action, centered or concise JW identity, one compact project/menu action, and one row only.
+- [x] Active match: hide the portfolio header and use the game-level return action.
+- [x] Prefer a stable component mode over accumulating device-specific width patches.
+- [x] Coordinate shared `styles.css` changes with Pass 09 and verify unrelated project pages.
 
 **Gravity hero:**
 
-- [ ] On mobile, show the eyebrow, `Gravity Fleet Lab`, one concise value statement, Play, View Analytics, and a collapsed How to Play or Mission Briefing disclosure.
-- [ ] Move the full six-step mission briefing out of the first mobile viewport.
-- [ ] Use a two-column action layout when it fits.
-- [ ] Stack at the narrowest widths.
-- [ ] Allow safe button wrapping.
-- [ ] Preserve approximately 44px touch targets.
-- [ ] Avoid changing unrelated hero layouts unintentionally.
+- [x] On mobile, show the eyebrow, `Gravity Fleet Lab`, one concise value statement, Play, View Analytics, and a collapsed How to Play or Mission Briefing disclosure.
+- [x] Move the full six-step mission briefing out of the first mobile viewport.
+- [x] Use a two-column action layout when it fits.
+- [x] Stack at the narrowest widths.
+- [x] Allow safe button wrapping.
+- [x] Preserve approximately 44px touch targets.
+- [x] Avoid changing unrelated hero layouts unintentionally.
 
 **Active-match transition:**
 
-- [ ] Remove the surrounding portfolio page from active layout participation while the mobile match shell owns the viewport.
-- [ ] Restore document state, scroll position, and focus predictably when leaving the match.
-- [ ] Keep browser Back and Forward behavior coherent.
+- [x] Remove the surrounding portfolio page from active layout participation while the mobile match shell owns the viewport.
+- [x] Restore document state, scroll position, and focus predictably when leaving the match.
+- [x] Keep browser Back and Forward behavior coherent.
 
 **Debug tools:**
 
-- [ ] Ensure stale local-storage values cannot expose development controls to ordinary production visitors.
-- [ ] Keep explicit query access where intentionally supported.
-- [ ] Keep development panels safe-area aware.
-- [ ] Keep FPS, camera bounds, and performance diagnostics development-only.
+- [x] Ensure stale local-storage values cannot expose development controls to ordinary production visitors.
+- [x] Keep explicit query access where intentionally supported.
+- [x] Keep development panels safe-area aware.
+- [x] Keep FPS, camera bounds, and performance diagnostics development-only.
 
 Acceptance criteria:
 
@@ -1073,22 +1077,17 @@ Pass 10 release acceptance criteria:
 
 To reduce review turns while preserving meaningful control, use three planned approval points:
 
-1. **After PR B - Desktop restored**
-   - Confirm desktop feel, visual quality, and mouse responsiveness.
-   - Confirm no obvious gameplay drift.
-   - Confirm the current mobile fallback still works.
+1. **After PR B - Desktop restored - COMPLETE**
+   - Desktop feel, visual quality, mouse responsiveness, gameplay continuity, and the mobile fallback were reviewed before camera work continued.
 
-2. **After PR D - Mobile game experience**
-   - Complete one portrait match.
-   - Complete part or all of one landscape match.
-   - Test Launch, Wormhole, Clear, Pause, and Telemetry.
-   - Approve the mobile composition before shared-page polish.
+2. **After PR #19 through PR #21 - Mobile game experience - COMPLETE**
+   - Portrait and landscape play, Launch, Wormhole, Clear, Pause, Telemetry, match-end recovery, and mobile composition were reviewed before shared-page polish.
 
-3. **After PR F - Release candidate**
+3. **After Pass 10.8 - Release candidate - PENDING**
    - Complete a mobile playthrough.
    - Complete a desktop playthrough.
    - Inspect header, hero, live telemetry, outcome, and post-match analytics.
-   - Approve final merge.
+   - Approve final release after the full validation and cleanup matrix is recorded.
 
 ### AI execution and usage policy for Pass 10
 
@@ -1174,11 +1173,20 @@ Do not claim broader QA occurred unless there is evidence.
 
 ## Pass 13 - PHX Transit Pulse
 
-**Status: PASS 13.1 COMPLETE; PROVIDER TERMS PENDING.** The hidden, synthetic-only operations dashboard and deterministic replay are implemented and human-verified. Human QA completed July 25, 2026 across the required responsive viewport matrix, 200 percent zoom, keyboard-only navigation, reduced-motion behavior, and the Cloudflare pull-request preview. Replay controls, filtering, map and table selection, explicit demonstration states, hidden-tab pause, console checks, and network checks passed without a functional regression.
+**Status: NEXT.** Pass 13.1's original hidden, synthetic-only dashboard and deterministic replay were completed and human-verified on July 25, 2026. That QA established the baseline behavior for responsive layouts, 200 percent zoom, keyboard-only navigation, reduced motion, the Cloudflare preview, replay controls, filtering, map and table selection, explicit demonstration states, hidden-tab pause, and console and network behavior.
 
-The QA review identified future opportunities to raise the map in the mobile hierarchy, reduce vertical page length, and increase dashboard information density. These are deferred UX refinements rather than Pass 13.1 release blockers. The shared back-navigation arrow observation remains a low-priority header follow-up provided the back control itself remains visible and operable.
+Commit `728434f23210611e1efc9da7c218cbedbed1fec5` subsequently delivered a material working-copy redesign across the PHX Transit fixtures, HTML, CSS, and JavaScript. It addressed the recorded design opportunities by making the experience more map-dominant, compact, information-dense, and operations-console oriented. Because that redesign occurred after the recorded Pass 13.1 QA, the earlier report must not be treated as full verification of the current redesigned build.
 
-Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. Detailed QA results are recorded in [`docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md`](docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md), with later scope and gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
+Current PHX Transit queue:
+
+- [x] Complete the original Pass 13.1 synthetic dashboard, deterministic replay, explicit states, accessible map alternative, and browser QA.
+- [x] Complete the synthetic operations-console redesign while preserving fictional data, deterministic behavior, accessibility, and explicit non-live labeling.
+- [ ] Run targeted regression QA on the redesigned current build, including responsive and short-height layouts, 200 percent zoom, keyboard-only navigation, reduced motion, replay and filtering, record selection, scenario states, hidden-tab behavior, console and network checks, and a Cloudflare preview.
+- [ ] Resolve the interactive-map plan's dependency-delivery, tile-service, synthetic-geography, and fallback decision gates.
+- [ ] Replace the schematic-only primary map with a real Phoenix-area basemap plus fictional routes, stops, vehicles, and alerts while preserving the accessible records table and a reliable fallback.
+- [ ] Update the detailed PHX Transit roadmap and validation evidence to describe what the redesigned and mapped experience actually ships.
+
+Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. The baseline QA record remains at [`docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md`](docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md). Current design guidance and the proposed map implementation are documented in [`docs/phx-transit/design/README.md`](docs/phx-transit/design/README.md) and [`docs/phx-transit/plans/interactive-map-implementation-plan.md`](docs/phx-transit/plans/interactive-map-implementation-plan.md), with later live-data gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
 
 ## Deferred ideas and guardrails
 
@@ -1196,5 +1204,6 @@ The portfolio reaches the current north star when:
 - visitors immediately understand what the site is and how to explore it;
 - every public project is intentionally marked ready and appears in correct date order;
 - Pass 09 mobile layout corrections, Pass 10 Gravity Fleet modernization and device verification, and Pass 11 production-route work are complete;
+- PHX Transit Pulse's current synthetic presentation and interactive-map phase are validated while provider-blocked live ingestion remains honestly deferred;
 - Pass 12 final validation confirms coherent mobile, desktop, reduced-motion, keyboard, zoom, print, route, asset, privacy, and Cloudflare behavior; and
 - deferred backend and operational work is either explicitly completed with evidence or remains honestly labeled as deferred.
