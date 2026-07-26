@@ -1178,7 +1178,7 @@ Do not claim broader QA occurred unless there is evidence.
 
 The QA review identified future opportunities to raise the map in the mobile hierarchy, reduce vertical page length, and increase dashboard information density. These are deferred UX refinements rather than Pass 13.1 release blockers. The shared back-navigation arrow observation remains a low-priority header follow-up provided the back control itself remains visible and operable.
 
-Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. Detailed QA results are recorded in [`docs/phx-transit/PHX Transit Pulse - Pass 13.1 Viewport & Interaction QA Report.md`](docs/phx-transit/PHX%20Transit%20Pulse%20-%20Pass%2013.1%20Viewport%20%26%20Interaction%20QA%20Report.md), with later scope and gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
+Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. Detailed QA results are recorded in [`docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md`](docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md), with later scope and gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
 
 ## Deferred ideas and guardrails
 
