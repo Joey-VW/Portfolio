@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: July 25, 2026
+- Last reviewed: July 26, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -39,19 +39,18 @@ Status labels:
 | 10. Gravity Fleet modernization | IN REVIEW | Passes 10.0-10.7 are merged, including the page-shell polish in PR #23 and setup/orbit-speed follow-up in PR #25. Pass 10.8 integrated QA, cleanup verification, and release approval remain open. | Pass 06, Pass 07, merged PRs #13, #15-#21, #23, #25, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
-| 13. PHX Transit Pulse | NEXT | Pass 13.1's baseline and the synthetic operations-console redesign are complete. Next are targeted regression QA on the redesigned build and the proposed interactive Phoenix-area map phase; live ingestion remains blocked by provider terms. | Current-build QA, map dependency and tile-service decisions, and provider terms only for live ingestion or provider replay |
+| 13. PHX Transit Pulse | IN REVIEW | The synthetic operations console now uses a real interactive Phoenix-area basemap with fictional operational overlays and an automatic schematic fallback. Targeted mapped-build regression and Cloudflare preview QA remain; live ingestion is still blocked by provider terms. | Mapped-build QA and provider terms only for live ingestion or provider replay |
 
 The recommended execution order is:
 
 1. Completed governance and feature passes.
 2. Completed faithful Pass 08 publishing-system integration.
-3. PHX Transit Pulse targeted regression QA on the current synthetic redesign.
-4. PHX Transit Pulse interactive geographic-map implementation using fictional operational overlays.
-5. Pass 09.7 regression and deployment verification.
-6. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
-7. Pass 11 custom-domain and production-route release.
-8. Pass 12 final repository validation and release QA.
-9. Deferred live-ingestion, backend, and operational automation work.
+3. PHX Transit Pulse targeted regression and Cloudflare preview QA on the mapped synthetic build.
+4. Pass 09.7 regression and deployment verification.
+5. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
+6. Pass 11 custom-domain and production-route release.
+7. Pass 12 final repository validation and release QA.
+8. Deferred live-ingestion, backend, and operational automation work.
 
 ## Decisions already made
 
@@ -1173,17 +1172,17 @@ Do not claim broader QA occurred unless there is evidence.
 
 ## Pass 13 - PHX Transit Pulse
 
-**Status: NEXT.** Pass 13.1's original hidden, synthetic-only dashboard and deterministic replay were completed and human-verified on July 25, 2026. That QA established the baseline behavior for responsive layouts, 200 percent zoom, keyboard-only navigation, reduced motion, the Cloudflare preview, replay controls, filtering, map and table selection, explicit demonstration states, hidden-tab pause, and console and network behavior.
+**Status: IN REVIEW.** Pass 13.1's original hidden, synthetic-only dashboard and deterministic replay were completed and human-verified on July 25, 2026. That QA established the baseline behavior for responsive layouts, 200 percent zoom, keyboard-only navigation, reduced motion, the Cloudflare preview, replay controls, filtering, map and table selection, explicit demonstration states, hidden-tab pause, and console and network behavior.
 
-Commit `728434f23210611e1efc9da7c218cbedbed1fec5` subsequently delivered a material working-copy redesign across the PHX Transit fixtures, HTML, CSS, and JavaScript. It addressed the recorded design opportunities by making the experience more map-dominant, compact, information-dense, and operations-console oriented. Because that redesign occurred after the recorded Pass 13.1 QA, the earlier report must not be treated as full verification of the current redesigned build.
+Commit `728434f23210611e1efc9da7c218cbedbed1fec5` subsequently delivered a material working-copy redesign across the PHX Transit fixtures, HTML, CSS, and JavaScript. The July 26 mapped-build implementation then added pinned MapLibre GL JS, OpenFreeMap's dark Phoenix-area basemap, manually authored fictional geographic overlays, synchronized interaction, and the retained schematic fallback. Because both changes occurred after the recorded Pass 13.1 QA, the earlier report must not be treated as full verification of the current mapped build.
 
 Current PHX Transit queue:
 
 - [x] Complete the original Pass 13.1 synthetic dashboard, deterministic replay, explicit states, accessible map alternative, and browser QA.
 - [x] Complete the synthetic operations-console redesign while preserving fictional data, deterministic behavior, accessibility, and explicit non-live labeling.
-- [ ] Run targeted regression QA on the redesigned current build, including responsive and short-height layouts, 200 percent zoom, keyboard-only navigation, reduced motion, replay and filtering, record selection, scenario states, hidden-tab behavior, console and network checks, and a Cloudflare preview.
-- [ ] Resolve the interactive-map plan's dependency-delivery, tile-service, synthetic-geography, and fallback decision gates.
-- [ ] Replace the schematic-only primary map with a real Phoenix-area basemap plus fictional routes, stops, vehicles, and alerts while preserving the accessible records table and a reliable fallback.
+- [x] Resolve the interactive-map plan's dependency-delivery, tile-service, synthetic-geography, and fallback decision gates.
+- [x] Replace the schematic-only primary map with a real Phoenix-area basemap plus fictional routes, stops, vehicles, and alerts while preserving the accessible records table and a reliable fallback.
+- [ ] Run targeted regression QA on the mapped current build, including responsive and short-height layouts, 200 percent zoom, keyboard-only navigation, reduced motion, replay and filtering, record selection, scenario states, hidden-tab behavior, blocked-library and blocked-tile fallback behavior, console and network checks, and a Cloudflare preview.
 - [ ] Update the detailed PHX Transit roadmap and validation evidence to describe what the redesigned and mapped experience actually ships.
 
 Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. The baseline QA record remains at [`docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md`](docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md). Current design guidance and the proposed map implementation are documented in [`docs/phx-transit/design/README.md`](docs/phx-transit/design/README.md) and [`docs/phx-transit/plans/interactive-map-implementation-plan.md`](docs/phx-transit/plans/interactive-map-implementation-plan.md), with later live-data gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).

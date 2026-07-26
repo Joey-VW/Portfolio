@@ -8,6 +8,7 @@
   <meta name="description" content="A polished synthetic GTFS-Realtime operations dashboard demonstrating feed, vehicle, route, trip, and alert inspection.">
   <title>PHX Transit Pulse | Synthetic Operations Demo</title>
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/projects/phx-transit-pulse.css">
 </head>
@@ -115,44 +116,61 @@
 
         <section class="phx-map-panel" aria-labelledby="map-title">
           <header class="phx-map-toolbar">
-            <label>
-              <span class="sr-only">Network view</span>
-              <select aria-label="Network view">
-                <option>Phoenix synthetic network</option>
-              </select>
-            </label>
-            <div class="phx-map-filter" aria-label="Current map filter">
-              <span data-map-filter>All modes</span>
+            <div class="phx-map-heading">
+              <span>Geographic network view</span>
+              <h2 id="map-title">Phoenix synthetic network</h2>
+            </div>
+            <div class="phx-map-tools">
+              <div class="phx-map-filter" aria-label="Current map filter">
+                <span data-map-filter>All modes</span>
+              </div>
+              <label class="phx-map-record-control">
+                <span class="sr-only">Select a visible map record</span>
+                <select data-map-record aria-label="Select a visible map record">
+                  <option value="">Map records</option>
+                </select>
+              </label>
+              <button type="button" class="phx-map-reset" data-map-action="reset" aria-label="Recenter the interactive map">
+                Recenter
+              </button>
             </div>
           </header>
-          <div class="phx-map-wrap">
-            <svg class="phx-map" viewBox="0 0 900 620" role="group" aria-labelledby="map-title map-desc" data-map>
-              <desc id="map-desc">An abstract Phoenix-area street grid with five fictional transit routes, stops, alerts, and keyboard-selectable vehicle positions. An equivalent accessible record table follows the dashboard.</desc>
-              <defs>
-                <pattern id="minor-grid" width="34" height="34" patternUnits="userSpaceOnUse">
-                  <path d="M34 0H0V34" fill="none" stroke="currentColor" stroke-width="1"/>
-                </pattern>
-                <filter id="route-glow" x="-25%" y="-25%" width="150%" height="150%">
-                  <feGaussianBlur stdDeviation="4" result="blur"/>
-                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-              </defs>
-              <rect class="map-base" width="900" height="620"/>
-              <rect class="map-grid" width="900" height="620" fill="url(#minor-grid)"/>
-              <g class="map-roads" aria-hidden="true">
-                <path d="M25 92H870M20 166H885M10 245H890M20 323H875M25 408H890M15 505H880M92 20V605M180 10V610M282 20V600M380 0V620M575 5V615M675 15V610M792 5V615"/>
-                <path d="M40 570 205 390 310 300 440 215 590 115 770 40M120 30 205 160 310 250 460 330 585 445 760 590"/>
-              </g>
-              <g class="map-city-labels" aria-hidden="true">
-                <text x="54" y="148">Peoria</text><text x="206" y="278">Glendale</text>
-                <text x="420" y="300" class="is-primary">PHOENIX</text><text x="650" y="220">Scottsdale</text>
-                <text x="676" y="402">Tempe</text><text x="790" y="470">Mesa</text><text x="620" y="548">Chandler</text>
-              </g>
-              <g data-map-routes></g>
-              <g data-map-stops></g>
-              <g data-map-alerts></g>
-              <g data-map-vehicles></g>
-            </svg>
+          <div class="phx-map-wrap" data-map-shell>
+            <p id="map-desc" class="sr-only">A real Phoenix-area basemap provides geographic context for five fictional transit routes, stops, alerts, and vehicle positions. The operational overlay is synthetic and does not represent Valley Metro service. Use Map records or the accessible records table to inspect features without the canvas.</p>
+            <div class="phx-map-canvas" data-interactive-map role="region" aria-label="Interactive synthetic transit map" aria-describedby="map-desc"></div>
+            <div class="phx-map-fallback" data-map-fallback hidden>
+              <svg class="phx-map" viewBox="0 0 900 620" role="img" aria-labelledby="map-title map-fallback-desc" data-map>
+                <desc id="map-fallback-desc">Schematic fallback with five fictional transit routes, stops, alerts, and vehicle positions. An equivalent accessible record table follows the dashboard.</desc>
+                <defs>
+                  <pattern id="minor-grid" width="34" height="34" patternUnits="userSpaceOnUse">
+                    <path d="M34 0H0V34" fill="none" stroke="currentColor" stroke-width="1"/>
+                  </pattern>
+                  <filter id="route-glow" x="-25%" y="-25%" width="150%" height="150%">
+                    <feGaussianBlur stdDeviation="4" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
+                <rect class="map-base" width="900" height="620"/>
+                <rect class="map-grid" width="900" height="620" fill="url(#minor-grid)"/>
+                <g class="map-roads" aria-hidden="true">
+                  <path d="M25 92H870M20 166H885M10 245H890M20 323H875M25 408H890M15 505H880M92 20V605M180 10V610M282 20V600M380 0V620M575 5V615M675 15V610M792 5V615"/>
+                  <path d="M40 570 205 390 310 300 440 215 590 115 770 40M120 30 205 160 310 250 460 330 585 445 760 590"/>
+                </g>
+                <g class="map-city-labels" aria-hidden="true">
+                  <text x="54" y="148">Peoria</text><text x="206" y="278">Glendale</text>
+                  <text x="420" y="300" class="is-primary">PHOENIX</text><text x="650" y="220">Scottsdale</text>
+                  <text x="676" y="402">Tempe</text><text x="790" y="470">Mesa</text><text x="620" y="548">Chandler</text>
+                </g>
+                <g data-map-routes></g>
+                <g data-map-stops></g>
+                <g data-map-alerts></g>
+                <g data-map-vehicles></g>
+              </svg>
+            </div>
+            <div class="phx-map-status" data-map-status role="status">
+              <span aria-hidden="true"></span>
+              <strong>Loading interactive basemap</strong>
+            </div>
             <div class="phx-map-empty" data-map-empty hidden>
               <strong>Operational picture unavailable</strong>
               <span>No vehicle positions can be plotted for this demonstration state.</span>
@@ -163,7 +181,7 @@
               <span><i class="delay"></i>Provisional delay</span>
               <span><i class="alert"></i>Alert</span>
             </div>
-            <span class="phx-map-caption">Fictional schematic - not an authoritative city map</span>
+            <span class="phx-map-caption">Real basemap - fictional operations</span>
           </div>
         </section>
 
@@ -221,6 +239,8 @@
       <p class="sr-only" aria-live="polite" aria-atomic="true" data-announcer></p>
     </section>
   </main>
+  <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+  <script src="/projects/phx-transit-pulse-map.js"></script>
   <script src="/projects/phx-transit-pulse.js"></script>
 </body>
 </html>

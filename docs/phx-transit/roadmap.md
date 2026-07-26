@@ -51,6 +51,29 @@ A focused review correction keeps scenario-derived ages, counts, map markers,
 inspectors, filters, and non-map route records internally consistent without
 rewriting the underlying fixture records.
 
+## Pass 13.1a - Interactive fictional map - implementation complete; QA pending
+
+- [x] Resolve dependency delivery, basemap service, fictional geography, and
+  fallback decision gates.
+- [x] Add fictional map metadata, GeoJSON route geometry, and geographic stop,
+  vehicle, and alert coordinates while retaining the schematic fields.
+- [x] Add an isolated MapLibre adapter for layers, filtering, selection, map
+  controls, camera preservation, and resize behavior.
+- [x] Make the real Phoenix-area basemap the primary visual surface and retain
+  the schematic as the automatic library/style initialization fallback.
+- [x] Preserve synthetic labeling, accessible records, keyboard selection,
+  reduced-motion behavior, explicit scenarios, and visible basemap attribution.
+- [x] Add a focused geographic fixture validator.
+- [ ] Complete targeted desktop, tablet, mobile, short-height, 200 percent zoom,
+  keyboard, reduced-motion, blocked-library, blocked-tile, console, network, and
+  Cloudflare preview QA on the mapped build.
+
+The implementation uses pinned MapLibre GL JS `5.24.0` and OpenFreeMap's public
+dark style. No secret or account is required. The basemap is real geographic
+context; every operational route, stop, vehicle, alert, and metric remains
+fictional and `providerData` remains `false`. The public tile service has no SLA,
+so the schematic fallback remains a release requirement.
+
 ## Pass 13.2 - Live ingestion and feed health - blocked by terms
 
 Public live ingestion and captured provider replay data are blocked until the
