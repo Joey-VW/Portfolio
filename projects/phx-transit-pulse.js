@@ -19,7 +19,9 @@
     mode: 'all',
     route: 'all',
     scenario: 'current',
-    selected: null
+    selected: null,
+    mapAdapter: null,
+    mapStatus: 'loading'
   };
   const feedLabels = {
     vehicle_positions: 'Vehicle Positions',
@@ -72,6 +74,54 @@
 
   function announce(message) {
     $('[data-announcer]').textContent = message;
+  }
+
+  function setMapPresentation(status, message = '') {
+    const shell = $('[data-map-shell]');
+    const canvas = $('[data-interactive-map]');
+    const fallback = $('[data-map-fallback]');
+    const statusNode = $('[data-map-status]');
+    const resetButton = $('[data-map-action="reset"]');
+    state.mapStatus = status;
+    shell.classList.toggle('phx-map-shell-fallback', status === 'fallback');
+    canvas.hidden = status === 'fallback';
+    fallback.hidden = status !== 'fallback';
+    resetButton.disabled = status !== 'ready';
+
+    if (status === 'ready') {
+      statusNode.hidden = true;
+      statusNode.querySelector('strong').textContent = '';
+      return;
+    }
+
+    statusNode.hidden = false;
+    statusNode.querySelector('strong').textContent = message || 'Loading interactive basemap';
+  }
+
+  async function initializeInteractiveMap() {
+    setMapPresentation('loading');
+    try {
+      if (!window.PHXTransitMap?.initMap) {
+        throw new Error('Interactive map adapter is unavailable.');
+      }
+      state.mapAdapter = await window.PHXTransitMap.initMap({
+        container: $('[data-interactive-map]'),
+        mapConfig: state.data.map,
+        reducedMotion: reducedMotion.matches,
+        onSelect: setSelection
+      });
+      setMapPresentation('ready');
+      renderMap(currentFrame());
+      announce('Interactive Phoenix-area basemap loaded. All operational overlays are fictional.');
+    } catch (error) {
+      state.mapAdapter = null;
+      setMapPresentation(
+        'fallback',
+        'Interactive basemap unavailable - showing the fictional schematic fallback.'
+      );
+      renderMap(currentFrame());
+      announce('Interactive basemap unavailable. The fictional schematic fallback and accessible records remain available.');
+    }
   }
 
   function updateRouteOptions() {
@@ -242,6 +292,51 @@
     });
   }
 
+  function renderMapRecordOptions(frame) {
+    const select = $('[data-map-record]');
+    const selectedValue = state.selected ? `${state.selected.type}:${state.selected.id}` : '';
+    const groups = [
+      {
+        label: 'Fictional routes',
+        type: 'route',
+        records: visibleRoutes(),
+        text: (route) => `${route.label} - ${route.mode === 'rail' ? 'light rail' : route.mode}`
+      },
+      {
+        label: 'Visible vehicles',
+        type: 'vehicle',
+        records: visibleVehicles(frame),
+        text: (vehicle) => `${vehicle.id} - ${unknown(routeById(vehicle.routeId)?.label)}`
+      },
+      {
+        label: 'Visible alerts',
+        type: 'alert',
+        records: visibleAlerts(frame),
+        text: (alert) => alert.title
+      }
+    ];
+
+    select.replaceChildren();
+    const prompt = el('option', '', mapUnavailable() ? 'Map records unavailable' : 'Map records');
+    prompt.value = '';
+    select.append(prompt);
+    groups.forEach((group) => {
+      if (!group.records.length) return;
+      const options = document.createElement('optgroup');
+      options.label = group.label;
+      group.records.forEach((record) => {
+        const option = el('option', '', group.text(record));
+        option.value = `${group.type}:${record.id}`;
+        options.append(option);
+      });
+      select.append(options);
+    });
+    select.disabled = mapUnavailable();
+    select.value = Array.from(select.options).some((option) => option.value === selectedValue)
+      ? selectedValue
+      : '';
+  }
+
   function renderMap(frame) {
     const routesRoot = $('[data-map-routes]');
     const stopsRoot = $('[data-map-stops]');
@@ -365,6 +460,25 @@
 
     $('[data-map-empty]').hidden = !unavailable;
     $('[data-map]').setAttribute('aria-disabled', unavailable ? 'true' : 'false');
+    $('[data-interactive-map]').setAttribute('aria-disabled', unavailable ? 'true' : 'false');
+    renderMapRecordOptions(frame);
+
+    if (state.mapAdapter?.isReady()) {
+      state.mapAdapter.setMapData({
+        routes: state.data.routes,
+        stops: state.data.stops,
+        alerts: frame.alerts,
+        vehicles: frame.vehicles.map(effectiveVehicle)
+      });
+      state.mapAdapter.setMapFilters({
+        mode: state.mode,
+        routeId: state.route
+      });
+      state.mapAdapter.setMapSelection(state.selected);
+      state.mapAdapter.setMapScenario({
+        mapUnavailable: unavailable
+      });
+    }
   }
 
   function renderAlerts(frame) {
@@ -707,6 +821,7 @@
       button.setAttribute('aria-pressed', String(active));
     });
     updateRouteOptions();
+    state.mapAdapter?.resetMapView();
     render({ announceChange: true });
   }
 
@@ -727,6 +842,19 @@
       }
     });
     $('[data-action="reset"]').addEventListener('click', resetFilters);
+    $('[data-map-action="reset"]').addEventListener('click', () => {
+      if (!state.mapAdapter?.isReady()) {
+        announce('Interactive basemap controls are unavailable while the schematic fallback is active.');
+        return;
+      }
+      state.mapAdapter.resetMapView();
+      announce('Interactive map recentered on the fictional Phoenix-area network.');
+    });
+    $('[data-map-record]').addEventListener('change', (event) => {
+      if (!event.target.value) return;
+      const [type, ...idParts] = event.target.value.split(':');
+      setSelection(type, idParts.join(':'));
+    });
     $('[data-timeline]').addEventListener('input', (event) => {
       stopReplay();
       state.frame = Number(event.target.value);
@@ -777,12 +905,22 @@
     });
     reducedMotion.addEventListener('change', () => {
       if (reducedMotion.matches) stopReplay();
+      state.mapAdapter?.setReducedMotion?.(reducedMotion.matches);
       render({ announceChange: true });
     });
+    window.addEventListener('beforeunload', () => {
+      state.mapAdapter?.destroyMap();
+    }, { once: true });
   }
 
   function renderLoadFailure() {
     stopReplay();
+    state.mapAdapter?.destroyMap();
+    state.mapAdapter = null;
+    setMapPresentation(
+      'fallback',
+      'Interactive map not initialized because the synthetic fixture is unavailable.'
+    );
     app.dataset.appState = 'feed_error';
     $('[data-primary-state] strong').textContent = 'Synthetic fixture error';
     $('[data-replay-time]').textContent = 'Unavailable';
@@ -791,6 +929,7 @@
     $('[data-state-message]').textContent = 'The local fictional fixture could not be loaded. No live or provider data was requested.';
     $('[data-map-empty]').hidden = false;
     $('[data-map]').setAttribute('aria-disabled', 'true');
+    $('[data-interactive-map]').setAttribute('aria-disabled', 'true');
     $('[data-map-routes]').replaceChildren();
     $('[data-map-stops]').replaceChildren();
     $('[data-map-alerts]').replaceChildren();
@@ -805,6 +944,8 @@
     $('[data-inspector]').replaceChildren(el('p', 'phx-unavailable', 'No selected record is presented as current.'));
     $('[data-record-count]').textContent = 'Records unavailable';
     $('[data-records]').replaceChildren();
+    $('[data-map-record]').replaceChildren(el('option', '', 'Map records unavailable'));
+    $('[data-map-record]').disabled = true;
     $$('.phx-control-stack button, .phx-control-stack select, .phx-control-stack input').forEach((control) => {
       control.disabled = true;
     });
@@ -848,6 +989,7 @@
 
       bindControls();
       render({ announceChange: true });
+      void initializeInteractiveMap();
     } catch (error) {
       renderLoadFailure();
     }

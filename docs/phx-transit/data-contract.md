@@ -1,8 +1,8 @@
 # PHX Transit Pulse normalized frontend data contract
 
-**Version:** `0.2-draft`
+**Version:** `0.3-draft`
 **Basis:** Pass 13.0 static, Vehicle Positions, Trip Updates, Service Alerts,
-cadence, and validator evidence.
+cadence, validator evidence, and the synthetic geographic-map implementation.
 
 This contract describes a future normalized boundary; it does not implement live
 ingestion. IDs remain opaque strings. Timestamps normalize to RFC 3339 UTC while
@@ -109,3 +109,24 @@ text, cause, effect, URL, or selector changes.
 Deduplication precedence, implausibility thresholds, prediction exclusion/repair,
 locale selection, history retention, and cross-feed reconciliation require later
 methodology decisions and tests.
+
+## Synthetic geographic presentation contract
+
+`data/phx-transit/synthetic/operations-replay.json` is a separate, browser-facing
+demonstration fixture. It remains `providerData: false` and uses the geography
+label `fictional-phoenix-area-overlay`. Its longitude and latitude values were
+manually authored for this portfolio demonstration; they are not copied from
+provider routes, stops, vehicles, alerts, or shapes.
+
+The top-level `map` object defines the fictional network center, initial zoom,
+approved bounds, zoom limits, bearing, and pitch. Each route retains its legacy
+schematic `path` and adds a GeoJSON-compatible `LineString` `geometry`. Stops,
+vehicles in every replay frame, and geographic alerts retain their legacy `x`
+and `y` fields and add finite `longitude` and `latitude` values within the
+approved bounds.
+
+The interactive map and schematic fallback must consume the same route, stop,
+vehicle, alert, filter, scenario, and selection IDs. Replay timestamps,
+freshness, and application states retain their existing meaning. A real
+Phoenix-area basemap provides context only; it does not make the fictional
+operational overlay provider-derived or live.

@@ -36,7 +36,7 @@ Key routes:
 - `/games/gravity-fleet-lab.html` - playable orbital RTS telemetry experiment
 - `/projects/shrinkflation-tracker.html` - consumer analytics prototype for unit-price changes
 - `/projects/ev-true-cost.html` - EV public-charging cost check for public, mostly-home, and home-only charging
-- `/projects/phx-transit-pulse.html` - hidden, noindex PHX Transit Pulse planning placeholder; its feasibility documents and compact non-live fixtures live under `docs/phx-transit/` and `data/phx-transit/`.
+- `/projects/phx-transit-pulse.html` - hidden, noindex synthetic operations console with a real Phoenix-area basemap, fictional transit overlays, deterministic replay, explicit demonstration states, accessible records, and a schematic fallback; supporting feasibility and implementation documents live under `docs/phx-transit/`.
 - `/projects/multi-platform-publishing-system.html` - public-ready Multi-Platform Publishing System case study (currently noindex; final indexing decision is part of the production release)
 - `/projects/multi-platform-publishing-system/demo/` - public-ready Postcard Atlas fictional publishing-system demo (currently noindex; final indexing decision is part of the production release)
 
@@ -134,3 +134,4 @@ To prevent search-result drift over time, review candidate matches and lock stab
 - Keep fixture-based and disabled behaviors truthful while live Sheets, Forms, Drive, and contact delivery remain deferred.
 - Replace the `mailto:` contact form with a verified Cloudflare Worker or form endpoint when backend work is prioritized.
 - Keep the site build-free until content volume justifies templating or static generation.
+

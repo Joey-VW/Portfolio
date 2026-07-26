@@ -1,5 +1,21 @@
 # Shrinkflation data tools
 
+## PHX Transit synthetic map fixture validator
+
+Run the dependency-free validator after changing PHX Transit geographic
+fixtures:
+
+```bash
+python tools/validate_phx_transit_map.py
+```
+
+It verifies that the fixture remains explicitly synthetic, map bounds and center
+are valid, every route contains nonempty GeoJSON `LineString` geometry, and all
+stop, replay-vehicle, and geographic-alert coordinates are finite and inside the
+approved fictional Phoenix-area bounds. It also confirms stable route, stop, and
+vehicle IDs and preserves the legacy schematic `path`, `x`, and `y` fields used
+by the automatic fallback.
+
 ## Gravity Fleet deterministic validator
 
 Run the dependency-free Gravity Fleet regression harness directly with Node:
