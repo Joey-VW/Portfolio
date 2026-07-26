@@ -108,8 +108,10 @@
   filter: drop-shadow(0 0 15px rgba(255, 91, 26, .22));
 }
 
-.phx-brand div {
+.phx-brand > div {
+  flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
 }
 
 .phx-brand span,
@@ -141,7 +143,9 @@
   font-size: .63rem;
   letter-spacing: .12em;
   text-transform: uppercase;
-  white-space: nowrap;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .phx-demo-note {
