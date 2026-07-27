@@ -76,7 +76,8 @@ def validate() -> tuple[int, int, int, int]:
     patterns: dict[str, tuple[str, dict]] = {}
     for route in routes:
         route_id = route.get("id")
-        require(route.get("path"), f"route {route_id} must retain a schematic path")
+        require("geometry" not in route and "path" not in route,
+                f"route {route_id} must derive display geometry from its canonical pattern")
         require(len(route.get("patterns", [])) >= 2, f"route {route_id} requires directional patterns")
         for pattern in route["patterns"]:
             pattern_id = pattern.get("id")
@@ -88,6 +89,9 @@ def validate() -> tuple[int, int, int, int]:
                 validate_coordinate(coordinate, f"pattern {pattern_id} coordinate {index}", bounds)
             require(pattern.get("headsign") and pattern.get("stopIds"), f"pattern {pattern_id} requires a headsign and ordered stops")
             patterns[pattern_id] = (route_id, pattern)
+        display_pattern_id = route.get("displayPatternId")
+        require(display_pattern_id in patterns and patterns[display_pattern_id][0] == route_id,
+                f"route {route_id} requires a canonical display pattern")
 
     stops = data.get("stops", [])
     stop_by_id = {stop.get("id"): stop for stop in stops}
@@ -143,9 +147,17 @@ def validate() -> tuple[int, int, int, int]:
             require(0 <= segment[0] < segment[1] <= 1, f"alert {alert['id']} has invalid segment progress")
             require(patterns[pattern_id][0] in alert["routes"], f"alert {alert['id']} segment is not on an affected route")
         alert_total += len(frame.get("alerts", []))
+        for trip in frame.get("tripStates", []):
+            stop_id = trip.get("stopId")
+            require("stop" not in trip, f"trip state {trip['tripId']} must resolve labels from stopId")
+            require(stop_id is None or stop_id in stop_by_id,
+                    f"trip state {trip['tripId']} references an unknown stop")
     for vehicle_id, values in progress_by_vehicle.items():
         require(all(after > before for before, after in zip(values, values[1:])),
                 f"vehicle {vehicle_id} progress must increase consistently along its directional pattern")
+    serialized = json.dumps(data)
+    for stale_label in ("Mesa Gateway", "Westgate", "Copper Square"):
+        require(stale_label not in serialized, f"fixture retains stale stop label {stale_label}")
 
     return len(routes), len(stops), vehicle_total, alert_total
 

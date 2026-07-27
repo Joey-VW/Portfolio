@@ -81,6 +81,41 @@
     return { longitude: coordinates[0][0], latitude: coordinates[0][1], bearing: 0 };
   }
 
+  function distanceKilometers(first, second) {
+    const latitudeScale = 111.32;
+    const longitudeScale = latitudeScale * Math.cos(((first.latitude + second.latitude) / 2) * Math.PI / 180);
+    return Math.hypot(
+      (first.longitude - second.longitude) * longitudeScale,
+      (first.latitude - second.latitude) * latitudeScale
+    );
+  }
+
+  function projectPointToGeometry(point, coordinates) {
+    const { lengths, total } = geometryMetrics(coordinates);
+    const longitudeScale = Math.cos(point.latitude * Math.PI / 180);
+    let traversed = 0;
+    let best = null;
+    coordinates.slice(1).forEach((end, index) => {
+      const start = coordinates[index];
+      const dx = (end[0] - start[0]) * longitudeScale;
+      const dy = end[1] - start[1];
+      const px = (point.longitude - start[0]) * longitudeScale;
+      const py = point.latitude - start[1];
+      const ratio = Math.max(0, Math.min(1, (px * dx + py * dy) / (dx * dx + dy * dy || 1)));
+      const projected = {
+        longitude: start[0] + (end[0] - start[0]) * ratio,
+        latitude: start[1] + (end[1] - start[1]) * ratio
+      };
+      const candidate = {
+        distanceKm: distanceKilometers(point, projected),
+        progress: (traversed + lengths[index] * ratio) / total
+      };
+      if (!best || candidate.distanceKm < best.distanceKm) best = candidate;
+      traversed += lengths[index];
+    });
+    return best;
+  }
+
   function sliceGeometry(coordinates, startProgress, endProgress) {
     const { lengths, total } = geometryMetrics(coordinates);
     const cumulative = [0];
@@ -101,9 +136,21 @@
     };
   }
 
+  function schematicPath(coordinates, map) {
+    return `M${coordinates.map((coordinate) => {
+      const point = projectToSchematic({ longitude: coordinate[0], latitude: coordinate[1] }, map);
+      return `${point.x} ${point.y}`;
+    }).join(' L')}`;
+  }
+
   function hydrateFixture(data) {
-    const patterns = new Map(data.routes.flatMap((route) => route.patterns.map((pattern) => [pattern.id, { ...pattern, route }] )));
+    const patterns = new Map(data.routes.flatMap((route) => route.patterns.map((pattern) => [pattern.id, pattern])));
     const stops = new Map(data.stops.map((stop) => [stop.id, stop]));
+    data.routes.forEach((route) => {
+      const displayPattern = patterns.get(route.displayPatternId);
+      route.geometry = displayPattern.geometry;
+      route.path = schematicPath(displayPattern.geometry.coordinates, data.map);
+    });
     data.frames.forEach((frame) => {
       frame.vehicles.forEach((vehicle) => {
         if (!vehicle.patternId) return;
@@ -113,23 +160,22 @@
           direction: pattern.headsign
         });
         const orderedStops = pattern.stopIds.map((id) => stops.get(id));
-        const stopProgress = orderedStops.map((stop) => {
-          let best = { distance: Infinity, progress: 0 };
-          for (let progress = 0; progress <= 1.0001; progress += 0.002) {
-            const point = pointAlong(pattern.geometry.coordinates, progress);
-            const distance = Math.hypot(point.longitude - stop.longitude, point.latitude - stop.latitude);
-            if (distance < best.distance) best = { distance, progress };
-          }
-          return { stop, progress: best.progress };
-        });
+        const stopProgress = orderedStops.map((stop) => ({
+          stop,
+          ...projectPointToGeometry(stop, pattern.geometry.coordinates)
+        }));
         const nearest = stopProgress.reduce((best, item) => (
-          Math.abs(item.progress - vehicle.progress) < Math.abs(best.progress - vehicle.progress) ? item : best
+          distanceKilometers(position, item.stop) < distanceKilometers(position, best.stop) ? item : best
         ));
-        const next = stopProgress.find((item) => item.progress >= vehicle.progress - 0.004) || stopProgress.at(-1);
-        const gap = Math.abs(nearest.progress - vehicle.progress);
-        vehicle.stop = next.stop.label;
+        const next = stopProgress.find((item) => item.progress >= vehicle.progress) || stopProgress.at(-1);
+        const nearestDistance = distanceKilometers(position, nearest.stop);
+        const nextDistance = distanceKilometers(position, next.stop);
+        const atStop = nearestDistance <= 0.2;
+        const context = atStop ? nearest : next;
+        vehicle.stop = context.stop.label;
         vehicle.nearestStopId = nearest.stop.id;
-        vehicle.status = gap <= 0.012 ? 'At stop' : gap <= 0.07 ? 'Approaching' : 'In transit';
+        vehicle.nextStopId = next.stop.id;
+        vehicle.status = atStop ? 'At stop' : nextDistance <= 1.2 ? 'Approaching' : 'In transit';
       });
       frame.alerts.forEach((alert) => {
         if (!alert.patternId || !alert.segmentProgress) return;
@@ -140,10 +186,7 @@
         };
         const midpoint = pointAlong(pattern.geometry.coordinates, (alert.segmentProgress[0] + alert.segmentProgress[1]) / 2);
         Object.assign(alert, midpoint, projectToSchematic(midpoint, data.map));
-        alert.segmentPath = `M${alert.segmentGeometry.coordinates.map((coordinate) => {
-          const point = projectToSchematic({ longitude: coordinate[0], latitude: coordinate[1] }, data.map);
-          return `${point.x} ${point.y}`;
-        }).join(' L')}`;
+        alert.segmentPath = schematicPath(alert.segmentGeometry.coordinates, data.map);
       });
     });
   }
@@ -170,6 +213,10 @@
 
   function routeById(id) {
     return state.data.routes.find((route) => route.id === id);
+  }
+
+  function stopById(id) {
+    return state.data.stops.find((stop) => stop.id === id);
   }
 
   function announce(message) {
@@ -787,7 +834,7 @@
         ['Effect', alert.effect],
         ['Period', alert.period],
         ['Routes', alert.routes.join(', ')],
-        ['Stops', alert.stops.join(', ')]
+        ['Stops', alert.stops.map((stopId) => stopById(stopId)?.label || stopId).join(', ')]
       ];
     }
     appendDefinitionList(root, pairs);
@@ -857,7 +904,7 @@
         [unknown(routeById(trip.routeId)?.label), 'Route / mode'],
         [trip.state.replace('_', ' '), 'Freshness'],
         [trip.label, 'Status'],
-        [trip.stop || 'Not applicable', 'Stop / direction']
+        [trip.stopId ? unknown(stopById(trip.stopId)?.label) : 'Not applicable', 'Stop / direction']
       ]);
     });
   }

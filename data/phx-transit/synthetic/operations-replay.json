@@ -16,37 +16,7 @@
       "label": "Copper 17",
       "mode": "bus",
       "color": "blue",
-      "path": "M116.7 180.9 L276.7 180.9 L276.7 227.8 L436.7 227.8 L436.7 274.8 L596.7 274.8",
       "direction": "Desert Vista to Arcadia Exchange",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            -112.3,
-            33.58
-          ],
-          [
-            -112.18,
-            33.58
-          ],
-          [
-            -112.18,
-            33.54
-          ],
-          [
-            -112.06,
-            33.54
-          ],
-          [
-            -112.06,
-            33.5
-          ],
-          [
-            -111.94,
-            33.5
-          ]
-        ]
-      },
       "patterns": [
         {
           "id": "COPPER-OUT",
@@ -126,52 +96,15 @@
             ]
           }
         }
-      ]
+      ],
+      "displayPatternId": "COPPER-OUT"
     },
     {
       "id": "SKY",
       "label": "Sky 29",
       "mode": "bus",
       "color": "cyan",
-      "path": "M143.3 357 L303.3 357 L303.3 333.5 L423.3 333.5 L423.3 310 L610 310 L610 333.5 L783.3 333.5",
       "direction": "West Commons to Mesa Gardens",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            -112.28,
-            33.43
-          ],
-          [
-            -112.16,
-            33.43
-          ],
-          [
-            -112.16,
-            33.45
-          ],
-          [
-            -112.07,
-            33.45
-          ],
-          [
-            -112.07,
-            33.47
-          ],
-          [
-            -111.93,
-            33.47
-          ],
-          [
-            -111.93,
-            33.45
-          ],
-          [
-            -111.8,
-            33.45
-          ]
-        ]
-      },
       "patterns": [
         {
           "id": "SKY-OUT",
@@ -267,48 +200,15 @@
             ]
           }
         }
-      ]
+      ],
+      "displayPatternId": "SKY-OUT"
     },
     {
       "id": "CACTUS",
       "label": "Cactus 60",
       "mode": "bus",
       "color": "teal",
-      "path": "M330 87 L330 227.8 L383.3 227.8 L383.3 333.5 L423.3 333.5 L423.3 462.6 L650 462.6",
       "direction": "North Mountain Park to Chandler Market",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            -112.14,
-            33.66
-          ],
-          [
-            -112.14,
-            33.54
-          ],
-          [
-            -112.1,
-            33.54
-          ],
-          [
-            -112.1,
-            33.45
-          ],
-          [
-            -112.07,
-            33.45
-          ],
-          [
-            -112.07,
-            33.34
-          ],
-          [
-            -111.9,
-            33.34
-          ]
-        ]
-      },
       "patterns": [
         {
           "id": "CACTUS-OUT",
@@ -398,44 +298,15 @@
             ]
           }
         }
-      ]
+      ],
+      "displayPatternId": "CACTUS-OUT"
     },
     {
       "id": "SUNLINE",
       "label": "Sunline Rail",
       "mode": "rail",
       "color": "magenta",
-      "path": "M418 98.7 L418 227.8 L423.3 274.8 L423.3 333.5 L430 403.9 L430 533",
       "direction": "Uptown Station to South Central Terminal",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            -112.074,
-            33.65
-          ],
-          [
-            -112.074,
-            33.54
-          ],
-          [
-            -112.07,
-            33.5
-          ],
-          [
-            -112.07,
-            33.45
-          ],
-          [
-            -112.065,
-            33.39
-          ],
-          [
-            -112.065,
-            33.28
-          ]
-        ]
-      },
       "patterns": [
         {
           "id": "SUNLINE-OUT",
@@ -515,44 +386,15 @@
             ]
           }
         }
-      ]
+      ],
+      "displayPatternId": "SUNLINE-OUT"
     },
     {
       "id": "MESA",
       "label": "Mesa Rail",
       "mode": "rail",
       "color": "amber",
-      "path": "M223.3 333.5 L303.3 333.5 L423.3 333.5 L516.7 357 L610 357 L756.7 357",
       "direction": "Capitol Station to East Valley Station",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            -112.22,
-            33.45
-          ],
-          [
-            -112.16,
-            33.45
-          ],
-          [
-            -112.07,
-            33.45
-          ],
-          [
-            -112.0,
-            33.43
-          ],
-          [
-            -111.93,
-            33.43
-          ],
-          [
-            -111.82,
-            33.43
-          ]
-        ]
-      },
       "patterns": [
         {
           "id": "MESA-OUT",
@@ -634,7 +476,8 @@
             ]
           }
         }
-      ]
+      ],
+      "displayPatternId": "MESA-OUT"
     }
   ],
   "stops": [
@@ -962,7 +805,7 @@
         },
         {
           "id": "DEMO-ALERT-INFO",
-          "title": "Mesa Gateway stop relocation",
+          "title": "Mesa Gardens stop relocation",
           "effect": "Stop moved",
           "severity": "info",
           "displayTime": "10:22",
@@ -992,14 +835,14 @@
           "routeId": "SKY",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Mesa Gateway"
+          "stopId": "ST-FICTION-06"
         },
         {
           "tripId": "TRIP-S29-12",
           "routeId": "SKY",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Westgate"
+          "stopId": "ST-FICTION-04"
         }
       ],
       "routeSignals": [
@@ -1204,7 +1047,7 @@
         },
         {
           "id": "DEMO-ALERT-INFO",
-          "title": "Mesa Gateway stop relocation",
+          "title": "Mesa Gardens stop relocation",
           "effect": "Stop moved",
           "severity": "info",
           "displayTime": "10:22",
@@ -1234,14 +1077,14 @@
           "routeId": "SKY",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Mesa Gateway"
+          "stopId": "ST-FICTION-06"
         },
         {
           "tripId": "TRIP-C60-12",
           "routeId": "CACTUS",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Tempe Junction"
+          "stopId": "ST-FICTION-09"
         }
       ],
       "routeSignals": [
@@ -1427,7 +1270,7 @@
         },
         {
           "id": "DEMO-ALERT-INFO",
-          "title": "Mesa Gateway stop relocation",
+          "title": "Mesa Gardens stop relocation",
           "effect": "Stop moved",
           "severity": "info",
           "displayTime": "10:22",
@@ -1457,21 +1300,21 @@
           "routeId": "SKY",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Mesa Gateway"
+          "stopId": "ST-FICTION-06"
         },
         {
           "tripId": "TRIP-C60-12",
           "routeId": "CACTUS",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Tempe Junction"
+          "stopId": "ST-FICTION-09"
         },
         {
           "tripId": "TRIP-SR-10",
           "routeId": "SUNLINE",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Copper Square"
+          "stopId": "ST-FICTION-05"
         }
       ],
       "routeSignals": [
@@ -1657,7 +1500,7 @@
         },
         {
           "id": "DEMO-ALERT-INFO",
-          "title": "Mesa Gateway stop relocation",
+          "title": "Mesa Gardens stop relocation",
           "effect": "Stop moved",
           "severity": "info",
           "displayTime": "10:22",
@@ -1681,14 +1524,14 @@
           "routeId": "SKY",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Mesa Gateway"
+          "stopId": "ST-FICTION-06"
         },
         {
           "tripId": "TRIP-C60-12",
           "routeId": "CACTUS",
           "state": "skipped_stop",
           "label": "Synthetic skipped stop",
-          "stop": "Tempe Junction"
+          "stopId": "ST-FICTION-09"
         }
       ],
       "routeSignals": [

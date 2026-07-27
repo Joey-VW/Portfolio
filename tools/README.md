@@ -10,14 +10,15 @@ python tools/validate_phx_transit_map.py
 ```
 
 It verifies that the fixture remains explicitly synthetic, map bounds are valid,
-and every route retains schematic geometry plus two geographic directional
+and every route names a canonical display pattern among its geographic directional
 patterns. The `0.4-draft` fixture stores ordered stop IDs and headsigns on those
 patterns, vehicle progress along a pattern, and pattern-scoped alert segments.
 The validator checks geometry bounds, stop alignment and endpoints, derived
 vehicle placement, increasing progress across all four frames, and valid alert
-segment ranges. The browser derives geographic and schematic vehicle positions
-from the same pattern geometry so the interactive and automatic fallback maps
-stay synchronized.
+segment ranges. It also rejects route-level geometry that could drift, stale stop
+labels, and trip-state stop names that are not resolved from IDs. The browser
+derives interactive route geometry, fallback SVG paths, and vehicle positions
+from the same canonical patterns so both maps stay synchronized.
 
 ## Gravity Fleet deterministic validator
 
