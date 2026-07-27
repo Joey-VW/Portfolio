@@ -341,7 +341,7 @@
       type: 'circle',
       source: SOURCE_IDS.vehicles,
       paint: {
-        'circle-radius': 11,
+        'circle-radius': 4,
         'circle-color': 'rgba(0, 0, 0, 0)',
         'circle-stroke-color': [
           'match',
@@ -351,7 +351,7 @@
           '#97a8bb'
         ],
         'circle-stroke-width': 2,
-        'circle-opacity': 0
+        'circle-stroke-opacity': 0
       }
     });
     map.addLayer({
@@ -615,27 +615,96 @@
     }
 
     function syncPlaybackPulse() {
+      const pulseLayerId = 'phx-vehicle-pulse';
+
       if (pulseAnimationFrame !== null) {
         cancelAnimationFrame(pulseAnimationFrame);
         pulseAnimationFrame = null;
       }
-      if (!adapterState.ready || adapterState.destroyed || adapterState.reducedMotion || !adapterState.playing) {
-        if (adapterState.ready && map.getLayer('phx-vehicle-pulse')) {
-          map.setPaintProperty('phx-vehicle-pulse', 'circle-opacity', 0);
-        }
+
+      const resetPulse = () => {
+        if (!adapterState.ready || !map.getLayer(pulseLayerId)) return;
+
+        map.setPaintProperty(pulseLayerId, 'circle-radius', 4);
+        map.setPaintProperty(pulseLayerId, 'circle-stroke-opacity', 0);
+      };
+
+      if (
+        !adapterState.ready
+        || adapterState.destroyed
+        || adapterState.reducedMotion
+        || !adapterState.playing
+      ) {
+        resetPulse();
         return;
       }
 
+      const cycleDurationMs = 2500;
+      const rippleDurationMs = 2100;
+      const resetDurationMs = cycleDurationMs - rippleDurationMs;
+
+      const startRadius = 4;
+      const endRadius = 23;
+      const startOpacity = 0.7;
+
+      let pulseStartTime = null;
+
       const animate = (timestamp) => {
-        if (!adapterState.playing || adapterState.reducedMotion || adapterState.destroyed) {
+        if (
+          !adapterState.playing
+          || adapterState.reducedMotion
+          || adapterState.destroyed
+        ) {
           pulseAnimationFrame = null;
+          resetPulse();
           return;
         }
-        const phase = (timestamp % 1800) / 1800;
-        map.setPaintProperty('phx-vehicle-pulse', 'circle-radius', 11 + phase * 16);
-        map.setPaintProperty('phx-vehicle-pulse', 'circle-opacity', (1 - phase) * 0.42);
+
+        if (pulseStartTime === null) {
+          pulseStartTime = timestamp;
+        }
+
+        const elapsed = timestamp - pulseStartTime;
+        const cycleElapsed = elapsed % cycleDurationMs;
+
+        let radius;
+        let opacity;
+
+        if (cycleElapsed < rippleDurationMs) {
+          const progress = cycleElapsed / rippleDurationMs;
+          const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+          radius =
+            startRadius + (endRadius - startRadius) * easedProgress;
+
+          opacity =
+            startOpacity * Math.pow(1 - progress, 2);
+        } else {
+          // Reset beneath the marker while completely invisible.
+          const resetProgress =
+            (cycleElapsed - rippleDurationMs) / resetDurationMs;
+
+          radius =
+            endRadius + (startRadius - endRadius) * resetProgress;
+
+          opacity = 0;
+        }
+
+        map.setPaintProperty(
+          pulseLayerId,
+          'circle-radius',
+          radius
+        );
+
+        map.setPaintProperty(
+          pulseLayerId,
+          'circle-stroke-opacity',
+          opacity
+        );
+
         pulseAnimationFrame = requestAnimationFrame(animate);
       };
+
       pulseAnimationFrame = requestAnimationFrame(animate);
     }
 
