@@ -378,6 +378,7 @@
   function renderStatus(frame) {
     const scenario = currentScenario();
     app.dataset.appState = scenario.state;
+    app.dataset.playing = String(state.playing);
     $('[data-replay-time]').textContent = formatReplayTime(frame.timestamp, true);
     $('[data-clock-time]').textContent = formatReplayTime(frame.timestamp);
     $('[data-frame-count]').textContent = `${state.frame + 1} / ${state.data.frames.length}`;
@@ -394,6 +395,63 @@
     $('[data-map-filter]').textContent = `${modeLabel}${routeLabel}`;
   }
 
+  function createKpiIcon(kind) {
+    const icon = svgEl('svg', {
+      class: 'phx-kpi-icon',
+      viewBox: '0 0 48 48',
+      'aria-hidden': 'true'
+    });
+    const common = { fill: 'none', stroke: 'currentColor', 'stroke-width': '2.4', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+    const shapes = {
+      vehicle: [
+        ['rect', { x: 13, y: 11, width: 22, height: 25, rx: 5 }],
+        ['path', { d: 'M16 16h16M17 28h14M18 36v3M30 36v3' }],
+        ['circle', { cx: 18, cy: 31, r: 1 }],
+        ['circle', { cx: 30, cy: 31, r: 1 }]
+      ],
+      alert: [
+        ['path', { d: 'M24 9 39 37H9L24 9Z' }],
+        ['path', { d: 'M24 18v9M24 32v.5' }]
+      ],
+      delay: [
+        ['circle', { cx: 24, cy: 24, r: 15 }],
+        ['path', { d: 'M24 15v10l7 4' }]
+      ],
+      enrichment: [
+        ['path', { d: 'M24 8 38 16v9c0 8-5.5 13-14 16-8.5-3-14-8-14-16v-9l14-8Z' }],
+        ['path', { d: 'm19 24 3 3 7-8' }]
+      ]
+    };
+    (shapes[kind] || shapes.enrichment).forEach(([tag, attributes]) => {
+      icon.append(svgEl(tag, { ...common, ...attributes }));
+    });
+    return icon;
+  }
+
+  function createSparkline(values) {
+    const width = 64;
+    const height = 32;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = Math.max(1, max - min);
+    const points = values.map((value, index) => {
+      const x = (index / (values.length - 1)) * width;
+      const y = height - 4 - ((value - min) / range) * (height - 9);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    const sparkline = svgEl('svg', {
+      class: 'phx-kpi-sparkline',
+      viewBox: `0 0 ${width} ${height}`,
+      preserveAspectRatio: 'none',
+      'aria-hidden': 'true'
+    });
+    sparkline.append(
+      svgEl('polygon', { points: `0,${height} ${points} ${width},${height}`, class: 'sparkline-area' }),
+      svgEl('polyline', { points, class: 'sparkline-line' })
+    );
+    return sparkline;
+  }
+
   function renderKpis(frame) {
     const counts = derive(frame);
     const unavailable = unavailableScenario();
@@ -403,38 +461,45 @@
         label: 'Active vehicles',
         value: unavailable ? 'Unavailable' : counts.active,
         note: unavailable ? 'Synthetic state unavailable' : `${counts.vehicles.length} plotted - age ≤ 90 sec`,
-        icon: '▣'
+        icon: 'vehicle',
+        sparkline: [6, 7, 7, 8, 7, 9, counts.active]
       },
       {
         label: 'Active alerts',
         value: unavailable ? 'Unavailable' : counts.alerts,
         note: unavailable ? 'Synthetic state unavailable' : 'Fictional source notices',
-        icon: '!'
+        icon: 'alert'
       },
       {
         label: 'Avg predicted delay',
         value: unavailable ? 'Unavailable' : delayValue,
         note: unavailable ? 'Synthetic state unavailable' : '<b>Provisional</b> fixture formula',
-        icon: 'Δ',
-        html: true
+        icon: 'delay',
+        html: true,
+        sparkline: [2.8, 3.4, 3.1, 4.2, 3.8, 4.5, counts.averageDelay ?? 0]
       },
       {
         label: 'Missing enrichment',
         value: unavailable ? 'Unavailable' : counts.missing,
         note: unavailable ? 'Synthetic state unavailable' : 'Route or trip context unknown',
-        icon: '◇'
+        icon: 'enrichment'
       }
     ];
 
     const root = $('[data-kpis]');
     root.replaceChildren();
     values.forEach((item) => {
-      const card = el('article', 'phx-kpi');
-      card.dataset.icon = item.icon;
-      const note = el('small');
+      const card = el('article', `phx-kpi${item.sparkline && !unavailable ? ' has-sparkline' : ''}`);
+      const note = el('small', 'phx-kpi-note');
       if (item.html) note.innerHTML = item.note;
       else note.textContent = item.note;
-      card.append(el('span', '', item.label), el('strong', '', String(item.value)), note);
+      card.append(
+        createKpiIcon(item.icon),
+        el('span', 'phx-kpi-label', item.label),
+        el('strong', 'phx-kpi-value', String(item.value)),
+        note
+      );
+      if (item.sparkline && !unavailable) card.append(createSparkline(item.sparkline));
       root.append(card);
     });
   }
@@ -482,6 +547,30 @@
     select.value = Array.from(select.options).some((option) => option.value === selectedValue)
       ? selectedValue
       : '';
+  }
+
+  function appendVehicleGlyph(group, mode) {
+    if (mode === 'rail') {
+      group.append(
+        svgEl('rect', { x: -6, y: -8, width: 12, height: 16, rx: 2.5, class: 'vehicle-glyph' }),
+        svgEl('path', { d: 'M-4-3H4M-4 2H4M-4 9l2-2M4 9 2-2', class: 'vehicle-glyph' }),
+        svgEl('circle', { cx: -3, cy: 5, r: 1, class: 'vehicle-wheel' }),
+        svgEl('circle', { cx: 3, cy: 5, r: 1, class: 'vehicle-wheel' })
+      );
+      return;
+    }
+    if (mode === 'bus') {
+      group.append(
+        svgEl('rect', { x: -7, y: -7, width: 14, height: 14, rx: 2.5, class: 'vehicle-glyph' }),
+        svgEl('path', { d: 'M-5-2H5M-5 3H5', class: 'vehicle-glyph' }),
+        svgEl('circle', { cx: -4, cy: 5, r: 1, class: 'vehicle-wheel' }),
+        svgEl('circle', { cx: 4, cy: 5, r: 1, class: 'vehicle-wheel' })
+      );
+      return;
+    }
+    const unknownGlyph = svgEl('text', { 'text-anchor': 'middle', y: '3' });
+    unknownGlyph.textContent = '?';
+    group.append(unknownGlyph);
   }
 
   function renderMap(frame) {
@@ -592,10 +681,9 @@
         });
         group.append(
           svgEl('circle', { r: vehicle.mode === 'rail' ? 17 : 15, class: 'vehicle-halo' }),
-          svgEl('circle', { r: vehicle.mode === 'rail' ? 10 : 9, class: 'vehicle-body' }),
-          svgEl('text', { 'text-anchor': 'middle', y: '3' })
+          svgEl('circle', { r: vehicle.mode === 'rail' ? 10 : 9, class: 'vehicle-body' })
         );
-        group.lastChild.textContent = vehicle.mode === 'rail' ? 'R' : vehicle.mode === 'bus' ? 'B' : '?';
+        appendVehicleGlyph(group, vehicle.mode);
         const select = () => setSelection('vehicle', vehicle.id);
         group.addEventListener('click', select);
         group.addEventListener('keydown', (event) => {
@@ -628,6 +716,7 @@
       state.mapAdapter.setMapScenario({
         mapUnavailable: unavailable
       });
+      state.mapAdapter.setPlayback?.(state.playing);
     }
   }
 
@@ -945,12 +1034,7 @@
     state.playing = true;
     clearInterval(state.timer);
     state.timer = setInterval(() => {
-      if (state.frame >= state.data.frames.length - 1) {
-        stopReplay();
-        render({ announceChange: true });
-        return;
-      }
-      state.frame += 1;
+      state.frame = (state.frame + 1) % state.data.frames.length;
       render({ announceChange: true });
     }, state.data.meta.frameIntervalMs);
     render();
@@ -1141,7 +1225,8 @@
       $('[data-scenario]').value = state.scenario;
 
       bindControls();
-      render({ announceChange: true });
+      if (state.scenario === 'current' && !reducedMotion.matches) startReplay();
+      else render({ announceChange: true });
       void initializeInteractiveMap();
     } catch (error) {
       renderLoadFailure();
