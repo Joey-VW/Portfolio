@@ -6,9 +6,10 @@
     "source": "fictional portfolio demonstration",
     "providerData": false,
     "timezone": "America/Phoenix",
-    "frameIntervalMs": 3200,
+    "frameIntervalMs": 1600,
     "geography": "fictional-phoenix-area-overlay",
-    "geographicCoordinates": "independently authored fictional street-grid and rail-alignment geometry"
+    "geographicCoordinates": "independently authored fictional street-grid and rail-alignment geometry",
+    "replayBehavior": "continuous deterministic loop"
   },
   "routes": [
     {
@@ -207,7 +208,7 @@
       "id": "CACTUS",
       "label": "Cactus 60",
       "mode": "bus",
-      "color": "teal",
+      "color": "cyan",
       "direction": "North Mountain Park to Chandler Market",
       "patterns": [
         {
@@ -393,7 +394,7 @@
       "id": "MESA",
       "label": "Mesa Rail",
       "mode": "rail",
-      "color": "amber",
+      "color": "magenta",
       "direction": "Capitol Station to East Valley Station",
       "patterns": [
         {
@@ -422,7 +423,7 @@
                 33.45
               ],
               [
-                -112.0,
+                -112,
                 33.43
               ],
               [
@@ -458,7 +459,7 @@
                 33.43
               ],
               [
-                -112.0,
+                -112,
                 33.43
               ],
               [
@@ -518,7 +519,7 @@
       "id": "ST-FICTION-04",
       "label": "West Commons",
       "x": 143.3,
-      "y": 357.0,
+      "y": 357,
       "routes": [
         "SKY"
       ],
@@ -554,8 +555,8 @@
     {
       "id": "ST-FICTION-07",
       "label": "North Mountain Park",
-      "x": 330.0,
-      "y": 87.0,
+      "x": 330,
+      "y": 87,
       "routes": [
         "CACTUS"
       ],
@@ -576,7 +577,7 @@
     {
       "id": "ST-FICTION-09",
       "label": "Chandler Market",
-      "x": 650.0,
+      "x": 650,
       "y": 462.6,
       "routes": [
         "CACTUS"
@@ -587,7 +588,7 @@
     {
       "id": "ST-FICTION-10",
       "label": "Uptown Station",
-      "x": 418.0,
+      "x": 418,
       "y": 98.7,
       "routes": [
         "SUNLINE"
@@ -598,8 +599,8 @@
     {
       "id": "ST-FICTION-11",
       "label": "South Central Terminal",
-      "x": 430.0,
-      "y": 533.0,
+      "x": 430,
+      "y": 533,
       "routes": [
         "SUNLINE"
       ],
@@ -620,8 +621,8 @@
     {
       "id": "ST-FICTION-13",
       "label": "Tempe Junction",
-      "x": 610.0,
-      "y": 357.0,
+      "x": 610,
+      "y": 357,
       "routes": [
         "MESA"
       ],
@@ -632,7 +633,7 @@
       "id": "ST-FICTION-14",
       "label": "East Valley Station",
       "x": 756.7,
-      "y": 357.0,
+      "y": 357,
       "routes": [
         "MESA"
       ],
@@ -771,7 +772,7 @@
           "effect": "Boarding change",
           "severity": "major",
           "displayTime": "10:39",
-          "period": "10:39\u201311:05 synthetic time",
+          "period": "10:39–11:05 synthetic time",
           "routes": [
             "SUNLINE"
           ],
@@ -790,7 +791,7 @@
           "effect": "Detour",
           "severity": "warning",
           "displayTime": "10:31",
-          "period": "10:31\u201310:58 synthetic time",
+          "period": "10:31–10:58 synthetic time",
           "routes": [
             "COPPER"
           ],
@@ -809,7 +810,7 @@
           "effect": "Stop moved",
           "severity": "info",
           "displayTime": "10:22",
-          "period": "10:22\u201311:12 synthetic time",
+          "period": "10:22–11:12 synthetic time",
           "routes": [
             "SKY"
           ],
@@ -819,7 +820,7 @@
           "patternId": "SKY-OUT",
           "segmentProgress": [
             0.86,
-            1.0
+            1
           ]
         }
       ],
@@ -878,6 +879,732 @@
           "routeId": "MESA",
           "activeVehicles": 1,
           "predictedDelayMinutes": 1.7,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:42:15.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 13,
+          "status": "healthy"
+        },
+        "trip_updates": {
+          "ageSeconds": 19,
+          "status": "healthy"
+        },
+        "service_alerts": {
+          "ageSeconds": 29,
+          "status": "healthy"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 19,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.105
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 30,
+          "freshness": "fresh",
+          "patternId": "COPPER-IN",
+          "progress": 0.1475
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 23,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.1175
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 38,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.1275
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 45,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.1875
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 21,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.1375
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 9,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.1525
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 17,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.1325
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 12,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.1825
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 141,
+          "freshness": "stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-DETOUR",
+          "title": "Copper 17 detour",
+          "effect": "Detour",
+          "severity": "warning",
+          "displayTime": "10:31",
+          "period": "10:31–10:58 synthetic time",
+          "routes": [
+            "COPPER"
+          ],
+          "stops": [
+            "ST-FICTION-02"
+          ],
+          "patternId": "COPPER-OUT",
+          "segmentProgress": [
+            0.22,
+            0.38
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-C17-11",
+          "routeId": "COPPER",
+          "state": "cancelled",
+          "label": "Synthetic trip cancelled"
+        },
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-S29-12",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-04"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 7.95,
+          "coverage": 0.82,
+          "status": "alert"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.225,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.3,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.325,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.65,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:42:30.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 14,
+          "status": "healthy"
+        },
+        "trip_updates": {
+          "ageSeconds": 21,
+          "status": "healthy"
+        },
+        "service_alerts": {
+          "ageSeconds": 34,
+          "status": "intermediate"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 19,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.13
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 31,
+          "freshness": "fresh",
+          "patternId": "COPPER-IN",
+          "progress": 0.175
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 24,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.145
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 39,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.155
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 46,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.215
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 23,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.165
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 10,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.185
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 18,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.165
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 13,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.215
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 156,
+          "freshness": "stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-DETOUR",
+          "title": "Copper 17 detour",
+          "effect": "Detour",
+          "severity": "warning",
+          "displayTime": "10:31",
+          "period": "10:31–10:58 synthetic time",
+          "routes": [
+            "COPPER"
+          ],
+          "stops": [
+            "ST-FICTION-02"
+          ],
+          "patternId": "COPPER-OUT",
+          "segmentProgress": [
+            0.22,
+            0.38
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-C17-11",
+          "routeId": "COPPER",
+          "state": "cancelled",
+          "label": "Synthetic trip cancelled"
+        },
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-C60-12",
+          "routeId": "CACTUS",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-09"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 8.1,
+          "coverage": 0.82,
+          "status": "alert"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.35,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.4,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.25,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.6,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:42:45.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 15,
+          "status": "healthy"
+        },
+        "trip_updates": {
+          "ageSeconds": 22,
+          "status": "healthy"
+        },
+        "service_alerts": {
+          "ageSeconds": 39,
+          "status": "intermediate"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 20,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.155
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 33,
+          "freshness": "fresh",
+          "patternId": "COPPER-IN",
+          "progress": 0.2025
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 25,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.1725
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 41,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.1825
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 47,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.2425
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 24,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.1925
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 11,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.2175
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 18,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.1975
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 13,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.2475
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 171,
+          "freshness": "stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-DETOUR",
+          "title": "Copper 17 detour",
+          "effect": "Detour",
+          "severity": "warning",
+          "displayTime": "10:31",
+          "period": "10:31–10:58 synthetic time",
+          "routes": [
+            "COPPER"
+          ],
+          "stops": [
+            "ST-FICTION-02"
+          ],
+          "patternId": "COPPER-OUT",
+          "segmentProgress": [
+            0.22,
+            0.38
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-C17-11",
+          "routeId": "COPPER",
+          "state": "cancelled",
+          "label": "Synthetic trip cancelled"
+        },
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-C60-12",
+          "routeId": "CACTUS",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-09"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 8.25,
+          "coverage": 0.82,
+          "status": "alert"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.475,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.5,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.175,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.55,
           "coverage": 0.91,
           "status": "healthy"
         }
@@ -1013,7 +1740,7 @@
           "effect": "Boarding change",
           "severity": "major",
           "displayTime": "10:39",
-          "period": "10:39\u201311:05 synthetic time",
+          "period": "10:39–11:05 synthetic time",
           "routes": [
             "SUNLINE"
           ],
@@ -1032,7 +1759,7 @@
           "effect": "Detour",
           "severity": "warning",
           "displayTime": "10:31",
-          "period": "10:31\u201310:58 synthetic time",
+          "period": "10:31–10:58 synthetic time",
           "routes": [
             "COPPER"
           ],
@@ -1051,7 +1778,7 @@
           "effect": "Stop moved",
           "severity": "info",
           "displayTime": "10:22",
-          "period": "10:22\u201311:12 synthetic time",
+          "period": "10:22–11:12 synthetic time",
           "routes": [
             "SKY"
           ],
@@ -1061,7 +1788,7 @@
           "patternId": "SKY-OUT",
           "segmentProgress": [
             0.86,
-            1.0
+            1
           ]
         }
       ],
@@ -1120,6 +1847,708 @@
           "routeId": "MESA",
           "activeVehicles": 1,
           "predictedDelayMinutes": 1.5,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:43:15.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 19,
+          "status": "healthy"
+        },
+        "trip_updates": {
+          "ageSeconds": 27,
+          "status": "healthy"
+        },
+        "service_alerts": {
+          "ageSeconds": 38,
+          "status": "intermediate"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 22,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.2075
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 37,
+          "freshness": "fresh",
+          "patternId": "COPPER-IN",
+          "progress": 0.2575
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 28,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.2275
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 44,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.2375
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 51,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.2975
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 27,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.2475
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 13,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.2825
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 20,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.2625
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 15,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.3125
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 201,
+          "freshness": "stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-DETOUR",
+          "title": "Copper 17 detour",
+          "effect": "Detour",
+          "severity": "warning",
+          "displayTime": "10:31",
+          "period": "10:31–10:58 synthetic time",
+          "routes": [
+            "COPPER"
+          ],
+          "stops": [
+            "ST-FICTION-02"
+          ],
+          "patternId": "COPPER-OUT",
+          "segmentProgress": [
+            0.22,
+            0.38
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-C17-11",
+          "routeId": "COPPER",
+          "state": "cancelled",
+          "label": "Synthetic trip cancelled"
+        },
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-C60-12",
+          "routeId": "CACTUS",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-09"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 7.85,
+          "coverage": 0.82,
+          "status": "alert"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.7,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.7,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.325,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.475,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:43:30.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 22,
+          "status": "healthy"
+        },
+        "trip_updates": {
+          "ageSeconds": 31,
+          "status": "intermediate"
+        },
+        "service_alerts": {
+          "ageSeconds": 32,
+          "status": "healthy"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 24,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.235
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 39,
+          "freshness": "fresh",
+          "patternId": "COPPER-IN",
+          "progress": 0.285
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 29,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.255
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 47,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.265
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 53,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.325
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 28,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.275
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 15,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.315
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 21,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.295
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 16,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.345
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 216,
+          "freshness": "stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-C17-11",
+          "routeId": "COPPER",
+          "state": "cancelled",
+          "label": "Synthetic trip cancelled"
+        },
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-C60-12",
+          "routeId": "CACTUS",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-09"
+        },
+        {
+          "tripId": "TRIP-SR-10",
+          "routeId": "SUNLINE",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-05"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 7.3,
+          "coverage": 0.82,
+          "status": "watch"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.8,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.8,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.55,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.45,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:43:45.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 25,
+          "status": "healthy"
+        },
+        "trip_updates": {
+          "ageSeconds": 34,
+          "status": "intermediate"
+        },
+        "service_alerts": {
+          "ageSeconds": 26,
+          "status": "healthy"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 26,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.2625
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 42,
+          "freshness": "fresh",
+          "patternId": "COPPER-IN",
+          "progress": 0.3125
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 31,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.2825
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 49,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.2925
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 56,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.3525
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 30,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.3025
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 16,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.3475
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 21,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.3275
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 17,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.3775
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 231,
+          "freshness": "stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-C17-11",
+          "routeId": "COPPER",
+          "state": "cancelled",
+          "label": "Synthetic trip cancelled"
+        },
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-C60-12",
+          "routeId": "CACTUS",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-09"
+        },
+        {
+          "tripId": "TRIP-SR-10",
+          "routeId": "SUNLINE",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-05"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 6.75,
+          "coverage": 0.82,
+          "status": "watch"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.9,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.9,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.775,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.425,
           "coverage": 0.91,
           "status": "healthy"
         }
@@ -1255,7 +2684,7 @@
           "effect": "Boarding change",
           "severity": "major",
           "displayTime": "10:39",
-          "period": "10:39\u201311:05 synthetic time",
+          "period": "10:39–11:05 synthetic time",
           "routes": [
             "SUNLINE"
           ],
@@ -1274,7 +2703,7 @@
           "effect": "Stop moved",
           "severity": "info",
           "displayTime": "10:22",
-          "period": "10:22\u201311:12 synthetic time",
+          "period": "10:22–11:12 synthetic time",
           "routes": [
             "SKY"
           ],
@@ -1284,7 +2713,7 @@
           "patternId": "SKY-OUT",
           "segmentProgress": [
             0.86,
-            1.0
+            1
           ]
         }
       ],
@@ -1328,21 +2757,21 @@
         {
           "routeId": "SKY",
           "activeVehicles": 2,
-          "predictedDelayMinutes": 6.0,
+          "predictedDelayMinutes": 6,
           "coverage": 0.79,
           "status": "watch"
         },
         {
           "routeId": "CACTUS",
           "activeVehicles": 2,
-          "predictedDelayMinutes": 4.0,
+          "predictedDelayMinutes": 4,
           "coverage": 0.88,
           "status": "healthy"
         },
         {
           "routeId": "SUNLINE",
           "activeVehicles": 2,
-          "predictedDelayMinutes": 3.0,
+          "predictedDelayMinutes": 3,
           "coverage": 0.93,
           "status": "watch"
         },
@@ -1350,6 +2779,670 @@
           "routeId": "MESA",
           "activeVehicles": 1,
           "predictedDelayMinutes": 1.4,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:44:15.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 38,
+          "status": "healthy"
+        },
+        "trip_updates": {
+          "ageSeconds": 36,
+          "status": "intermediate"
+        },
+        "service_alerts": {
+          "ageSeconds": 20,
+          "status": "healthy"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 39,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.3175
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 58,
+          "freshness": "fresh",
+          "patternId": "COPPER-IN",
+          "progress": 0.3675
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 35,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.3375
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 54,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.3475
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 61,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.4075
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 33,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.3575
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 19,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.4125
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 24,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.3925
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 20,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.4425
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 261,
+          "freshness": "stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-C17-11",
+          "routeId": "COPPER",
+          "state": "cancelled",
+          "label": "Synthetic trip cancelled"
+        },
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-C60-12",
+          "routeId": "CACTUS",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-09"
+        },
+        {
+          "tripId": "TRIP-SR-10",
+          "routeId": "SUNLINE",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-05"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 6,
+          "coverage": 0.805,
+          "status": "watch"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.95,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.925,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.925,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.375,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:44:30.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 48,
+          "status": "degraded"
+        },
+        "trip_updates": {
+          "ageSeconds": 34,
+          "status": "healthy"
+        },
+        "service_alerts": {
+          "ageSeconds": 20,
+          "status": "healthy"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 50,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.345
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 73,
+          "freshness": "stale",
+          "patternId": "COPPER-IN",
+          "progress": 0.395
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 38,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.365
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 57,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.375
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 63,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.435
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 35,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.385
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 21,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.445
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 25,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.425
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 21,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.475
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 276,
+          "freshness": "very_stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-C60-12",
+          "routeId": "CACTUS",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-09"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.8,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.9,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.85,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.85,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.35,
+          "coverage": 0.91,
+          "status": "healthy"
+        }
+      ]
+    },
+    {
+      "timestamp": "2032-04-18T10:44:45.000-07:00",
+      "feeds": {
+        "vehicle_positions": {
+          "ageSeconds": 57,
+          "status": "degraded"
+        },
+        "trip_updates": {
+          "ageSeconds": 31,
+          "status": "healthy"
+        },
+        "service_alerts": {
+          "ageSeconds": 19,
+          "status": "healthy"
+        }
+      },
+      "vehicles": [
+        {
+          "id": "DEMO-BUS-017",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-01",
+          "mode": "bus",
+          "ageSeconds": 60,
+          "freshness": "fresh",
+          "patternId": "COPPER-OUT",
+          "progress": 0.3725
+        },
+        {
+          "id": "DEMO-BUS-117",
+          "routeId": "COPPER",
+          "tripId": "TRIP-C17-06",
+          "mode": "bus",
+          "ageSeconds": 87,
+          "freshness": "stale",
+          "patternId": "COPPER-IN",
+          "progress": 0.4225
+        },
+        {
+          "id": "DEMO-BUS-029",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-02",
+          "mode": "bus",
+          "ageSeconds": 41,
+          "freshness": "fresh",
+          "patternId": "SKY-OUT",
+          "progress": 0.3925
+        },
+        {
+          "id": "DEMO-BUS-129",
+          "routeId": "SKY",
+          "tripId": "TRIP-S29-08",
+          "mode": "bus",
+          "ageSeconds": 60,
+          "freshness": "fresh",
+          "patternId": "SKY-IN",
+          "progress": 0.4025
+        },
+        {
+          "id": "DEMO-BUS-060",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-03",
+          "mode": "bus",
+          "ageSeconds": 66,
+          "freshness": "fresh",
+          "patternId": "CACTUS-OUT",
+          "progress": 0.4625
+        },
+        {
+          "id": "DEMO-BUS-160",
+          "routeId": "CACTUS",
+          "tripId": "TRIP-C60-09",
+          "mode": "bus",
+          "ageSeconds": 36,
+          "freshness": "fresh",
+          "patternId": "CACTUS-IN",
+          "progress": 0.4125
+        },
+        {
+          "id": "DEMO-RAIL-01",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-01",
+          "mode": "rail",
+          "ageSeconds": 22,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-OUT",
+          "progress": 0.4775
+        },
+        {
+          "id": "DEMO-RAIL-02",
+          "routeId": "SUNLINE",
+          "tripId": "TRIP-SR-05",
+          "mode": "rail",
+          "ageSeconds": 27,
+          "freshness": "fresh",
+          "patternId": "SUNLINE-IN",
+          "progress": 0.4575
+        },
+        {
+          "id": "DEMO-RAIL-03",
+          "routeId": "MESA",
+          "tripId": "TRIP-MR-03",
+          "mode": "rail",
+          "ageSeconds": 23,
+          "freshness": "fresh",
+          "patternId": "MESA-OUT",
+          "progress": 0.5075
+        },
+        {
+          "id": "DEMO-POSITION-ONLY",
+          "routeId": null,
+          "tripId": null,
+          "mode": "unknown",
+          "x": 703.3,
+          "y": 509.6,
+          "ageSeconds": 291,
+          "freshness": "very_stale",
+          "status": "Position only",
+          "stop": null,
+          "direction": null,
+          "longitude": -111.86,
+          "latitude": 33.3
+        }
+      ],
+      "alerts": [
+        {
+          "id": "DEMO-ALERT-PLATFORM",
+          "title": "Central platform change",
+          "effect": "Boarding change",
+          "severity": "major",
+          "displayTime": "10:39",
+          "period": "10:39–11:05 synthetic time",
+          "routes": [
+            "SUNLINE"
+          ],
+          "stops": [
+            "ST-FICTION-05"
+          ],
+          "patternId": "SUNLINE-OUT",
+          "segmentProgress": [
+            0.27,
+            0.4
+          ]
+        },
+        {
+          "id": "DEMO-ALERT-INFO",
+          "title": "Mesa Gardens stop relocation",
+          "effect": "Stop moved",
+          "severity": "info",
+          "displayTime": "10:22",
+          "period": "10:22–11:12 synthetic time",
+          "routes": [
+            "SKY"
+          ],
+          "stops": [
+            "ST-FICTION-06"
+          ],
+          "patternId": "SKY-OUT",
+          "segmentProgress": [
+            0.86,
+            1
+          ]
+        }
+      ],
+      "tripStates": [
+        {
+          "tripId": "TRIP-S29-10",
+          "routeId": "SKY",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-06"
+        },
+        {
+          "tripId": "TRIP-C60-12",
+          "routeId": "CACTUS",
+          "state": "skipped_stop",
+          "label": "Synthetic skipped stop",
+          "stopId": "ST-FICTION-09"
+        }
+      ],
+      "routeSignals": [
+        {
+          "routeId": "COPPER",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 5.6,
+          "coverage": 0.775,
+          "status": "watch"
+        },
+        {
+          "routeId": "SKY",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 5.85,
+          "coverage": 0.79,
+          "status": "watch"
+        },
+        {
+          "routeId": "CACTUS",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 3.775,
+          "coverage": 0.88,
+          "status": "healthy"
+        },
+        {
+          "routeId": "SUNLINE",
+          "activeVehicles": 2,
+          "predictedDelayMinutes": 2.775,
+          "coverage": 0.93,
+          "status": "watch"
+        },
+        {
+          "routeId": "MESA",
+          "activeVehicles": 1,
+          "predictedDelayMinutes": 1.325,
           "coverage": 0.91,
           "status": "healthy"
         }
@@ -1485,7 +3578,7 @@
           "effect": "Boarding change",
           "severity": "major",
           "displayTime": "10:39",
-          "period": "10:39\u201311:05 synthetic time",
+          "period": "10:39–11:05 synthetic time",
           "routes": [
             "SUNLINE"
           ],
@@ -1504,7 +3597,7 @@
           "effect": "Stop moved",
           "severity": "info",
           "displayTime": "10:22",
-          "period": "10:22\u201311:12 synthetic time",
+          "period": "10:22–11:12 synthetic time",
           "routes": [
             "SKY"
           ],
@@ -1514,7 +3607,7 @@
           "patternId": "SKY-OUT",
           "segmentProgress": [
             0.86,
-            1.0
+            1
           ]
         }
       ],
