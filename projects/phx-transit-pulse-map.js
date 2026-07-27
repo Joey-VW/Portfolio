@@ -19,7 +19,7 @@
     (_, index) => `phx-vehicle-ripples-${index}`
   );
   const ANIMATION = Object.freeze({
-    rippleSpawnIntervalMs: 1100,
+    rippleSpawnIntervalMs: 3000,
     rippleLifetimeMs: 2100,
     rippleStartRadius: 5,
     rippleEndRadius: 24,

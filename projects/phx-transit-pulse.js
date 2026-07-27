@@ -714,7 +714,7 @@
         stops: state.data.stops,
         alerts: frame.alerts,
         vehicles: frame.vehicles.map(effectiveVehicle),
-        transitionDurationMs: state.data.meta.frameIntervalMs * 0.82
+        transitionDurationMs: state.data.meta.frameIntervalMs * 0.4
       });
       state.mapAdapter.setMapSelection(state.selected);
       state.mapAdapter.setPlayback?.(state.playing);

@@ -6,7 +6,7 @@
     "source": "fictional portfolio demonstration",
     "providerData": false,
     "timezone": "America/Phoenix",
-    "frameIntervalMs": 1600,
+    "frameIntervalMs": 5000,
     "geography": "fictional-phoenix-area-overlay",
     "geographicCoordinates": "independently authored fictional street-grid and rail-alignment geometry",
     "replayBehavior": "continuous deterministic loop"
