@@ -12,9 +12,9 @@
   const routeColors = {
     blue: '#00a8ff',
     cyan: '#26d9ff',
-    teal: '#21d6bd',
-    magenta: '#e35cff',
-    amber: '#ffb34d'
+    teal: '#20bfe8',
+    magenta: '#ec4899',
+    amber: '#ec4899'
   };
 
   function featureCollection(features = []) {
@@ -64,6 +64,22 @@
         'line-color': ['get', 'color'],
         'line-width': 2,
         'line-opacity': 0.18
+      },
+      layout: {
+        'line-cap': 'round',
+        'line-join': 'round'
+      }
+    });
+    map.addLayer({
+      id: 'phx-routes-glow',
+      type: 'line',
+      source: SOURCE_IDS.routes,
+      filter: ['==', ['get', 'visible'], true],
+      paint: {
+        'line-color': ['get', 'color'],
+        'line-width': ['case', ['==', ['get', 'mode'], 'rail'], 12, 9],
+        'line-opacity': 0.24,
+        'line-blur': 4
       },
       layout: {
         'line-cap': 'round',
@@ -200,7 +216,7 @@
         'circle-color': [
           'match',
           ['get', 'severity'],
-          'major', '#b93445',
+          'major', '#d94255',
           'warning', '#a86820',
           '#1f6f97'
         ],
@@ -223,7 +239,121 @@
     });
   }
 
+  function createVehicleIcon(mode) {
+    const size = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, size, size);
+    context.strokeStyle = '#ffffff';
+    context.fillStyle = '#ffffff';
+    context.lineWidth = 4.5;
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
+
+    if (mode === 'rail') {
+      context.beginPath();
+      context.roundRect(16, 8, 32, 44, 8);
+      context.stroke();
+      context.beginPath();
+      context.moveTo(20, 19);
+      context.lineTo(44, 19);
+      context.moveTo(20, 35);
+      context.lineTo(44, 35);
+      context.stroke();
+      context.beginPath();
+      context.arc(24, 44, 2.8, 0, Math.PI * 2);
+      context.arc(40, 44, 2.8, 0, Math.PI * 2);
+      context.fill();
+      context.beginPath();
+      context.moveTo(22, 57);
+      context.lineTo(27, 51);
+      context.moveTo(42, 57);
+      context.lineTo(37, 51);
+      context.stroke();
+    } else if (mode === 'bus') {
+      context.beginPath();
+      context.roundRect(13, 9, 38, 43, 7);
+      context.stroke();
+      context.beginPath();
+      context.moveTo(18, 19);
+      context.lineTo(46, 19);
+      context.moveTo(18, 35);
+      context.lineTo(46, 35);
+      context.stroke();
+      context.beginPath();
+      context.arc(21, 44, 3, 0, Math.PI * 2);
+      context.arc(43, 44, 3, 0, Math.PI * 2);
+      context.fill();
+      context.beginPath();
+      context.moveTo(20, 53);
+      context.lineTo(20, 57);
+      context.moveTo(44, 53);
+      context.lineTo(44, 57);
+      context.stroke();
+    } else {
+      context.font = '700 38px sans-serif';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText('?', 32, 34);
+    }
+    return context.getImageData(0, 0, size, size);
+  }
+
+  function addVehicleImages(map) {
+    const images = {
+      'phx-bus-marker': createVehicleIcon('bus'),
+      'phx-rail-marker': createVehicleIcon('rail'),
+      'phx-unknown-marker': createVehicleIcon('unknown')
+    };
+    Object.entries(images).forEach(([id, image]) => {
+      if (!map.hasImage(id)) map.addImage(id, image, { pixelRatio: 2 });
+    });
+  }
+
+  function tuneBasemap(map) {
+    const labelLayers = [];
+    map.getStyle().layers.forEach((layer) => {
+      try {
+        if (layer.type === 'background') {
+          map.setPaintProperty(layer.id, 'background-color', '#06111d');
+          map.setPaintProperty(layer.id, 'background-opacity', 1);
+        }
+        if (layer.type === 'symbol' && /place|settlement|city|town/i.test(layer.id)) {
+          map.setPaintProperty(layer.id, 'text-color', '#a9bdd0');
+          map.setPaintProperty(layer.id, 'text-halo-color', '#06111d');
+          map.setPaintProperty(layer.id, 'text-halo-width', 1.6);
+          labelLayers.push(layer.id);
+        }
+      } catch (error) {
+        // Third-party styles vary; unsupported paint properties are safely ignored.
+      }
+    });
+    labelLayers.forEach((id) => {
+      if (map.getLayer(id)) map.moveLayer(id);
+    });
+  }
+
   function addVehicleLayers(map) {
+    map.addLayer({
+      id: 'phx-vehicle-pulse',
+      type: 'circle',
+      source: SOURCE_IDS.vehicles,
+      paint: {
+        'circle-radius': 11,
+        'circle-color': 'rgba(0, 0, 0, 0)',
+        'circle-stroke-color': [
+          'match',
+          ['get', 'mode'],
+          'rail', '#ec4899',
+          'bus', '#00a8ff',
+          '#97a8bb'
+        ],
+        'circle-stroke-width': 2,
+        'circle-opacity': 0
+      }
+    });
     map.addLayer({
       id: 'phx-vehicle-selection',
       type: 'circle',
@@ -279,19 +409,26 @@
       type: 'symbol',
       source: SOURCE_IDS.vehicles,
       layout: {
-        'text-field': [
+        'icon-image': [
           'match',
           ['get', 'mode'],
-          'rail', 'R',
-          'bus', 'B',
-          '?'
+          'rail', 'phx-rail-marker',
+          'bus', 'phx-bus-marker',
+          'phx-unknown-marker'
         ],
-        'text-size': 9,
-        'text-font': ['Noto Sans Bold'],
-        'text-allow-overlap': true
+        'icon-size': 0.52,
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+        'icon-rotation-alignment': 'map',
+        'icon-rotate': ['coalesce', ['get', 'bearing'], 0]
       },
       paint: {
-        'text-color': '#ffffff'
+        'icon-opacity': [
+          'case',
+          ['==', ['get', 'freshness'], 'very_stale'], 0.58,
+          ['==', ['get', 'freshness'], 'stale'], 0.82,
+          1
+        ]
       }
     });
   }
@@ -331,6 +468,7 @@
       filters: { mode: 'all', routeId: 'all' },
       selection: null,
       scenario: { mapUnavailable: false },
+      playing: false,
       reducedMotion: Boolean(reducedMotion),
       config: mapConfig
     };
@@ -338,6 +476,7 @@
     let settled = false;
     let loadTimer = null;
     let resizeObserver = null;
+    let pulseAnimationFrame = null;
 
     const map = new window.maplibregl.Map({
       container,
@@ -475,6 +614,31 @@
       map.getSource(SOURCE_IDS.vehicles).setData(featureCollection(vehicleFeatures));
     }
 
+    function syncPlaybackPulse() {
+      if (pulseAnimationFrame !== null) {
+        cancelAnimationFrame(pulseAnimationFrame);
+        pulseAnimationFrame = null;
+      }
+      if (!adapterState.ready || adapterState.destroyed || adapterState.reducedMotion || !adapterState.playing) {
+        if (adapterState.ready && map.getLayer('phx-vehicle-pulse')) {
+          map.setPaintProperty('phx-vehicle-pulse', 'circle-opacity', 0);
+        }
+        return;
+      }
+
+      const animate = (timestamp) => {
+        if (!adapterState.playing || adapterState.reducedMotion || adapterState.destroyed) {
+          pulseAnimationFrame = null;
+          return;
+        }
+        const phase = (timestamp % 1800) / 1800;
+        map.setPaintProperty('phx-vehicle-pulse', 'circle-radius', 11 + phase * 16);
+        map.setPaintProperty('phx-vehicle-pulse', 'circle-opacity', (1 - phase) * 0.42);
+        pulseAnimationFrame = requestAnimationFrame(animate);
+      };
+      pulseAnimationFrame = requestAnimationFrame(animate);
+    }
+
     function resetMapView() {
       if (!adapterState.ready || adapterState.destroyed) return;
       map.fitBounds(adapterState.config.bounds, {
@@ -490,6 +654,7 @@
       adapterState.ready = false;
       clearTimeout(loadTimer);
       resizeObserver?.disconnect();
+      if (pulseAnimationFrame !== null) cancelAnimationFrame(pulseAnimationFrame);
       map.remove();
     }
 
@@ -516,10 +681,12 @@
         if (settled || adapterState.destroyed) return;
         try {
           addSources(map);
+          addVehicleImages(map);
           addRouteLayers(map);
           addStopLayers(map);
           addAlertLayers(map);
           addVehicleLayers(map);
+          tuneBasemap(map);
           bindSelection(map, 'phx-routes-hit', 'route', onSelect);
           bindSelection(map, 'phx-alerts', 'alert', onSelect);
           bindSelection(map, 'phx-vehicles', 'vehicle', onSelect);
@@ -533,6 +700,7 @@
           );
           adapterState.ready = true;
           clearTimeout(loadTimer);
+          syncPlaybackPulse();
           updateSources();
           resetMapView();
 
@@ -558,8 +726,13 @@
             resizeMap() {
               if (!adapterState.destroyed) map.resize();
             },
+            setPlayback(value) {
+              adapterState.playing = Boolean(value);
+              syncPlaybackPulse();
+            },
             setReducedMotion(value) {
               adapterState.reducedMotion = Boolean(value);
+              syncPlaybackPulse();
             },
             resetMapView,
             destroyMap,
