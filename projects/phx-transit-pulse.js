@@ -808,7 +808,7 @@
         ['Freshness', freshnessLabels[vehicle.freshness]],
         ['Trip', unknown(vehicle.tripId)],
         ['Status', vehicle.status],
-        ['Next stop', unknown(vehicle.stop)],
+        [vehicle.status === 'At stop' ? 'Current stop' : 'Next stop', unknown(vehicle.stop)],
         ['Headsign', unknown(vehicle.direction)],
         ['Bearing', Number.isFinite(vehicle.bearing) ? `${Math.round(vehicle.bearing)}°` : 'Unknown']
       ];
