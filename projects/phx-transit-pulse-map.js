@@ -9,6 +9,24 @@
     alertSegments: 'phx-alert-segments',
     vehicles: 'phx-vehicles'
   };
+  const RIPPLE_POOL_SIZE = 3;
+  const RIPPLE_SOURCE_IDS = Array.from(
+    { length: RIPPLE_POOL_SIZE },
+    (_, index) => `phx-vehicle-ripples-${index}`
+  );
+  const RIPPLE_LAYER_IDS = Array.from(
+    { length: RIPPLE_POOL_SIZE },
+    (_, index) => `phx-vehicle-ripples-${index}`
+  );
+  const ANIMATION = Object.freeze({
+    rippleSpawnIntervalMs: 1100,
+    rippleLifetimeMs: 2100,
+    rippleStartRadius: 5,
+    rippleEndRadius: 24,
+    rippleStartOpacity: 0.65,
+    defaultVehicleTransitionMs: 1312,
+    teleportThresholdKm: 4
+  });
   const routeColors = {
     blue: '#00a8ff',
     cyan: '#26d9ff',
@@ -26,6 +44,27 @@
     return { type: 'Point', coordinates: [record.longitude, record.latitude] };
   }
 
+  function distanceKilometers(first, second) {
+    const latitudeScale = 111.32;
+    const longitudeScale = latitudeScale
+      * Math.cos(((first.latitude + second.latitude) / 2) * Math.PI / 180);
+    return Math.hypot(
+      (first.longitude - second.longitude) * longitudeScale,
+      (first.latitude - second.latitude) * latitudeScale
+    );
+  }
+
+  function smoothstep(progress) {
+    return progress * progress * (3 - 2 * progress);
+  }
+
+  function interpolateBearing(start, end, progress) {
+    const safeStart = Number.isFinite(start) ? start : 0;
+    const safeEnd = Number.isFinite(end) ? end : safeStart;
+    const delta = ((safeEnd - safeStart + 540) % 360) - 180;
+    return (safeStart + delta * progress + 360) % 360;
+  }
+
   function expandedBounds(bounds) {
     const [[west, south], [east, north]] = bounds;
     const longitudePadding = Math.max((east - west) * 0.28, 0.12);
@@ -37,7 +76,7 @@
   }
 
   function addSources(map) {
-    Object.values(SOURCE_IDS).forEach((id) => {
+    [...Object.values(SOURCE_IDS), ...RIPPLE_SOURCE_IDS].forEach((id) => {
       map.addSource(id, {
         type: 'geojson',
         data: featureCollection()
@@ -335,25 +374,30 @@
     });
   }
 
-  function addVehicleLayers(map) {
-    map.addLayer({
-      id: 'phx-vehicle-pulse',
-      type: 'circle',
-      source: SOURCE_IDS.vehicles,
-      paint: {
-        'circle-radius': 4,
-        'circle-color': 'rgba(0, 0, 0, 0)',
-        'circle-stroke-color': [
-          'match',
-          ['get', 'mode'],
-          'rail', '#ec4899',
-          'bus', '#00a8ff',
-          '#97a8bb'
-        ],
-        'circle-stroke-width': 2,
-        'circle-stroke-opacity': 0
-      }
+  function addRippleLayers(map) {
+    RIPPLE_SOURCE_IDS.forEach((sourceId, index) => {
+      map.addLayer({
+        id: RIPPLE_LAYER_IDS[index],
+        type: 'circle',
+        source: sourceId,
+        paint: {
+          'circle-radius': ANIMATION.rippleStartRadius,
+          'circle-color': 'rgba(0, 0, 0, 0)',
+          'circle-stroke-color': [
+            'match',
+            ['get', 'mode'],
+            'rail', '#ec4899',
+            'bus', '#00a8ff',
+            '#97a8bb'
+          ],
+          'circle-stroke-width': 2,
+          'circle-stroke-opacity': 0
+        }
+      });
     });
+  }
+
+  function addVehicleLayers(map) {
     map.addLayer({
       id: 'phx-vehicle-selection',
       type: 'circle',
@@ -470,13 +514,26 @@
       scenario: { mapUnavailable: false },
       playing: false,
       reducedMotion: Boolean(reducedMotion),
-      config: mapConfig
+      config: mapConfig,
+      displayVehicles: new Map(),
+      targetVehicles: new Map(),
+      transitionStartVehicles: new Map(),
+      transitionStartTime: 0,
+      transitionDurationMs: ANIMATION.defaultVehicleTransitionMs,
+      vehicleTransitionActive: false,
+      rippleGenerations: RIPPLE_SOURCE_IDS.map((sourceId, index) => ({
+        sourceId,
+        layerId: RIPPLE_LAYER_IDS[index],
+        active: false,
+        startedAt: 0
+      })),
+      nextRippleSpawnAt: null
     };
 
     let settled = false;
     let loadTimer = null;
     let resizeObserver = null;
-    let pulseAnimationFrame = null;
+    let animationFrame = null;
 
     const map = new window.maplibregl.Map({
       container,
@@ -518,7 +575,20 @@
       }).map((route) => route.id));
     }
 
-    function updateSources() {
+    function visibleVehicleTargets() {
+      if (adapterState.scenario.mapUnavailable) return [];
+      const visibleRouteIds = matchingRouteIds();
+      return adapterState.data.vehicles.filter((vehicle) => {
+        const modeMatches = adapterState.filters.mode === 'all'
+          || vehicle.mode === adapterState.filters.mode;
+        const routeMatches = adapterState.filters.routeId === 'all'
+          || vehicle.routeId === adapterState.filters.routeId;
+        const routeVisible = !vehicle.routeId || visibleRouteIds.has(vehicle.routeId);
+        return modeMatches && routeMatches && routeVisible && pointGeometry(vehicle);
+      });
+    }
+
+    function updateMapPresentationSources() {
       if (!adapterState.ready || adapterState.destroyed) return;
 
       const unavailable = adapterState.scenario.mapUnavailable;
@@ -583,15 +653,15 @@
         }
       })).filter((feature) => feature.geometry);
 
-      const vehicleFeatures = unavailable ? [] : adapterState.data.vehicles
-        .filter((vehicle) => {
-          const modeMatches = adapterState.filters.mode === 'all'
-            || vehicle.mode === adapterState.filters.mode;
-          const routeMatches = adapterState.filters.routeId === 'all'
-            || vehicle.routeId === adapterState.filters.routeId;
-          const routeVisible = !vehicle.routeId || visibleRouteIds.has(vehicle.routeId);
-          return modeMatches && routeMatches && routeVisible;
-        })
+      map.getSource(SOURCE_IDS.routes).setData(featureCollection(routeFeatures));
+      map.getSource(SOURCE_IDS.alertSegments).setData(featureCollection(alertSegmentFeatures));
+      map.getSource(SOURCE_IDS.stops).setData(featureCollection(stopFeatures));
+      map.getSource(SOURCE_IDS.alerts).setData(featureCollection(alertFeatures));
+    }
+
+    function renderDisplayedVehicleSource() {
+      if (!adapterState.ready || adapterState.destroyed) return;
+      const vehicleFeatures = Array.from(adapterState.displayVehicles.values())
         .map((vehicle) => ({
           type: 'Feature',
           id: vehicle.id,
@@ -606,106 +676,263 @@
           }
         }))
         .filter((feature) => feature.geometry);
-
-      map.getSource(SOURCE_IDS.routes).setData(featureCollection(routeFeatures));
-      map.getSource(SOURCE_IDS.alertSegments).setData(featureCollection(alertSegmentFeatures));
-      map.getSource(SOURCE_IDS.stops).setData(featureCollection(stopFeatures));
-      map.getSource(SOURCE_IDS.alerts).setData(featureCollection(alertFeatures));
       map.getSource(SOURCE_IDS.vehicles).setData(featureCollection(vehicleFeatures));
     }
 
-    function syncPlaybackPulse() {
-      const pulseLayerId = 'phx-vehicle-pulse';
+    function sameVehicleTarget(first, second) {
+      return Boolean(first && second)
+        && first.longitude === second.longitude
+        && first.latitude === second.latitude
+        && first.bearing === second.bearing
+        && first.routeId === second.routeId
+        && first.tripId === second.tripId;
+    }
 
-      if (pulseAnimationFrame !== null) {
-        cancelAnimationFrame(pulseAnimationFrame);
-        pulseAnimationFrame = null;
+    function sameTargetSet(nextTargets) {
+      if (nextTargets.size !== adapterState.targetVehicles.size) return false;
+      return Array.from(nextTargets.entries()).every(([id, target]) =>
+        sameVehicleTarget(adapterState.targetVehicles.get(id), target)
+      );
+    }
+
+    function advanceVehicleTransition(timestamp, renderSource = true) {
+      if (!adapterState.vehicleTransitionActive) return false;
+      const elapsed = Math.max(0, timestamp - adapterState.transitionStartTime);
+      const progress = Math.min(1, elapsed / adapterState.transitionDurationMs);
+      const easedProgress = smoothstep(progress);
+
+      adapterState.targetVehicles.forEach((target, id) => {
+        const start = adapterState.transitionStartVehicles.get(id);
+        if (!start) {
+          adapterState.displayVehicles.set(id, { ...target });
+          return;
+        }
+        adapterState.displayVehicles.set(id, {
+          ...target,
+          longitude: start.longitude
+            + (target.longitude - start.longitude) * easedProgress,
+          latitude: start.latitude
+            + (target.latitude - start.latitude) * easedProgress,
+          bearing: interpolateBearing(start.bearing, target.bearing, easedProgress)
+        });
+      });
+
+      if (progress >= 1) {
+        adapterState.vehicleTransitionActive = false;
+        adapterState.transitionStartVehicles.clear();
       }
+      if (renderSource) renderDisplayedVehicleSource();
+      return adapterState.vehicleTransitionActive;
+    }
 
-      const resetPulse = () => {
-        if (!adapterState.ready || !map.getLayer(pulseLayerId)) return;
+    function snapVehiclesToTargets() {
+      adapterState.displayVehicles = new Map(
+        Array.from(adapterState.targetVehicles.entries(), ([id, vehicle]) => [
+          id,
+          { ...vehicle }
+        ])
+      );
+      adapterState.transitionStartVehicles.clear();
+      adapterState.vehicleTransitionActive = false;
+      renderDisplayedVehicleSource();
+    }
 
-        map.setPaintProperty(pulseLayerId, 'circle-radius', 4);
-        map.setPaintProperty(pulseLayerId, 'circle-stroke-opacity', 0);
-      };
-
-      if (
-        !adapterState.ready
-        || adapterState.destroyed
+    function shouldSnapVehicle(start, target, forceSnap) {
+      return forceSnap
         || adapterState.reducedMotion
-        || !adapterState.playing
-      ) {
-        resetPulse();
+        || adapterState.scenario.mapUnavailable
+        || start.routeId !== target.routeId
+        || start.tripId !== target.tripId
+        || distanceKilometers(start, target) > ANIMATION.teleportThresholdKm;
+    }
+
+    function updateVehicleTargets({
+      forceSnap = false,
+      transitionDurationMs = adapterState.transitionDurationMs
+    } = {}) {
+      if (!adapterState.ready || adapterState.destroyed) return;
+
+      const now = performance.now();
+      advanceVehicleTransition(now, false);
+      const nextTargets = new Map(
+        visibleVehicleTargets().map((vehicle) => [vehicle.id, { ...vehicle }])
+      );
+      const safeDuration = Number.isFinite(transitionDurationMs)
+        ? Math.max(0, transitionDurationMs)
+        : ANIMATION.defaultVehicleTransitionMs;
+      adapterState.transitionDurationMs = safeDuration;
+
+      if (!forceSnap && sameTargetSet(nextTargets)) {
+        adapterState.targetVehicles = nextTargets;
+        nextTargets.forEach((target, id) => {
+          const displayed = adapterState.displayVehicles.get(id);
+          if (displayed) {
+            adapterState.displayVehicles.set(id, {
+              ...target,
+              longitude: displayed.longitude,
+              latitude: displayed.latitude,
+              bearing: displayed.bearing
+            });
+          }
+        });
+        renderDisplayedVehicleSource();
+        ensureAnimationCoordinator();
         return;
       }
 
-      const cycleDurationMs = 2500;
-      const rippleDurationMs = 2100;
-      const resetDurationMs = cycleDurationMs - rippleDurationMs;
+      const nextDisplayVehicles = new Map();
+      const nextTransitionStarts = new Map();
+      let transitionActive = false;
 
-      const startRadius = 4;
-      const endRadius = 23;
-      const startOpacity = 0.7;
-
-      let pulseStartTime = null;
-
-      const animate = (timestamp) => {
-        if (
-          !adapterState.playing
-          || adapterState.reducedMotion
-          || adapterState.destroyed
-        ) {
-          pulseAnimationFrame = null;
-          resetPulse();
+      nextTargets.forEach((target, id) => {
+        const displayed = adapterState.displayVehicles.get(id);
+        if (!displayed || shouldSnapVehicle(displayed, target, forceSnap) || safeDuration === 0) {
+          nextDisplayVehicles.set(id, { ...target });
+          return;
+        }
+        if (sameVehicleTarget(displayed, target)) {
+          nextDisplayVehicles.set(id, { ...target });
           return;
         }
 
-        if (pulseStartTime === null) {
-          pulseStartTime = timestamp;
-        }
+        nextDisplayVehicles.set(id, { ...displayed });
+        nextTransitionStarts.set(id, { ...displayed });
+        transitionActive = true;
+      });
 
-        const elapsed = timestamp - pulseStartTime;
-        const cycleElapsed = elapsed % cycleDurationMs;
+      adapterState.targetVehicles = nextTargets;
+      adapterState.displayVehicles = nextDisplayVehicles;
+      adapterState.transitionStartVehicles = nextTransitionStarts;
+      adapterState.transitionStartTime = now;
+      adapterState.vehicleTransitionActive = transitionActive;
+      if (!transitionActive) adapterState.transitionStartVehicles.clear();
+      renderDisplayedVehicleSource();
+      ensureAnimationCoordinator();
+    }
 
-        let radius;
-        let opacity;
-
-        if (cycleElapsed < rippleDurationMs) {
-          const progress = cycleElapsed / rippleDurationMs;
-          const easedProgress = 1 - Math.pow(1 - progress, 3);
-
-          radius =
-            startRadius + (endRadius - startRadius) * easedProgress;
-
-          opacity =
-            startOpacity * Math.pow(1 - progress, 2);
-        } else {
-          // Reset beneath the marker while completely invisible.
-          const resetProgress =
-            (cycleElapsed - rippleDurationMs) / resetDurationMs;
-
-          radius =
-            endRadius + (startRadius - endRadius) * resetProgress;
-
-          opacity = 0;
-        }
-
+    function clearRippleGeneration(generation) {
+      generation.active = false;
+      generation.startedAt = 0;
+      const source = map.getSource(generation.sourceId);
+      if (source) source.setData(featureCollection());
+      if (map.getLayer(generation.layerId)) {
         map.setPaintProperty(
-          pulseLayerId,
+          generation.layerId,
           'circle-radius',
-          radius
+          ANIMATION.rippleStartRadius
         );
+        map.setPaintProperty(generation.layerId, 'circle-stroke-opacity', 0);
+      }
+    }
 
-        map.setPaintProperty(
-          pulseLayerId,
-          'circle-stroke-opacity',
-          opacity
+    function clearRipplePool() {
+      if (!adapterState.ready || adapterState.destroyed) return;
+      adapterState.rippleGenerations.forEach(clearRippleGeneration);
+    }
+
+    function spawnRippleGeneration(timestamp) {
+      const generation = adapterState.rippleGenerations.find((candidate) => !candidate.active);
+      if (!generation) return;
+
+      const rippleFeatures = Array.from(adapterState.displayVehicles.values())
+        .map((vehicle) => ({
+          type: 'Feature',
+          id: `${generation.sourceId}-${vehicle.id}`,
+          geometry: pointGeometry(vehicle),
+          properties: { id: vehicle.id, mode: vehicle.mode }
+        }))
+        .filter((feature) => feature.geometry);
+      if (!rippleFeatures.length) return;
+
+      map.getSource(generation.sourceId).setData(featureCollection(rippleFeatures));
+      generation.active = true;
+      generation.startedAt = timestamp;
+      map.setPaintProperty(
+        generation.layerId,
+        'circle-radius',
+        ANIMATION.rippleStartRadius
+      );
+      map.setPaintProperty(
+        generation.layerId,
+        'circle-stroke-opacity',
+        ANIMATION.rippleStartOpacity
+      );
+    }
+
+    function advanceRippleGenerations(timestamp) {
+      let active = false;
+      adapterState.rippleGenerations.forEach((generation) => {
+        if (!generation.active) return;
+        const progress = Math.min(
+          1,
+          Math.max(0, timestamp - generation.startedAt) / ANIMATION.rippleLifetimeMs
         );
+        if (progress >= 1) {
+          clearRippleGeneration(generation);
+          return;
+        }
 
-        pulseAnimationFrame = requestAnimationFrame(animate);
-      };
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        const radius = ANIMATION.rippleStartRadius
+          + (ANIMATION.rippleEndRadius - ANIMATION.rippleStartRadius) * easedProgress;
+        const opacity = ANIMATION.rippleStartOpacity * Math.pow(1 - progress, 2);
+        map.setPaintProperty(generation.layerId, 'circle-radius', radius);
+        map.setPaintProperty(generation.layerId, 'circle-stroke-opacity', opacity);
+        active = true;
+      });
+      return active;
+    }
 
-      pulseAnimationFrame = requestAnimationFrame(animate);
+    function playbackAnimationEnabled() {
+      return adapterState.playing
+        && !adapterState.reducedMotion
+        && !adapterState.scenario.mapUnavailable;
+    }
+
+    function animationNeeded() {
+      return adapterState.ready
+        && !adapterState.destroyed
+        && (
+          adapterState.vehicleTransitionActive
+          || adapterState.rippleGenerations.some((generation) => generation.active)
+          || playbackAnimationEnabled()
+        );
+    }
+
+    function runAnimationCoordinator(timestamp) {
+      animationFrame = null;
+      if (!adapterState.ready || adapterState.destroyed) return;
+
+      if (document.hidden) {
+        adapterState.nextRippleSpawnAt = null;
+        clearRipplePool();
+        snapVehiclesToTargets();
+        return;
+      }
+
+      advanceVehicleTransition(timestamp);
+      if (playbackAnimationEnabled()) {
+        if (adapterState.nextRippleSpawnAt === null) {
+          adapterState.nextRippleSpawnAt = timestamp;
+        }
+        if (timestamp >= adapterState.nextRippleSpawnAt) {
+          spawnRippleGeneration(timestamp);
+          adapterState.nextRippleSpawnAt = timestamp + ANIMATION.rippleSpawnIntervalMs;
+        }
+      } else {
+        adapterState.nextRippleSpawnAt = null;
+      }
+      advanceRippleGenerations(timestamp);
+
+      if (animationNeeded()) {
+        animationFrame = requestAnimationFrame(runAnimationCoordinator);
+      }
+    }
+
+    function ensureAnimationCoordinator() {
+      if (animationFrame === null && animationNeeded()) {
+        animationFrame = requestAnimationFrame(runAnimationCoordinator);
+      }
     }
 
     function resetMapView() {
@@ -719,11 +946,18 @@
     }
 
     function destroyMap() {
+      if (adapterState.ready && !adapterState.destroyed) clearRipplePool();
       adapterState.destroyed = true;
       adapterState.ready = false;
       clearTimeout(loadTimer);
       resizeObserver?.disconnect();
-      if (pulseAnimationFrame !== null) cancelAnimationFrame(pulseAnimationFrame);
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+      adapterState.displayVehicles.clear();
+      adapterState.targetVehicles.clear();
+      adapterState.transitionStartVehicles.clear();
       map.remove();
     }
 
@@ -754,6 +988,7 @@
           addRouteLayers(map);
           addStopLayers(map);
           addAlertLayers(map);
+          addRippleLayers(map);
           addVehicleLayers(map);
           tuneBasemap(map);
           bindSelection(map, 'phx-routes-hit', 'route', onSelect);
@@ -769,39 +1004,74 @@
           );
           adapterState.ready = true;
           clearTimeout(loadTimer);
-          syncPlaybackPulse();
-          updateSources();
+          updateMapPresentationSources();
+          updateVehicleTargets({ forceSnap: true });
           resetMapView();
 
           const api = {
-            setMapData({ routes = [], stops = [], alerts = [], vehicles = [] }) {
+            setMapData({
+              routes = [],
+              stops = [],
+              alerts = [],
+              vehicles = [],
+              transitionDurationMs = ANIMATION.defaultVehicleTransitionMs
+            }) {
               adapterState.data = { routes, stops, alerts, vehicles };
-              updateSources();
+              updateMapPresentationSources();
+              updateVehicleTargets({ transitionDurationMs });
             },
             setMapFilters({ mode = 'all', routeId = 'all' }) {
+              if (
+                adapterState.filters.mode === mode
+                && adapterState.filters.routeId === routeId
+              ) return;
               adapterState.filters = { mode, routeId };
-              updateSources();
+              clearRipplePool();
+              updateMapPresentationSources();
+              updateVehicleTargets();
             },
             setMapSelection(selection) {
+              if (
+                adapterState.selection?.type === selection?.type
+                && adapterState.selection?.id === selection?.id
+              ) return;
               adapterState.selection = selection;
-              updateSources();
+              updateMapPresentationSources();
+              renderDisplayedVehicleSource();
             },
             setMapScenario(scenario = {}) {
-              adapterState.scenario = {
-                mapUnavailable: Boolean(scenario.mapUnavailable)
-              };
-              updateSources();
+              const mapUnavailable = Boolean(scenario.mapUnavailable);
+              if (adapterState.scenario.mapUnavailable === mapUnavailable) return;
+              adapterState.scenario = { mapUnavailable };
+              clearRipplePool();
+              updateMapPresentationSources();
+              updateVehicleTargets({ forceSnap: true });
+              ensureAnimationCoordinator();
             },
             resizeMap() {
               if (!adapterState.destroyed) map.resize();
             },
             setPlayback(value) {
-              adapterState.playing = Boolean(value);
-              syncPlaybackPulse();
+              const nextPlaying = Boolean(value);
+              if (adapterState.playing === nextPlaying) return;
+              adapterState.playing = nextPlaying;
+              adapterState.nextRippleSpawnAt = null;
+              if (!nextPlaying) {
+                clearRipplePool();
+                if (document.hidden) snapVehiclesToTargets();
+              }
+              ensureAnimationCoordinator();
             },
             setReducedMotion(value) {
-              adapterState.reducedMotion = Boolean(value);
-              syncPlaybackPulse();
+              const nextReducedMotion = Boolean(value);
+              if (adapterState.reducedMotion === nextReducedMotion) return;
+              adapterState.reducedMotion = nextReducedMotion;
+              adapterState.nextRippleSpawnAt = null;
+              if (nextReducedMotion) {
+                clearRipplePool();
+                snapVehiclesToTargets();
+              }
+              ensureAnimationCoordinator();
             },
             resetMapView,
             destroyMap,
