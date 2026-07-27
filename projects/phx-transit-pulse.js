@@ -702,20 +702,21 @@
     renderMapRecordOptions(frame);
 
     if (state.mapAdapter?.isReady()) {
-      state.mapAdapter.setMapData({
-        routes: state.data.routes,
-        stops: state.data.stops,
-        alerts: frame.alerts,
-        vehicles: frame.vehicles.map(effectiveVehicle)
-      });
       state.mapAdapter.setMapFilters({
         mode: state.mode,
         routeId: state.route
       });
-      state.mapAdapter.setMapSelection(state.selected);
       state.mapAdapter.setMapScenario({
         mapUnavailable: unavailable
       });
+      state.mapAdapter.setMapData({
+        routes: state.data.routes,
+        stops: state.data.stops,
+        alerts: frame.alerts,
+        vehicles: frame.vehicles.map(effectiveVehicle),
+        transitionDurationMs: state.data.meta.frameIntervalMs * 0.82
+      });
+      state.mapAdapter.setMapSelection(state.selected);
       state.mapAdapter.setPlayback?.(state.playing);
     }
   }
