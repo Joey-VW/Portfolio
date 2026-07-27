@@ -48,6 +48,149 @@
     return node;
   }
 
+  function geometryMetrics(coordinates) {
+    const latitude = coordinates.reduce((sum, coordinate) => sum + coordinate[1], 0) / coordinates.length;
+    const longitudeScale = Math.cos(latitude * Math.PI / 180);
+    const lengths = coordinates.slice(1).map((coordinate, index) => {
+      const previous = coordinates[index];
+      return Math.hypot((coordinate[0] - previous[0]) * longitudeScale, coordinate[1] - previous[1]);
+    });
+    return { lengths, total: lengths.reduce((sum, length) => sum + length, 0) };
+  }
+
+  function pointAlong(coordinates, progress) {
+    const safeProgress = Math.max(0, Math.min(1, progress));
+    const { lengths, total } = geometryMetrics(coordinates);
+    let remaining = total * safeProgress;
+    for (let index = 0; index < lengths.length; index += 1) {
+      if (remaining <= lengths[index] || index === lengths.length - 1) {
+        const ratio = lengths[index] ? remaining / lengths[index] : 0;
+        const start = coordinates[index];
+        const end = coordinates[index + 1];
+        return {
+          longitude: start[0] + (end[0] - start[0]) * ratio,
+          latitude: start[1] + (end[1] - start[1]) * ratio,
+          bearing: (Math.atan2(
+            (end[0] - start[0]) * Math.cos(((start[1] + end[1]) / 2) * Math.PI / 180),
+            end[1] - start[1]
+          ) * 180 / Math.PI + 360) % 360
+        };
+      }
+      remaining -= lengths[index];
+    }
+    return { longitude: coordinates[0][0], latitude: coordinates[0][1], bearing: 0 };
+  }
+
+  function distanceKilometers(first, second) {
+    const latitudeScale = 111.32;
+    const longitudeScale = latitudeScale * Math.cos(((first.latitude + second.latitude) / 2) * Math.PI / 180);
+    return Math.hypot(
+      (first.longitude - second.longitude) * longitudeScale,
+      (first.latitude - second.latitude) * latitudeScale
+    );
+  }
+
+  function projectPointToGeometry(point, coordinates) {
+    const { lengths, total } = geometryMetrics(coordinates);
+    const longitudeScale = Math.cos(point.latitude * Math.PI / 180);
+    let traversed = 0;
+    let best = null;
+    coordinates.slice(1).forEach((end, index) => {
+      const start = coordinates[index];
+      const dx = (end[0] - start[0]) * longitudeScale;
+      const dy = end[1] - start[1];
+      const px = (point.longitude - start[0]) * longitudeScale;
+      const py = point.latitude - start[1];
+      const ratio = Math.max(0, Math.min(1, (px * dx + py * dy) / (dx * dx + dy * dy || 1)));
+      const projected = {
+        longitude: start[0] + (end[0] - start[0]) * ratio,
+        latitude: start[1] + (end[1] - start[1]) * ratio
+      };
+      const candidate = {
+        distanceKm: distanceKilometers(point, projected),
+        progress: (traversed + lengths[index] * ratio) / total
+      };
+      if (!best || candidate.distanceKm < best.distanceKm) best = candidate;
+      traversed += lengths[index];
+    });
+    return best;
+  }
+
+  function sliceGeometry(coordinates, startProgress, endProgress) {
+    const { lengths, total } = geometryMetrics(coordinates);
+    const cumulative = [0];
+    lengths.forEach((length) => cumulative.push(cumulative.at(-1) + length));
+    const start = pointAlong(coordinates, startProgress);
+    const end = pointAlong(coordinates, endProgress);
+    return [[start.longitude, start.latitude], ...coordinates.filter((coordinate, index) => {
+      const progress = cumulative[index] / total;
+      return progress > startProgress && progress < endProgress;
+    }), [end.longitude, end.latitude]];
+  }
+
+  function projectToSchematic(record, map) {
+    const [[west, south], [east, north]] = map.bounds;
+    return {
+      x: 50 + ((record.longitude - west) / (east - west)) * 800,
+      y: 580 - ((record.latitude - south) / (north - south)) * 540
+    };
+  }
+
+  function schematicPath(coordinates, map) {
+    return `M${coordinates.map((coordinate) => {
+      const point = projectToSchematic({ longitude: coordinate[0], latitude: coordinate[1] }, map);
+      return `${point.x} ${point.y}`;
+    }).join(' L')}`;
+  }
+
+  function hydrateFixture(data) {
+    const patterns = new Map(data.routes.flatMap((route) => route.patterns.map((pattern) => [pattern.id, pattern])));
+    const stops = new Map(data.stops.map((stop) => [stop.id, stop]));
+    data.routes.forEach((route) => {
+      const displayPattern = patterns.get(route.displayPatternId);
+      route.geometry = displayPattern.geometry;
+      route.path = schematicPath(displayPattern.geometry.coordinates, data.map);
+    });
+    data.frames.forEach((frame) => {
+      frame.vehicles.forEach((vehicle) => {
+        if (!vehicle.patternId) return;
+        const pattern = patterns.get(vehicle.patternId);
+        const position = pointAlong(pattern.geometry.coordinates, vehicle.progress);
+        Object.assign(vehicle, position, projectToSchematic(position, data.map), {
+          direction: pattern.headsign
+        });
+        const orderedStops = pattern.stopIds.map((id) => stops.get(id));
+        const stopProgress = orderedStops.map((stop) => ({
+          stop,
+          ...projectPointToGeometry(stop, pattern.geometry.coordinates)
+        }));
+        const nearest = stopProgress.reduce((best, item) => (
+          distanceKilometers(position, item.stop) < distanceKilometers(position, best.stop) ? item : best
+        ));
+        const next = stopProgress.find((item) => item.progress >= vehicle.progress) || stopProgress.at(-1);
+        const nearestDistance = distanceKilometers(position, nearest.stop);
+        const nextDistance = distanceKilometers(position, next.stop);
+        const atStop = nearestDistance <= 0.2;
+        const context = atStop ? nearest : next;
+        vehicle.stop = context.stop.label;
+        vehicle.nearestStopId = nearest.stop.id;
+        vehicle.nextStopId = next.stop.id;
+        vehicle.status = atStop ? 'At stop' : nextDistance <= 1.2 ? 'Approaching' : 'In transit';
+      });
+      frame.alerts.forEach((alert) => {
+        if (!alert.patternId || !alert.segmentProgress) return;
+        const pattern = patterns.get(alert.patternId);
+        alert.segmentGeometry = {
+          type: 'LineString',
+          coordinates: sliceGeometry(pattern.geometry.coordinates, ...alert.segmentProgress)
+        };
+        const midpoint = pointAlong(pattern.geometry.coordinates, (alert.segmentProgress[0] + alert.segmentProgress[1]) / 2);
+        Object.assign(alert, midpoint, projectToSchematic(midpoint, data.map));
+        alert.segmentPath = schematicPath(alert.segmentGeometry.coordinates, data.map);
+      });
+    });
+  }
+
   function currentFrame() {
     return state.data.frames[state.frame];
   }
@@ -70,6 +213,10 @@
 
   function routeById(id) {
     return state.data.routes.find((route) => route.id === id);
+  }
+
+  function stopById(id) {
+    return state.data.stops.find((stop) => stop.id === id);
   }
 
   function announce(message) {
@@ -352,21 +499,20 @@
     const selectedAlert = state.selected?.type === 'alert'
       ? frame.alerts.find((alert) => alert.id === state.selected.id)
       : null;
-    const affectedRoutes = new Set(selectedAlert ? selectedAlert.routes : visibleAlerts(frame).flatMap((alert) => alert.routes));
     const affectedStops = new Set(selectedAlert ? selectedAlert.stops : visibleAlerts(frame).flatMap((alert) => alert.stops));
 
     if (!unavailable) {
       state.data.routes.forEach((route) => {
         const matches = matchingRouteIds.has(route.id);
         const selected = state.selected?.type === 'route' && state.selected.id === route.id;
-        const alertFocused = affectedRoutes.has(route.id);
         const className = [
           'map-route',
           route.color,
+          route.mode,
           matches ? '' : 'is-muted',
-          selected ? 'is-selected' : '',
-          alertFocused ? 'is-alert-focused' : ''
+          selected ? 'is-selected' : ''
         ].filter(Boolean).join(' ');
+        routesRoot.append(svgEl('path', { d: route.path, class: `map-route-casing${matches ? '' : ' is-muted'}` }));
         const line = svgEl('path', { d: route.path, class: className });
         routesRoot.append(line);
         if (matches) {
@@ -387,6 +533,10 @@
           });
           routesRoot.append(hit);
         }
+      });
+
+      (selectedAlert ? [selectedAlert] : visibleAlerts(frame)).forEach((alert) => {
+        if (alert.segmentPath) routesRoot.append(svgEl('path', { d: alert.segmentPath, class: 'map-route-alert-segment' }));
       });
 
       state.data.stops.forEach((stop) => {
@@ -658,7 +808,9 @@
         ['Freshness', freshnessLabels[vehicle.freshness]],
         ['Trip', unknown(vehicle.tripId)],
         ['Status', vehicle.status],
-        ['Stop', unknown(vehicle.stop)]
+        [vehicle.status === 'At stop' ? 'Current stop' : 'Next stop', unknown(vehicle.stop)],
+        ['Headsign', unknown(vehicle.direction)],
+        ['Bearing', Number.isFinite(vehicle.bearing) ? `${Math.round(vehicle.bearing)}°` : 'Unknown']
       ];
     }
     if (state.selected.type === 'route') {
@@ -682,7 +834,7 @@
         ['Effect', alert.effect],
         ['Period', alert.period],
         ['Routes', alert.routes.join(', ')],
-        ['Stops', alert.stops.join(', ')]
+        ['Stops', alert.stops.map((stopId) => stopById(stopId)?.label || stopId).join(', ')]
       ];
     }
     appendDefinitionList(root, pairs);
@@ -752,7 +904,7 @@
         [unknown(routeById(trip.routeId)?.label), 'Route / mode'],
         [trip.state.replace('_', ' '), 'Freshness'],
         [trip.label, 'Status'],
-        [trip.stop || 'Not applicable', 'Stop / direction']
+        [trip.stopId ? unknown(stopById(trip.stopId)?.label) : 'Not applicable', 'Stop / direction']
       ]);
     });
   }
@@ -968,6 +1120,7 @@
       if (!validFixture) throw new Error('Synthetic replay fixture is invalid.');
 
       state.data = data;
+      hydrateFixture(data);
       state.scenarios = scenarios.scenarios;
       $('[data-timeline]').max = String(data.frames.length - 1);
       data.routes.forEach((route) => {
