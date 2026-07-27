@@ -14,7 +14,7 @@ and every route names a canonical display pattern among its geographic direction
 patterns. The `0.4-draft` fixture stores ordered stop IDs and headsigns on those
 patterns, vehicle progress along a pattern, and pattern-scoped alert segments.
 The validator checks geometry bounds, stop alignment and endpoints, derived
-vehicle placement, increasing progress across all four frames, and valid alert
+vehicle placement, increasing progress across the expanded deterministic replay, and valid alert
 segment ranges. It also rejects route-level geometry that could drift, stale stop
 labels, and trip-state stop names that are not resolved from IDs. The browser
 derives interactive route geometry, fallback SVG paths, and vehicle positions

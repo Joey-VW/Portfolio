@@ -63,7 +63,7 @@ def validate() -> tuple[int, int, int, int]:
     require(meta.get("providerData") is False, "providerData must remain false")
     require(meta.get("fixtureKind") == "synthetic-operations-demo", "fixture must remain explicitly synthetic")
     require(meta.get("geography") == "fictional-phoenix-area-overlay", "geography must identify the fictional overlay")
-    require(len(data.get("frames", [])) == 4, "deterministic replay must retain exactly four frames")
+    require(len(data.get("frames", [])) >= 12, "deterministic replay must contain at least twelve frames")
 
     bounds = data.get("map", {}).get("bounds")
     require(isinstance(bounds, list) and len(bounds) == 2, "map bounds are required")
