@@ -489,17 +489,30 @@
     const root = $('[data-kpis]');
     root.replaceChildren();
     values.forEach((item) => {
-      const card = el('article', `phx-kpi${item.sparkline && !unavailable ? ' has-sparkline' : ''}`);
+      const hasSparkline = Boolean(item.sparkline && !unavailable);
+      const card = el(
+        'article',
+        `phx-kpi${hasSparkline ? ' has-sparkline' : ''}${unavailable ? ' is-unavailable' : ''}`
+      );
+      const label = el('span', 'phx-kpi-label', item.label);
+      const metricRow = el('div', 'phx-kpi-main');
+      const value = el('strong', 'phx-kpi-value', String(item.value));
       const note = el('small', 'phx-kpi-note');
+
       if (item.html) note.innerHTML = item.note;
       else note.textContent = item.note;
-      card.append(
+
+      metricRow.append(
         createKpiIcon(item.icon),
-        el('span', 'phx-kpi-label', item.label),
-        el('strong', 'phx-kpi-value', String(item.value)),
+        value
+      );
+      if (hasSparkline) metricRow.append(createSparkline(item.sparkline));
+
+      card.append(
+        label,
+        metricRow,
         note
       );
-      if (item.sparkline && !unavailable) card.append(createSparkline(item.sparkline));
       root.append(card);
     });
   }

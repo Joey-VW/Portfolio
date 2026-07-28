@@ -32,7 +32,7 @@
     cyan: '#26d9ff',
     teal: '#20bfe8',
     magenta: '#ec4899',
-    amber: '#ec4899'
+    amber: '#fbbf24'
   };
 
   function featureCollection(features = []) {
@@ -352,27 +352,224 @@
   }
 
   function tuneBasemap(map) {
+
+    const palette = {
+      // Base geography
+      background: '#030812', // '#07101A' or '#030812'
+      water: '#0A1824',
+      landuse: '#0A131D',
+      park: '#0B1818',
+      building: '#101C27',
+
+      // Roads
+      motorway: '#2A4055',
+      motorwayCasing: '#0A121C',
+
+      roadMajor: '#1E3042',
+      roadCasing: '#09121B',
+
+      roadMinor: '#152433',
+      roadPath: '#101C28',
+
+      // Existing real-world rail infrastructure
+      railTransit: '#2A3949',
+      rail: '#202E3C',
+
+      // Basemap labels
+      label: '#7E91A5',
+      labelHalo: '#07101A'
+    };
+
+
     const labelLayers = [];
+
     map.getStyle().layers.forEach((layer) => {
+      const id = String(layer.id || '').toLowerCase();
+      const sourceLayer = String(layer['source-layer'] || '').toLowerCase();
+
       try {
+        // Overall map background.
         if (layer.type === 'background') {
-          map.setPaintProperty(layer.id, 'background-color', '#06111d');
-          map.setPaintProperty(layer.id, 'background-opacity', 1);
+          map.setPaintProperty(
+            layer.id,
+            'background-color',
+            palette.background
+          );
+          map.setPaintProperty(
+            layer.id,
+            'background-opacity',
+            1
+          );
         }
-        if (layer.type === 'symbol' && /place|settlement|city|town/i.test(layer.id)) {
-          map.setPaintProperty(layer.id, 'text-color', '#a9bdd0');
-          map.setPaintProperty(layer.id, 'text-halo-color', '#06111d');
-          map.setPaintProperty(layer.id, 'text-halo-width', 1.6);
+
+        // Water.
+        if (
+          layer.type === 'fill'
+          && (
+            sourceLayer === 'water'
+            || id.includes('water')
+          )
+        ) {
+          map.setPaintProperty(
+            layer.id,
+            'fill-color',
+            palette.water
+          );
+        }
+
+        // Parks / green-space / land cover.
+        if (
+          layer.type === 'fill'
+          && (
+            sourceLayer === 'park'
+            || sourceLayer === 'landcover'
+            || id.includes('park')
+          )
+        ) {
+          map.setPaintProperty(
+            layer.id,
+            'fill-color',
+            palette.park
+          );
+        }
+
+        // General land-use polygons.
+        if (
+          layer.type === 'fill'
+          && (
+            sourceLayer === 'landuse'
+            || id.includes('landuse')
+          )
+        ) {
+          map.setPaintProperty(
+            layer.id,
+            'fill-color',
+            palette.landuse
+          );
+        }
+
+        // Buildings.
+        if (
+          layer.type === 'fill'
+          && (
+            sourceLayer === 'building'
+            || id.includes('building')
+          )
+        ) {
+          map.setPaintProperty(
+            layer.id,
+            'fill-color',
+            palette.building
+          );
+        }
+
+        // Basemap transportation layers only. Explicitly exclude PHX Transit
+        // Pulse's own route layers so their operational styling stays intact.
+        const isPhxLayer = id.startsWith('phx-');
+        const isTransportationLayer =
+          !isPhxLayer
+          && layer.type === 'line'
+          && sourceLayer === 'transportation';
+
+        if (isTransportationLayer) {
+          let lineColor = null;
+
+          // Paths, pedestrian ways, cycleways, etc.
+          if (id === 'highway_path') {
+            lineColor = palette.roadPath;
+
+          // Local / residential / minor streets.
+          } else if (
+            id === 'highway_minor'
+            || id === 'road_pier'
+          ) {
+            lineColor = palette.roadMinor;
+
+          // Major-road casing.
+          } else if (id === 'highway_major_casing') {
+            lineColor = palette.roadCasing;
+
+          // Major-road surface.
+          } else if (
+            id === 'highway_major_inner'
+            || id === 'highway_major_subtle'
+          ) {
+            lineColor = palette.roadMajor;
+
+          // Freeway / motorway casing.
+          } else if (id === 'highway_motorway_casing') {
+            lineColor = palette.motorwayCasing;
+
+          // Freeway / motorway surface.
+          } else if (
+            id === 'highway_motorway_inner'
+            || id === 'highway_motorway_subtle'
+          ) {
+            lineColor = palette.motorway;
+
+          // Transit rail supplied by the basemap.
+          } else if (
+            id === 'railway_transit'
+            || id === 'railway_transit_dashline'
+          ) {
+            lineColor = palette.railTransit;
+
+          // Other railway infrastructure.
+          } else if (
+            id === 'railway_minor'
+            || id === 'railway_minor_dashline'
+            || id === 'railway'
+            || id === 'railway_dashline'
+          ) {
+            lineColor = palette.rail;
+          }
+
+          if (lineColor) {
+            map.setPaintProperty(
+              layer.id,
+              'line-color',
+              lineColor
+            );
+          }
+        }
+
+        // Preserve and recolor place labels.
+        if (
+          layer.type === 'symbol'
+          && /place|settlement|city|town/i.test(layer.id)
+        ) {
+          map.setPaintProperty(
+            layer.id,
+            'text-color',
+            palette.label
+          );
+          map.setPaintProperty(
+            layer.id,
+            'text-halo-color',
+            palette.labelHalo
+          );
+          map.setPaintProperty(
+            layer.id,
+            'text-halo-width',
+            1.6
+          );
+
           labelLayers.push(layer.id);
         }
       } catch (error) {
-        // Third-party styles vary; unsupported paint properties are safely ignored.
+        // Third-party styles vary; unsupported paint properties
+        // are safely ignored.
       }
     });
+
+    // Keep city/place labels above the operational overlays.
     labelLayers.forEach((id) => {
-      if (map.getLayer(id)) map.moveLayer(id);
+      if (map.getLayer(id)) {
+        map.moveLayer(id);
+      }
     });
   }
+
 
   function addRippleLayers(map) {
     RIPPLE_SOURCE_IDS.forEach((sourceId, index) => {
