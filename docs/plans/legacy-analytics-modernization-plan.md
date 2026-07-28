@@ -2,8 +2,8 @@
 
 **Repositories reviewed**
 
-* Legacy: `Joey-VW/DataAnalyticsPortfolio`
-* Current: `Joey-VW/Portfolio`
+* Legacy: [Joey-VW/DataAnalyticsPortfolio](https://github.com/Joey-VW/DataAnalyticsPortfolio)
+* Current: [Joey-VW/Portfolio](https://github.com/Joey-VW/Portfolio)
 * Review date: July 28, 2026
 
 ## Executive summary
