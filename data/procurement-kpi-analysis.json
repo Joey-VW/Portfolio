@@ -1,0 +1,931 @@
+{
+  "meta": {
+    "title": "Procurement KPI Analysis",
+    "generatedBy": "tools/procurement/build_case_data.py",
+    "source": {
+      "name": "Procurement KPI Analysis Dataset.csv",
+      "publisher": "Shahriar Kabir on Kaggle",
+      "datasetId": "shahriarkabir/procurement-kpi-analysis-dataset",
+      "retrieved": "2026-07-28",
+      "licenseClaim": "CC0: Public Domain, as listed by the dataset publisher",
+      "sha256": "bf9a529c52cd7de254994a55d087f865d3aefc0ba66790e8ee43a26e7beb6e9c",
+      "rows": 777,
+      "coverage": "2022\u20132023"
+    },
+    "assumptions": {
+      "onTimeDeliveryDays": 10,
+      "weekPeriod": "W-SAT ends Saturday and starts Sunday",
+      "defectRate": "Rows missing Defective_Units are excluded from the defect denominator",
+      "deliveryRate": "Rows missing Delivery_Date are excluded from on-time delivery"
+    },
+    "presetWeights": {
+      "balanced": {
+        "cost": 0.25,
+        "reliability": 0.25,
+        "quality": 0.25,
+        "compliance": 0.25
+      },
+      "cost": {
+        "cost": 0.55,
+        "reliability": 0.15,
+        "quality": 0.15,
+        "compliance": 0.15
+      },
+      "reliability": {
+        "cost": 0.15,
+        "reliability": 0.55,
+        "quality": 0.15,
+        "compliance": 0.15
+      },
+      "quality": {
+        "cost": 0.15,
+        "reliability": 0.15,
+        "quality": 0.4,
+        "compliance": 0.3
+      }
+    },
+    "sourceProfile": [
+      {
+        "column": "PO_ID",
+        "dtype": "object",
+        "missing": 0,
+        "unique": 777,
+        "examples": [
+          "PO-00001",
+          "PO-00002",
+          "PO-00003"
+        ],
+        "numeric": null
+      },
+      {
+        "column": "Supplier",
+        "dtype": "object",
+        "missing": 0,
+        "unique": 5,
+        "examples": [
+          "Alpha_Inc",
+          "Delta_Logistics",
+          "Gamma_Co"
+        ],
+        "numeric": null
+      },
+      {
+        "column": "Order_Date",
+        "dtype": "datetime64[ns]",
+        "missing": 0,
+        "unique": 476,
+        "examples": [
+          "2023-10-17 00:00:00",
+          "2022-04-25 00:00:00",
+          "2022-01-26 00:00:00"
+        ],
+        "numeric": null
+      },
+      {
+        "column": "Delivery_Date",
+        "dtype": "datetime64[ns]",
+        "missing": 87,
+        "unique": 449,
+        "examples": [
+          "2023-10-25 00:00:00",
+          "2022-05-05 00:00:00",
+          "2022-02-15 00:00:00"
+        ],
+        "numeric": null
+      },
+      {
+        "column": "Item_Category",
+        "dtype": "object",
+        "missing": 0,
+        "unique": 5,
+        "examples": [
+          "Office Supplies",
+          "MRO",
+          "Packaging"
+        ],
+        "numeric": null
+      },
+      {
+        "column": "Order_Status",
+        "dtype": "object",
+        "missing": 0,
+        "unique": 4,
+        "examples": [
+          "Cancelled",
+          "Delivered",
+          "Partially Delivered"
+        ],
+        "numeric": null
+      },
+      {
+        "column": "Quantity",
+        "dtype": "int64",
+        "missing": 0,
+        "unique": 623,
+        "examples": [
+          1176,
+          1509,
+          910
+        ],
+        "numeric": {
+          "min": 51,
+          "p25": 615.0,
+          "median": 1075.0,
+          "p75": 1548.0,
+          "max": 5000,
+          "mean": 1094.6602316602316
+        }
+      },
+      {
+        "column": "Unit_Price",
+        "dtype": "float64",
+        "missing": 0,
+        "unique": 747,
+        "examples": [
+          20.13,
+          39.32,
+          95.51
+        ],
+        "numeric": {
+          "min": 10.84,
+          "p25": 33.29,
+          "median": 58.95,
+          "p75": 83.13,
+          "max": 109.17,
+          "mean": 58.28382239382239
+        }
+      },
+      {
+        "column": "Negotiated_Price",
+        "dtype": "float64",
+        "missing": 0,
+        "unique": 752,
+        "examples": [
+          17.81,
+          37.34,
+          92.26
+        ],
+        "numeric": {
+          "min": 9.27,
+          "p25": 30.46,
+          "median": 53.8,
+          "p75": 76.55,
+          "max": 107.39,
+          "mean": 53.660720720720725
+        }
+      },
+      {
+        "column": "Defective_Units",
+        "dtype": "float64",
+        "missing": 136,
+        "unique": 202,
+        "examples": [
+          235.0,
+          41.0,
+          112.0
+        ],
+        "numeric": {
+          "min": 0.0,
+          "p25": 26.0,
+          "median": 49.0,
+          "p75": 100.0,
+          "max": 321.0,
+          "mean": 74.8034321372855
+        }
+      },
+      {
+        "column": "Compliance",
+        "dtype": "object",
+        "missing": 0,
+        "unique": 2,
+        "examples": [
+          "Yes",
+          "No"
+        ],
+        "numeric": null
+      }
+    ]
+  },
+  "quality": {
+    "rows": 777,
+    "missingDeliveries": 87,
+    "missingDefectCounts": 136,
+    "cancelledOrders": 63,
+    "pendingOrders": 81,
+    "impossibleDeliverySequences": 1
+  },
+  "overview": {
+    "name": "All suppliers",
+    "orders": 777,
+    "spend": 45373696.39,
+    "avgUnitPrice": 58.28,
+    "avgNegotiatedPrice": 53.66,
+    "savingsRate": 0.0797310737970269,
+    "avgLeadDays": 10.8,
+    "onTimeRate": 0.4629898403483309,
+    "defectRate": 0.06802492360336741,
+    "complianceRate": 0.8236808236808236,
+    "missingDeliveryRate": 0.11196911196911197
+  },
+  "suppliers": [
+    {
+      "name": "Alpha_Inc",
+      "orders": 141,
+      "spend": 7839712.25,
+      "avgUnitPrice": 58.39,
+      "avgNegotiatedPrice": 53.65,
+      "savingsRate": 0.08077736619715202,
+      "avgLeadDays": 10.74,
+      "onTimeRate": 0.4224137931034483,
+      "defectRate": 0.02248297433945402,
+      "complianceRate": 0.9361702127659575,
+      "missingDeliveryRate": 0.1702127659574468,
+      "scores": {
+        "balanced": 61.7,
+        "cost": 60.6,
+        "reliability": 37.0,
+        "quality": 75.2
+      }
+    },
+    {
+      "name": "Beta_Supplies",
+      "orders": 156,
+      "spend": 9858665.9,
+      "avgUnitPrice": 58.28,
+      "avgNegotiatedPrice": 53.61,
+      "savingsRate": 0.08279592949925,
+      "avgLeadDays": 11.27,
+      "onTimeRate": 0.4405594405594406,
+      "defectRate": 0.0935461410019807,
+      "complianceRate": 0.7564102564102564,
+      "missingDeliveryRate": 0.08333333333333333,
+      "scores": {
+        "balanced": 49.5,
+        "cost": 69.7,
+        "reliability": 36.4,
+        "quality": 46.1
+      }
+    },
+    {
+      "name": "Delta_Logistics",
+      "orders": 171,
+      "spend": 9236240.47,
+      "avgUnitPrice": 56.24,
+      "avgNegotiatedPrice": 51.9,
+      "savingsRate": 0.07805545568859389,
+      "avgLeadDays": 10.85,
+      "onTimeRate": 0.46357615894039733,
+      "defectRate": 0.14429859939869472,
+      "complianceRate": 0.6081871345029239,
+      "missingDeliveryRate": 0.11695906432748537,
+      "scores": {
+        "balanced": 10.4,
+        "cost": 7.7,
+        "reliability": 21.4,
+        "quality": 6.2
+      }
+    },
+    {
+      "name": "Epsilon_Group",
+      "orders": 166,
+      "spend": 9851156.06,
+      "avgUnitPrice": 59.39,
+      "avgNegotiatedPrice": 54.64,
+      "savingsRate": 0.07899863661422472,
+      "avgLeadDays": 10.87,
+      "onTimeRate": 0.4563758389261745,
+      "defectRate": 0.029660131133001807,
+      "complianceRate": 0.9819277108433735,
+      "missingDeliveryRate": 0.10240963855421686,
+      "scores": {
+        "balanced": 62.1,
+        "cost": 46.3,
+        "reliability": 49.8,
+        "quality": 75.8
+      }
+    },
+    {
+      "name": "Gamma_Co",
+      "orders": 143,
+      "spend": 8587921.71,
+      "avgUnitPrice": 59.35,
+      "avgNegotiatedPrice": 54.71,
+      "savingsRate": 0.07787936192660151,
+      "avgLeadDays": 10.19,
+      "onTimeRate": 0.5307692307692308,
+      "defectRate": 0.04957885462555066,
+      "complianceRate": 0.8601398601398601,
+      "missingDeliveryRate": 0.09090909090909091,
+      "scores": {
+        "balanced": 61.3,
+        "cost": 36.8,
+        "reliability": 76.8,
+        "quality": 66.3
+      }
+    }
+  ],
+  "categories": [
+    {
+      "name": "Electronics",
+      "orders": 152,
+      "spend": 8642550.6,
+      "avgUnitPrice": 55.81,
+      "avgNegotiatedPrice": 51.47,
+      "savingsRate": 0.07915209861584953,
+      "avgLeadDays": 11.02,
+      "onTimeRate": 0.4316546762589928,
+      "defectRate": 0.06410970247273143,
+      "complianceRate": 0.8552631578947368,
+      "missingDeliveryRate": 0.08552631578947369,
+      "suppliers": [
+        {
+          "name": "Alpha_Inc",
+          "orders": 22,
+          "spend": 1373105.65,
+          "avgUnitPrice": 55.52,
+          "avgNegotiatedPrice": 51.03,
+          "savingsRate": 0.07022465869171757,
+          "avgLeadDays": 10.6,
+          "onTimeRate": 0.4,
+          "defectRate": 0.024313823787442037,
+          "complianceRate": 1.0,
+          "missingDeliveryRate": 0.09090909090909091
+        },
+        {
+          "name": "Beta_Supplies",
+          "orders": 32,
+          "spend": 2156144.46,
+          "avgUnitPrice": 61.14,
+          "avgNegotiatedPrice": 56.61,
+          "savingsRate": 0.08584039470427886,
+          "avgLeadDays": 11.13,
+          "onTimeRate": 0.43333333333333335,
+          "defectRate": 0.0829545815720052,
+          "complianceRate": 0.78125,
+          "missingDeliveryRate": 0.0625
+        },
+        {
+          "name": "Delta_Logistics",
+          "orders": 33,
+          "spend": 1808848.01,
+          "avgUnitPrice": 50.26,
+          "avgNegotiatedPrice": 46.45,
+          "savingsRate": 0.08001094863703381,
+          "avgLeadDays": 10.68,
+          "onTimeRate": 0.42857142857142855,
+          "defectRate": 0.12423625254582485,
+          "complianceRate": 0.6060606060606061,
+          "missingDeliveryRate": 0.15151515151515152
+        },
+        {
+          "name": "Epsilon_Group",
+          "orders": 36,
+          "spend": 1963897.65,
+          "avgUnitPrice": 60.16,
+          "avgNegotiatedPrice": 55.01,
+          "savingsRate": 0.08255823916895848,
+          "avgLeadDays": 11.23,
+          "onTimeRate": 0.4,
+          "defectRate": 0.03298994358597008,
+          "complianceRate": 0.9722222222222222,
+          "missingDeliveryRate": 0.027777777777777776
+        },
+        {
+          "name": "Gamma_Co",
+          "orders": 29,
+          "spend": 1340554.83,
+          "avgUnitPrice": 51.04,
+          "avgNegotiatedPrice": 47.46,
+          "savingsRate": 0.07113473397299008,
+          "avgLeadDays": 11.31,
+          "onTimeRate": 0.5,
+          "defectRate": 0.04821884603731117,
+          "complianceRate": 0.9655172413793104,
+          "missingDeliveryRate": 0.10344827586206896
+        }
+      ]
+    },
+    {
+      "name": "MRO",
+      "orders": 164,
+      "spend": 10126608.86,
+      "avgUnitPrice": 60.49,
+      "avgNegotiatedPrice": 55.57,
+      "savingsRate": 0.08181328854307153,
+      "avgLeadDays": 11.6,
+      "onTimeRate": 0.3959731543624161,
+      "defectRate": 0.06159147671587999,
+      "complianceRate": 0.823170731707317,
+      "missingDeliveryRate": 0.09146341463414634,
+      "suppliers": [
+        {
+          "name": "Alpha_Inc",
+          "orders": 35,
+          "spend": 1830999.0,
+          "avgUnitPrice": 54.34,
+          "avgNegotiatedPrice": 49.94,
+          "savingsRate": 0.07737697839444972,
+          "avgLeadDays": 11.5,
+          "onTimeRate": 0.4,
+          "defectRate": 0.021742999525391552,
+          "complianceRate": 0.9142857142857143,
+          "missingDeliveryRate": 0.14285714285714285
+        },
+        {
+          "name": "Beta_Supplies",
+          "orders": 26,
+          "spend": 1653533.59,
+          "avgUnitPrice": 60.42,
+          "avgNegotiatedPrice": 55.24,
+          "savingsRate": 0.08779674531718099,
+          "avgLeadDays": 11.32,
+          "onTimeRate": 0.4,
+          "defectRate": 0.10146936512337122,
+          "complianceRate": 0.7307692307692307,
+          "missingDeliveryRate": 0.038461538461538464
+        },
+        {
+          "name": "Delta_Logistics",
+          "orders": 34,
+          "spend": 1838653.89,
+          "avgUnitPrice": 63.63,
+          "avgNegotiatedPrice": 58.29,
+          "savingsRate": 0.08235632091806876,
+          "avgLeadDays": 13.33,
+          "onTimeRate": 0.26666666666666666,
+          "defectRate": 0.1464952092788704,
+          "complianceRate": 0.6176470588235294,
+          "missingDeliveryRate": 0.11764705882352941
+        },
+        {
+          "name": "Epsilon_Group",
+          "orders": 39,
+          "spend": 2576345.4,
+          "avgUnitPrice": 61.57,
+          "avgNegotiatedPrice": 56.61,
+          "savingsRate": 0.08477892322683057,
+          "avgLeadDays": 10.47,
+          "onTimeRate": 0.47058823529411764,
+          "defectRate": 0.029916625796959292,
+          "complianceRate": 0.9743589743589743,
+          "missingDeliveryRate": 0.1282051282051282
+        },
+        {
+          "name": "Gamma_Co",
+          "orders": 30,
+          "spend": 2227076.98,
+          "avgUnitPrice": 62.75,
+          "avgNegotiatedPrice": 58.0,
+          "savingsRate": 0.07705646189801996,
+          "avgLeadDays": 11.47,
+          "onTimeRate": 0.43333333333333335,
+          "defectRate": 0.05026286902767346,
+          "complianceRate": 0.8333333333333334,
+          "missingDeliveryRate": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Office Supplies",
+      "orders": 174,
+      "spend": 10007583.03,
+      "avgUnitPrice": 60.63,
+      "avgNegotiatedPrice": 56.03,
+      "savingsRate": 0.07778484280827695,
+      "avgLeadDays": 10.51,
+      "onTimeRate": 0.5100671140939598,
+      "defectRate": 0.07742838236510519,
+      "complianceRate": 0.8275862068965517,
+      "missingDeliveryRate": 0.13793103448275862,
+      "suppliers": [
+        {
+          "name": "Alpha_Inc",
+          "orders": 39,
+          "spend": 2205572.12,
+          "avgUnitPrice": 65.81,
+          "avgNegotiatedPrice": 60.66,
+          "savingsRate": 0.07882355008341503,
+          "avgLeadDays": 10.6,
+          "onTimeRate": 0.4666666666666667,
+          "defectRate": 0.02483660130718954,
+          "complianceRate": 0.9743589743589743,
+          "missingDeliveryRate": 0.20512820512820512
+        },
+        {
+          "name": "Beta_Supplies",
+          "orders": 41,
+          "spend": 2325498.0,
+          "avgUnitPrice": 54.66,
+          "avgNegotiatedPrice": 50.03,
+          "savingsRate": 0.08706900301148143,
+          "avgLeadDays": 10.58,
+          "onTimeRate": 0.5263157894736842,
+          "defectRate": 0.0971713082015648,
+          "complianceRate": 0.7804878048780488,
+          "missingDeliveryRate": 0.07317073170731707
+        },
+        {
+          "name": "Delta_Logistics",
+          "orders": 37,
+          "spend": 2046051.56,
+          "avgUnitPrice": 61.92,
+          "avgNegotiatedPrice": 57.69,
+          "savingsRate": 0.07480601734981687,
+          "avgLeadDays": 10.21,
+          "onTimeRate": 0.5588235294117647,
+          "defectRate": 0.15102967988761695,
+          "complianceRate": 0.5405405405405406,
+          "missingDeliveryRate": 0.08108108108108109
+        },
+        {
+          "name": "Epsilon_Group",
+          "orders": 34,
+          "spend": 2100195.82,
+          "avgUnitPrice": 60.77,
+          "avgNegotiatedPrice": 56.2,
+          "savingsRate": 0.07551479329599602,
+          "avgLeadDays": 11.89,
+          "onTimeRate": 0.37037037037037035,
+          "defectRate": 0.03122223632440665,
+          "complianceRate": 1.0,
+          "missingDeliveryRate": 0.20588235294117646
+        },
+        {
+          "name": "Gamma_Co",
+          "orders": 23,
+          "spend": 1330265.53,
+          "avgUnitPrice": 60.23,
+          "avgNegotiatedPrice": 55.94,
+          "savingsRate": 0.0676985109337416,
+          "avgLeadDays": 8.9,
+          "onTimeRate": 0.65,
+          "defectRate": 0.05025080211487189,
+          "complianceRate": 0.8695652173913043,
+          "missingDeliveryRate": 0.13043478260869565
+        }
+      ]
+    },
+    {
+      "name": "Packaging",
+      "orders": 148,
+      "spend": 8125712.48,
+      "avgUnitPrice": 53.78,
+      "avgNegotiatedPrice": 49.23,
+      "savingsRate": 0.0827169472064943,
+      "avgLeadDays": 10.41,
+      "onTimeRate": 0.48148148148148145,
+      "defectRate": 0.0620454494803545,
+      "complianceRate": 0.7972972972972973,
+      "missingDeliveryRate": 0.08783783783783784,
+      "suppliers": [
+        {
+          "name": "Alpha_Inc",
+          "orders": 27,
+          "spend": 1452920.66,
+          "avgUnitPrice": 48.36,
+          "avgNegotiatedPrice": 43.6,
+          "savingsRate": 0.09858310620481923,
+          "avgLeadDays": 10.61,
+          "onTimeRate": 0.34782608695652173,
+          "defectRate": 0.02055976588879718,
+          "complianceRate": 0.8888888888888888,
+          "missingDeliveryRate": 0.14814814814814814
+        },
+        {
+          "name": "Beta_Supplies",
+          "orders": 30,
+          "spend": 1437890.53,
+          "avgUnitPrice": 50.35,
+          "avgNegotiatedPrice": 46.26,
+          "savingsRate": 0.08124168917284731,
+          "avgLeadDays": 11.81,
+          "onTimeRate": 0.4230769230769231,
+          "defectRate": 0.09862394914049102,
+          "complianceRate": 0.7,
+          "missingDeliveryRate": 0.13333333333333333
+        },
+        {
+          "name": "Delta_Logistics",
+          "orders": 29,
+          "spend": 1564188.57,
+          "avgUnitPrice": 51.53,
+          "avgNegotiatedPrice": 47.19,
+          "savingsRate": 0.08187160731118691,
+          "avgLeadDays": 9.0,
+          "onTimeRate": 0.6071428571428571,
+          "defectRate": 0.14635473340587596,
+          "complianceRate": 0.5862068965517241,
+          "missingDeliveryRate": 0.034482758620689655
+        },
+        {
+          "name": "Epsilon_Group",
+          "orders": 34,
+          "spend": 1889087.74,
+          "avgUnitPrice": 59.33,
+          "avgNegotiatedPrice": 54.53,
+          "savingsRate": 0.07707821693910984,
+          "avgLeadDays": 10.78,
+          "onTimeRate": 0.46875,
+          "defectRate": 0.028576569012564095,
+          "complianceRate": 1.0,
+          "missingDeliveryRate": 0.058823529411764705
+        },
+        {
+          "name": "Gamma_Co",
+          "orders": 28,
+          "spend": 1781624.98,
+          "avgUnitPrice": 58.25,
+          "avgNegotiatedPrice": 53.51,
+          "savingsRate": 0.07739209350506238,
+          "avgLeadDays": 9.88,
+          "onTimeRate": 0.5384615384615384,
+          "defectRate": 0.05032643285981431,
+          "complianceRate": 0.7857142857142857,
+          "missingDeliveryRate": 0.07142857142857142
+        }
+      ]
+    },
+    {
+      "name": "Raw Materials",
+      "orders": 139,
+      "spend": 8471241.42,
+      "avgUnitPrice": 60.25,
+      "avgNegotiatedPrice": 55.55,
+      "savingsRate": 0.0772408595684194,
+      "avgLeadDays": 10.34,
+      "onTimeRate": 0.5042735042735043,
+      "defectRate": 0.07595475170153769,
+      "complianceRate": 0.8129496402877698,
+      "missingDeliveryRate": 0.15827338129496402,
+      "suppliers": [
+        {
+          "name": "Alpha_Inc",
+          "orders": 18,
+          "spend": 977114.82,
+          "avgUnitPrice": 68.7,
+          "avgNegotiatedPrice": 63.93,
+          "savingsRate": 0.07918573472164626,
+          "avgLeadDays": 9.77,
+          "onTimeRate": 0.5384615384615384,
+          "defectRate": 0.021290663845543508,
+          "complianceRate": 0.8888888888888888,
+          "missingDeliveryRate": 0.2777777777777778
+        },
+        {
+          "name": "Beta_Supplies",
+          "orders": 27,
+          "spend": 2285599.32,
+          "avgUnitPrice": 67.13,
+          "avgNegotiatedPrice": 62.07,
+          "savingsRate": 0.07277647220713991,
+          "avgLeadDays": 11.92,
+          "onTimeRate": 0.375,
+          "defectRate": 0.08962018730489074,
+          "complianceRate": 0.7777777777777778,
+          "missingDeliveryRate": 0.1111111111111111
+        },
+        {
+          "name": "Delta_Logistics",
+          "orders": 38,
+          "spend": 1978498.44,
+          "avgUnitPrice": 52.86,
+          "avgNegotiatedPrice": 48.87,
+          "savingsRate": 0.07253438862142943,
+          "avgLeadDays": 11.0,
+          "onTimeRate": 0.45161290322580644,
+          "defectRate": 0.15305713331105913,
+          "complianceRate": 0.6842105263157895,
+          "missingDeliveryRate": 0.18421052631578946
+        },
+        {
+          "name": "Epsilon_Group",
+          "orders": 23,
+          "spend": 1321629.45,
+          "avgUnitPrice": 52.55,
+          "avgNegotiatedPrice": 48.54,
+          "savingsRate": 0.07052692416946557,
+          "avgLeadDays": 9.71,
+          "onTimeRate": 0.6190476190476191,
+          "defectRate": 0.02291517811574972,
+          "complianceRate": 0.9565217391304348,
+          "missingDeliveryRate": 0.08695652173913043
+        },
+        {
+          "name": "Gamma_Co",
+          "orders": 33,
+          "spend": 1908399.39,
+          "avgUnitPrice": 63.87,
+          "avgNegotiatedPrice": 58.24,
+          "savingsRate": 0.09083147218685417,
+          "avgLeadDays": 9.0,
+          "onTimeRate": 0.5714285714285714,
+          "defectRate": 0.04863048440273903,
+          "complianceRate": 0.8484848484848485,
+          "missingDeliveryRate": 0.15151515151515152
+        }
+      ]
+    }
+  ],
+  "monthly": [
+    {
+      "month": "2022-01",
+      "orders": 31,
+      "spend": 1536378.93,
+      "savingsRate": 0.08588825338754025,
+      "onTimeRate": 0.5925925925925926,
+      "defectRate": 0.03961447977536617
+    },
+    {
+      "month": "2022-02",
+      "orders": 27,
+      "spend": 1377514.66,
+      "savingsRate": 0.08715621119771806,
+      "onTimeRate": 0.30434782608695654,
+      "defectRate": 0.0695648423685686
+    },
+    {
+      "month": "2022-03",
+      "orders": 41,
+      "spend": 2592704.31,
+      "savingsRate": 0.0665188045760384,
+      "onTimeRate": 0.4864864864864865,
+      "defectRate": 0.05420678615604763
+    },
+    {
+      "month": "2022-04",
+      "orders": 35,
+      "spend": 1928650.91,
+      "savingsRate": 0.08159879762046558,
+      "onTimeRate": 0.4838709677419355,
+      "defectRate": 0.0704903966734869
+    },
+    {
+      "month": "2022-05",
+      "orders": 25,
+      "spend": 1181945.98,
+      "savingsRate": 0.07103997128297691,
+      "onTimeRate": 0.7142857142857143,
+      "defectRate": 0.06338865622253244
+    },
+    {
+      "month": "2022-06",
+      "orders": 34,
+      "spend": 1556825.02,
+      "savingsRate": 0.0892041513276555,
+      "onTimeRate": 0.41379310344827586,
+      "defectRate": 0.07402751588798101
+    },
+    {
+      "month": "2022-07",
+      "orders": 27,
+      "spend": 1293596.11,
+      "savingsRate": 0.08993057210290846,
+      "onTimeRate": 0.43478260869565216,
+      "defectRate": 0.06355030121846265
+    },
+    {
+      "month": "2022-08",
+      "orders": 43,
+      "spend": 2329232.23,
+      "savingsRate": 0.07023874279751359,
+      "onTimeRate": 0.4,
+      "defectRate": 0.05699827900644731
+    },
+    {
+      "month": "2022-09",
+      "orders": 43,
+      "spend": 2175996.89,
+      "savingsRate": 0.07035483491603724,
+      "onTimeRate": 0.4358974358974359,
+      "defectRate": 0.08571343744433228
+    },
+    {
+      "month": "2022-10",
+      "orders": 31,
+      "spend": 1782151.43,
+      "savingsRate": 0.08806882483331074,
+      "onTimeRate": 0.2857142857142857,
+      "defectRate": 0.06287900370355297
+    },
+    {
+      "month": "2022-11",
+      "orders": 29,
+      "spend": 1535245.54,
+      "savingsRate": 0.08646170998977025,
+      "onTimeRate": 0.56,
+      "defectRate": 0.08273247602765182
+    },
+    {
+      "month": "2022-12",
+      "orders": 30,
+      "spend": 2171086.65,
+      "savingsRate": 0.0775940546303559,
+      "onTimeRate": 0.5,
+      "defectRate": 0.06501346181096783
+    },
+    {
+      "month": "2023-01",
+      "orders": 30,
+      "spend": 2276857.99,
+      "savingsRate": 0.06577190152912189,
+      "onTimeRate": 0.32142857142857145,
+      "defectRate": 0.041590319792566985
+    },
+    {
+      "month": "2023-02",
+      "orders": 28,
+      "spend": 1773987.81,
+      "savingsRate": 0.07553421005775769,
+      "onTimeRate": 0.5769230769230769,
+      "defectRate": 0.07428512225445504
+    },
+    {
+      "month": "2023-03",
+      "orders": 39,
+      "spend": 2744443.66,
+      "savingsRate": 0.09560659401974068,
+      "onTimeRate": 0.40540540540540543,
+      "defectRate": 0.06767572526086459
+    },
+    {
+      "month": "2023-04",
+      "orders": 33,
+      "spend": 1709713.8,
+      "savingsRate": 0.0951265359821243,
+      "onTimeRate": 0.3076923076923077,
+      "defectRate": 0.06915516446084519
+    },
+    {
+      "month": "2023-05",
+      "orders": 20,
+      "spend": 1511826.2,
+      "savingsRate": 0.07976003055596623,
+      "onTimeRate": 0.3684210526315789,
+      "defectRate": 0.09493110236220473
+    },
+    {
+      "month": "2023-06",
+      "orders": 26,
+      "spend": 1396136.4,
+      "savingsRate": 0.0681126107922375,
+      "onTimeRate": 0.48,
+      "defectRate": 0.062008072653884964
+    },
+    {
+      "month": "2023-07",
+      "orders": 44,
+      "spend": 2365673.85,
+      "savingsRate": 0.0805363452430359,
+      "onTimeRate": 0.4878048780487805,
+      "defectRate": 0.09089778971184208
+    },
+    {
+      "month": "2023-08",
+      "orders": 31,
+      "spend": 2010221.33,
+      "savingsRate": 0.07149617021638244,
+      "onTimeRate": 0.42857142857142855,
+      "defectRate": 0.05536500129433083
+    },
+    {
+      "month": "2023-09",
+      "orders": 29,
+      "spend": 2230645.28,
+      "savingsRate": 0.0881490711025059,
+      "onTimeRate": 0.5,
+      "defectRate": 0.06906058308636019
+    },
+    {
+      "month": "2023-10",
+      "orders": 29,
+      "spend": 1869843.2,
+      "savingsRate": 0.07296164677394486,
+      "onTimeRate": 0.5384615384615384,
+      "defectRate": 0.07915641759748376
+    },
+    {
+      "month": "2023-11",
+      "orders": 44,
+      "spend": 2583675.29,
+      "savingsRate": 0.07862928167826085,
+      "onTimeRate": 0.6052631578947368,
+      "defectRate": 0.07056743754709326
+    },
+    {
+      "month": "2023-12",
+      "orders": 26,
+      "spend": 1270011.57,
+      "savingsRate": 0.08485745512893414,
+      "onTimeRate": 0.4583333333333333,
+      "defectRate": 0.07032635686413621
+    },
+    {
+      "month": "2024-01",
+      "orders": 2,
+      "spend": 169331.35,
+      "savingsRate": 0.08889069438910624,
+      "onTimeRate": 1.0,
+      "defectRate": 0.09140625
+    }
+  ]
+}

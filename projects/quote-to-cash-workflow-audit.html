@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080b1a" />
+  <meta name="description" content="A deterministic, fictional Quote-to-Cash audit showing conversion loss, stage delay, and workflow exceptions." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Where Revenue Gets Stuck | Joe Wisto Portfolio</title>
+  <meta property="og:title" content="Where Revenue Gets Stuck | Joe Wisto Portfolio" />
+  <meta property="og:description" content="A Quote-to-Cash workflow audit across CRM, billing, and revenue-recognition records." />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="/assets/img/og/joe-wisto-portfolio.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/projects/quote-to-cash-workflow-audit.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to project content</a>
+  <div class="ambient" aria-hidden="true"><span class="orb orb-one"></span><span class="orb orb-two"></span><span class="orb orb-three"></span><span class="grid-glow"></span></div>
+  <header class="topbar" aria-label="Portfolio navigation"><a class="brand-mark" href="/index.html"><span class="brand-glyph">JW</span><span class="brand-copy"><strong>Joe Wisto</strong><small>Systems • Automation • Analytics • BI</small></span></a><nav class="topnav project-context-nav" aria-label="Project navigation"><a class="nav-return" href="/index.html"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18 9 12l6-6"/><path d="M10 12h10"/></svg>Go back</a><a href="/projects/">All projects</a></nav></header>
+
+  <main id="main" class="resume-shell portfolio-shell qtc-app">
+    <article class="panel qtc-shell">
+      <header class="qtc-hero" id="overview">
+        <div class="qtc-hero-copy">
+          <p class="eyebrow">QUOTE-TO-CASH WORKFLOW AUDIT</p>
+          <h1>Where is revenue getting stuck?</h1>
+          <p class="hero-title">A won deal is not revenue yet.</p>
+          <p class="hero-summary">This deterministic, fictional audit follows opportunities through activation and recognition. Missing links and stalled records stay visible instead of disappearing behind a blanket data cleanup.</p>
+          <div class="fiction-badge"><span aria-hidden="true">◇</span><strong>Generated demonstration data</strong><small>No real company, customer, or revenue records.</small></div>
+          <div class="hero-actions"><a class="button primary" href="#funnel">Follow the lifecycle</a><a class="button" href="#scenario">Test an improvement</a></div>
+        </div>
+        <ol class="qtc-lifecycle" aria-label="Quote-to-Cash lifecycle">
+          <li><span>01</span><div><strong>Opportunity</strong><small>CRM</small></div></li>
+          <li><span>02</span><div><strong>Closed won</strong><small>CRM</small></div></li>
+          <li><span>03</span><div><strong>Activated</strong><small>Billing</small></div></li>
+          <li><span>04</span><div><strong>Recognized</strong><small>Revenue</small></div></li>
+        </ol>
+      </header>
+
+      <nav class="qtc-subnav" aria-label="Quote-to-Cash sections"><a href="#funnel">Funnel</a><a href="#timing">Stage time</a><a href="#exceptions">Exceptions</a><a href="#scenario">Scenario</a><a href="#method">Method</a></nav>
+      <div class="qtc-alert" data-error role="alert" hidden></div>
+
+      <section class="qtc-section" id="funnel" aria-labelledby="funnel-title">
+        <div class="section-heading"><p class="eyebrow">Lifecycle survival</p><h2 id="funnel-title">Every handoff loses something</h2><p>Downstream conversion uses the immediately prior eligible stage. Incomplete records affect the funnel and remain available to the audit.</p></div>
+        <div class="funnel" data-funnel aria-live="polite"><p>Loading funnel…</p></div>
+        <div class="segment-table-wrap">
+          <table class="segment-table"><caption>Lifecycle counts by generated customer segment</caption><thead><tr><th scope="col">Segment</th><th scope="col">Opportunities</th><th scope="col">Won</th><th scope="col">Activated</th><th scope="col">Recognized</th></tr></thead><tbody data-segments></tbody></table>
+        </div>
+      </section>
+
+      <section class="qtc-section" id="timing" aria-labelledby="timing-title">
+        <div class="section-heading"><p class="eyebrow">Stage-specific cohorts</p><h2 id="timing-title">The average is not the whole wait</h2><p>Each interval uses only records with the two dates required for that stage. Missing records are counted as exceptions, not treated as zero days.</p></div>
+        <div class="stage-times" data-stage-times></div>
+        <div class="bottleneck" data-bottleneck aria-live="polite"></div>
+      </section>
+
+      <section class="qtc-section" id="exceptions" aria-labelledby="exceptions-title">
+        <div class="section-heading"><p class="eyebrow">Audit findings</p><h2 id="exceptions-title">The rows most likely to matter are often incomplete</h2><p>Exceptions are detected before metric cohorts are built. Invalid joins and timelines cannot quietly inflate or shrink a timing result.</p></div>
+        <div class="exception-layout">
+          <div class="exception-chart" data-exception-chart role="img" aria-label="Counts of the most common workflow exceptions"></div>
+          <div class="exception-table-wrap"><table class="exception-table"><caption>Detected integrity and workflow exceptions</caption><thead><tr><th scope="col">Exception</th><th scope="col">Count</th></tr></thead><tbody data-exceptions></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="qtc-section scenario-section" id="scenario" aria-labelledby="scenario-title">
+        <div class="section-heading"><p class="eyebrow">Operational scenario</p><h2 id="scenario-title">What if activation moved faster?</h2><p>This simple control changes one median stage while keeping close and recognition constant. It illustrates operational leverage, not a revenue forecast.</p></div>
+        <div class="scenario-workspace">
+          <div class="scenario-control">
+            <label for="activation-reduction">Reduce median activation time by <strong data-reduction-label>3 days</strong></label>
+            <input id="activation-reduction" data-reduction type="range" min="0" max="10" step="1" value="3" />
+            <div class="range-labels"><span>No change</span><span>10 days faster</span></div>
+          </div>
+          <div class="scenario-result" aria-live="polite">
+            <div><span>Current median lifecycle</span><strong data-current-total>Loading…</strong></div>
+            <span class="scenario-arrow" aria-hidden="true">→</span>
+            <div><span>Scenario median lifecycle</span><strong data-scenario-total>Loading…</strong></div>
+            <p data-scenario-copy></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="qtc-section" id="method" aria-labelledby="method-title">
+        <div class="section-heading"><p class="eyebrow">Transparent method</p><h2 id="method-title">Generated on purpose, audited like production data</h2></div>
+        <div class="method-grid">
+          <article><h3>Deterministic source</h3><p>A fixed seed creates separate CRM, billing, and revenue entities with varied plans, segments, amounts, timings, statuses, and injected exceptions.</p></article>
+          <article><h3>Independent cohorts</h3><p>Close, activation, and recognition intervals each use the records eligible for that one calculation. No blanket <code>dropna()</code>.</p></article>
+          <article><h3>Integrity first</h3><p>Duplicate keys, broken foreign keys, ineligible subscriptions, missing stages, impossible dates, stalls, and long delays are measured.</p></article>
+          <article><h3>Production next steps</h3><p>With governed source systems, I would add owner queues, trend monitoring, segment thresholds, lineage, alerts, and forecast reconciliation.</p></article>
+        </div>
+        <details class="method-details"><summary>Read the maintained documentation</summary><p><a href="/docs/qtc/README.md">Workflow and reproduction</a> · <a href="/docs/qtc/data-contract.md">Data contract</a> · <a href="/docs/qtc/methodology.md">Cohorts and audit rules</a></p><p data-generation-notes>Loading generator details…</p></details>
+      </section>
+    </article>
+  </main>
+
+  <a class="back-to-top-arrow" href="#overview" aria-label="Back to project overview">↑</a>
+  <footer class="site-footer"><p>Joe Wisto technical portfolio hub for analytics, automation, systems, BI, reporting workflows, and project case studies.</p><p class="footer-links"><a href="/index.html">Home</a><a href="/projects/">Projects</a><a href="https://www.linkedin.com/in/joey-wisto" target="_blank" rel="noreferrer">LinkedIn</a></p></footer>
+  <script src="/script.js"></script>
+  <script src="/projects/quote-to-cash-workflow-audit.js"></script>
+</body>
+</html>

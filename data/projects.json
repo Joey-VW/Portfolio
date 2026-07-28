@@ -119,7 +119,7 @@
       "Data QA"
     ],
     "href": "/projects/procurement-kpi-analysis.html",
-    "repo": "https://github.com/Joey-VW/DataAnalyticsPortfolio",
+    "repo": "https://github.com/Joey-VW/Portfolio",
     "featured": true,
     "showcase": {
       "title": "Procurement KPI",
@@ -127,6 +127,27 @@
       "visualKey": "procurement-kpi",
       "motion": "static"
     }
+  },
+  {
+    "slug": "quote-to-cash-workflow-audit",
+    "createdAt": "2025-06-30",
+    "status": "in-progress",
+    "visibility": "hidden",
+    "title": "Where Revenue Gets Stuck",
+    "category": "Revenue + Process Analytics",
+    "summary": "A deterministic, fictional Quote-to-Cash audit that measures conversion loss, stage timing, broken handoffs, and recognition backlog.",
+    "value": "Demonstrates cross-system joins, stage-specific cohorts, data-integrity checks, percentile analysis, and operational scenario modeling.",
+    "stack": [
+      "Python",
+      "pandas",
+      "Vanilla JavaScript",
+      "Synthetic data",
+      "Data QA",
+      "Process analytics"
+    ],
+    "href": "/projects/quote-to-cash-workflow-audit.html",
+    "repo": "https://github.com/Joey-VW/Portfolio",
+    "featured": false
   },
   {
     "slug": "cfpb-complaint-intelligence",
@@ -146,7 +167,7 @@
       "NLP concepts"
     ],
     "href": "/projects/cfpb-complaint-intelligence.html",
-    "repo": "https://github.com/Joey-VW/DataAnalyticsPortfolio",
+    "repo": "https://github.com/Joey-VW/Portfolio",
     "featured": true,
     "showcase": {
       "title": "CFPB Signals",
