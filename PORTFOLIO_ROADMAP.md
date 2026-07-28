@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: July 26, 2026
+- Last reviewed: July 28, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -40,6 +40,7 @@ Status labels:
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 | 13. PHX Transit Pulse | IN REVIEW | The synthetic operations console now uses a real interactive Phoenix-area basemap with fictional operational overlays and an automatic schematic fallback. Targeted mapped-build regression and Cloudflare preview QA remain; live ingestion is still blocked by provider terms. | Mapped-build QA and provider terms only for live ingestion or provider replay |
+| 14. Legacy analytics modernization | LATER | Selectively modernize the strongest projects from the retired analytics portfolio into complete, evidence-backed case studies that match the current portfolio's presentation and validation standards. | Current release work through Pass 12 |
 
 The recommended execution order is:
 
@@ -50,7 +51,8 @@ The recommended execution order is:
 5. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
 6. Pass 11 custom-domain and production-route release.
 7. Pass 12 final repository validation and release QA.
-8. Deferred live-ingestion, backend, and operational automation work.
+8. Pass 14 legacy analytics modernization after the current portfolio release is stable.
+9. Deferred live-ingestion, backend, and operational automation work.
 
 ## Decisions already made
 
@@ -1186,6 +1188,152 @@ Current PHX Transit queue:
 - [ ] Update the detailed PHX Transit roadmap and validation evidence to describe what the redesigned and mapped experience actually ships.
 
 Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. The baseline QA record remains at [`docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md`](docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md). Current design guidance and the proposed map implementation are documented in [`docs/phx-transit/design/README.md`](docs/phx-transit/design/README.md) and [`docs/phx-transit/plans/interactive-map-implementation-plan.md`](docs/phx-transit/plans/interactive-map-implementation-plan.md), with later live-data gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
+
+## Pass 14 - Legacy analytics modernization
+
+**Status: LATER.** The legacy `Joey-VW/DataAnalyticsPortfolio` repository contains useful analytics work, but its strongest projects predate the current portfolio's standards for plain-language storytelling, reproducible data preparation, interactive presentation, validation, accessibility, and truthful lifecycle metadata. Do not copy the old repository wholesale. Treat it as source material and selectively rebuild only the projects that materially strengthen the current portfolio.
+
+This pass should begin only after the current release path through Pass 12 is stable. Small registry or documentation corrections discovered during planning may be handled earlier when they are low-risk and independently verifiable.
+
+### Migration decisions
+
+- **Procurement KPI Analysis - migrate and substantially modernize.** This is the highest-priority legacy project because it directly demonstrates SQL, BigQuery, Python, pandas, ETL, KPI design, supplier-performance analysis, and Looker Studio.
+- **Quote-to-Cash Workflow Audit - migrate and rebuild.** Preserve the cross-system lifecycle concept, but replace the notebook-only presentation and strengthen the analytical methodology, synthetic-data design, exception handling, and case-study UX.
+- **DataFrameInspector - selectively extract.** Preserve the focused dataframe-profiling behavior as supporting implementation code when maintained projects actually use it; do not migrate the entire legacy utilities module by default.
+- **ScrapeX - do not migrate.** Leave the X/Twitter scraping utility as unsupported historical work. Do not create a new project card or active case study for it.
+- **CFPB Complaint Intelligence - treat separately.** Do not classify it as a legacy migration unless an actual source implementation is found in the legacy repository. Keep it hidden until independently implemented and point its repository metadata at the implementation that actually owns the code.
+- Preserve the legacy repository and Git history until migrated projects no longer depend on it. Prefer archiving it after migration rather than deleting it.
+
+### 14.0 Migration governance and registry cleanup
+
+- [ ] Add or retain a detailed migration plan under `docs/plans/` that records the source audit, migration decisions, analytical gaps, presentation requirements, and acceptance criteria for each selected project.
+- [ ] Keep Procurement KPI Analysis `status: "in-progress"` and `visibility: "hidden"` until the modernized implementation is complete and verified.
+- [ ] Add Quote-to-Cash Workflow Audit to `data/projects.json` as hidden/in-progress before implementation work begins.
+- [ ] Use the original project creation date for Quote-to-Cash rather than the date it is added to the new registry; use `2025-06-30` unless repository history or surviving source evidence establishes an earlier creation date.
+- [ ] Correct CFPB Complaint Intelligence repository metadata if it still points at `Joey-VW/DataAnalyticsPortfolio` without a corresponding implementation there.
+- [ ] Do not expose unfinished migration work through the homepage, project index, or Showcase launcher.
+
+Acceptance criteria:
+
+- Every reviewed legacy asset has an explicit migrate, extract, retire, or separate-project decision.
+- Registry metadata points to the repository that actually owns each maintained implementation.
+- No unfinished migrated project becomes publishable through accidental lifecycle metadata.
+- Legacy creation dates remain chronological and are not reset to the migration date.
+
+### 14.1 Procurement KPI Analysis modernization
+
+#### Analytical foundation
+
+- [ ] Reacquire or preserve a reproducible copy of the source dataset and document its provenance, date coverage, licensing information supplied by the source, and known limitations.
+- [ ] Define a procurement data contract covering identifiers, dates, quantities, prices, defect counts, compliance values, category values, and permitted nulls.
+- [ ] Add explicit data-quality checks for unique purchase-order IDs, parseable dates, valid quantities and prices, defect counts within valid bounds, known compliance values, missing deliveries, and impossible delivery sequences.
+- [ ] Define every displayed KPI in a metric dictionary, including formula, denominator, missing-data behavior, and business assumption.
+- [ ] Make the assumed on-time-delivery threshold explicit rather than burying it in SQL.
+- [ ] Verify the existing weekly-period derivation semantics before carrying forward any claim about the start day of the week.
+- [ ] Replace unsupported universal "best supplier" claims with quantified tradeoffs or a documented scoring model.
+
+#### Reproducible pipeline
+
+- [ ] Refactor the legacy Kaggle-to-pandas-to-BigQuery pipeline so source paths, project IDs, destination tables, and other environment-specific configuration are not hard-coded into the analytical logic.
+- [ ] Stop destructively moving the downloaded source CSV into the working directory.
+- [ ] Add structured failure handling and logging appropriate to a reproducible portfolio workflow.
+- [ ] Keep BigQuery as a documented implementation component without requiring cloud credentials merely to view the public case study.
+- [ ] Produce a deterministic, committed browser-ready JSON artifact from the validated analytical model.
+- [ ] Add focused tests for transformations, quality rules, and KPI calculations.
+
+#### Analytical model and portfolio experience
+
+- [ ] Generate supplier-level, category-level, and time-based summaries from one documented metric layer.
+- [ ] Add a transparent supplier-priority comparison that can demonstrate how the preferred supplier changes when cost, reliability, quality, or compliance is weighted differently.
+- [ ] Replace the current generic placeholder page with a project-specific experience that explains the business question before implementation details.
+- [ ] Include a clear source/data section, pipeline/data-flow explanation, supplier scorecard, category drill-down, quantified findings, methodology, assumptions, and limitations.
+- [ ] Preserve useful Looker Studio screenshots or a live dashboard link only if the external dashboard is still available and accurately reflects the documented model.
+- [ ] Ensure the public page does not claim staging tables, fact/dimension modeling, validation checks, or other architecture that the maintained implementation does not actually contain.
+
+Publication acceptance criteria:
+
+- The browser-ready artifact can be reproduced from documented source inputs.
+- All public KPI definitions match the maintained code and data.
+- Business findings are quantified and do not imply an unsupported scoring model.
+- Source provenance, assumptions, synthetic or derived elements, and limitations are visible to the reader.
+- Responsive, keyboard, zoom, reduced-motion, console/network, direct-route, and Cloudflare preview checks meet the applicable production smoke gate.
+- Only after verification should Procurement change to `status: "ready"` and `visibility: "public"`.
+
+### 14.2 Quote-to-Cash Workflow Audit modernization
+
+#### Synthetic source and analytical methodology
+
+- [ ] Replace the workbook-centered workflow with deterministic synthetic source generation or reproducible source fixtures while preserving the transparent fictional framing.
+- [ ] Model the opportunity, subscription, and revenue-recognition stages as separate related entities with documented keys and relationships.
+- [ ] Add meaningful variation in deal size, product or plan, lifecycle timing, downstream status, and intentionally injected workflow exceptions so the audit has realistic signals to inspect.
+- [ ] Use a fixed seed or equivalent deterministic mechanism so generated case-study results remain reproducible.
+- [ ] Replace blanket `dropna()` filtering with stage-specific cohorts so incomplete lifecycle records are measured rather than silently removed.
+- [ ] Define conversion rates independently for opportunity-to-won, won-to-subscription, and subscription-to-recognized stages.
+- [ ] Calculate stage timing with documented cohorts and include appropriate summary statistics such as median and upper-percentile delay, not only mean.
+
+#### Integrity and exception analysis
+
+- [ ] Validate unique identifiers and opportunity-to-subscription and subscription-to-revenue relationships.
+- [ ] Detect broken joins, duplicate identifiers, impossible date sequences, subscriptions attached to ineligible opportunities, recognition without valid activation, missing downstream records, suspended or stalled states, and unusually slow stage transitions.
+- [ ] Surface incomplete-stage rates and exception counts as first-class audit findings.
+- [ ] Preserve the legacy notebook's useful next-step themes - outlier detection, revenue over time, status comparisons, and downstream delay simulation - only where they are implemented or clearly labeled as future work.
+
+#### Portfolio experience
+
+- [ ] Build the case study around the plain-English question: where is revenue getting stuck between a sale and recognized revenue?
+- [ ] Include a lifecycle overview, conversion funnel, stage-time comparison, distributions or percentile views, exception summary, bottleneck narrative, methodology, and limitations.
+- [ ] Consider a simple scenario control that shows how reducing one stage's delay affects total Quote-to-Cash elapsed time.
+- [ ] Keep the notebook as supporting evidence if useful, but do not make a raw notebook the primary portfolio experience.
+
+Publication acceptance criteria:
+
+- Synthetic-data rules are documented and deterministic.
+- Cohorts, joins, conversion denominators, and timing calculations are explicit and reproducible.
+- Missing or broken lifecycle records are measured rather than discarded.
+- The public story distinguishes generated data from real operational data.
+- Responsive, keyboard, zoom, reduced-motion, console/network, direct-route, and Cloudflare preview checks meet the applicable production smoke gate.
+- When approved, publish Quote-to-Cash as `status: "ready"` and `visibility: "public"`; default to `featured: false` unless Showcase capacity and portfolio balance justify promotion.
+
+### 14.3 Shared analytics utility cleanup
+
+- [ ] Extract only the focused `DataFrameInspector` behavior needed by maintained analytics workflows into a small shared module.
+- [ ] Remove unrelated BigQuery, monitoring, charting, and other heavy imports from the inspector module unless the inspector itself genuinely requires them.
+- [ ] Add type hints, focused documentation, predictable sample-value limits, and unit tests.
+- [ ] Migrate PivotTable, PivotChart, BigQuery extraction/insertion helpers, or other legacy utility classes only when current maintained code has a demonstrated use for them.
+- [ ] Do not create a public "utilities" project merely to preserve old code.
+
+Acceptance criteria:
+
+- Every migrated helper is used by maintained code or has an independently justified near-term purpose.
+- Small dataframe profiling does not require unrelated cloud or visualization dependencies.
+- Utility behavior has focused automated coverage.
+
+### 14.4 Legacy repository retirement
+
+- [ ] Do not retire `DataAnalyticsPortfolio` until Procurement and Quote-to-Cash have either been migrated or explicitly abandoned.
+- [ ] Replace the legacy root README with a concise archived-portfolio notice that points visitors to the current portfolio.
+- [ ] Record the final disposition of major legacy work: Procurement migrated, Quote-to-Cash migrated, ScrapeX unsupported/not migrated, and utilities selectively absorbed where applicable.
+- [ ] Remove active current-portfolio dependencies on the legacy repository except intentional historical/original-version links.
+- [ ] Preserve Git history and archive the repository rather than deleting it.
+
+Acceptance criteria:
+
+- The current portfolio contains the maintained implementation and documentation for every migrated project.
+- Visitors to the legacy repository are clearly directed to the active portfolio.
+- Unsupported projects are not presented as maintained.
+- No useful migration provenance is lost.
+
+### Pass 14 release strategy
+
+Recommended sequence after the current release is stable:
+
+1. Pass 14.0 migration governance and registry cleanup.
+2. Pass 14.1 Procurement KPI Analysis modernization and publication.
+3. Pass 14.2 Quote-to-Cash Workflow Audit modernization and publication.
+4. Pass 14.3 shared analytics utility cleanup, performed alongside 14.1/14.2 where practical.
+5. Pass 14.4 legacy repository retirement.
+
+Do not hold Procurement publication until Quote-to-Cash is complete. Procurement is the stronger and more mature legacy asset and should ship independently once its own acceptance criteria are satisfied.
 
 ## Deferred ideas and guardrails
 
