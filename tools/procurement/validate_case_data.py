@@ -18,7 +18,14 @@ def main() -> None:
     assert len(payload["monthly"]) >= 2
     for supplier in payload["suppliers"]:
         assert set(supplier["scores"]) == {"balanced", "cost", "reliability", "quality"}
-        assert all(0 <= score <= 100 for score in supplier["scores"].values())
+        if supplier["scoreStatus"] == "available":
+            assert not supplier["missingScoreMetrics"]
+            assert all(0 <= score <= 100 for score in supplier["scores"].values())
+        else:
+            assert supplier["missingScoreMetrics"]
+            assert all(score is None for score in supplier["scores"].values())
+    for category in payload["categories"]:
+        assert len(category["monthly"]) >= 2
     print("Procurement case data valid")
 
 

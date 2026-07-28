@@ -22,6 +22,17 @@ DEFAULT_OUTPUT = ROOT / "data" / "procurement-kpi-analysis.json"
 ON_TIME_DAYS = 10
 KNOWN_COMPLIANCE = {"Yes", "No"}
 KNOWN_STATUSES = {"Delivered", "Partially Delivered", "Pending", "Cancelled"}
+REQUIRED_NON_NULL_FIELDS = (
+    "PO_ID",
+    "Supplier",
+    "Order_Date",
+    "Item_Category",
+    "Order_Status",
+    "Quantity",
+    "Unit_Price",
+    "Negotiated_Price",
+    "Compliance",
+)
 PRESET_WEIGHTS = {
     "balanced": {"cost": 0.25, "reliability": 0.25, "quality": 0.25, "compliance": 0.25},
     "cost": {"cost": 0.55, "reliability": 0.15, "quality": 0.15, "compliance": 0.15},
@@ -61,10 +72,11 @@ def validate_source(frame: pd.DataFrame) -> dict[str, int]:
     failures: list[str] = []
     if missing_columns:
         raise DataQualityError(f"Missing required columns: {', '.join(missing_columns)}")
-    if frame["PO_ID"].isna().any() or frame["PO_ID"].duplicated().any():
-        failures.append("PO_ID must be present and unique")
-    if frame["Order_Date"].isna().any():
-        failures.append("Order_Date must be parseable")
+    for field in REQUIRED_NON_NULL_FIELDS:
+        if frame[field].isna().any():
+            failures.append(f"{field} must not contain null values")
+    if frame["PO_ID"].duplicated().any():
+        failures.append("PO_ID must be unique")
     if (frame["Quantity"] <= 0).any():
         failures.append("Quantity must be greater than zero")
     if (frame[["Unit_Price", "Negotiated_Price"]] <= 0).any().any():
@@ -136,6 +148,8 @@ def summarize(group: pd.DataFrame, label: str) -> dict[str, Any]:
 
 
 def _normalize(values: dict[str, float], higher_is_better: bool = True) -> dict[str, float]:
+    if not values:
+        return {}
     low, high = min(values.values()), max(values.values())
     if high == low:
         return {key: 1.0 for key in values}
@@ -147,12 +161,24 @@ def _normalize(values: dict[str, float], higher_is_better: bool = True) -> dict[
 
 def add_scores(suppliers: list[dict[str, Any]]) -> None:
     """Add transparent preset scores based on normalized supplier KPIs."""
-    cost = _normalize({item["name"]: item["savingsRate"] or 0 for item in suppliers})
-    reliability = _normalize({item["name"]: item["onTimeRate"] or 0 for item in suppliers})
-    quality = _normalize({item["name"]: item["defectRate"] or 0 for item in suppliers}, False)
-    compliance = _normalize({item["name"]: item["complianceRate"] or 0 for item in suppliers})
+    score_metrics = ("savingsRate", "onTimeRate", "defectRate", "complianceRate")
+    eligible = [
+        item
+        for item in suppliers
+        if all(item[metric] is not None for metric in score_metrics)
+    ]
+    cost = _normalize({item["name"]: item["savingsRate"] for item in eligible})
+    reliability = _normalize({item["name"]: item["onTimeRate"] for item in eligible})
+    quality = _normalize({item["name"]: item["defectRate"] for item in eligible}, False)
+    compliance = _normalize({item["name"]: item["complianceRate"] for item in eligible})
     for supplier in suppliers:
         name = supplier["name"]
+        missing_metrics = [metric for metric in score_metrics if supplier[metric] is None]
+        supplier["scoreStatus"] = "insufficient-data" if missing_metrics else "available"
+        supplier["missingScoreMetrics"] = missing_metrics
+        if missing_metrics:
+            supplier["scores"] = {preset: None for preset in PRESET_WEIGHTS}
+            continue
         supplier["scores"] = {
             preset: round(
                 100
@@ -168,6 +194,30 @@ def add_scores(suppliers: list[dict[str, Any]]) -> None:
         }
 
 
+def summarize_monthly(group: pd.DataFrame) -> list[dict[str, Any]]:
+    """Summarize monthly performance from the maintained metric layer."""
+    return [
+        {
+            "month": month.strftime("%Y-%m"),
+            "orders": int(len(month_group)),
+            "spend": round(float(month_group["Negotiated_Value"].sum()), 2),
+            "savingsRate": _rate(
+                month_group["Savings_Value"].sum(),
+                month_group["Gross_Value"].sum(),
+            ),
+            "onTimeRate": _rate(
+                month_group["On_Time"].sum(),
+                month_group["Delivered"].sum(),
+            ),
+            "defectRate": _rate(
+                month_group.loc[month_group["Defect_Eligible"], "Defective_Units"].sum(),
+                month_group.loc[month_group["Defect_Eligible"], "Quantity"].sum(),
+            ),
+        }
+        for month, month_group in group.groupby("Order_Month", sort=True)
+    ]
+
+
 def build_artifact(frame: pd.DataFrame, source_path: Path) -> dict[str, Any]:
     quality = validate_source(frame)
     model = enrich(frame)
@@ -180,23 +230,11 @@ def build_artifact(frame: pd.DataFrame, source_path: Path) -> dict[str, Any]:
                 summarize(supplier_group, supplier_name)
                 for supplier_name, supplier_group in group.groupby("Supplier", sort=True)
             ],
+            "monthly": summarize_monthly(group),
         }
         for name, group in model.groupby("Item_Category", sort=True)
     ]
-    monthly = [
-        {
-            "month": month.strftime("%Y-%m"),
-            "orders": int(len(group)),
-            "spend": round(float(group["Negotiated_Value"].sum()), 2),
-            "savingsRate": _rate(group["Savings_Value"].sum(), group["Gross_Value"].sum()),
-            "onTimeRate": _rate(group["On_Time"].sum(), group["Delivered"].sum()),
-            "defectRate": _rate(
-                group.loc[group["Defect_Eligible"], "Defective_Units"].sum(),
-                group.loc[group["Defect_Eligible"], "Quantity"].sum(),
-            ),
-        }
-        for month, group in model.groupby("Order_Month", sort=True)
-    ]
+    monthly = summarize_monthly(model)
     source_bytes = source_path.read_bytes()
     return {
         "meta": {
@@ -217,6 +255,9 @@ def build_artifact(frame: pd.DataFrame, source_path: Path) -> dict[str, Any]:
                 "weekPeriod": "W-SAT ends Saturday and starts Sunday",
                 "defectRate": "Rows missing Defective_Units are excluded from the defect denominator",
                 "deliveryRate": "Rows missing Delivery_Date are excluded from on-time delivery",
+                "supplierScore": (
+                    "Suppliers missing any required score KPI receive no comparable score"
+                ),
             },
             "presetWeights": PRESET_WEIGHTS,
             "sourceProfile": DataFrameInspector(frame, sample_limit=3).as_records(),

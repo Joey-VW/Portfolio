@@ -9,7 +9,7 @@
 | Defect rate | Sum of defective units divided by sum of quantity | Rows with a reported defect count | Missing defect counts are unknown, not zero |
 | Compliance rate | Rows with `Compliance = Yes` divided by all rows | All valid rows | Source value is treated as a record-level flag |
 | Missing delivery rate | Missing delivery dates divided by all rows | All valid rows | A missing date is an audit signal |
-| Supplier priority score | Weighted sum of min-max-normalized savings, on-time rate, inverse defect rate, and compliance rate | All suppliers in the artifact | A comparison aid, not a universal vendor recommendation |
+| Supplier priority score | Weighted sum of min-max-normalized savings, on-time rate, inverse defect rate, and compliance rate | Suppliers with all four required KPIs available; an incomplete supplier receives `insufficient-data` and no comparable score | A comparison aid, not a universal vendor recommendation |
 
 ## Priority presets
 
@@ -20,4 +20,4 @@
 | Reliability first | 15% | 55% | 15% | 15% |
 | Quality + compliance | 15% | 15% | 40% | 30% |
 
-Scores are recalculated from the suppliers present in the committed artifact. They describe tradeoffs within this dataset only.
+Scores are recalculated from complete suppliers present in the committed artifact. Missing data is never imputed as zero or rewarded through normalization. A supplier missing savings, on-time delivery, defect rate, or compliance is labeled as insufficient data and excluded from comparative ranking. Scores describe tradeoffs within this dataset only.

@@ -16,7 +16,8 @@
       "onTimeDeliveryDays": 10,
       "weekPeriod": "W-SAT ends Saturday and starts Sunday",
       "defectRate": "Rows missing Defective_Units are excluded from the defect denominator",
-      "deliveryRate": "Rows missing Delivery_Date are excluded from on-time delivery"
+      "deliveryRate": "Rows missing Delivery_Date are excluded from on-time delivery",
+      "supplierScore": "Suppliers missing any required score KPI receive no comparable score"
     },
     "presetWeights": {
       "balanced": {
@@ -240,6 +241,8 @@
       "defectRate": 0.02248297433945402,
       "complianceRate": 0.9361702127659575,
       "missingDeliveryRate": 0.1702127659574468,
+      "scoreStatus": "available",
+      "missingScoreMetrics": [],
       "scores": {
         "balanced": 61.7,
         "cost": 60.6,
@@ -259,6 +262,8 @@
       "defectRate": 0.0935461410019807,
       "complianceRate": 0.7564102564102564,
       "missingDeliveryRate": 0.08333333333333333,
+      "scoreStatus": "available",
+      "missingScoreMetrics": [],
       "scores": {
         "balanced": 49.5,
         "cost": 69.7,
@@ -278,6 +283,8 @@
       "defectRate": 0.14429859939869472,
       "complianceRate": 0.6081871345029239,
       "missingDeliveryRate": 0.11695906432748537,
+      "scoreStatus": "available",
+      "missingScoreMetrics": [],
       "scores": {
         "balanced": 10.4,
         "cost": 7.7,
@@ -297,6 +304,8 @@
       "defectRate": 0.029660131133001807,
       "complianceRate": 0.9819277108433735,
       "missingDeliveryRate": 0.10240963855421686,
+      "scoreStatus": "available",
+      "missingScoreMetrics": [],
       "scores": {
         "balanced": 62.1,
         "cost": 46.3,
@@ -316,6 +325,8 @@
       "defectRate": 0.04957885462555066,
       "complianceRate": 0.8601398601398601,
       "missingDeliveryRate": 0.09090909090909091,
+      "scoreStatus": "available",
+      "missingScoreMetrics": [],
       "scores": {
         "balanced": 61.3,
         "cost": 36.8,
@@ -403,6 +414,208 @@
           "complianceRate": 0.9655172413793104,
           "missingDeliveryRate": 0.10344827586206896
         }
+      ],
+      "monthly": [
+        {
+          "month": "2022-01",
+          "orders": 7,
+          "spend": 457394.75,
+          "savingsRate": 0.08935091178343074,
+          "onTimeRate": 0.5,
+          "defectRate": 0.021145457993552056
+        },
+        {
+          "month": "2022-02",
+          "orders": 5,
+          "spend": 197480.88,
+          "savingsRate": 0.08437327303614173,
+          "onTimeRate": 0.6,
+          "defectRate": 0.0395882818685669
+        },
+        {
+          "month": "2022-03",
+          "orders": 8,
+          "spend": 246808.2,
+          "savingsRate": 0.05496921304563237,
+          "onTimeRate": 0.5,
+          "defectRate": 0.05337541163556531
+        },
+        {
+          "month": "2022-04",
+          "orders": 13,
+          "spend": 712000.69,
+          "savingsRate": 0.10282055806069706,
+          "onTimeRate": 0.4166666666666667,
+          "defectRate": 0.07494703389830508
+        },
+        {
+          "month": "2022-05",
+          "orders": 5,
+          "spend": 238498.39,
+          "savingsRate": 0.07570299365738069,
+          "onTimeRate": 1.0,
+          "defectRate": 0.04434803567124608
+        },
+        {
+          "month": "2022-06",
+          "orders": 4,
+          "spend": 81851.84,
+          "savingsRate": 0.06797566930311082,
+          "onTimeRate": 0.5,
+          "defectRate": 0.16534653465346535
+        },
+        {
+          "month": "2022-07",
+          "orders": 2,
+          "spend": 94306.95,
+          "savingsRate": 0.06379782382291174,
+          "onTimeRate": 0.0,
+          "defectRate": 0.10641200545702592
+        },
+        {
+          "month": "2022-08",
+          "orders": 4,
+          "spend": 154062.54,
+          "savingsRate": 0.03871987001780138,
+          "onTimeRate": 0.0,
+          "defectRate": 0.03891156462585034
+        },
+        {
+          "month": "2022-09",
+          "orders": 6,
+          "spend": 466387.59,
+          "savingsRate": 0.06340109878987554,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.07605767707177943
+        },
+        {
+          "month": "2022-10",
+          "orders": 7,
+          "spend": 480313.77,
+          "savingsRate": 0.08008189047462157,
+          "onTimeRate": 0.2857142857142857,
+          "defectRate": 0.0717931269139163
+        },
+        {
+          "month": "2022-11",
+          "orders": 5,
+          "spend": 259377.08,
+          "savingsRate": 0.08155675227333009,
+          "onTimeRate": 0.4,
+          "defectRate": 0.1139844338438363
+        },
+        {
+          "month": "2022-12",
+          "orders": 6,
+          "spend": 502930.71,
+          "savingsRate": 0.07596843168824298,
+          "onTimeRate": 0.2,
+          "defectRate": 0.07051564565888056
+        },
+        {
+          "month": "2023-01",
+          "orders": 9,
+          "spend": 511252.8,
+          "savingsRate": 0.07558003576983909,
+          "onTimeRate": 0.375,
+          "defectRate": 0.04174410293066476
+        },
+        {
+          "month": "2023-02",
+          "orders": 6,
+          "spend": 281660.9,
+          "savingsRate": 0.08357221407380129,
+          "onTimeRate": 1.0,
+          "defectRate": 0.08015117946044571
+        },
+        {
+          "month": "2023-03",
+          "orders": 13,
+          "spend": 1322471.69,
+          "savingsRate": 0.0950415942499115,
+          "onTimeRate": 0.3076923076923077,
+          "defectRate": 0.05673841155653536
+        },
+        {
+          "month": "2023-04",
+          "orders": 7,
+          "spend": 270448.1,
+          "savingsRate": 0.07221812883075054,
+          "onTimeRate": 0.0,
+          "defectRate": 0.09381304640215199
+        },
+        {
+          "month": "2023-05",
+          "orders": 2,
+          "spend": 148969.19,
+          "savingsRate": 0.1342022316281125,
+          "onTimeRate": 0.0,
+          "defectRate": 0.03346613545816733
+        },
+        {
+          "month": "2023-06",
+          "orders": 2,
+          "spend": 135183.76,
+          "savingsRate": 0.015247145840478224,
+          "onTimeRate": 0.5,
+          "defectRate": 0.03600944510035419
+        },
+        {
+          "month": "2023-07",
+          "orders": 10,
+          "spend": 607881.33,
+          "savingsRate": 0.10281696819893969,
+          "onTimeRate": 0.4,
+          "defectRate": 0.1097647897362794
+        },
+        {
+          "month": "2023-08",
+          "orders": 6,
+          "spend": 208711.76,
+          "savingsRate": 0.0665417593699033,
+          "onTimeRate": 0.5,
+          "defectRate": 0.05624110109159943
+        },
+        {
+          "month": "2023-09",
+          "orders": 3,
+          "spend": 186197.75,
+          "savingsRate": 0.014629176187755374,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.0315176430284344
+        },
+        {
+          "month": "2023-10",
+          "orders": 9,
+          "spend": 635584.7,
+          "savingsRate": 0.06029441643248124,
+          "onTimeRate": 0.5,
+          "defectRate": 0.0547875927174646
+        },
+        {
+          "month": "2023-11",
+          "orders": 10,
+          "spend": 336419.67,
+          "savingsRate": 0.060776885295010255,
+          "onTimeRate": 0.5,
+          "defectRate": 0.04938563327032136
+        },
+        {
+          "month": "2023-12",
+          "orders": 2,
+          "spend": 31459.68,
+          "savingsRate": 0.04041755986623061,
+          "onTimeRate": 0.5,
+          "defectRate": 0.025881057268722467
+        },
+        {
+          "month": "2024-01",
+          "orders": 1,
+          "spend": 74895.88,
+          "savingsRate": 0.052543226456270055,
+          "onTimeRate": 1.0,
+          "defectRate": 0.12735493594574226
+        }
       ]
     },
     {
@@ -482,6 +695,200 @@
           "defectRate": 0.05026286902767346,
           "complianceRate": 0.8333333333333334,
           "missingDeliveryRate": 0.0
+        }
+      ],
+      "monthly": [
+        {
+          "month": "2022-01",
+          "orders": 5,
+          "spend": 219508.07,
+          "savingsRate": 0.05593298927549198,
+          "onTimeRate": 0.4,
+          "defectRate": 0.050365556458164096
+        },
+        {
+          "month": "2022-02",
+          "orders": 7,
+          "spend": 465030.34,
+          "savingsRate": 0.09147842236944437,
+          "onTimeRate": 0.2,
+          "defectRate": 0.06492393400471395
+        },
+        {
+          "month": "2022-03",
+          "orders": 9,
+          "spend": 547199.35,
+          "savingsRate": 0.08106144313963522,
+          "onTimeRate": 0.5,
+          "defectRate": 0.05704836709384043
+        },
+        {
+          "month": "2022-04",
+          "orders": 10,
+          "spend": 496629.83,
+          "savingsRate": 0.06086004546329234,
+          "onTimeRate": 0.625,
+          "defectRate": 0.03904050911761106
+        },
+        {
+          "month": "2022-05",
+          "orders": 5,
+          "spend": 160028.02,
+          "savingsRate": 0.08992476872355228,
+          "onTimeRate": 0.4,
+          "defectRate": 0.058301272565847884
+        },
+        {
+          "month": "2022-06",
+          "orders": 9,
+          "spend": 438000.85,
+          "savingsRate": 0.08531264089003335,
+          "onTimeRate": 0.25,
+          "defectRate": 0.07129361380526515
+        },
+        {
+          "month": "2022-07",
+          "orders": 11,
+          "spend": 648873.04,
+          "savingsRate": 0.06860064918748791,
+          "onTimeRate": 0.5,
+          "defectRate": 0.06448911222780569
+        },
+        {
+          "month": "2022-08",
+          "orders": 11,
+          "spend": 888440.91,
+          "savingsRate": 0.08502160563693015,
+          "onTimeRate": 0.2222222222222222,
+          "defectRate": 0.046613832853025935
+        },
+        {
+          "month": "2022-09",
+          "orders": 5,
+          "spend": 308751.24,
+          "savingsRate": 0.09478014064377452,
+          "onTimeRate": 0.4,
+          "defectRate": 0.0788002033553635
+        },
+        {
+          "month": "2022-10",
+          "orders": 5,
+          "spend": 318602.2,
+          "savingsRate": 0.1220063026064024,
+          "onTimeRate": 0.0,
+          "defectRate": 0.04888375673595073
+        },
+        {
+          "month": "2022-11",
+          "orders": 4,
+          "spend": 276085.79,
+          "savingsRate": 0.11453068673106774,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.0903199675982179
+        },
+        {
+          "month": "2022-12",
+          "orders": 4,
+          "spend": 223149.64,
+          "savingsRate": 0.08215580499240596,
+          "onTimeRate": 0.5,
+          "defectRate": 0.052926405254008116
+        },
+        {
+          "month": "2023-01",
+          "orders": 7,
+          "spend": 783254.81,
+          "savingsRate": 0.057959813636309074,
+          "onTimeRate": 0.42857142857142855,
+          "defectRate": 0.04562155541947336
+        },
+        {
+          "month": "2023-02",
+          "orders": 3,
+          "spend": 281064.14,
+          "savingsRate": 0.1048858860965756,
+          "onTimeRate": 0.0,
+          "defectRate": 0.08797653958944282
+        },
+        {
+          "month": "2023-03",
+          "orders": 8,
+          "spend": 387342.12,
+          "savingsRate": 0.0893248813000704,
+          "onTimeRate": 0.375,
+          "defectRate": 0.045835327908089994
+        },
+        {
+          "month": "2023-04",
+          "orders": 8,
+          "spend": 439612.55,
+          "savingsRate": 0.10327231801935073,
+          "onTimeRate": 0.0,
+          "defectRate": 0.09096934548467274
+        },
+        {
+          "month": "2023-05",
+          "orders": 5,
+          "spend": 483475.83,
+          "savingsRate": 0.04890189004347025,
+          "onTimeRate": 0.4,
+          "defectRate": 0.07474318101310662
+        },
+        {
+          "month": "2023-06",
+          "orders": 6,
+          "spend": 214291.35,
+          "savingsRate": 0.10225798979699953,
+          "onTimeRate": 0.5,
+          "defectRate": 0.04233983286908078
+        },
+        {
+          "month": "2023-07",
+          "orders": 5,
+          "spend": 407694.73,
+          "savingsRate": 0.04847187088252208,
+          "onTimeRate": 0.6,
+          "defectRate": 0.05987910842463166
+        },
+        {
+          "month": "2023-08",
+          "orders": 7,
+          "spend": 311312.83,
+          "savingsRate": 0.09808812993253466,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.054719788394775995
+        },
+        {
+          "month": "2023-09",
+          "orders": 5,
+          "spend": 379009.31,
+          "savingsRate": 0.11003728828682866,
+          "onTimeRate": 0.6,
+          "defectRate": 0.08559498956158663
+        },
+        {
+          "month": "2023-10",
+          "orders": 7,
+          "spend": 399743.9,
+          "savingsRate": 0.07846131236258112,
+          "onTimeRate": 0.2857142857142857,
+          "defectRate": 0.06811356811356811
+        },
+        {
+          "month": "2023-11",
+          "orders": 9,
+          "spend": 634282.09,
+          "savingsRate": 0.0656044210430235,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.08321948998178506
+        },
+        {
+          "month": "2023-12",
+          "orders": 9,
+          "spend": 415225.92,
+          "savingsRate": 0.09515348960864346,
+          "onTimeRate": 0.4444444444444444,
+          "defectRate": 0.05411637054116371
         }
       ]
     },
@@ -563,6 +970,208 @@
           "complianceRate": 0.8695652173913043,
           "missingDeliveryRate": 0.13043478260869565
         }
+      ],
+      "monthly": [
+        {
+          "month": "2022-01",
+          "orders": 5,
+          "spend": 355703.42,
+          "savingsRate": 0.0854881424277976,
+          "onTimeRate": 0.75,
+          "defectRate": 0.025658113962012664
+        },
+        {
+          "month": "2022-02",
+          "orders": 5,
+          "spend": 293158.44,
+          "savingsRate": 0.09633890467591619,
+          "onTimeRate": 0.5,
+          "defectRate": 0.0937112488928255
+        },
+        {
+          "month": "2022-03",
+          "orders": 4,
+          "spend": 329246.95,
+          "savingsRate": 0.06291892430349759,
+          "onTimeRate": 0.25,
+          "defectRate": 0.1310199789695058
+        },
+        {
+          "month": "2022-04",
+          "orders": 5,
+          "spend": 296229.22,
+          "savingsRate": 0.0950327483652548,
+          "onTimeRate": 0.4,
+          "defectRate": 0.1111111111111111
+        },
+        {
+          "month": "2022-05",
+          "orders": 6,
+          "spend": 349365.7,
+          "savingsRate": 0.06716300745413667,
+          "onTimeRate": 0.8,
+          "defectRate": 0.07116581777023204
+        },
+        {
+          "month": "2022-06",
+          "orders": 11,
+          "spend": 447321.62,
+          "savingsRate": 0.09197271015588465,
+          "onTimeRate": 0.625,
+          "defectRate": 0.08312226571494359
+        },
+        {
+          "month": "2022-07",
+          "orders": 9,
+          "spend": 351197.23,
+          "savingsRate": 0.12717798087286916,
+          "onTimeRate": 0.5714285714285714,
+          "defectRate": 0.06277827248441674
+        },
+        {
+          "month": "2022-08",
+          "orders": 12,
+          "spend": 623217.09,
+          "savingsRate": 0.06187472511440316,
+          "onTimeRate": 0.5555555555555556,
+          "defectRate": 0.07591623036649214
+        },
+        {
+          "month": "2022-09",
+          "orders": 18,
+          "spend": 737917.0,
+          "savingsRate": 0.06843867708058966,
+          "onTimeRate": 0.5625,
+          "defectRate": 0.09543311954253922
+        },
+        {
+          "month": "2022-10",
+          "orders": 6,
+          "spend": 369252.67,
+          "savingsRate": 0.09244005699017399,
+          "onTimeRate": 0.16666666666666666,
+          "defectRate": 0.06895772100384355
+        },
+        {
+          "month": "2022-11",
+          "orders": 9,
+          "spend": 586330.21,
+          "savingsRate": 0.05749871439514312,
+          "onTimeRate": 0.75,
+          "defectRate": 0.07118689944512113
+        },
+        {
+          "month": "2022-12",
+          "orders": 9,
+          "spend": 507018.31,
+          "savingsRate": 0.050973711667063215,
+          "onTimeRate": 0.75,
+          "defectRate": 0.053282374100719426
+        },
+        {
+          "month": "2023-01",
+          "orders": 5,
+          "spend": 378423.12,
+          "savingsRate": 0.07927894720130915,
+          "onTimeRate": 0.2,
+          "defectRate": 0.02231718898385565
+        },
+        {
+          "month": "2023-02",
+          "orders": 6,
+          "spend": 457567.97,
+          "savingsRate": 0.052020121618420984,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.08028001191540066
+        },
+        {
+          "month": "2023-03",
+          "orders": 3,
+          "spend": 226561.44,
+          "savingsRate": 0.12050905804696488,
+          "onTimeRate": 1.0,
+          "defectRate": 0.08879748366803775
+        },
+        {
+          "month": "2023-04",
+          "orders": 10,
+          "spend": 391550.92,
+          "savingsRate": 0.08359171009014996,
+          "onTimeRate": 0.5,
+          "defectRate": 0.061606416366383816
+        },
+        {
+          "month": "2023-05",
+          "orders": 3,
+          "spend": 166182.94,
+          "savingsRate": 0.11147844953647251,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.13214285714285715
+        },
+        {
+          "month": "2023-06",
+          "orders": 8,
+          "spend": 316761.28,
+          "savingsRate": 0.06931200057916558,
+          "onTimeRate": 0.42857142857142855,
+          "defectRate": 0.0697030312355747
+        },
+        {
+          "month": "2023-07",
+          "orders": 7,
+          "spend": 352075.36,
+          "savingsRate": 0.08175692094286617,
+          "onTimeRate": 0.42857142857142855,
+          "defectRate": 0.10241286863270778
+        },
+        {
+          "month": "2023-08",
+          "orders": 6,
+          "spend": 312947.63,
+          "savingsRate": 0.06999586004608069,
+          "onTimeRate": 0.2,
+          "defectRate": 0.08226915520628683
+        },
+        {
+          "month": "2023-09",
+          "orders": 8,
+          "spend": 802494.22,
+          "savingsRate": 0.08994407725612798,
+          "onTimeRate": 0.25,
+          "defectRate": 0.08843886183029992
+        },
+        {
+          "month": "2023-10",
+          "orders": 4,
+          "spend": 301305.7,
+          "savingsRate": 0.028114568577316004,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.038331929233361414
+        },
+        {
+          "month": "2023-11",
+          "orders": 9,
+          "spend": 532177.24,
+          "savingsRate": 0.08100174610228426,
+          "onTimeRate": 0.75,
+          "defectRate": 0.06338818249813014
+        },
+        {
+          "month": "2023-12",
+          "orders": 5,
+          "spend": 429141.88,
+          "savingsRate": 0.08078301932602706,
+          "onTimeRate": 0.5,
+          "defectRate": 0.0884568225608688
+        },
+        {
+          "month": "2024-01",
+          "orders": 1,
+          "spend": 94435.47,
+          "savingsRate": 0.11579311937196957,
+          "onTimeRate": null,
+          "defectRate": 0.05271695052716951
+        }
       ]
     },
     {
@@ -643,6 +1252,200 @@
           "complianceRate": 0.7857142857142857,
           "missingDeliveryRate": 0.07142857142857142
         }
+      ],
+      "monthly": [
+        {
+          "month": "2022-01",
+          "orders": 9,
+          "spend": 232816.41,
+          "savingsRate": 0.07406382639061396,
+          "onTimeRate": 0.625,
+          "defectRate": 0.05112960760998811
+        },
+        {
+          "month": "2022-02",
+          "orders": 3,
+          "spend": 42294.74,
+          "savingsRate": 0.07414827465884798,
+          "onTimeRate": 0.0,
+          "defectRate": 0.06481481481481481
+        },
+        {
+          "month": "2022-03",
+          "orders": 9,
+          "spend": 545795.98,
+          "savingsRate": 0.05482135403224009,
+          "onTimeRate": 0.625,
+          "defectRate": 0.03688166404474742
+        },
+        {
+          "month": "2022-04",
+          "orders": 5,
+          "spend": 338134.01,
+          "savingsRate": 0.04249094613475827,
+          "onTimeRate": 0.5,
+          "defectRate": 0.06051098162259077
+        },
+        {
+          "month": "2022-05",
+          "orders": 4,
+          "spend": 216566.87,
+          "savingsRate": 0.07677756139313323,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.047897817988291645
+        },
+        {
+          "month": "2022-06",
+          "orders": 6,
+          "spend": 291406.77,
+          "savingsRate": 0.12134607257452525,
+          "onTimeRate": 0.16666666666666666,
+          "defectRate": 0.023990463418268514
+        },
+        {
+          "month": "2022-07",
+          "orders": 4,
+          "spend": 176726.09,
+          "savingsRate": 0.0964234130958973,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.0659942363112392
+        },
+        {
+          "month": "2022-08",
+          "orders": 7,
+          "spend": 331714.6,
+          "savingsRate": 0.0647468119969799,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.041529501139528996
+        },
+        {
+          "month": "2022-09",
+          "orders": 11,
+          "spend": 472865.22,
+          "savingsRate": 0.07847711830117689,
+          "onTimeRate": 0.4444444444444444,
+          "defectRate": 0.07151866801210897
+        },
+        {
+          "month": "2022-10",
+          "orders": 7,
+          "spend": 366411.47,
+          "savingsRate": 0.08295094744544887,
+          "onTimeRate": 0.42857142857142855,
+          "defectRate": 0.06614785992217899
+        },
+        {
+          "month": "2022-11",
+          "orders": 4,
+          "spend": 166034.42,
+          "savingsRate": 0.10752291443660833,
+          "onTimeRate": 1.0,
+          "defectRate": 0.08947959565705728
+        },
+        {
+          "month": "2022-12",
+          "orders": 5,
+          "spend": 499712.78,
+          "savingsRate": 0.10627432141048153,
+          "onTimeRate": 0.0,
+          "defectRate": 0.07519980624848632
+        },
+        {
+          "month": "2023-01",
+          "orders": 5,
+          "spend": 387526.96,
+          "savingsRate": 0.06386716312638206,
+          "onTimeRate": 0.2,
+          "defectRate": 0.03781898292638149
+        },
+        {
+          "month": "2023-02",
+          "orders": 6,
+          "spend": 352726.45,
+          "savingsRate": 0.04803908733145152,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.04723779023218575
+        },
+        {
+          "month": "2023-03",
+          "orders": 6,
+          "spend": 289793.58,
+          "savingsRate": 0.10556739225235684,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.06431695394906098
+        },
+        {
+          "month": "2023-04",
+          "orders": 5,
+          "spend": 360948.95,
+          "savingsRate": 0.10646530857250192,
+          "onTimeRate": 0.4,
+          "defectRate": 0.03618570778334092
+        },
+        {
+          "month": "2023-05",
+          "orders": 4,
+          "spend": 151648.79,
+          "savingsRate": 0.09157473018086586,
+          "onTimeRate": 0.5,
+          "defectRate": 0.08231292517006802
+        },
+        {
+          "month": "2023-06",
+          "orders": 7,
+          "spend": 522451.5,
+          "savingsRate": 0.057810317067333424,
+          "onTimeRate": 0.42857142857142855,
+          "defectRate": 0.06977633339705601
+        },
+        {
+          "month": "2023-07",
+          "orders": 10,
+          "spend": 464514.38,
+          "savingsRate": 0.06709056063048831,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.06159759011114574
+        },
+        {
+          "month": "2023-08",
+          "orders": 7,
+          "spend": 466335.44,
+          "savingsRate": 0.11261353397285383,
+          "onTimeRate": 0.5714285714285714,
+          "defectRate": 0.041699973354649617
+        },
+        {
+          "month": "2023-09",
+          "orders": 6,
+          "spend": 437447.59,
+          "savingsRate": 0.09754034498595444,
+          "onTimeRate": 0.4,
+          "defectRate": 0.05871975806451613
+        },
+        {
+          "month": "2023-10",
+          "orders": 3,
+          "spend": 136531.57,
+          "savingsRate": 0.10521227354407288,
+          "onTimeRate": 1.0,
+          "defectRate": 0.1430167597765363
+        },
+        {
+          "month": "2023-11",
+          "orders": 9,
+          "spend": 645892.7,
+          "savingsRate": 0.08511015170217963,
+          "onTimeRate": 0.625,
+          "defectRate": 0.08969545264914476
+        },
+        {
+          "month": "2023-12",
+          "orders": 6,
+          "spend": 229415.21,
+          "savingsRate": 0.10305163515279016,
+          "onTimeRate": 0.5,
+          "defectRate": 0.07067669172932331
+        }
       ]
     },
     {
@@ -722,6 +1525,200 @@
           "defectRate": 0.04863048440273903,
           "complianceRate": 0.8484848484848485,
           "missingDeliveryRate": 0.15151515151515152
+        }
+      ],
+      "monthly": [
+        {
+          "month": "2022-01",
+          "orders": 5,
+          "spend": 270956.28,
+          "savingsRate": 0.1132304940184946,
+          "onTimeRate": 0.75,
+          "defectRate": 0.06987166429007945
+        },
+        {
+          "month": "2022-02",
+          "orders": 7,
+          "spend": 379550.26,
+          "savingsRate": 0.07744117090293984,
+          "onTimeRate": 0.16666666666666666,
+          "defectRate": 0.07673706271159117
+        },
+        {
+          "month": "2022-03",
+          "orders": 11,
+          "spend": 923653.83,
+          "savingsRate": 0.06891413086223805,
+          "onTimeRate": 0.4444444444444444,
+          "defectRate": 0.03335508665071423
+        },
+        {
+          "month": "2022-04",
+          "orders": 2,
+          "spend": 85657.16,
+          "savingsRate": 0.11803240777207462,
+          "onTimeRate": 0.5,
+          "defectRate": 0.08560311284046693
+        },
+        {
+          "month": "2022-05",
+          "orders": 5,
+          "spend": 217487.0,
+          "savingsRate": 0.05177868176889117,
+          "onTimeRate": 0.75,
+          "defectRate": 0.1641337386018237
+        },
+        {
+          "month": "2022-06",
+          "orders": 4,
+          "spend": 298243.94,
+          "savingsRate": 0.06314440757781263,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.10268129189518586
+        },
+        {
+          "month": "2022-07",
+          "orders": 1,
+          "spend": 22492.8,
+          "savingsRate": 0.13730255164034036,
+          "onTimeRate": 0.0,
+          "defectRate": 0.03598484848484849
+        },
+        {
+          "month": "2022-08",
+          "orders": 9,
+          "spend": 331797.09,
+          "savingsRate": 0.06517189591310583,
+          "onTimeRate": 0.7142857142857143,
+          "defectRate": 0.08770069675855802
+        },
+        {
+          "month": "2022-09",
+          "orders": 3,
+          "spend": 190075.84,
+          "savingsRate": 0.03206931284990731,
+          "onTimeRate": 0.0,
+          "defectRate": 0.11487538940809969
+        },
+        {
+          "month": "2022-10",
+          "orders": 6,
+          "spend": 247571.32,
+          "savingsRate": 0.05809441916785325,
+          "onTimeRate": 0.4,
+          "defectRate": 0.05693950177935943
+        },
+        {
+          "month": "2022-11",
+          "orders": 7,
+          "spend": 247418.04,
+          "savingsRate": 0.11066368766715626,
+          "onTimeRate": 0.2,
+          "defectRate": 0.06128663875142749
+        },
+        {
+          "month": "2022-12",
+          "orders": 6,
+          "spend": 438275.21,
+          "savingsRate": 0.07328381982764222,
+          "onTimeRate": 1.0,
+          "defectRate": 0.07239303725394501
+        },
+        {
+          "month": "2023-01",
+          "orders": 4,
+          "spend": 216400.3,
+          "savingsRate": 0.04955601063195737,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.06631621512333198
+        },
+        {
+          "month": "2023-02",
+          "orders": 7,
+          "spend": 400968.35,
+          "savingsRate": 0.09770089542590057,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.06730317733604634
+        },
+        {
+          "month": "2023-03",
+          "orders": 9,
+          "spend": 518274.83,
+          "savingsRate": 0.08475526618862779,
+          "onTimeRate": 0.5555555555555556,
+          "defectRate": 0.09737790232185749
+        },
+        {
+          "month": "2023-04",
+          "orders": 3,
+          "spend": 247153.28,
+          "savingsRate": 0.10609442374887709,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.047767717764595694
+        },
+        {
+          "month": "2023-05",
+          "orders": 6,
+          "spend": 561549.45,
+          "savingsRate": 0.07715399502242787,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.12790697674418605
+        },
+        {
+          "month": "2023-06",
+          "orders": 3,
+          "spend": 207448.51,
+          "savingsRate": 0.08751564199442853,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.07056307911617961
+        },
+        {
+          "month": "2023-07",
+          "orders": 12,
+          "spend": 533508.05,
+          "savingsRate": 0.08885228185433235,
+          "onTimeRate": 0.4,
+          "defectRate": 0.11078510724403076
+        },
+        {
+          "month": "2023-08",
+          "orders": 5,
+          "spend": 710913.67,
+          "savingsRate": 0.031762351081504915,
+          "onTimeRate": 0.5,
+          "defectRate": 0.05461767626613704
+        },
+        {
+          "month": "2023-09",
+          "orders": 7,
+          "spend": 425496.41,
+          "savingsRate": 0.08478469136227344,
+          "onTimeRate": 0.7142857142857143,
+          "defectRate": 0.059897879025923015
+        },
+        {
+          "month": "2023-10",
+          "orders": 6,
+          "spend": 396677.33,
+          "savingsRate": 0.1070965927519336,
+          "onTimeRate": 0.6666666666666666,
+          "defectRate": 0.08695652173913043
+        },
+        {
+          "month": "2023-11",
+          "orders": 7,
+          "spend": 434903.59,
+          "savingsRate": 0.09789261239679883,
+          "onTimeRate": 0.4,
+          "defectRate": 0.04516325907842539
+        },
+        {
+          "month": "2023-12",
+          "orders": 4,
+          "spend": 164768.88,
+          "savingsRate": 0.05015856355005264,
+          "onTimeRate": 0.3333333333333333,
+          "defectRate": 0.11096829477292203
         }
       ]
     }

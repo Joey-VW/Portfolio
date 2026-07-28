@@ -21,6 +21,15 @@ def main() -> None:
     ]
     assert all(row["count"] >= 0 for row in payload["funnel"])
     assert all(payload["stageTimes"][key]["count"] > 0 for key in ("close", "activation", "recognition"))
+    assert payload["endToEnd"]["count"] == payload["funnel"][-1]["count"]
+    scenario = payload["activationTargetScenario"]
+    assert scenario["cohortCount"] == payload["stageTimes"]["activation"]["count"]
+    assert [row["targetDays"] for row in scenario["targets"]] == list(range(5, 31))
+    assert all(
+        row["recordsAboveTarget"] <= scenario["cohortCount"]
+        and row["excessActivationDays"] >= 0
+        for row in scenario["targets"]
+    )
     assert payload["exceptions"]
     print("Quote-to-Cash case data valid")
 

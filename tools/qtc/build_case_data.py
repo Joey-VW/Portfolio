@@ -18,6 +18,7 @@ except ImportError:
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = ROOT / "data" / "quote-to-cash-workflow-audit.json"
 SLOW_THRESHOLDS = {"close": 45, "activation": 30, "recognition": 35}
+ACTIVATION_TARGET_RANGE = range(5, 31)
 
 
 def parse(value: str) -> date | None:
@@ -43,6 +44,38 @@ def describe(values: list[int]) -> dict[str, float | int | None]:
         "p75": round(percentile(values, 0.75), 1),
         "p90": round(percentile(values, 0.90), 1),
     }
+
+
+def build_activation_target_scenarios(durations: list[int]) -> dict[str, Any]:
+    """Precompute threshold sensitivity from valid activation durations."""
+    current = describe(durations)
+    targets = []
+    for target_days in ACTIVATION_TARGET_RANGE:
+        over_target = [days for days in durations if days > target_days]
+        modeled = [min(days, target_days) for days in durations]
+        targets.append(
+            {
+                "targetDays": target_days,
+                "recordsAboveTarget": len(over_target),
+                "shareAboveTarget": _rate(len(over_target), len(durations)),
+                "excessActivationDays": sum(days - target_days for days in over_target),
+                "modeledP90": describe(modeled)["p90"],
+            }
+        )
+    return {
+        "cohort": (
+            "Valid close-to-activation intervals for eligible closed-won opportunities "
+            "with a unique linked subscription"
+        ),
+        "cohortCount": len(durations),
+        "currentMedian": current["median"],
+        "currentP90": current["p90"],
+        "targets": targets,
+    }
+
+
+def _rate(numerator: int, denominator: int) -> float | None:
+    return None if denominator == 0 else numerator / denominator
 
 
 def unique_rows(rows: Iterable[dict[str, Any]], key: str) -> tuple[dict[str, dict[str, Any]], int]:
@@ -72,6 +105,7 @@ def analyze(entities: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
     close_durations: list[int] = []
     activation_durations: list[int] = []
     recognition_durations: list[int] = []
+    lifecycle_durations: list[int] = []
     valid_subscriptions: list[dict[str, Any]] = []
     valid_recognized: list[dict[str, Any]] = []
 
@@ -120,6 +154,11 @@ def analyze(entities: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
         recognition_durations.append(recognition_days)
         if recognition_days > SLOW_THRESHOLDS["recognition"]:
             exceptions["Slow recognition"] += 1
+        created = parse(opportunity["created_date"])
+        if created and closed and created <= closed <= activated <= recognized:
+            lifecycle_durations.append((recognized - created).days)
+        else:
+            exceptions["Impossible end-to-end sequence"] += 1
         valid_recognized.append(revenue)
 
     valid_subscription_ids = {item["subscription_id"] for item in valid_subscriptions}
@@ -145,6 +184,7 @@ def analyze(entities: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
         "activation": describe(activation_durations),
         "recognition": describe(recognition_durations),
     }
+    lifecycle = describe(lifecycle_durations)
     bottleneck = max(stages, key=lambda key: stages[key]["median"] or 0)
     segment_rows = []
     for segment in ("SMB", "Mid-market", "Enterprise"):
@@ -202,8 +242,14 @@ def analyze(entities: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
         "bottleneck": {
             "stage": bottleneck,
             "medianDays": stages[bottleneck]["median"],
-            "totalMedianDays": round(sum(stage["median"] or 0 for stage in stages.values()), 1),
         },
+        "endToEnd": {
+            **lifecycle,
+            "cohort": (
+                "Records with valid opportunity creation, close, activation, and recognition dates"
+            ),
+        },
+        "activationTargetScenario": build_activation_target_scenarios(activation_durations),
         "exceptions": exception_rows,
         "segments": segment_rows,
         "entityCounts": {

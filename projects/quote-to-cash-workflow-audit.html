@@ -66,17 +66,20 @@
       </section>
 
       <section class="qtc-section scenario-section" id="scenario" aria-labelledby="scenario-title">
-        <div class="section-heading"><p class="eyebrow">Operational scenario</p><h2 id="scenario-title">What if activation moved faster?</h2><p>This simple control changes one median stage while keeping close and recognition constant. It illustrates operational leverage, not a revenue forecast.</p></div>
+        <div class="section-heading"><p class="eyebrow">Operational scenario</p><h2 id="scenario-title">What if activation moved faster?</h2><p>Set a target for the valid activation cohort. The outputs are precomputed from observed close-to-activation durations in this fictional dataset; they describe threshold sensitivity, not a revenue forecast or causal prediction.</p></div>
         <div class="scenario-workspace">
           <div class="scenario-control">
-            <label for="activation-reduction">Reduce median activation time by <strong data-reduction-label>3 days</strong></label>
-            <input id="activation-reduction" data-reduction type="range" min="0" max="10" step="1" value="3" />
-            <div class="range-labels"><span>No change</span><span>10 days faster</span></div>
+            <label for="activation-target">Activation target: <strong data-target-label>15 days</strong></label>
+            <input id="activation-target" data-activation-target type="range" min="5" max="30" step="1" value="15" />
+            <div class="range-labels"><span>5 days</span><span>30 days</span></div>
+            <p class="scenario-baseline" data-current-activation>Loading current activation distribution…</p>
+            <p class="scenario-cohort">Cohort: all valid close-to-activation intervals for eligible closed-won opportunities with a unique linked subscription.</p>
           </div>
           <div class="scenario-result" aria-live="polite">
-            <div><span>Current median lifecycle</span><strong data-current-total>Loading…</strong></div>
-            <span class="scenario-arrow" aria-hidden="true">→</span>
-            <div><span>Scenario median lifecycle</span><strong data-scenario-total>Loading…</strong></div>
+            <div><span>Records above target</span><strong data-records-above>Loading…</strong></div>
+            <div><span>Share affected</span><strong data-share-affected>Loading…</strong></div>
+            <div><span>Excess activation days</span><strong data-excess-days>Loading…</strong></div>
+            <div><span>Activation p90</span><strong data-activation-p90>Loading…</strong></div>
             <p data-scenario-copy></p>
           </div>
         </div>

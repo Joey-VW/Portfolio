@@ -30,9 +30,10 @@
         <div class="percentile-labels"><span>p75 ${item.p75}d</span><span>p90 ${item.p90}d</span></div>
       </article>`).join("");
     const bottleneck = data.bottleneck;
+    const lifecycle = data.endToEnd;
     document.querySelector("[data-bottleneck]").innerHTML =
       `<strong>${stageLabels[bottleneck.stage]}</strong> is the largest median interval at <strong>${bottleneck.medianDays} days</strong>. ` +
-      `The three stage medians total ${bottleneck.totalMedianDays} days for records that reach each eligible cohort.`;
+      `Among ${number.format(lifecycle.count)} records with valid dates from opportunity creation through recognition, the directly observed end-to-end median is <strong>${lifecycle.median} days</strong> and p90 is <strong>${lifecycle.p90} days</strong>.`;
   }
 
   function renderExceptions(data) {
@@ -46,18 +47,23 @@
   }
 
   function renderScenario() {
-    const input = document.querySelector("[data-reduction]");
-    const reduction = Number(input.value);
-    const current = state.data.bottleneck.totalMedianDays;
-    const activation = state.data.stageTimes.activation.median;
-    const applied = Math.min(reduction, activation);
-    const scenario = current - applied;
-    document.querySelector("[data-reduction-label]").textContent = `${reduction} ${reduction === 1 ? "day" : "days"}`;
-    document.querySelector("[data-current-total]").textContent = `${current} days`;
-    document.querySelector("[data-scenario-total]").textContent = `${scenario} days`;
-    document.querySelector("[data-scenario-copy]").textContent = reduction === 0
-      ? "No operational change is applied."
-      : `Reducing the median activation interval by ${applied} days lowers the modeled median lifecycle by ${((applied / current) * 100).toFixed(1)}%. Close and recognition remain unchanged.`;
+    const input = document.querySelector("[data-activation-target]");
+    const targetDays = Number(input.value);
+    const scenario = state.data.activationTargetScenario;
+    const result = scenario.targets.find(item => item.targetDays === targetDays);
+    if (!result) return;
+    document.querySelector("[data-target-label]").textContent = `${targetDays} days`;
+    document.querySelector("[data-current-activation]").textContent =
+      `Current activation median ${scenario.currentMedian} days · p90 ${scenario.currentP90} days.`;
+    document.querySelector("[data-records-above]").textContent =
+      `${number.format(result.recordsAboveTarget)} / ${number.format(scenario.cohortCount)}`;
+    document.querySelector("[data-share-affected]").textContent = percent(result.shareAboveTarget);
+    document.querySelector("[data-excess-days]").textContent = number.format(result.excessActivationDays);
+    document.querySelector("[data-activation-p90]").textContent =
+      `${scenario.currentP90}d → ${result.modeledP90}d`;
+    document.querySelector("[data-scenario-copy]").textContent =
+      `At a ${targetDays}-day target, ${percent(result.shareAboveTarget)} of valid activations exceed the threshold. ` +
+      `Capping only those observed intervals at the target would remove ${number.format(result.excessActivationDays)} excess activation days in this generated dataset.`;
   }
 
   async function init() {
@@ -69,7 +75,7 @@
       renderStageTimes(state.data);
       renderExceptions(state.data);
       renderScenario();
-      document.querySelector("[data-reduction]").addEventListener("input", renderScenario);
+      document.querySelector("[data-activation-target]").addEventListener("input", renderScenario);
       document.querySelector("[data-generation-notes]").textContent =
         `Generated with fixed seed ${state.data.meta.seed} across ${number.format(state.data.meta.rules.records)} opportunities. ` +
         `Slow-stage thresholds are ${state.data.meta.rules.slowThresholdDays.close}, ${state.data.meta.rules.slowThresholdDays.activation}, and ${state.data.meta.rules.slowThresholdDays.recognition} days for close, activation, and recognition.`;

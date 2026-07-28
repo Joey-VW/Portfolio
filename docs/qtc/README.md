@@ -33,6 +33,6 @@ The CSVs are optional generated fixtures and are not required by the browser.
 - Each conversion and timing metric has its own eligible cohort.
 - Median, average, p75, and p90 replace a mean-only timing story.
 - Broken joins, duplicate identifiers, impossible sequences, stalled states, and unusually slow transitions are detected.
-- A browser scenario shows how reducing activation delay changes the median total lifecycle.
+- A browser scenario uses the empirical activation-duration distribution to show how many records exceed a selected target, their excess days, and the modeled p90 under a simple cap.
 
 All organizations, records, amounts, statuses, dates, and outcomes are fictional. The generator is designed to demonstrate analytical method, not benchmark a real company's performance.
