@@ -41,6 +41,7 @@ Status labels:
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 | 13. PHX Transit Pulse | IN REVIEW | The synthetic operations console now uses a real interactive Phoenix-area basemap with fictional operational overlays and an automatic schematic fallback. Targeted mapped-build regression and Cloudflare preview QA remain; live ingestion is still blocked by provider terms. | Mapped-build QA and provider terms only for live ingestion or provider replay |
 | 14. Legacy analytics modernization | LATER | Selectively modernize the strongest projects from the retired analytics portfolio into complete, evidence-backed case studies that match the current portfolio's presentation and validation standards. | Current release work through Pass 12 |
+| 15. Plain-English copy pass | LATER | Apply the repository-wide copy audit so visitors understand each project before encountering technical terminology, while preserving useful technical depth and search-relevant keywords. | Passes 09-14 as applicable; complete before final public release QA |
 
 The recommended execution order is:
 
@@ -52,7 +53,8 @@ The recommended execution order is:
 6. Pass 11 custom-domain and production-route release.
 7. Pass 12 final repository validation and release QA.
 8. Pass 14 legacy analytics modernization after the current portfolio release is stable.
-9. Deferred live-ingestion, backend, and operational automation work.
+9. Pass 15 plain-English copy pass after the affected project surfaces are stable and before their final publication approval.
+10. Deferred live-ingestion, backend, and operational automation work.
 
 ## Decisions already made
 
@@ -1335,6 +1337,90 @@ Recommended sequence after the current release is stable:
 
 Do not hold Procurement publication until Quote-to-Cash is complete. Procurement is the stronger and more mature legacy asset and should ship independently once its own acceptance criteria are satisfied.
 
+## Pass 15 - Plain-English copy pass
+
+**Status: LATER.** Use [`docs/plans/plain-english-copy-audit.md`](docs/plans/plain-english-copy-audit.md) as the detailed source audit. The portfolio is already strongest where it explains the visitor's question or outcome first, then introduces technical terminology as supporting evidence. This pass should make that pattern consistent across navigation, project cards, controls, helper text, generated states, accessibility labels, and case-study prose.
+
+Do not remove useful technical keywords from skill inventories, methodology sections, source notes, or implementation evidence. The goal is layered communication: plain meaning first, technical term second when it improves precision or credibility.
+
+### 15.0 Copy inventory and implementation guardrails
+
+- [ ] Reconfirm the audit against the current branch before editing because project copy may have changed since the original review.
+- [ ] Treat visible HTML copy, JavaScript-generated strings, JSON-driven project descriptions, controls, helper text, status messages, empty/error states, accessibility labels, and data-source explanations as in scope.
+- [ ] Exclude source-only names, CSS classes, internal identifiers, test fixtures not shown to visitors, and intentionally technical debug/development labs.
+- [ ] Preserve domain terms that function as evidence, established labels, units, or themed names; add a plain-English explanation rather than flattening meaningful terminology.
+- [ ] Prefer targeted edits over redesigns. Do not change analytical meaning, data provenance, lifecycle status, interaction behavior, or implementation claims while simplifying copy.
+
+Acceptance criteria:
+
+- Every changed phrase can be traced to a visible visitor-facing surface.
+- Technical accuracy and project-specific meaning are preserved.
+- No hidden or in-progress project becomes public as a side effect of copy work.
+- Copy changes do not require new runtime dependencies or a build-system change.
+
+### 15.1 P0 public-facing copy
+
+- [ ] Update global portfolio language where navigation, card taxonomy, résumé framing, and repeated labels describe implementation before value.
+- [ ] Review `data/projects.json` so project summaries and categories describe what each project helps a visitor understand or do before describing the stack or architecture.
+- [ ] Complete the Gravity Fleet pass across desktop and mobile controls, setup/help text, live states, pause/reset messages, post-match results, benchmark comparisons, and accessibility labels.
+- [ ] Complete the Colony Ops pass across instructions, controls, generated insights, results language, sample comparisons, and reduced-motion messaging.
+- [ ] Complete the Shrinkflation Tracker pass across metric labels, data-status language, source/history explanations, formulas, and modeled-versus-collected data disclosures.
+
+Priority guidance from the audit:
+
+- Replace implementation-first labels such as `Telemetry`, `KPIs`, `benchmark`, `normalization`, and `trend-ready` where a clearer first-read label exists.
+- Keep the technical term in secondary copy, methodology, tool inventories, or units when it adds useful specificity.
+- Explain mixed collected and modeled data in direct visitor language before presenting pipeline terminology.
+
+Acceptance criteria:
+
+- A nontechnical visitor can understand the purpose of each public control, metric, status, and result without reading implementation documentation.
+- Gravity Fleet and Colony Ops retain their game-specific tone while removing unnecessary analytics jargon from the first layer.
+- Shrinkflation clearly distinguishes collected observations, sample or modeled history, parsing/review states, and formulas.
+- Project-card copy remains accurate, concise, and consistent wherever the registry is rendered.
+
+### 15.2 P1 case-study and supporting copy
+
+- [ ] Apply the small EV Cost Check terminology and grammar corrections documented in the audit without disturbing its existing story structure.
+- [ ] Rewrite the Multi-Platform Publishing System explanation around the publisher workflow first, then retain CSV, Apps Script, Cloudflare, normalization, fallback, and routing details as technical evidence.
+- [ ] Review the Postcard Atlas About page and related labels so architecture is explained in visitor language before implementation terminology.
+- [ ] Standardize repeated headings and labels such as `Impact`, `Featured`, `stack`, `architecture`, provenance/source language, and benchmark/sample comparisons where the audit identifies clearer alternatives.
+
+Acceptance criteria:
+
+- The publishing-system case study first explains what the publisher can do and how the website responds, before describing its architecture.
+- EV Cost Check remains concise and technically accurate, including units and source classifications.
+- Shared labels use the same wording across homepage, project hub, project pages, and generated UI where they represent the same concept.
+
+### 15.3 P2 hidden and pre-publication projects
+
+- [ ] Apply the audit to PHX Transit Pulse before publication, using plain-language labels first and GTFS-Realtime, feed-age, operational, and reliability terminology as supporting detail.
+- [ ] Review Procurement KPI Analysis and Quote-to-Cash Workflow Audit after their modernization copy stabilizes and before either project changes to public/ready.
+- [ ] Review CFPB Complaint Intelligence, Video Cutter, and any other hidden project only when an actual implementation approaches publication; do not spend release time polishing placeholder copy that may be replaced.
+- [ ] Add project-specific copy acceptance checks to publication QA for future projects so jargon does not accumulate again.
+
+Acceptance criteria:
+
+- Every project moving from hidden/in-progress to public/ready receives a plain-English copy review as part of its release gate.
+- PHX Transit Pulse explains freshness, delay, alerts, filters, replay, and fictional/synthetic data states without requiring transit-data expertise.
+- Analytics case studies lead with the business question, finding, and implication before pipeline or modeling terminology.
+
+### 15.4 Verification and completion
+
+- [ ] Search maintained source files for the audit's highest-risk terms and inspect each visitor-facing occurrence in context rather than applying blind replacements.
+- [ ] Verify generated and state-dependent copy by exercising controls, empty/error states, pause/reset flows, filters, scenario controls, and local-history or comparison views.
+- [ ] Run the applicable repository validators and JavaScript/Python syntax checks for every edited data or script file.
+- [ ] Perform responsive, 200 percent zoom, keyboard, screen-reader-label, reduced-motion, and print checks where copy length can affect layout or comprehension.
+- [ ] Confirm that simplified copy does not overstate real-time status, data completeness, benchmark validity, causal conclusions, or production readiness.
+- [ ] Update the detailed audit when recommendations are intentionally rejected or superseded so the document remains a useful record rather than a stale checklist.
+
+Pass completion criteria:
+
+- P0 public-facing surfaces are complete and verified.
+- Applicable P1 and P2 work is completed before each affected project receives final publication approval.
+- Technical terms remain available where they add evidence, but the first reading layer consistently explains meaning, action, or outcome.
+- No material regressions appear in layout, accessibility, project lifecycle filtering, data claims, or interactions.
+
 ## Deferred ideas and guardrails
 
 - Do not add a framework solely to organize this roadmap. Reconsider templating only when duplicated page structure becomes a material maintenance problem.
@@ -1352,5 +1438,6 @@ The portfolio reaches the current north star when:
 - every public project is intentionally marked ready and appears in correct date order;
 - Pass 09 mobile layout corrections, Pass 10 Gravity Fleet modernization and device verification, and Pass 11 production-route work are complete;
 - PHX Transit Pulse's current synthetic presentation and interactive-map phase are validated while provider-blocked live ingestion remains honestly deferred;
+- public-facing and publication-bound copy follows the plain-English-first, technical-detail-second standard documented in Pass 15;
 - Pass 12 final validation confirms coherent mobile, desktop, reduced-motion, keyboard, zoom, print, route, asset, privacy, and Cloudflare behavior; and
 - deferred backend and operational work is either explicitly completed with evidence or remains honestly labeled as deferred.
