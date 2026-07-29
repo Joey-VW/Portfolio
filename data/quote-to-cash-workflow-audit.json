@@ -1,0 +1,355 @@
+{
+  "meta": {
+    "title": "Where Revenue Gets Stuck",
+    "subtitle": "Quote-to-Cash Workflow Audit",
+    "generatedBy": "tools/qtc/build_case_data.py",
+    "fictional": true,
+    "seed": 20250630,
+    "rules": {
+      "records": 600,
+      "slowThresholdDays": {
+        "close": 45,
+        "activation": 30,
+        "recognition": 35
+      },
+      "systems": [
+        "CRM opportunities",
+        "Billing subscriptions",
+        "Revenue recognition"
+      ]
+    }
+  },
+  "funnel": [
+    {
+      "stage": "Opportunities",
+      "count": 600,
+      "rate": 1.0
+    },
+    {
+      "stage": "Closed won",
+      "count": 399,
+      "rate": 0.665
+    },
+    {
+      "stage": "Activated",
+      "count": 356,
+      "rate": 0.8922305764411027
+    },
+    {
+      "stage": "Recognized",
+      "count": 301,
+      "rate": 0.8455056179775281
+    }
+  ],
+  "stageTimes": {
+    "close": {
+      "count": 399,
+      "average": 22.2,
+      "median": 21,
+      "p75": 30.5,
+      "p90": 35.0
+    },
+    "activation": {
+      "count": 356,
+      "average": 12.4,
+      "median": 12.0,
+      "p75": 18.0,
+      "p90": 21.0
+    },
+    "recognition": {
+      "count": 301,
+      "average": 17.1,
+      "median": 17,
+      "p75": 24.0,
+      "p90": 27.0
+    }
+  },
+  "bottleneck": {
+    "stage": "close",
+    "medianDays": 21
+  },
+  "endToEnd": {
+    "count": 301,
+    "average": 51.7,
+    "median": 49,
+    "p75": 61.0,
+    "p90": 75.0,
+    "cohort": "Records with valid opportunity creation, close, activation, and recognition dates"
+  },
+  "activationTargetScenario": {
+    "cohort": "Valid close-to-activation intervals for eligible closed-won opportunities with a unique linked subscription",
+    "cohortCount": 356,
+    "currentMedian": 12.0,
+    "currentP90": 21.0,
+    "targets": [
+      {
+        "targetDays": 5,
+        "recordsAboveTarget": 275,
+        "shareAboveTarget": 0.7724719101123596,
+        "excessActivationDays": 2811,
+        "modeledP90": 5.0
+      },
+      {
+        "targetDays": 6,
+        "recordsAboveTarget": 262,
+        "shareAboveTarget": 0.7359550561797753,
+        "excessActivationDays": 2536,
+        "modeledP90": 6.0
+      },
+      {
+        "targetDays": 7,
+        "recordsAboveTarget": 249,
+        "shareAboveTarget": 0.699438202247191,
+        "excessActivationDays": 2274,
+        "modeledP90": 7.0
+      },
+      {
+        "targetDays": 8,
+        "recordsAboveTarget": 233,
+        "shareAboveTarget": 0.6544943820224719,
+        "excessActivationDays": 2025,
+        "modeledP90": 8.0
+      },
+      {
+        "targetDays": 9,
+        "recordsAboveTarget": 218,
+        "shareAboveTarget": 0.6123595505617978,
+        "excessActivationDays": 1792,
+        "modeledP90": 9.0
+      },
+      {
+        "targetDays": 10,
+        "recordsAboveTarget": 203,
+        "shareAboveTarget": 0.5702247191011236,
+        "excessActivationDays": 1574,
+        "modeledP90": 10.0
+      },
+      {
+        "targetDays": 11,
+        "recordsAboveTarget": 182,
+        "shareAboveTarget": 0.5112359550561798,
+        "excessActivationDays": 1371,
+        "modeledP90": 11.0
+      },
+      {
+        "targetDays": 12,
+        "recordsAboveTarget": 163,
+        "shareAboveTarget": 0.45786516853932585,
+        "excessActivationDays": 1189,
+        "modeledP90": 12.0
+      },
+      {
+        "targetDays": 13,
+        "recordsAboveTarget": 150,
+        "shareAboveTarget": 0.42134831460674155,
+        "excessActivationDays": 1026,
+        "modeledP90": 13.0
+      },
+      {
+        "targetDays": 14,
+        "recordsAboveTarget": 130,
+        "shareAboveTarget": 0.3651685393258427,
+        "excessActivationDays": 876,
+        "modeledP90": 14.0
+      },
+      {
+        "targetDays": 15,
+        "recordsAboveTarget": 118,
+        "shareAboveTarget": 0.33146067415730335,
+        "excessActivationDays": 746,
+        "modeledP90": 15.0
+      },
+      {
+        "targetDays": 16,
+        "recordsAboveTarget": 106,
+        "shareAboveTarget": 0.29775280898876405,
+        "excessActivationDays": 628,
+        "modeledP90": 16.0
+      },
+      {
+        "targetDays": 17,
+        "recordsAboveTarget": 90,
+        "shareAboveTarget": 0.25280898876404495,
+        "excessActivationDays": 522,
+        "modeledP90": 17.0
+      },
+      {
+        "targetDays": 18,
+        "recordsAboveTarget": 69,
+        "shareAboveTarget": 0.19382022471910113,
+        "excessActivationDays": 432,
+        "modeledP90": 18.0
+      },
+      {
+        "targetDays": 19,
+        "recordsAboveTarget": 54,
+        "shareAboveTarget": 0.15168539325842698,
+        "excessActivationDays": 363,
+        "modeledP90": 19.0
+      },
+      {
+        "targetDays": 20,
+        "recordsAboveTarget": 39,
+        "shareAboveTarget": 0.10955056179775281,
+        "excessActivationDays": 309,
+        "modeledP90": 20.0
+      },
+      {
+        "targetDays": 21,
+        "recordsAboveTarget": 21,
+        "shareAboveTarget": 0.05898876404494382,
+        "excessActivationDays": 270,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 22,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 249,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 23,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 241,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 24,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 233,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 25,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 225,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 26,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 217,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 27,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 209,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 28,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 201,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 29,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 193,
+        "modeledP90": 21.0
+      },
+      {
+        "targetDays": 30,
+        "recordsAboveTarget": 8,
+        "shareAboveTarget": 0.02247191011235955,
+        "excessActivationDays": 185,
+        "modeledP90": 21.0
+      }
+    ]
+  },
+  "exceptions": [
+    {
+      "type": "Recognition backlog",
+      "count": 54
+    },
+    {
+      "type": "Won opportunity without activation",
+      "count": 43
+    },
+    {
+      "type": "Suspended subscription",
+      "count": 39
+    },
+    {
+      "type": "Slow recognition",
+      "count": 10
+    },
+    {
+      "type": "Slow activation",
+      "count": 8
+    },
+    {
+      "type": "Slow close",
+      "count": 7
+    },
+    {
+      "type": "Missing activation",
+      "count": 5
+    },
+    {
+      "type": "Subscription on ineligible opportunity",
+      "count": 4
+    },
+    {
+      "type": "Impossible activation sequence",
+      "count": 3
+    },
+    {
+      "type": "Broken opportunity link",
+      "count": 1
+    },
+    {
+      "type": "Broken subscription link",
+      "count": 1
+    },
+    {
+      "type": "Duplicate revenue ID",
+      "count": 1
+    },
+    {
+      "type": "Duplicate subscription ID",
+      "count": 1
+    },
+    {
+      "type": "Impossible recognition sequence",
+      "count": 1
+    }
+  ],
+  "segments": [
+    {
+      "segment": "SMB",
+      "opportunities": 282,
+      "won": 178,
+      "activated": 159,
+      "recognized": 138
+    },
+    {
+      "segment": "Mid-market",
+      "opportunities": 211,
+      "won": 136,
+      "activated": 121,
+      "recognized": 105
+    },
+    {
+      "segment": "Enterprise",
+      "opportunities": 107,
+      "won": 85,
+      "activated": 76,
+      "recognized": 58
+    }
+  ],
+  "entityCounts": {
+    "opportunities": 600,
+    "subscriptions": 370,
+    "revenue": 307
+  }
+}

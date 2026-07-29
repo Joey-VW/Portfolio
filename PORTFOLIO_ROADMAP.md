@@ -1191,7 +1191,7 @@ Public live ingestion and provider-derived replay remain blocked until provider 
 
 ## Pass 14 - Legacy analytics modernization
 
-**Status: LATER.** The legacy `Joey-VW/DataAnalyticsPortfolio` repository contains useful analytics work, but its strongest projects predate the current portfolio's standards for plain-language storytelling, reproducible data preparation, interactive presentation, validation, accessibility, and truthful lifecycle metadata. Do not copy the old repository wholesale. Treat it as source material and selectively rebuild only the projects that materially strengthen the current portfolio.
+**Status: IN PROGRESS.** Passes 14.0–14.3 are implemented; publication QA and legacy-repository retirement remain gated. The legacy `Joey-VW/DataAnalyticsPortfolio` repository contains useful analytics work, but its strongest projects predate the current portfolio's standards for plain-language storytelling, reproducible data preparation, interactive presentation, validation, accessibility, and truthful lifecycle metadata. Do not copy the old repository wholesale. Treat it as source material and selectively rebuild only the projects that materially strengthen the current portfolio.
 
 This pass should begin only after the current release path through Pass 12 is stable. Small registry or documentation corrections discovered during planning may be handled earlier when they are low-risk and independently verifiable.
 
@@ -1206,12 +1206,12 @@ This pass should begin only after the current release path through Pass 12 is st
 
 ### 14.0 Migration governance and registry cleanup
 
-- [ ] Add or retain a detailed migration plan under `docs/plans/` that records the source audit, migration decisions, analytical gaps, presentation requirements, and acceptance criteria for each selected project.
-- [ ] Keep Procurement KPI Analysis `status: "in-progress"` and `visibility: "hidden"` until the modernized implementation is complete and verified.
-- [ ] Add Quote-to-Cash Workflow Audit to `data/projects.json` as hidden/in-progress before implementation work begins.
-- [ ] Use the original project creation date for Quote-to-Cash rather than the date it is added to the new registry; use `2025-06-30` unless repository history or surviving source evidence establishes an earlier creation date.
-- [ ] Correct CFPB Complaint Intelligence repository metadata if it still points at `Joey-VW/DataAnalyticsPortfolio` without a corresponding implementation there.
-- [ ] Do not expose unfinished migration work through the homepage, project index, or Showcase launcher.
+- [x] Add or retain a detailed migration plan under `docs/plans/` that records the source audit, migration decisions, analytical gaps, presentation requirements, and acceptance criteria for each selected project.
+- [x] Keep Procurement KPI Analysis `status: "in-progress"` and `visibility: "hidden"` until the modernized implementation is complete and verified.
+- [x] Add Quote-to-Cash Workflow Audit to `data/projects.json` as hidden/in-progress before implementation work begins.
+- [x] Use the original project creation date for Quote-to-Cash rather than the date it is added to the new registry; use `2025-06-30` unless repository history or surviving source evidence establishes an earlier creation date.
+- [x] Correct CFPB Complaint Intelligence repository metadata if it still points at `Joey-VW/DataAnalyticsPortfolio` without a corresponding implementation there.
+- [x] Do not expose unfinished migration work through the homepage, project index, or Showcase launcher.
 
 Acceptance criteria:
 
@@ -1224,31 +1224,31 @@ Acceptance criteria:
 
 #### Analytical foundation
 
-- [ ] Reacquire or preserve a reproducible copy of the source dataset and document its provenance, date coverage, licensing information supplied by the source, and known limitations.
-- [ ] Define a procurement data contract covering identifiers, dates, quantities, prices, defect counts, compliance values, category values, and permitted nulls.
-- [ ] Add explicit data-quality checks for unique purchase-order IDs, parseable dates, valid quantities and prices, defect counts within valid bounds, known compliance values, missing deliveries, and impossible delivery sequences.
-- [ ] Define every displayed KPI in a metric dictionary, including formula, denominator, missing-data behavior, and business assumption.
-- [ ] Make the assumed on-time-delivery threshold explicit rather than burying it in SQL.
-- [ ] Verify the existing weekly-period derivation semantics before carrying forward any claim about the start day of the week.
-- [ ] Replace unsupported universal "best supplier" claims with quantified tradeoffs or a documented scoring model.
+- [x] Reacquire or preserve a reproducible copy of the source dataset and document its provenance, date coverage, licensing information supplied by the source, and known limitations.
+- [x] Define a procurement data contract covering identifiers, dates, quantities, prices, defect counts, compliance values, category values, and permitted nulls.
+- [x] Add explicit data-quality checks for unique purchase-order IDs, parseable dates, valid quantities and prices, defect counts within valid bounds, known compliance values, missing deliveries, and impossible delivery sequences.
+- [x] Define every displayed KPI in a metric dictionary, including formula, denominator, missing-data behavior, and business assumption.
+- [x] Make the assumed on-time-delivery threshold explicit rather than burying it in SQL.
+- [x] Verify the existing weekly-period derivation semantics before carrying forward any claim about the start day of the week.
+- [x] Replace unsupported universal "best supplier" claims with quantified tradeoffs or a documented scoring model.
 
 #### Reproducible pipeline
 
-- [ ] Refactor the legacy Kaggle-to-pandas-to-BigQuery pipeline so source paths, project IDs, destination tables, and other environment-specific configuration are not hard-coded into the analytical logic.
-- [ ] Stop destructively moving the downloaded source CSV into the working directory.
-- [ ] Add structured failure handling and logging appropriate to a reproducible portfolio workflow.
-- [ ] Keep BigQuery as a documented implementation component without requiring cloud credentials merely to view the public case study.
-- [ ] Produce a deterministic, committed browser-ready JSON artifact from the validated analytical model.
-- [ ] Add focused tests for transformations, quality rules, and KPI calculations.
+- [x] Refactor the legacy Kaggle-to-pandas-to-BigQuery pipeline so source paths, project IDs, destination tables, and other environment-specific configuration are not hard-coded into the analytical logic.
+- [x] Stop destructively moving the downloaded source CSV into the working directory.
+- [x] Add structured failure handling and logging appropriate to a reproducible portfolio workflow.
+- [x] Keep BigQuery as a documented implementation component without requiring cloud credentials merely to view the public case study.
+- [x] Produce a deterministic, committed browser-ready JSON artifact from the validated analytical model.
+- [x] Add focused tests for transformations, quality rules, and KPI calculations.
 
 #### Analytical model and portfolio experience
 
-- [ ] Generate supplier-level, category-level, and time-based summaries from one documented metric layer.
-- [ ] Add a transparent supplier-priority comparison that can demonstrate how the preferred supplier changes when cost, reliability, quality, or compliance is weighted differently.
-- [ ] Replace the current generic placeholder page with a project-specific experience that explains the business question before implementation details.
-- [ ] Include a clear source/data section, pipeline/data-flow explanation, supplier scorecard, category drill-down, quantified findings, methodology, assumptions, and limitations.
-- [ ] Preserve useful Looker Studio screenshots or a live dashboard link only if the external dashboard is still available and accurately reflects the documented model.
-- [ ] Ensure the public page does not claim staging tables, fact/dimension modeling, validation checks, or other architecture that the maintained implementation does not actually contain.
+- [x] Generate supplier-level, category-level, and time-based summaries from one documented metric layer.
+- [x] Add a transparent supplier-priority comparison that can demonstrate how the preferred supplier changes when cost, reliability, quality, or compliance is weighted differently.
+- [x] Replace the current generic placeholder page with a project-specific experience that explains the business question before implementation details.
+- [x] Include a clear source/data section, pipeline/data-flow explanation, supplier scorecard, category drill-down, quantified findings, methodology, assumptions, and limitations.
+- [x] Preserve useful Looker Studio screenshots or a live dashboard link only if the external dashboard is still available and accurately reflects the documented model.
+- [x] Ensure the public page does not claim staging tables, fact/dimension modeling, validation checks, or other architecture that the maintained implementation does not actually contain.
 
 Publication acceptance criteria:
 
@@ -1263,27 +1263,27 @@ Publication acceptance criteria:
 
 #### Synthetic source and analytical methodology
 
-- [ ] Replace the workbook-centered workflow with deterministic synthetic source generation or reproducible source fixtures while preserving the transparent fictional framing.
-- [ ] Model the opportunity, subscription, and revenue-recognition stages as separate related entities with documented keys and relationships.
-- [ ] Add meaningful variation in deal size, product or plan, lifecycle timing, downstream status, and intentionally injected workflow exceptions so the audit has realistic signals to inspect.
-- [ ] Use a fixed seed or equivalent deterministic mechanism so generated case-study results remain reproducible.
-- [ ] Replace blanket `dropna()` filtering with stage-specific cohorts so incomplete lifecycle records are measured rather than silently removed.
-- [ ] Define conversion rates independently for opportunity-to-won, won-to-subscription, and subscription-to-recognized stages.
-- [ ] Calculate stage timing with documented cohorts and include appropriate summary statistics such as median and upper-percentile delay, not only mean.
+- [x] Replace the workbook-centered workflow with deterministic synthetic source generation or reproducible source fixtures while preserving the transparent fictional framing.
+- [x] Model the opportunity, subscription, and revenue-recognition stages as separate related entities with documented keys and relationships.
+- [x] Add meaningful variation in deal size, product or plan, lifecycle timing, downstream status, and intentionally injected workflow exceptions so the audit has realistic signals to inspect.
+- [x] Use a fixed seed or equivalent deterministic mechanism so generated case-study results remain reproducible.
+- [x] Replace blanket `dropna()` filtering with stage-specific cohorts so incomplete lifecycle records are measured rather than silently removed.
+- [x] Define conversion rates independently for opportunity-to-won, won-to-subscription, and subscription-to-recognized stages.
+- [x] Calculate stage timing with documented cohorts and include appropriate summary statistics such as median and upper-percentile delay, not only mean.
 
 #### Integrity and exception analysis
 
-- [ ] Validate unique identifiers and opportunity-to-subscription and subscription-to-revenue relationships.
-- [ ] Detect broken joins, duplicate identifiers, impossible date sequences, subscriptions attached to ineligible opportunities, recognition without valid activation, missing downstream records, suspended or stalled states, and unusually slow stage transitions.
-- [ ] Surface incomplete-stage rates and exception counts as first-class audit findings.
-- [ ] Preserve the legacy notebook's useful next-step themes - outlier detection, revenue over time, status comparisons, and downstream delay simulation - only where they are implemented or clearly labeled as future work.
+- [x] Validate unique identifiers and opportunity-to-subscription and subscription-to-revenue relationships.
+- [x] Detect broken joins, duplicate identifiers, impossible date sequences, subscriptions attached to ineligible opportunities, recognition without valid activation, missing downstream records, suspended or stalled states, and unusually slow stage transitions.
+- [x] Surface incomplete-stage rates and exception counts as first-class audit findings.
+- [x] Preserve the legacy notebook's useful next-step themes - outlier detection, revenue over time, status comparisons, and downstream delay simulation - only where they are implemented or clearly labeled as future work.
 
 #### Portfolio experience
 
-- [ ] Build the case study around the plain-English question: where is revenue getting stuck between a sale and recognized revenue?
-- [ ] Include a lifecycle overview, conversion funnel, stage-time comparison, distributions or percentile views, exception summary, bottleneck narrative, methodology, and limitations.
-- [ ] Consider a simple scenario control that shows how reducing one stage's delay affects total Quote-to-Cash elapsed time.
-- [ ] Keep the notebook as supporting evidence if useful, but do not make a raw notebook the primary portfolio experience.
+- [x] Build the case study around the plain-English question: where is revenue getting stuck between a sale and recognized revenue?
+- [x] Include a lifecycle overview, conversion funnel, stage-time comparison, distributions or percentile views, exception summary, bottleneck narrative, methodology, and limitations.
+- [x] Consider a simple scenario control that shows how reducing one stage's delay affects total Quote-to-Cash elapsed time.
+- [x] Keep the notebook as supporting evidence if useful, but do not make a raw notebook the primary portfolio experience.
 
 Publication acceptance criteria:
 
@@ -1296,11 +1296,11 @@ Publication acceptance criteria:
 
 ### 14.3 Shared analytics utility cleanup
 
-- [ ] Extract only the focused `DataFrameInspector` behavior needed by maintained analytics workflows into a small shared module.
-- [ ] Remove unrelated BigQuery, monitoring, charting, and other heavy imports from the inspector module unless the inspector itself genuinely requires them.
-- [ ] Add type hints, focused documentation, predictable sample-value limits, and unit tests.
-- [ ] Migrate PivotTable, PivotChart, BigQuery extraction/insertion helpers, or other legacy utility classes only when current maintained code has a demonstrated use for them.
-- [ ] Do not create a public "utilities" project merely to preserve old code.
+- [x] Extract only the focused `DataFrameInspector` behavior needed by maintained analytics workflows into a small shared module.
+- [x] Remove unrelated BigQuery, monitoring, charting, and other heavy imports from the inspector module unless the inspector itself genuinely requires them.
+- [x] Add type hints, focused documentation, predictable sample-value limits, and unit tests.
+- [x] Migrate PivotTable, PivotChart, BigQuery extraction/insertion helpers, or other legacy utility classes only when current maintained code has a demonstrated use for them.
+- [x] Do not create a public "utilities" project merely to preserve old code.
 
 Acceptance criteria:
 

@@ -36,6 +36,8 @@ Key routes:
 - `/games/gravity-fleet-lab.html` - playable orbital RTS telemetry experiment
 - `/projects/shrinkflation-tracker.html` - consumer analytics prototype for unit-price changes
 - `/projects/ev-true-cost.html` - EV public-charging cost check for public, mostly-home, and home-only charging
+- `/projects/procurement-kpi-analysis.html` - hidden, noindex supplier-priority case study built from a validated procurement metric layer
+- `/projects/quote-to-cash-workflow-audit.html` - hidden, noindex deterministic fictional audit of CRM, billing, and revenue-recognition handoffs
 - `/projects/phx-transit-pulse.html` - hidden, noindex synthetic operations console with a real Phoenix-area basemap, fictional transit overlays, deterministic replay, explicit demonstration states, accessible records, and a schematic fallback; supporting feasibility and implementation documents live under `docs/phx-transit/`.
 - `/projects/multi-platform-publishing-system.html` - public-ready Multi-Platform Publishing System case study (currently noindex; final indexing decision is part of the production release)
 - `/projects/multi-platform-publishing-system/demo/` - public-ready Postcard Atlas fictional publishing-system demo (currently noindex; final indexing decision is part of the production release)
@@ -49,6 +51,9 @@ script.js                          # Print button, reactive panel light, JSON-dr
 data/projects.json                 # Source of truth for project cards
 data/*-sample-runs.json             # Mock benchmark data for interactive game dashboards
 data/ev-true-cost.json              # Public, source-aware EV operating-cost foundation data
+data/procurement-source.csv         # Preserved source input for the Procurement case study
+data/procurement-kpi-analysis.json  # Generated Procurement browser artifact
+data/quote-to-cash-workflow-audit.json # Generated fictional QTC audit artifact
 projects/index.html                # Projects hub
 projects/*.html                    # Individual case-study pages
 projects/multi-platform-publishing-system/demo/ # Self-contained Postcard Atlas demo
@@ -107,6 +112,32 @@ Useful command:
 
 ```bash
 python tools/validate_ev_true_cost.py
+```
+
+## Legacy analytics modernization workflows
+
+The Procurement case study preserves its retrieved source CSV, applies blocking contract checks plus measured audit exceptions, and generates the static browser artifact from one maintained metric layer:
+
+```bash
+python tools/procurement/build_case_data.py
+python tools/procurement/validate_case_data.py
+```
+
+BigQuery remains an optional documented destination and is not required to view or reproduce the browser output. See `docs/procurement/` for provenance, the data contract, and the metric dictionary.
+
+The Quote-to-Cash case study creates separate fictional CRM, billing, and revenue entities with fixed seed `20250630`, then measures stage-specific conversion, timing, and workflow exceptions:
+
+```bash
+python tools/qtc/build_case_data.py
+python tools/qtc/validate_case_data.py
+```
+
+Optional generated source CSVs can be written with `python tools/qtc/generate_mock_data.py`. See `docs/qtc/` for the entity contract, cohort definitions, audit rules, and scenario limits.
+
+Focused automated coverage for both workflows and the shared dataframe inspector:
+
+```bash
+python -m unittest tests/test_analytics_modernization.py
 ```
 
 ## Shrinkflation live-data workflow
