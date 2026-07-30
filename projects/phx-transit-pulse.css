@@ -499,7 +499,7 @@
 .phx-kpis {
   height: calc(100% - 53px);
   display: grid;
-  grid-template-rows: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
 .phx-kpi {
@@ -622,16 +622,29 @@
 }
 
 .phx-map-filter {
-  min-height: 34px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(0, 168, 255, .4);
-  border-radius: .4rem;
-  padding: 0 .7rem;
-  background: rgba(0, 168, 255, .12);
+  padding: 0 .15rem;
   color: #78d7ff;
-  font-size: .66rem;
+  font-size: .58rem;
   font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.phx-map-filter[data-mode="rail"] { color: #ff78d4; }
+.phx-map-filter[hidden] { display: none; }
+
+.phx-map-record-control {
+  display: grid;
+  gap: .18rem;
+}
+
+.phx-map-record-control > span {
+  color: #8da3b7;
+  font-size: .54rem;
+  font-weight: 800;
+  letter-spacing: .06em;
   text-transform: uppercase;
 }
 
@@ -645,12 +658,12 @@
 }
 
 .phx-map-reset {
-  min-height: 36px;
-  border: 1px solid var(--phx-line);
+  min-height: 30px;
+  border: 1px solid rgba(85, 111, 134, .45);
   border-radius: .4rem;
   padding: 0 .65rem;
-  background: rgba(12, 28, 43, .92);
-  color: #b9ccdc;
+  background: transparent;
+  color: #879caf;
   font-size: .63rem;
   font-weight: 800;
   cursor: pointer;
@@ -876,7 +889,7 @@
   bottom: .65rem;
   display: flex;
   align-items: center;
-  gap: .85rem;
+  gap: .7rem;
   border: 1px solid var(--phx-line);
   border-radius: .45rem;
   padding: .45rem .65rem;
@@ -892,18 +905,38 @@
   gap: .35rem;
 }
 
+.phx-map-legend > b {
+  color: #71889d;
+  font-size: .54rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
 .phx-map-legend i {
-  width: .55rem;
-  height: .55rem;
+  width: 1.25rem;
+  height: 0;
   display: inline-block;
-  border-radius: 50%;
-  border: 2px solid;
+  border-top: 3px solid;
 }
 
 .phx-map-legend .bus { border-color: var(--phx-blue); }
 .phx-map-legend .rail { border-color: var(--phx-magenta); }
-.phx-map-legend .delay { border-color: var(--phx-amber); }
-.phx-map-legend .alert { border-color: var(--phx-red); }
+.phx-map-legend .delay { border-color: var(--phx-amber); border-top-style: dashed; }
+.phx-map-legend .alert {
+  width: .8rem;
+  height: .8rem;
+  border: 2px solid var(--phx-red);
+  border-radius: 50%;
+  color: #ff9d9d;
+  font-size: .55rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: .7rem;
+  text-align: center;
+}
+
+.phx-dashboard[data-vehicle-mode="bus"] [data-legend-mode="rail"],
+.phx-dashboard[data-vehicle-mode="rail"] [data-legend-mode="bus"] { opacity: .35; }
 
 .phx-map-caption {
   position: absolute;
@@ -1308,7 +1341,7 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: conic-gradient(var(--phx-blue) 0 var(--bus), var(--phx-magenta) var(--bus) 100%);
+  background: conic-gradient(var(--phx-blue) 0 var(--bus), var(--phx-magenta) var(--bus) var(--rail), #8394a6 var(--rail) 100%);
   box-shadow: 0 0 24px rgba(0, 168, 255, .12);
 }
 
@@ -1330,10 +1363,15 @@
 
 .phx-donut-legend {
   display: grid;
-  gap: .5rem;
+  gap: .55rem;
 }
 
-.phx-donut-legend span {
+.phx-fleet-item {
+  display: grid;
+  gap: .22rem;
+}
+
+.phx-fleet-summary {
   display: flex;
   align-items: center;
   gap: .4rem;
@@ -1341,20 +1379,28 @@
   font-size: .62rem;
 }
 
-.phx-donut-legend i {
+.phx-fleet-summary i {
   width: .5rem;
   height: .5rem;
   border-radius: 50%;
   background: var(--phx-blue);
 }
 
-.phx-donut-legend span:nth-child(2) i {
+.phx-fleet-item:nth-child(2) i {
   background: var(--phx-magenta);
 }
 
-.phx-donut-legend span:nth-child(3) i {
+.phx-fleet-item:nth-child(3) i {
   background: #8394a6;
 }
+
+.phx-fleet-summary span { flex: 1; }
+.phx-fleet-summary b { color: #e4eef7; font-size: .66rem; }
+.phx-fleet-summary em { min-width: 2.2rem; color: #8da3b7; font-size: .6rem; font-style: normal; text-align: right; }
+.phx-fleet-bar { height: 3px; overflow: hidden; border-radius: 999px; background: #15283a; }
+.phx-fleet-bar::after { content: ""; display: block; width: var(--value); height: 100%; border-radius: inherit; background: var(--phx-blue); }
+.phx-fleet-item:nth-child(2) .phx-fleet-bar::after { background: var(--phx-magenta); }
+.phx-fleet-item:nth-child(3) .phx-fleet-bar::after { background: #8394a6; }
 
 .phx-feed-list {
   display: grid;

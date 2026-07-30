@@ -37,13 +37,6 @@
       </section>
 
       <section class="phx-control-stack" aria-label="Synthetic dashboard controls">
-        <label class="phx-field">
-          <span>Demonstration state</span>
-          <select data-scenario>
-            <option value="current">Synthetic replay - current</option>
-          </select>
-        </label>
-
         <div class="phx-field">
           <span>Vehicle mode</span>
           <div class="phx-segmented" role="group" aria-label="Filter by vehicle mode">
@@ -123,15 +116,13 @@
               <h2 id="map-title">Phoenix synthetic network</h2>
             </div>
             <div class="phx-map-tools">
-              <div class="phx-map-filter" aria-label="Current map filter">
-                <span data-map-filter>All modes</span>
-              </div>
               <label class="phx-map-record-control">
-                <span class="sr-only">Select a visible map record</span>
-                <select data-map-record aria-label="Select a visible map record">
-                  <option value="">Map records</option>
+                <span>Inspect map record</span>
+                <select data-map-record>
+                  <option value="">Choose record</option>
                 </select>
               </label>
+              <span class="phx-map-filter" data-map-filter hidden></span>
               <button type="button" class="phx-map-reset" data-map-action="reset" aria-label="Recenter the interactive map">
                 Recenter
               </button>
@@ -177,11 +168,12 @@
               <strong>Operational picture unavailable</strong>
               <span>No vehicle positions can be plotted for this demonstration state.</span>
             </div>
-            <div class="phx-map-legend" aria-label="Map legend">
-              <span><i class="bus"></i>Bus</span>
-              <span><i class="rail"></i>Light rail</span>
+            <div class="phx-map-legend" aria-label="Map key">
+              <b>Map key</b>
+              <span data-legend-mode="bus"><i class="bus"></i>Bus</span>
+              <span data-legend-mode="rail"><i class="rail"></i>Light rail</span>
               <span><i class="delay"></i>Provisional delay</span>
-              <span><i class="alert"></i>Alert</span>
+              <span><i class="alert">!</i>Alert</span>
             </div>
             <span class="phx-map-caption">Real basemap - fictional operations</span>
           </div>

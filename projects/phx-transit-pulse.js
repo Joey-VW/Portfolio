@@ -379,6 +379,7 @@
     const scenario = currentScenario();
     app.dataset.appState = scenario.state;
     app.dataset.playing = String(state.playing);
+    app.dataset.vehicleMode = state.mode;
     $('[data-replay-time]').textContent = formatReplayTime(frame.timestamp, true);
     $('[data-clock-time]').textContent = formatReplayTime(frame.timestamp);
     $('[data-frame-count]').textContent = `${state.frame + 1} / ${state.data.frames.length}`;
@@ -390,9 +391,10 @@
     $('[data-state-message]').textContent = scenario.message;
     $('[data-primary-state] strong').textContent = scenario.label;
 
-    const modeLabel = state.mode === 'all' ? 'All modes' : state.mode === 'rail' ? 'Light rail' : 'Bus';
-    const routeLabel = state.route === 'all' ? '' : ` - ${routeById(state.route)?.label || state.route}`;
-    $('[data-map-filter]').textContent = `${modeLabel}${routeLabel}`;
+    const mapFilter = $('[data-map-filter]');
+    mapFilter.hidden = state.mode === 'all';
+    mapFilter.textContent = state.mode === 'rail' ? 'Rail only' : state.mode === 'bus' ? 'Bus only' : '';
+    mapFilter.dataset.mode = state.mode;
   }
 
   function createKpiIcon(kind) {
@@ -477,12 +479,6 @@
         icon: 'delay',
         html: true,
         sparkline: [2.8, 3.4, 3.1, 4.2, 3.8, 4.5, counts.averageDelay ?? 0]
-      },
-      {
-        label: 'Missing enrichment',
-        value: unavailable ? 'Unavailable' : counts.missing,
-        note: unavailable ? 'Synthetic state unavailable' : 'Route or trip context unknown',
-        icon: 'enrichment'
       }
     ];
 
@@ -542,7 +538,7 @@
     ];
 
     select.replaceChildren();
-    const prompt = el('option', '', mapUnavailable() ? 'Map records unavailable' : 'Map records');
+    const prompt = el('option', '', mapUnavailable() ? 'Records unavailable' : 'Choose record');
     prompt.value = '';
     select.append(prompt);
     groups.forEach((group) => {
@@ -846,16 +842,23 @@
       return;
     }
     const counts = derive(frame);
-    const total = counts.vehicles.length || 1;
-    const known = counts.bus + counts.rail;
-    const busShare = known ? counts.bus / known * 100 : 50;
+    const total = counts.vehicles.length;
+    const percentage = (value) => total ? value / total * 100 : 0;
+    const busShare = percentage(counts.bus);
+    const railShare = percentage(counts.rail);
     const donut = el('div', 'phx-donut');
     donut.style.setProperty('--bus', `${busShare}%`);
+    donut.style.setProperty('--rail', `${busShare + railShare}%`);
     donut.append(el('strong', '', String(counts.vehicles.length)));
     const legend = el('div', 'phx-donut-legend');
     [['Bus', counts.bus], ['Light rail', counts.rail], ['Unknown', counts.unknownMode]].forEach(([label, value]) => {
-      const item = el('span');
-      item.append(el('i'), document.createTextNode(`${label} ${value}`));
+      const share = percentage(value);
+      const item = el('div', 'phx-fleet-item');
+      const summary = el('span', 'phx-fleet-summary');
+      summary.append(el('i'), el('span', '', label), el('b', '', String(value)), el('em', '', `${Math.round(share)}%`));
+      const bar = el('span', 'phx-fleet-bar');
+      bar.style.setProperty('--value', `${share}%`);
+      item.append(summary, bar);
       legend.append(item);
     });
     root.append(donut, legend);
@@ -1206,16 +1209,6 @@
       render({ announceChange: true });
     });
 
-    $('[data-scenario]').addEventListener('change', (event) => {
-      stopReplay();
-      state.scenario = event.target.value;
-      state.selected = null;
-      const url = new URL(location.href);
-      state.scenario === 'current' ? url.searchParams.delete('state') : url.searchParams.set('state', state.scenario);
-      history.replaceState(null, '', url);
-      render({ announceChange: true });
-    });
-
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && state.playing) {
         stopReplay();
@@ -1298,15 +1291,8 @@
       });
       updateRouteOptions();
 
-      $('[data-scenario]').replaceChildren();
-      state.scenarios.forEach((scenario) => {
-        const option = el('option', '', scenario.label);
-        option.value = scenario.id;
-        $('[data-scenario]').append(option);
-      });
       const requested = new URLSearchParams(location.search).get('state');
       if (state.scenarios.some((scenario) => scenario.id === requested)) state.scenario = requested;
-      $('[data-scenario]').value = state.scenario;
 
       bindControls();
       if (state.scenario === 'current' && !reducedMotion.matches) startReplay();
