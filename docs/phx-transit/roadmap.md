@@ -46,7 +46,9 @@ The Pass 13.1 fixtures live only in `data/phx-transit/synthetic/`.
 vehicle positions, feed ages, alerts, and explicit cancelled/skipped states.
 `state-scenarios.json` defines inspectable application-state presentations. Both
 fixtures declare `providerData: false`; replay is fixed-time and contains no
-randomness or provider-derived geometry or records.
+randomness or provider-derived geometry or records. Geographic route lines are
+aligned to OpenStreetMap road and rail infrastructure while the service
+patterns, stop names, vehicles, alerts, and operational values remain fictional.
 A focused review correction keeps scenario-derived ages, counts, map markers,
 inspectors, filters, and non-map route records internally consistent without
 rewriting the underlying fixture records.
@@ -71,8 +73,10 @@ rewriting the underlying fixture records.
 The implementation uses pinned MapLibre GL JS `5.24.0` and OpenFreeMap's public
 dark style. No secret or account is required. The basemap is real geographic
 context; every operational route, stop, vehicle, alert, and metric remains
-fictional and `providerData` remains `false`. The public tile service has no SLA,
-so the schematic fallback remains a release requirement.
+fictional and `providerData` remains `false`. Route geometry is authoring-time
+OpenStreetMap-aligned context, not provider service data; OSRM is not called by
+the public page. The public tile service has no SLA, so the schematic fallback
+remains a release requirement.
 
 ## Pass 13.2 - Live ingestion and feed health - blocked by terms
 

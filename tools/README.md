@@ -13,12 +13,31 @@ It verifies that the fixture remains explicitly synthetic, map bounds are valid,
 and every route names a canonical display pattern among its geographic directional
 patterns. The `0.4-draft` fixture stores ordered stop IDs and headsigns on those
 patterns, vehicle progress along a pattern, and pattern-scoped alert segments.
-The validator checks geometry bounds, stop alignment and endpoints, derived
-vehicle placement, increasing progress across the expanded deterministic replay, and valid alert
-segment ranges. It also rejects route-level geometry that could drift, stale stop
-labels, and trip-state stop names that are not resolved from IDs. The browser
-derives interactive route geometry, fallback SVG paths, and vehicle positions
-from the same canonical patterns so both maps stay synchronized.
+The validator checks geometry bounds, exact outbound/inbound reversal, monotonic
+stop order, stop-to-route distance and progress, derived vehicle placement,
+increasing progress across the expanded deterministic replay, and valid alert
+segment ranges. It prints coordinate count, approximate route length, and stop
+projection details for each route. It also rejects route-level geometry that
+could drift, stale stop labels, and trip-state stop names that are not resolved
+from IDs. The browser derives interactive route geometry, fallback SVG paths,
+and vehicle positions from the same canonical patterns so both maps stay
+synchronized.
+
+## PHX Transit bus-route authoring
+
+`tools/phx-transit/author_bus_route.py` is a dependency-free, authoring-time
+OSRM client. It requests full driving geometry from deliberate road anchors,
+reports every waypoint snap and leg distance, and applies Douglas-Peucker
+simplification independently to each leg so intentional anchors are retained.
+It never edits the fixture. Omit `--output` for a dry run:
+
+```bash
+python tools/phx-transit/author_bus_route.py tools/phx-transit/sky-29-anchors.json
+python tools/phx-transit/author_bus_route.py tools/phx-transit/sky-29-anchors.json --output /tmp/sky-29-authored.json
+```
+
+OSRM is not loaded or called by the portfolio page. Rail geometry is not
+generated with this driving-route helper.
 
 ## Gravity Fleet deterministic validator
 
