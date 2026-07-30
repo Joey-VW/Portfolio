@@ -756,6 +756,7 @@
 }
 
 .map-route-casing.is-muted { opacity: .1; }
+.map-route-casing.is-selection-dimmed { opacity: .28; }
 
 .map-route-alert-segment {
   fill: none;
@@ -776,6 +777,11 @@
 
 .map-route.is-muted {
   opacity: .16;
+  filter: none;
+}
+
+.map-route.is-selection-dimmed {
+  opacity: .26;
   filter: none;
 }
 
@@ -1031,12 +1037,14 @@
 .phx-right-rail {
   min-width: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1.06fr) minmax(0, .94fr);
+  grid-template-rows: 210px 210px minmax(0, 1fr);
   gap: .6rem;
 }
 
 .phx-alert-panel,
-.phx-route-panel {
+.phx-route-panel,
+.phx-inspector-card {
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -1192,7 +1200,7 @@
 .phx-insights {
   grid-column: 1 / 4;
   display: grid;
-  grid-template-columns: 1.05fr .95fr .92fr 1.08fr 1.2fr;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: .6rem;
   min-width: 0;
 }
@@ -1597,7 +1605,7 @@
   }
 
   .phx-insights {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .phx-donut-wrap {
@@ -1648,8 +1656,10 @@
   .phx-right-rail {
     grid-column: 1 / 3;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: 330px;
+    grid-template-rows: 300px 280px;
   }
+
+  .phx-right-rail .phx-inspector-card { grid-column: 1 / 3; }
 
   .phx-insights {
     grid-column: 1 / 3;
@@ -1800,8 +1810,10 @@
   .phx-right-rail {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(2, 330px);
+    grid-template-rows: 300px 300px minmax(340px, auto);
   }
+
+  .phx-right-rail .phx-inspector-card { grid-column: auto; }
 
   .phx-insights {
     display: grid;
@@ -2226,14 +2238,133 @@
   border-radius: .28rem;
 }
 
+.phx-inspector-card .phx-inspector {
+  padding: .75rem;
+}
+
+.phx-inspector dl {
+  gap: .5rem;
+}
+
+.phx-inspector dl div {
+  border: 1px solid var(--phx-line-soft);
+  border-radius: .38rem;
+  padding: .48rem .55rem;
+  background: rgba(4, 14, 25, .38);
+}
+
+.phx-inspector dd {
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.phx-inspector-identity {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: .7rem;
+  margin-bottom: .75rem;
+}
+
+.phx-inspector-visual {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(0, 168, 255, .38);
+  border-radius: .55rem;
+  background: rgba(0, 168, 255, .1);
+  color: var(--phx-cyan);
+}
+
+.phx-inspector-visual.rail {
+  border-color: rgba(255, 79, 216, .4);
+  background: rgba(255, 79, 216, .1);
+  color: var(--phx-magenta);
+}
+
+.phx-inspector-visual.alert {
+  border-color: rgba(255, 176, 32, .42);
+  background: rgba(255, 176, 32, .1);
+  color: var(--phx-amber);
+}
+
+.phx-inspector-visual svg {
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.phx-inspector-copy { min-width: 0; }
+
+.phx-inspector-eyebrow {
+  display: block;
+  color: #7890a6;
+  font-size: .55rem;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.phx-inspector-copy > strong {
+  display: block;
+  margin-top: .12rem;
+  color: #f4f9fd;
+  font-size: .84rem;
+  overflow-wrap: anywhere;
+}
+
+.phx-inspector-copy > p {
+  margin: .1rem 0 .35rem;
+  color: #93a9bd;
+  font-size: .61rem;
+  overflow-wrap: anywhere;
+}
+
+.phx-inspector-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+
+.phx-inspector-badges span {
+  border: 1px solid var(--phx-line);
+  border-radius: 999px;
+  padding: .15rem .38rem;
+  color: #b9cddd;
+  font-size: .52rem;
+}
+
+.phx-inspector-history {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  align-items: center;
+  gap: .65rem;
+  margin-top: .65rem;
+  border-top: 1px solid var(--phx-line-soft);
+  padding-top: .65rem;
+}
+
+.phx-inspector-history strong,
+.phx-inspector-history span { display: block; }
+.phx-inspector-history strong { color: #d9e6f1; font-size: .64rem; }
+.phx-inspector-history span { margin-top: .15rem; color: #748ca2; font-size: .55rem; line-height: 1.35; }
+.phx-inspector-sparkline { width: 92px; height: 38px; }
+
 @media (min-width: 1121px) {
   .phx-right-rail {
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: 210px 210px minmax(0, 1fr);
   }
 
   .phx-alert-list {
     height: auto;
-    max-height: 252px;
+    max-height: none;
   }
 
   .phx-route-panel {

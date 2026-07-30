@@ -32,8 +32,8 @@
 
       <section class="phx-demo-note" aria-labelledby="demo-note-title">
         <span class="phx-demo-chip"><i aria-hidden="true"></i> Synthetic replay</span>
-        <h1 id="demo-note-title">Mock data only</h1>
-        <p>This portfolio dashboard is not connected to Valley Metro. Every route, vehicle, alert, and metric shown is fictional.</p>
+        <h1 id="demo-note-title">Fictional data, realistic structure</h1>
+        <p>Every operation shown is synthetic and fictional, intentionally modeled around the structure and behaviors that real GTFS and GTFS-Realtime feeds can support. This portfolio dashboard is not connected to Valley Metro.</p>
       </section>
 
       <section class="phx-control-stack" aria-label="Synthetic dashboard controls">
@@ -202,6 +202,13 @@
             </header>
             <div class="phx-route-table" data-route-signals></div>
           </section>
+
+          <section class="phx-panel phx-inspector-card" aria-labelledby="inspector-title">
+            <header class="phx-panel-heading">
+              <div><span>Inspection state</span><h2 id="inspector-title">Selected record</h2></div>
+            </header>
+            <div data-inspector class="phx-inspector"><p>No record selected.</p></div>
+          </section>
         </aside>
 
         <section class="phx-insights" aria-label="Snapshot detail visuals">
@@ -220,10 +227,6 @@
           <article class="phx-panel phx-chart-card phx-feed-card">
             <header><span>Feed freshness</span><small>Header age</small></header>
             <div data-feed-health></div>
-          </article>
-          <article class="phx-panel phx-chart-card phx-inspector-card">
-            <header><span>Selected record</span><small>Click a route, alert, or vehicle</small></header>
-            <div data-inspector class="phx-inspector"><p>No record selected.</p></div>
           </article>
         </section>
       </div>

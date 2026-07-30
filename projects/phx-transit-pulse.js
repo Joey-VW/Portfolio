@@ -607,14 +607,16 @@
       state.data.routes.forEach((route) => {
         const matches = matchingRouteIds.has(route.id);
         const selected = state.selected?.type === 'route' && state.selected.id === route.id;
+        const selectionDimmed = state.selected?.type === 'route' && matches && !selected;
         const className = [
           'map-route',
           route.color,
           route.mode,
           matches ? '' : 'is-muted',
+          selectionDimmed ? 'is-selection-dimmed' : '',
           selected ? 'is-selected' : ''
         ].filter(Boolean).join(' ');
-        routesRoot.append(svgEl('path', { d: route.path, class: `map-route-casing${matches ? '' : ' is-muted'}` }));
+        routesRoot.append(svgEl('path', { d: route.path, class: `map-route-casing${matches ? '' : ' is-muted'}${selectionDimmed ? ' is-selection-dimmed' : ''}` }));
         const line = svgEl('path', { d: route.path, class: className });
         routesRoot.append(line);
         if (matches) {
@@ -878,13 +880,72 @@
   }
 
   function appendDefinitionList(root, pairs) {
-    const list = el('dl');
+    const list = el('dl', 'phx-inspector-grid');
     pairs.forEach(([term, value]) => {
       const item = el('div');
       item.append(el('dt', '', term), el('dd', '', String(value)));
       list.append(item);
     });
     root.append(list);
+  }
+
+  function createInspectorVisual(kind, mode) {
+    const visual = el('div', `phx-inspector-visual ${kind}${mode ? ` ${mode}` : ''}`);
+    const icon = svgEl('svg', { viewBox: '0 0 48 48', 'aria-hidden': 'true' });
+    if (kind === 'alert') {
+      icon.append(
+        svgEl('path', { d: 'M24 6 43 40H5L24 6Z' }),
+        svgEl('path', { d: 'M24 17v12M24 35v1' })
+      );
+    } else if (mode === 'rail') {
+      icon.append(
+        svgEl('rect', { x: 10, y: 6, width: 28, height: 32, rx: 8 }),
+        svgEl('path', { d: 'M15 15h18v10H15zM16 42l5-5m11 5-5-5' }),
+        svgEl('circle', { cx: 17, cy: 31, r: 2 }), svgEl('circle', { cx: 31, cy: 31, r: 2 })
+      );
+    } else {
+      icon.append(
+        svgEl('rect', { x: 6, y: 9, width: 36, height: 27, rx: 5 }),
+        svgEl('path', { d: 'M11 15h26v11H11z' }),
+        svgEl('circle', { cx: 14, cy: 38, r: 3 }), svgEl('circle', { cx: 34, cy: 38, r: 3 })
+      );
+    }
+    visual.append(icon);
+    return visual;
+  }
+
+  function routeDelayHistory(routeId) {
+    const values = state.data.frames.map((replayFrame) => replayFrame.routeSignals
+      .find((signal) => signal.routeId === routeId)?.predictedDelayMinutes);
+    return values.every(Number.isFinite) && values.length > 1 ? values : null;
+  }
+
+  function appendInspectorHeader(root, { kind, mode, eyebrow, title, subtitle, badges }) {
+    const identity = el('div', 'phx-inspector-identity');
+    const copy = el('div', 'phx-inspector-copy');
+    copy.append(el('span', 'phx-inspector-eyebrow', eyebrow), el('strong', '', title), el('p', '', subtitle));
+    const badgeRow = el('div', 'phx-inspector-badges');
+    badges.filter(Boolean).forEach((badge) => badgeRow.append(el('span', '', badge)));
+    copy.append(badgeRow);
+    identity.append(createInspectorVisual(kind, mode), copy);
+    root.append(identity);
+  }
+
+  function appendDelayHistory(root, routeId, vehicleRoute = false) {
+    const values = routeDelayHistory(routeId);
+    if (!values) return;
+    const history = el('section', 'phx-inspector-history');
+    const copy = el('div');
+    copy.append(
+      el('strong', '', vehicleRoute ? 'Route-level replay delay' : 'Provisional replay delay'),
+      el('span', '', vehicleRoute
+        ? 'Synthetic route signal across replay frames - not vehicle history'
+        : 'Synthetic route signal across replay frames - not historical performance')
+    );
+    const sparkline = createSparkline(values);
+    sparkline.classList.add('phx-inspector-sparkline');
+    history.append(copy, sparkline);
+    root.append(history);
   }
 
   function renderInspector(frame) {
@@ -899,48 +960,57 @@
       return;
     }
 
-    let pairs = [];
     if (state.selected.type === 'vehicle') {
       const vehicle = visibleVehicles(frame).find((item) => item.id === state.selected.id);
       if (!vehicle) return;
-      pairs = [
-        ['Vehicle', vehicle.id],
+      const route = routeById(vehicle.routeId);
+      appendInspectorHeader(root, {
+        kind: 'vehicle', mode: vehicle.mode, eyebrow: 'Selected vehicle', title: vehicle.id,
+        subtitle: `${unknown(route?.label)} · ${unknown(vehicle.direction)}`,
+        badges: [vehicle.mode === 'rail' ? 'Light rail' : 'Bus', freshnessLabels[vehicle.freshness], vehicle.status]
+      });
+      appendDefinitionList(root, [
+        ['Source vehicle ID', vehicle.id],
         ['Route', unknown(routeById(vehicle.routeId)?.label)],
-        ['Mode', unknown(vehicle.mode)],
         ['Vehicle age', `${vehicle.ageSeconds} sec`],
-        ['Freshness', freshnessLabels[vehicle.freshness]],
-        ['Trip', unknown(vehicle.tripId)],
-        ['Status', vehicle.status],
+        ['Source trip ID', unknown(vehicle.tripId)],
         [vehicle.status === 'At stop' ? 'Current stop' : 'Next stop', unknown(vehicle.stop)],
         ['Headsign', unknown(vehicle.direction)],
         ['Bearing', Number.isFinite(vehicle.bearing) ? `${Math.round(vehicle.bearing)}°` : 'Unknown']
-      ];
+      ]);
+      appendDelayHistory(root, vehicle.routeId, true);
     }
     if (state.selected.type === 'route') {
       const route = routeById(state.selected.id);
       const signal = frame.routeSignals.find((item) => item.routeId === route.id);
-      pairs = [
-        ['Route ID', route.id],
-        ['Label', route.label],
-        ['Mode', route.mode],
+      appendInspectorHeader(root, {
+        kind: 'route', mode: route.mode, eyebrow: 'Selected route', title: route.label,
+        subtitle: route.direction,
+        badges: [route.mode === 'rail' ? 'Light rail' : 'Bus', signal ? `${signal.predictedDelayMinutes.toFixed(1)} min provisional delay` : 'Delay unavailable']
+      });
+      appendDefinitionList(root, [
+        ['Source route ID', route.id],
         ['Direction', route.direction],
         ['Visible vehicles', visibleVehicles(frame).filter((vehicle) => vehicle.routeId === route.id).length],
         ['Predicted delay', signal ? `${signal.predictedDelayMinutes.toFixed(1)} min - provisional` : 'Unavailable']
-      ];
+      ]);
+      appendDelayHistory(root, route.id);
     }
     if (state.selected.type === 'alert') {
       const alert = visibleAlerts(frame).find((item) => item.id === state.selected.id);
       if (!alert) return;
-      pairs = [
-        ['Alert ID', alert.id],
-        ['Title', alert.title],
+      appendInspectorHeader(root, {
+        kind: 'alert', eyebrow: 'Selected service alert', title: alert.title,
+        subtitle: alert.period, badges: [alert.effect, `${alert.routes.length} affected route${alert.routes.length === 1 ? '' : 's'}`]
+      });
+      appendDefinitionList(root, [
+        ['Source alert ID', alert.id],
         ['Effect', alert.effect],
         ['Period', alert.period],
         ['Routes', alert.routes.join(', ')],
         ['Stops', alert.stops.map((stopId) => stopById(stopId)?.label || stopId).join(', ')]
-      ];
+      ]);
     }
-    appendDefinitionList(root, pairs);
   }
 
   function appendRecordRow(tbody, values) {
