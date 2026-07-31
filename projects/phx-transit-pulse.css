@@ -2408,7 +2408,17 @@
 
 @media (min-width: 1121px) {
   .phx-right-rail {
-    grid-template-rows: 210px 210px minmax(0, 1fr);
+    grid-column: 3;
+    grid-row: 1 / 3;
+    grid-template-rows:
+      minmax(0, 1fr)
+      minmax(0, 2fr)
+      minmax(0, 2fr);
+  }
+
+  .phx-insights {
+    grid-column: 1 / 3;
+    grid-row: 2;
   }
 
   .phx-alert-list {
