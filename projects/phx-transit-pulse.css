@@ -439,10 +439,11 @@
 }
 
 .phx-ops-grid {
+  height: max(720px, calc(100vh - 82px));
   min-height: calc(100vh - 82px);
   display: grid;
   grid-template-columns: clamp(210px, 14vw, 250px) minmax(480px, 1fr) clamp(278px, 20vw, 340px);
-  grid-template-rows: minmax(490px, 1fr) clamp(190px, 23vh, 230px);
+  grid-template-rows: minmax(0, 1fr) clamp(190px, 23vh, 230px);
   gap: .6rem;
 }
 
@@ -1069,6 +1070,7 @@
 
 .phx-right-rail {
   min-width: 0;
+  min-height: 0;
   display: grid;
   grid-template-rows: 210px 210px minmax(0, 1fr);
   gap: .6rem;
@@ -1675,6 +1677,7 @@
   }
 
   .phx-ops-grid {
+    height: auto;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: auto minmax(500px, 62vh) auto auto;
   }
