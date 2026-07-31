@@ -462,22 +462,21 @@
       {
         label: 'Active vehicles',
         value: unavailable ? 'Unavailable' : counts.active,
-        note: unavailable ? 'Synthetic state unavailable' : `${counts.vehicles.length} plotted - age ≤ 90 sec`,
+        note: unavailable ? 'Demo state unavailable' : `${counts.vehicles.length} plotted - age ≤ 90 sec`,
         icon: 'vehicle',
         sparkline: [6, 7, 7, 8, 7, 9, counts.active]
       },
       {
         label: 'Active alerts',
         value: unavailable ? 'Unavailable' : counts.alerts,
-        note: unavailable ? 'Synthetic state unavailable' : 'Fictional source notices',
+        note: unavailable ? 'Demo state unavailable' : 'Fictional service alerts',
         icon: 'alert'
       },
       {
         label: 'Avg predicted delay',
         value: unavailable ? 'Unavailable' : delayValue,
-        note: unavailable ? 'Synthetic state unavailable' : '<b>Provisional</b> fixture formula',
+        note: unavailable ? 'Demo state unavailable' : 'Based on demo data',
         icon: 'delay',
-        html: true,
         sparkline: [2.8, 3.4, 3.1, 4.2, 3.8, 4.5, counts.averageDelay ?? 0]
       }
     ];
@@ -772,7 +771,7 @@
     }
 
     const header = el('div', 'phx-route-row');
-    header.append(el('span', '', 'Route'), el('span', '', 'Vehicles'), el('span', '', 'Pred. delay'), el('span', '', ''));
+    header.append(el('span', '', 'Route'), el('span', '', 'Vehicles'), el('span', '', 'Est. delay'), el('span', '', ''));
     root.append(header);
 
     signals
@@ -798,7 +797,7 @@
     const root = $('[data-freshness-chart]');
     root.replaceChildren();
     if (unavailableScenario()) {
-      root.append(el('p', 'phx-unavailable', 'Vehicle freshness unavailable.'));
+      root.append(el('p', 'phx-unavailable', 'Vehicle update times unavailable.'));
       return;
     }
 
@@ -823,7 +822,7 @@
     const root = $('[data-trip-exceptions]');
     root.replaceChildren();
     if (unavailableScenario()) {
-      root.append(el('p', 'phx-unavailable', 'Trip exceptions unavailable.'));
+      root.append(el('p', 'phx-unavailable', 'Service changes unavailable.'));
       return;
     }
     const counts = derive(frame);
@@ -940,7 +939,7 @@
     const history = el('section', 'phx-inspector-history');
     const copy = el('div');
     copy.append(
-      el('strong', '', vehicleRoute ? 'Route-level replay delay' : 'Provisional replay delay'),
+      el('strong', '', vehicleRoute ? 'Route-level replay delay' : 'Estimated replay delay'),
       el('span', '', vehicleRoute
         ? 'Synthetic route signal across replay frames - not vehicle history'
         : 'Synthetic route signal across replay frames - not historical performance')
@@ -953,13 +952,14 @@
 
   function renderInspector(frame) {
     const root = $('[data-inspector]');
+    $('[data-inspector-title]').hidden = unavailableScenario() || !state.selected;
     root.replaceChildren();
     if (unavailableScenario()) {
       root.append(el('p', '', `${currentScenario().label}: no record is presented as current.`));
       return;
     }
     if (!state.selected) {
-      root.append(el('p', '', 'Select a route line, vehicle marker, or alert to inspect its fictional source record.'));
+      root.append(el('p', '', 'Choose a route, vehicle, or alert on the map to see its details.'));
       return;
     }
 
@@ -978,8 +978,8 @@
         ['Vehicle age', `${vehicle.ageSeconds} sec`],
         ['Source trip ID', unknown(vehicle.tripId)],
         [vehicle.status === 'At stop' ? 'Current stop' : 'Next stop', unknown(vehicle.stop)],
-        ['Headsign', unknown(vehicle.direction)],
-        ['Bearing', Number.isFinite(vehicle.bearing) ? `${Math.round(vehicle.bearing)}°` : 'Unknown']
+        ['Destination sign (headsign)', unknown(vehicle.direction)],
+        ['Direction (degrees)', Number.isFinite(vehicle.bearing) ? `${Math.round(vehicle.bearing)}°` : 'Unknown']
       ]);
       appendDelayHistory(root, vehicle.routeId, true);
     }
@@ -989,13 +989,13 @@
       appendInspectorHeader(root, {
         kind: 'route', mode: route.mode, eyebrow: 'Selected route', title: route.label,
         subtitle: route.direction,
-        badges: [route.mode === 'rail' ? 'Light rail' : 'Bus', signal ? `${signal.predictedDelayMinutes.toFixed(1)} min provisional delay` : 'Delay unavailable']
+        badges: [route.mode === 'rail' ? 'Light rail' : 'Bus', signal ? `${signal.predictedDelayMinutes.toFixed(1)} min estimated delay` : 'Delay unavailable']
       });
       appendDefinitionList(root, [
         ['Source route ID', route.id],
         ['Direction', route.direction],
         ['Visible vehicles', visibleVehicles(frame).filter((vehicle) => vehicle.routeId === route.id).length],
-        ['Predicted delay', signal ? `${signal.predictedDelayMinutes.toFixed(1)} min - provisional` : 'Unavailable']
+        ['Predicted delay', signal ? `${signal.predictedDelayMinutes.toFixed(1)} min - demo estimate` : 'Unavailable']
       ]);
       appendDelayHistory(root, route.id);
     }
@@ -1053,7 +1053,7 @@
       appendRecordRow(tbody, [
         [button, 'Record'],
         [`${route.id} / ${route.mode}`, 'Route / mode'],
-        ['Static fixture record', 'Freshness'],
+        ['Static schedule record', 'Freshness'],
         [affected, 'Status'],
         [`${route.direction} - ${count} visible vehicles`, 'Stop / direction']
       ]);
@@ -1232,14 +1232,14 @@
     state.mapAdapter = null;
     setMapPresentation(
       'fallback',
-      'Interactive map not initialized because the synthetic fixture is unavailable.'
+      'Interactive map not initialized because the fictional replay is unavailable.'
     );
     app.dataset.appState = 'feed_error';
-    $('[data-primary-state] strong').textContent = 'Synthetic fixture error';
+    $('[data-primary-state] strong').textContent = 'Replay unavailable';
     $('[data-replay-time]').textContent = 'Unavailable';
     $('[data-clock-time]').textContent = 'Replay unavailable';
-    $('[data-state-title]').textContent = 'Synthetic fixture error';
-    $('[data-state-message]').textContent = 'The local fictional fixture could not be loaded. No live or provider data was requested.';
+    $('[data-state-title]').textContent = 'Replay unavailable';
+    $('[data-state-message]').textContent = 'The fictional replay could not be loaded. No live or provider data was requested.';
     $('[data-map-empty]').hidden = false;
     $('[data-map]').setAttribute('aria-disabled', 'true');
     $('[data-interactive-map]').setAttribute('aria-disabled', 'true');
@@ -1247,14 +1247,15 @@
     $('[data-map-stops]').replaceChildren();
     $('[data-map-alerts]').replaceChildren();
     $('[data-map-vehicles]').replaceChildren();
-    $('[data-kpis]').replaceChildren(el('p', 'phx-unavailable', 'Snapshot cards unavailable.'));
-    $('[data-alerts]').replaceChildren(el('p', 'phx-unavailable', 'Alert records unavailable.'));
-    $('[data-route-signals]').replaceChildren(el('p', 'phx-unavailable', 'Route signals unavailable.'));
-    $('[data-freshness-chart]').replaceChildren(el('p', 'phx-unavailable', 'Vehicle freshness unavailable.'));
-    $('[data-trip-exceptions]').replaceChildren(el('p', 'phx-unavailable', 'Trip exceptions unavailable.'));
+    $('[data-kpis]').replaceChildren(el('p', 'phx-unavailable', 'Current snapshot unavailable.'));
+    $('[data-alerts]').replaceChildren(el('p', 'phx-unavailable', 'Active alerts unavailable.'));
+    $('[data-route-signals]').replaceChildren(el('p', 'phx-unavailable', 'Route status unavailable.'));
+    $('[data-freshness-chart]').replaceChildren(el('p', 'phx-unavailable', 'Vehicle update times unavailable.'));
+    $('[data-trip-exceptions]').replaceChildren(el('p', 'phx-unavailable', 'Service changes unavailable.'));
     $('[data-fleet-mix]').replaceChildren(el('p', 'phx-unavailable', 'Fleet mix unavailable.'));
-    $('[data-feed-health]').replaceChildren(el('p', 'phx-unavailable', 'Feed health unavailable.'));
-    $('[data-inspector]').replaceChildren(el('p', 'phx-unavailable', 'No selected record is presented as current.'));
+    $('[data-feed-health]').replaceChildren(el('p', 'phx-unavailable', 'Feed updates unavailable.'));
+    $('[data-inspector-title]').hidden = true;
+    $('[data-inspector]').replaceChildren(el('p', 'phx-unavailable', 'No selected item is available.'));
     $('[data-record-count]').textContent = 'Records unavailable';
     $('[data-records]').replaceChildren();
     $('[data-map-record]').replaceChildren(el('option', '', 'Map records unavailable'));
@@ -1262,7 +1263,7 @@
     $$('.phx-control-stack button, .phx-control-stack select, .phx-control-stack input').forEach((control) => {
       control.disabled = true;
     });
-    announce('Synthetic fixture error. All dashboard data regions are unavailable.');
+    announce('Fictional replay unavailable. All dashboard data regions are unavailable.');
   }
 
   async function init() {

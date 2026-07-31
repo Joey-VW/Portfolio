@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#020914">
-  <meta name="description" content="A polished synthetic GTFS-Realtime operations dashboard demonstrating feed, vehicle, route, trip, and alert inspection.">
+  <meta name="description" content="A polished fictional transit dashboard demonstrating GTFS-Realtime vehicle, route, trip, alert, and feed data.">
   <title>PHX Transit Pulse | Synthetic Operations Demo</title>
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
@@ -73,8 +73,8 @@
 
       <details class="phx-methodology">
         <summary>What the real feeds can support</summary>
-        <p>Vehicle positions, timestamps, trip updates, service alerts, cancellations, skipped stops, and static route, trip, stop, and mode enrichment.</p>
-        <p>Predicted route delay is shown only as a provisional mock calculation. Historical reliability, headway, bunching, and on-time performance are intentionally excluded.</p>
+        <p>Vehicle positions, timestamps, trip updates, service alerts, cancellations, skipped stops, and route, trip, stop, and mode details from the static schedule.</p>
+        <p>Predicted route delay is only a demo estimate. Historical reliability, headway, bunching, and on-time performance are intentionally excluded.</p>
       </details>
 
       <nav class="phx-project-links" aria-label="Portfolio navigation">
@@ -88,7 +88,7 @@
         <div class="phx-live-state" data-primary-state>
           <span aria-hidden="true"></span>
           <strong>Synthetic replay</strong>
-          <small>Last updated <b data-replay-time>Loading fixture…</b></small>
+          <small>Last updated <b data-replay-time>Loading replay…</b></small>
         </div>
         <div class="phx-location">
           <span>Phoenix, AZ</span>
@@ -98,7 +98,7 @@
 
       <section class="phx-state-note" aria-live="polite" aria-atomic="true">
         <strong data-state-title>Synthetic replay</strong>
-        <span data-state-message>Loading fictional operations fixture.</span>
+        <span data-state-message>Loading the fictional transit replay.</span>
       </section>
 
       <div class="phx-ops-grid">
@@ -112,14 +112,14 @@
         <section class="phx-map-panel" aria-labelledby="map-title">
           <header class="phx-map-toolbar">
             <div class="phx-map-heading">
-              <span>Geographic network view</span>
-              <h2 id="map-title">Phoenix synthetic network</h2>
+              <span>Transit map</span>
+              <h2 id="map-title">Phoenix demo network</h2>
             </div>
             <div class="phx-map-tools">
               <label class="phx-map-record-control">
-                <span>Inspect map record</span>
+                <span>Map selection</span>
                 <select data-map-record>
-                  <option value="">Choose record</option>
+                  <option value="">Choose an item</option>
                 </select>
               </label>
               <span class="phx-map-filter" data-map-filter hidden></span>
@@ -165,15 +165,14 @@
               <strong>Loading interactive basemap</strong>
             </div>
             <div class="phx-map-empty" data-map-empty hidden>
-              <strong>Operational picture unavailable</strong>
-              <span>No vehicle positions can be plotted for this demonstration state.</span>
+              <strong>Vehicle map unavailable</strong>
+              <span>No vehicle positions are available in this demo scenario.</span>
             </div>
-            <div class="phx-map-legend" aria-label="Map key">
-              <b>Map key</b>
-              <span data-legend-mode="bus"><i class="bus"></i>Bus</span>
-              <span data-legend-mode="rail"><i class="rail"></i>Light rail</span>
-              <span><i class="delay"></i>Provisional delay</span>
-              <span><i class="alert">!</i>Alert</span>
+            <div class="phx-map-legend" aria-label="Map legend">
+              <span data-legend-mode="bus"><i class="bus" aria-hidden="true"></i>Bus</span>
+              <span data-legend-mode="rail"><i class="rail" aria-hidden="true"></i>Light rail</span>
+              <span><i class="delay" aria-hidden="true"></i>Estimated delay</span>
+              <span><i class="alert" aria-hidden="true">!</i>Alert</span>
             </div>
             <span class="phx-map-caption">Real basemap - fictional operations</span>
           </div>
@@ -182,7 +181,7 @@
         <aside class="phx-right-rail" aria-label="Alert and route snapshot panels">
           <section class="phx-panel phx-alert-panel" aria-labelledby="alerts-title">
             <header class="phx-panel-heading">
-              <div><span>System notices</span><h2 id="alerts-title">Active alerts</h2></div>
+              <div><span>Service updates</span><h2 id="alerts-title">Active alerts</h2></div>
               <b data-alert-count>0</b>
             </header>
             <div class="phx-alert-list" data-alerts></div>
@@ -190,30 +189,30 @@
 
           <section class="phx-panel phx-route-panel" aria-labelledby="routes-title">
             <header class="phx-panel-heading">
-              <div><span>Fictional route status</span><h2 id="routes-title">Route snapshot</h2></div>
+              <div><span>Route status</span><h2 id="routes-title">Route snapshot</h2></div>
             </header>
             <div class="phx-route-table" data-route-signals></div>
           </section>
 
-          <section class="phx-panel phx-inspector-card" aria-labelledby="inspector-title">
+          <section class="phx-panel phx-inspector-card" aria-label="Map selection">
             <header class="phx-panel-heading">
-              <div><span>Inspection state</span><h2 id="inspector-title">Selected record</h2></div>
+              <div><span>Map selection</span><h2 id="inspector-title" data-inspector-title hidden>Selected item</h2></div>
             </header>
-            <div data-inspector class="phx-inspector"><p>No record selected.</p></div>
+            <div data-inspector class="phx-inspector"><p>Choose a route, vehicle, or alert on the map to see its details.</p></div>
           </section>
         </aside>
 
-        <section class="phx-insights" aria-label="Snapshot detail visuals">
+        <section class="phx-insights" aria-label="Current transit details">
           <article class="phx-panel phx-chart-card">
-            <header><span>Vehicle freshness</span><small>Timestamp age</small></header>
+            <header><span>Vehicles</span><small>Fresh vs. stale</small></header>
             <div class="phx-freshness-bars" data-freshness-chart></div>
           </article>
           <article class="phx-panel phx-chart-card">
-            <header><span>Trip exceptions</span><small>Explicit source states</small></header>
+            <header><span>Service changes</span><small>Cancelled &amp; skipped</small></header>
             <div class="phx-exceptions" data-trip-exceptions></div>
           </article>
           <article class="phx-panel phx-chart-card">
-            <header><span>Fleet mix</span><small>Static enrichment</small></header>
+            <header><span>Fleet mix</span></header>
             <div class="phx-donut-wrap" data-fleet-mix></div>
           </article>
           <article class="phx-panel phx-chart-card phx-feed-card">
@@ -224,7 +223,7 @@
       </div>
 
       <details class="phx-record-drawer">
-        <summary>Open accessible route and vehicle records <span data-record-count></span></summary>
+        <summary>Open route and vehicle details <span data-record-count></span></summary>
         <div class="phx-table-wrap">
           <table>
             <thead><tr><th>Record</th><th>Route / mode</th><th>Freshness</th><th>Status</th><th>Stop / direction</th></tr></thead>
