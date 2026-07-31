@@ -2,8 +2,8 @@
   {
     "slug": "phx-transit-pulse",
     "createdAt": "2026-07-24",
-    "status": "in-progress",
-    "visibility": "hidden",
+    "status": "ready",
+    "visibility": "public",
     "title": "PHX Transit Pulse",
     "category": "Transit Operations UX",
     "summary": "A responsive transit-operations dashboard shell powered only by deterministic, clearly labeled fictional replay data.",
@@ -18,7 +18,13 @@
     ],
     "href": "/projects/phx-transit-pulse.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
-    "featured": false
+    "featured": true,
+    "showcase": {
+      "title": "PHX Transit Pulse",
+      "description": "Transit movement, delays & alerts",
+      "visualKey": "phx-transit",
+      "motion": "animated"
+    }
   },
   {
     "slug": "shrinkflation-tracker",
@@ -78,7 +84,7 @@
     "slug": "colony-ops-lab",
     "createdAt": "2026-07-04",
     "status": "ready",
-    "visibility": "public",
+    "visibility": "hidden",
     "title": "Colony Ops Lab",
     "category": "Interactive Data Viz",
     "summary": "A playable 60-second colony resource allocation simulation that turns session telemetry into KPI dashboards, charts, heatmaps, and benchmarks.",
@@ -93,7 +99,7 @@
     ],
     "href": "/games/colony-ops-lab.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
-    "featured": true,
+    "featured": false,
     "showcase": {
       "title": "Colony Ops",
       "description": "Resource strategy meets analytics",
