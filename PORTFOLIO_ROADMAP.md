@@ -73,7 +73,7 @@ These choices remove ambiguity from later implementation work.
 
 ## Pass 01 - Project governance
 
-Implemented and verified July 15, 2026. The current registry contains five public/ready projects and four hidden/in-progress projects, including PHX Transit Pulse. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
+Implemented and verified July 15, 2026. The current registry contains five public/ready projects and four hidden or unlisted projects, with PHX Transit Pulse published and Colony Ops retained as a hidden project. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
 
 ### 01.1 Add explicit lifecycle metadata
 
