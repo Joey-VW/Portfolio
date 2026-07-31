@@ -90,7 +90,7 @@
       paint: {
         'line-color': '#03101c',
         'line-width': ['case', ['==', ['get', 'selected'], true], 10, ['==', ['get', 'mode'], 'rail'], 8, 6],
-        'line-opacity': ['case', ['==', ['get', 'visible'], true], 0.95, 0.12]
+        'line-opacity': ['case', ['==', ['get', 'visible'], false], 0.12, ['==', ['get', 'selectionDimmed'], true], 0.28, 0.95]
       },
       layout: { 'line-cap': 'round', 'line-join': 'round' }
     });
@@ -117,7 +117,7 @@
       paint: {
         'line-color': ['get', 'color'],
         'line-width': ['case', ['==', ['get', 'mode'], 'rail'], 12, 9],
-        'line-opacity': 0.24,
+        'line-opacity': ['case', ['==', ['get', 'selectionDimmed'], true], 0.05, 0.24],
         'line-blur': 4
       },
       layout: {
@@ -138,7 +138,7 @@
           ['==', ['get', 'mode'], 'rail'], 4,
           3
         ],
-        'line-opacity': 0.94,
+        'line-opacity': ['case', ['==', ['get', 'selectionDimmed'], true], 0.26, 0.94],
         'line-blur': 0.25
       },
       layout: {
@@ -164,7 +164,7 @@
     map.addLayer({
       id: 'phx-rail-center', type: 'line', source: SOURCE_IDS.routes,
       filter: ['all', ['==', ['get', 'visible'], true], ['==', ['get', 'mode'], 'rail']],
-      paint: { 'line-color': '#f4eaff', 'line-width': 1.2, 'line-opacity': 0.9, 'line-dasharray': [1.2, 2] },
+      paint: { 'line-color': '#f4eaff', 'line-width': 1.2, 'line-opacity': ['case', ['==', ['get', 'selectionDimmed'], true], 0.2, 0.9], 'line-dasharray': [1.2, 2] },
       layout: { 'line-cap': 'round', 'line-join': 'round' }
     });
     map.addLayer({
@@ -818,6 +818,9 @@
           visible: visibleRouteIds.has(route.id),
           selected: adapterState.selection?.type === 'route'
             && adapterState.selection.id === route.id,
+          selectionDimmed: adapterState.selection?.type === 'route'
+            && adapterState.selection.id !== route.id
+            && visibleRouteIds.has(route.id),
           alertAffected: alertRoutes.has(route.id)
         }
       }));

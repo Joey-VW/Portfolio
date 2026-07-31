@@ -77,9 +77,12 @@ architecture:
 - `projects/phx-transit-pulse-map.js` owns MapLibre sources, layers, clicks,
   camera reset, and resize behavior. The main dashboard continues to own
   fixtures, filters, replay, scenarios, selection, KPIs, and announcements.
-- All operational longitude/latitude geometry is manually authored and
-  fictional. It does not use provider shapes, stops, vehicles, alerts, IDs, or
-  requests.
+- Route identities, service patterns, stops, vehicles, alerts, IDs, replay, and
+  performance values remain fictional. Route geometry is aligned at authoring
+  time to OpenStreetMap road and rail infrastructure. It does not use provider
+  shapes or operational records.
+- OSRM is used only by the local bus-route authoring helper. The public page has
+  no routing request, OSRM dependency, or provider-data dependency.
 - The canvas map is supplemented by a keyboard-operable Map records selector,
   existing alert and route controls, the selected-record inspector, and the
   synchronized accessible records table.

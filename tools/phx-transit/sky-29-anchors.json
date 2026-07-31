@@ -1,0 +1,111 @@
+{
+  "routeId": "SKY",
+  "label": "Sky 29",
+  "anchors": [
+    {
+      "label": "West Commons terminal",
+      "expectedRoad": "West Van Buren Street",
+      "requested": [-112.274009, 33.45024]
+    },
+    {
+      "label": "North 99th Avenue south",
+      "expectedRoad": "North 99th Avenue",
+      "requested": [-112.272507, 33.465]
+    },
+    {
+      "label": "North 99th Avenue north",
+      "expectedRoad": "North 99th Avenue",
+      "requested": [-112.272494, 33.51]
+    },
+    {
+      "label": "North 99th Avenue near Glendale",
+      "expectedRoad": "North 99th Avenue",
+      "requested": [-112.272431, 33.533]
+    },
+    {
+      "label": "Glendale Avenue at 51st Avenue",
+      "expectedRoad": "West Glendale Avenue",
+      "requested": [-112.151476, 33.538438]
+    },
+    {
+      "label": "Glendale Avenue at 19th Avenue",
+      "expectedRoad": "West Glendale Avenue",
+      "requested": [-112.100901, 33.538626]
+    },
+    {
+      "label": "Glendale Avenue at 7th Avenue",
+      "expectedRoad": "West Glendale Avenue",
+      "requested": [-112.082601, 33.538344]
+    },
+    {
+      "label": "7th Avenue corridor",
+      "expectedRoad": "North 7th Avenue",
+      "requested": [-112.082443, 33.501993]
+    },
+    {
+      "label": "Central Exchange",
+      "expectedRoad": "North 3rd Street",
+      "requested": [-112.07, 33.45]
+    },
+    {
+      "label": "Central Avenue at Buckeye Road",
+      "expectedRoad": "South Central Avenue",
+      "requested": [-112.07387, 33.437001]
+    },
+    {
+      "label": "Central Avenue north",
+      "expectedRoad": "South Central Avenue",
+      "requested": [-112.07384, 33.427202]
+    },
+    {
+      "label": "Central Avenue south",
+      "expectedRoad": "South Central Avenue",
+      "requested": [-112.073423, 33.398487]
+    },
+    {
+      "label": "Baseline Road at Central Avenue",
+      "expectedRoad": "East Baseline Road",
+      "requested": [-112.073278, 33.377754]
+    },
+    {
+      "label": "Baseline Road at 24th Street",
+      "expectedRoad": "East Baseline Road",
+      "requested": [-112.03052, 33.377686]
+    },
+    {
+      "label": "Baseline Road at 48th Street",
+      "expectedRoad": "West Baseline Road",
+      "requested": [-111.977, 33.378192]
+    },
+    {
+      "label": "Baseline Road at Rural Road",
+      "expectedRoad": "West Baseline Road",
+      "requested": [-111.943597, 33.378154]
+    },
+    {
+      "label": "Baseline Road at Dobson Road",
+      "expectedRoad": "East Baseline Road",
+      "requested": [-111.900632, 33.378471]
+    },
+    {
+      "label": "Baseline Road at Alma School Road",
+      "expectedRoad": "West Baseline Road",
+      "requested": [-111.84, 33.378706]
+    },
+    {
+      "label": "Baseline Road at Gilbert Road",
+      "expectedRoad": "East Baseline Road divided carriageway",
+      "requested": [-111.790668, 33.378929]
+    },
+    {
+      "label": "Gilbert Road south",
+      "expectedRoad": "South Gilbert Road",
+      "requested": [-111.788245, 33.396822]
+    },
+    {
+      "label": "Mesa Gardens terminal",
+      "expectedRoad": "North Gilbert Road",
+      "requested": [-111.78814, 33.418848]
+    }
+  ]
+}

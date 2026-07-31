@@ -40,6 +40,28 @@ def distance_to_line(point: list[float], coordinates: list[list[float]]) -> floa
     return min(point_to_segment(point, start, end) for start, end in zip(coordinates, coordinates[1:]))
 
 
+def project_to_line(point: list[float], coordinates: list[list[float]]) -> tuple[float, float]:
+    lengths = [distance(start, end) for start, end in zip(coordinates, coordinates[1:])]
+    total = sum(lengths)
+    traversed = 0.0
+    best_distance = math.inf
+    best_progress = 0.0
+    scale = math.cos(math.radians(point[1]))
+    px, py = point[0] * scale, point[1]
+    for index, (start, end) in enumerate(zip(coordinates, coordinates[1:])):
+        ax, ay = start[0] * scale, start[1]
+        bx, by = end[0] * scale, end[1]
+        dx, dy = bx - ax, by - ay
+        ratio = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy) if dx or dy else 0
+        ratio = max(0, min(1, ratio))
+        candidate_distance = math.hypot(px - (ax + ratio * dx), py - (ay + ratio * dy))
+        if candidate_distance < best_distance:
+            best_distance = candidate_distance
+            best_progress = (traversed + lengths[index] * ratio) / total if total else 0
+        traversed += lengths[index]
+    return best_distance, best_progress
+
+
 def point_along(coordinates: list[list[float]], progress: float) -> list[float]:
     lengths = [distance(start, end) for start, end in zip(coordinates, coordinates[1:])]
     remaining = sum(lengths) * progress
@@ -57,7 +79,7 @@ def validate_coordinate(point: list[float], label: str, bounds: list[list[float]
     require(bounds[0][1] <= point[1] <= bounds[1][1], f"{label} latitude is outside map bounds")
 
 
-def validate() -> tuple[int, int, int, int]:
+def validate() -> tuple[tuple[int, int, int, int], list[dict]]:
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
     meta = data.get("meta", {})
     require(meta.get("providerData") is False, "providerData must remain false")
@@ -113,6 +135,47 @@ def validate() -> tuple[int, int, int, int]:
         require(distance([stop_by_id[ordered[-1]]["longitude"], stop_by_id[ordered[-1]]["latitude"]], coordinates[-1]) <= 0.00005,
                 f"pattern {pattern_id} must end at its last stop")
 
+    route_summaries = []
+    for route in routes:
+        outbound = next((pattern for pattern in route["patterns"] if pattern.get("directionId") == 0), None)
+        inbound = next((pattern for pattern in route["patterns"] if pattern.get("directionId") == 1), None)
+        require(outbound is not None and inbound is not None,
+                f"route {route['id']} requires directionId 0 and 1 patterns")
+        outbound_coordinates = outbound["geometry"]["coordinates"]
+        require(inbound["geometry"]["coordinates"] == list(reversed(outbound_coordinates)),
+                f"route {route['id']} inbound geometry must exactly reverse outbound")
+        require(inbound["stopIds"] == list(reversed(outbound["stopIds"])),
+                f"route {route['id']} inbound stop order must exactly reverse outbound")
+        stop_report = []
+        for stop_id in outbound["stopIds"]:
+            stop = stop_by_id[stop_id]
+            distance_degrees, progress = project_to_line(
+                [stop["longitude"], stop["latitude"]],
+                outbound_coordinates,
+            )
+            stop_report.append(
+                {
+                    "id": stop_id,
+                    "distanceMeters": distance_degrees * 111_320,
+                    "progress": progress,
+                }
+            )
+        require(
+            all(after["progress"] > before["progress"] for before, after in zip(stop_report, stop_report[1:])),
+            f"route {route['id']} outbound stop progress must increase monotonically",
+        )
+        route_summaries.append(
+            {
+                "id": route["id"],
+                "coordinateCount": len(outbound_coordinates),
+                "lengthKilometers": sum(
+                    distance(start, end) for start, end in zip(outbound_coordinates, outbound_coordinates[1:])
+                ) * 111.32,
+                "reverseExact": True,
+                "stops": stop_report,
+            }
+        )
+
     progress_by_vehicle: dict[str, list[float]] = {}
     vehicle_total = alert_total = 0
     baseline_ids = None
@@ -159,10 +222,20 @@ def validate() -> tuple[int, int, int, int]:
     for stale_label in ("Mesa Gateway", "Westgate", "Copper Square"):
         require(stale_label not in serialized, f"fixture retains stale stop label {stale_label}")
 
-    return len(routes), len(stops), vehicle_total, alert_total
+    return (len(routes), len(stops), vehicle_total, alert_total), route_summaries
 
 
 if __name__ == "__main__":
-    counts = validate()
+    counts, summaries = validate()
     print(f"PHX Transit synthetic map fixture valid: {counts[0]} routes, {counts[1]} stops, "
           f"{counts[2]} vehicle progress records, {counts[3]} valid alert segments.")
+    for summary in summaries:
+        print(
+            f"  {summary['id']}: {summary['coordinateCount']} coordinates, "
+            f"{summary['lengthKilometers']:.3f} km, inbound reverse exact"
+        )
+        for stop in summary["stops"]:
+            print(
+                f"    {stop['id']}: {stop['distanceMeters']:.2f} m from route, "
+                f"progress {stop['progress']:.5f}"
+            )

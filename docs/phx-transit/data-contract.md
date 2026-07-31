@@ -114,9 +114,12 @@ methodology decisions and tests.
 
 `data/phx-transit/synthetic/operations-replay.json` is a separate, browser-facing
 demonstration fixture. It remains `providerData: false` and uses the geography
-label `fictional-phoenix-area-overlay`. Its longitude and latitude values were
-manually authored for this portfolio demonstration; they are not copied from
-provider routes, stops, vehicles, alerts, or shapes.
+label `fictional-phoenix-area-overlay`. Its route identities and all operational
+records remain fictional. Longitude and latitude geometry is aligned to
+OpenStreetMap road and rail infrastructure at authoring time; it is not copied
+from provider routes, stops, vehicles, alerts, schedules, or shapes. The local
+bus authoring workflow may call OSRM, but the browser fixture and production
+page have no runtime routing dependency.
 
 The top-level `map` object defines the fictional network center, initial zoom,
 approved bounds, zoom limits, bearing, and pitch. Each route retains its legacy

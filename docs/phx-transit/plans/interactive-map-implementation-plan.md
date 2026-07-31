@@ -137,7 +137,9 @@ Do not commit secrets to frontend code. If the chosen service requires a secret 
 
 ### Gate C — Synthetic geography strategy
 
-Approve the use of manually authored fictional longitude/latitude geometry within the Phoenix metro area.
+Approve fictional service patterns whose longitude/latitude geometry is aligned
+at authoring time to OpenStreetMap road and rail infrastructure within the
+Phoenix metro area.
 
 The geometry should:
 
@@ -232,7 +234,8 @@ Do not add fields that are not used by the implemented design.
 - Replay frames move vehicles plausibly.
 - The current SVG map still renders from the legacy fields.
 - `providerData` remains `false`.
-- Fixture documentation explicitly says the geographic coordinates are fictional.
+- Fixture documentation explicitly distinguishes fictional transit operations
+  and service patterns from their OpenStreetMap-aligned geographic geometry.
 
 ## Phase 2 — Introduce an isolated map adapter
 
