@@ -50,7 +50,7 @@ Preserve the current static multi-page product architecture while following the 
 - Locked Node and Python development environments
 - Cloudflare-compatible `_headers` and `_redirects`
 
-The root npm and uv manifests are repository tooling, not a browser framework or backend. Do not introduce a framework, application server, database, or new runtime dependency for a scoped feature without explicit approval. Vite is approved in principle for the later, separately scoped `dist/` proof; do not add its production configuration or change Cloudflare output settings during unrelated work.
+The root npm and uv manifests are repository tooling, not a browser framework or backend. Do not introduce a framework, application server, database, or new runtime dependency for a scoped feature without explicit approval. Vite is approved only as the static multi-page production-build tool; do not change Cloudflare output settings outside the approved cutover pass.
 
 ## Source-of-truth map
 
@@ -176,6 +176,9 @@ npm run format:check
 npm run lint
 npm run validate
 npm run test
+npm run build
+npm run validate:dist
+npm run test:dist
 npm run check
 ```
 
@@ -240,6 +243,17 @@ Also run the registry validator when project lifecycle metadata or routes change
 python tools/validate_project_registry.py
 node tools/validate_project_registry_runtime.js
 ```
+
+If build configuration, deployable files, route manifests, browser-safe data, or Cloudflare controls change, run the production artifact checks and serve `dist` over HTTP:
+
+```bash
+npm run build
+npm run validate:dist
+python -m http.server 4173 --bind 127.0.0.1 --directory dist
+python tools/smoke_static_routes.py --base-url http://127.0.0.1:4173
+```
+
+`dist/` is generated and ignored. Never manually patch generated `dist/` contents; change source files, rebuild, and let validators prove the artifact. Until the approved Cloudflare cutover is complete, production still publishes the repository root.
 
 For browser-visible changes:
 

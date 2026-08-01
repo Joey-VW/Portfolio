@@ -59,6 +59,22 @@ jobs:
       - name: Run deterministic tests
         run: npm run test
 
+      - name: Build production artifact
+        run: npm run build
+
+      - name: Validate production artifact
+        run: npm run validate:dist
+
+      - name: Smoke production artifact routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m http.server 4173 --bind 127.0.0.1 --directory dist &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          sleep 2
+          python tools/smoke_static_routes.py --base-url http://127.0.0.1:4173
+
       - name: Check diff whitespace
         shell: bash
         run: |

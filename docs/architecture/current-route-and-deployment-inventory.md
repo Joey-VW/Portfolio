@@ -95,11 +95,11 @@ The current root deployment makes tracked source and evidence reachable unless C
 - Shrinkflation, EV, Procurement, and Quote-to-Cash render committed browser JSON and expose understandable error states when fetches fail.
 - Postcard Atlas keeps its nested relative URLs, static fallbacks, media manifest, deep links, and optional external content sources.
 
-## Vite compatibility study
+## Vite production-build proof
 
-A disposable Vite 8.2.0 multi-page proof was run against all 19 tracked HTML entries on Node 24.14.0. It completed successfully and preserved nested HTML output, processed Postcard Atlas ES modules, and accepted Gravity Fleet `.mjs` imports. `_headers`, `_redirects`, and `data/` were copied by a temporary proof plugin.
+Pass 16.3 commits a Vite 8.2.x multi-page build against all 19 tracked HTML entries on Node 24. The configuration derives HTML entries from `git ls-files`, preserves current route shapes, disables source maps, and writes a clean ignored `dist/` artifact. Vite handles rewritten HTML references and hashed generated assets where safe.
 
-The proof also produced actionable warnings: classic scripts without `type="module"` are not bundled automatically, root-relative runtime files require an explicit copy policy, and Postcard Atlas media must be copied from an approved manifest. Vite is therefore approved in principle for Pass 16.3, conditional on explicit entries, an allowlisted static-copy step, route/output assertions, and no production cutover in the same pass.
+Classic scripts without `type="module"` remain root-relative runtime files, so the build includes an explicit reviewed static-copy step for shared scripts and styles, game/project scripts and modules, browser-safe JSON, intentionally public docs, Cloudflare controls, image assets, and the Postcard Atlas media manifest family. `tools/validate_dist.mjs` asserts route presence, required files, forbidden source/test/tooling paths, local-path and secret patterns, and browser fetch containment inside `dist`.
 
 ## Known contradictions and follow-up questions
 
@@ -125,16 +125,25 @@ In a second shell, verify tracked routes and critical root assets over HTTP:
 python tools/smoke_static_routes.py --base-url http://127.0.0.1:8000
 ```
 
-The current smoke set covers the 19 tracked HTML routes plus 16 critical data, script, stylesheet, module, and Cloudflare-control targets.
+The current root smoke set covers the 19 tracked HTML routes plus 20 critical data, script, stylesheet, module, Postcard Atlas, and Cloudflare-control targets. The `dist` smoke uses the same route set and expands the Postcard Atlas video manifest into 18 final media URLs.
 
 ## Reproducible Vite proof instructions
 
-Pass 16.3 will add the committed build configuration. Until then, reproduce the disposable compatibility proof outside the repository or in an ignored scratch directory:
+From a clean checkout on the Pass 16.3 branch:
 
-1. Enumerate HTML entries from `git ls-files "*.html"`.
-2. Configure Vite with those entries as `rollupOptions.input`.
-3. Add a temporary static-copy step for `_headers`, `_redirects`, reviewed `/data/`, `/assets/`, classic route scripts, and the Postcard Atlas media manifest family.
-4. Run the proof build with Node 24 and Vite 8.2.x.
-5. Assert that every tracked HTML route, `_headers`, `_redirects`, and required root-relative runtime asset exists in the proof output.
+```bash
+npm ci
+uv sync --dev --locked
+npm run build
+npm run validate:dist
+npm run test:dist
+```
 
-Do not commit `vite.config.*`, `dist/`, or Cloudflare output-directory changes before Pass 16.3.
+Serve the artifact and smoke the final route URLs:
+
+```bash
+python -m http.server 4173 --bind 127.0.0.1 --directory dist
+python tools/smoke_static_routes.py --base-url http://127.0.0.1:4173
+```
+
+`dist/` is generated and ignored. Do not manually patch it, commit it, or change Cloudflare's production output directory until the Pass 16.3 acceptance criteria and Cloudflare preview gate pass.

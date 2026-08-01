@@ -3,7 +3,7 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **IN PROGRESS - Pass 16.0 through 16.2 implemented and verified; Pass 16.3 remains blocked**
+- Status: **IN PROGRESS - Pass 16.0 through 16.2 implemented and verified; Pass 16.3 implementation is in review; Pass 16.4 remains blocked by Cloudflare preview and dashboard cutover**
 - Prepared: July 31, 2026
 - Baseline reviewed: `main` at `78b03c0` (`remove redundant h2`)
 - Primary implementation tracker: this document
@@ -201,7 +201,7 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 | 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded against the branch's actual `main` ancestor, `78b03c0`. | None | Current `main` stable |
 | 16.1 Command and dependency foundation | DONE | Reproducible environments and one command surface are implemented with locked uv enforcement and deterministic tracked-file discovery. | Low | 16.0 |
 | 16.2 CI and contract foundation | IN REVIEW | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented and green on PR #39. | Low | 16.1 |
-| 16.3 Parallel production-build proof | BLOCKED | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
+| 16.3 Parallel production-build proof | IN REVIEW | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
 | 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |
 | 16.6 Focused application modularization | BLOCKED | Split large files by responsibility without redesigning features. | Medium | 16.4; 16.5 where paths overlap |
@@ -375,23 +375,29 @@ Generate a production-grade `dist/` artifact and validate it without changing th
 
 ### Work items
 
-- [ ] Add the approved build tool and configuration.
-- [ ] Declare every HTML entry point explicitly or generate the list from a reviewed route manifest.
-- [ ] Preserve public URL shapes rather than exposing source-folder paths.
-- [ ] Copy only approved static assets and browser-safe data.
-- [ ] Ensure `_headers` and `_redirects` land at the `dist/` root.
-- [ ] Preserve source maps only if their production exposure is intentionally approved.
-- [ ] Add hashed assets where safe while ensuring HTML references remain correct.
-- [ ] Add a clean-build rule that removes stale output before generation.
-- [ ] Add output assertions that fail when:
+- [x] Add the approved build tool and configuration.
+- [x] Declare every HTML entry point explicitly or generate the list from a reviewed route manifest.
+- [x] Preserve public URL shapes rather than exposing source-folder paths.
+- [x] Copy only approved static assets and browser-safe data.
+- [x] Ensure `_headers` and `_redirects` land at the `dist/` root.
+- [x] Preserve source maps only if their production exposure is intentionally approved.
+- [x] Add hashed assets where safe while ensuring HTML references remain correct.
+- [x] Add a clean-build rule that removes stale output before generation.
+- [x] Add output assertions that fail when:
   - a required route is missing;
   - an unapproved top-level source directory appears;
   - a browser fetch points outside the artifact;
   - a private/local path or secret pattern appears;
   - a required Cloudflare control file is missing.
-- [ ] Serve `dist/` locally and run route/data smoke checks against it.
-- [ ] Compare the generated artifact with the Pass 16.0 route and deployment inventories.
-- [ ] Keep Cloudflare configured to publish the repository root throughout this pass.
+- [x] Serve `dist/` locally and run route/data smoke checks against it.
+- [x] Compare the generated artifact with the Pass 16.0 route and deployment inventories.
+- [x] Keep Cloudflare configured to publish the repository root throughout this pass.
+
+### Implementation note
+
+Pass 16.3 adds Vite as the approved static multi-page build tool, with HTML entries derived from `git ls-files`, an allowlisted static-copy step for browser-safe runtime files, Postcard Atlas media, public JSON, `_headers`, and `_redirects`, and `tools/validate_dist.mjs` to enforce route presence, fetch containment, denylisted source exclusions, Cloudflare control files, and obvious secret or local-path patterns. CI now builds and validates the production artifact and smokes the generated routes from `dist`.
+
+The generated artifact intentionally keeps classic root-relative scripts as copied runtime assets rather than converting all legacy scripts to modules. Vite-owned assets are hashed where Vite can safely rewrite references. Source maps are disabled.
 
 ### Required output exclusions
 
@@ -409,14 +415,16 @@ At minimum, verify that `dist/` does not contain source copies of:
 
 ### Acceptance criteria
 
-- `npm run build` creates `dist/` from a clean checkout.
-- Repeating the build without source changes produces equivalent deployable contents, allowing documented nondeterministic metadata only when unavoidable.
-- Every current public route loads from a local `dist/` server.
-- Nested Postcard Atlas pages and media work from their final URLs.
-- All browser data requests resolve inside `dist/`.
-- Public behavior matches the Pass 16.0 baseline at representative desktop, mobile, keyboard, reduced-motion, and print states.
-- The output allowlist and denylist checks pass.
-- Production still uses the old root deployment, so rollback is unnecessary in this pass.
+- [x] `npm run build` creates `dist/` from a clean checkout.
+- [x] Repeating the build without source changes produces equivalent deployable contents, allowing documented nondeterministic metadata only when unavoidable.
+- [x] Every current public route loads from a local `dist/` server.
+- [x] Nested Postcard Atlas pages and media work from their final URLs.
+- [x] All browser data requests resolve inside `dist/`.
+- [ ] Public behavior matches the Pass 16.0 baseline at representative desktop, mobile, keyboard, reduced-motion, and print states.
+- [x] The output allowlist and denylist checks pass.
+- [x] Production still uses the old root deployment, so rollback is unnecessary in this pass.
+
+The remaining open Pass 16.3 acceptance item requires rendered browser review on the pull-request preview or an equivalent browser automation pass. Source and local HTTP smoke checks do not by themselves prove visual, keyboard, reduced-motion, or print parity.
 
 ## Pass 16.4 - Cloudflare `dist/` cutover
 
@@ -434,6 +442,7 @@ Make the validated generated artifact the sole production deployment boundary.
 
 ### Work items
 
+- [x] Record the current Cloudflare Pages configuration and rollback path before changing production.
 - [ ] Change Cloudflare Pages to use the documented build command and `dist` output directory.
 - [ ] Verify environment versions match the repository's supported version policy.
 - [ ] Verify preview and production builds start from clean checkouts.
@@ -443,7 +452,11 @@ Make the validated generated artifact the sole production deployment boundary.
 - [ ] Confirm print/PDF behavior from the deployed homepage.
 - [ ] Perform the production switch only after preview approval.
 - [ ] Run a post-deploy production smoke pass.
-- [ ] Retain the rollback instructions until at least one stable follow-up release succeeds.
+- [x] Retain the rollback instructions until at least one stable follow-up release succeeds.
+
+### Current cutover status
+
+The recorded root-deploy settings and proposed `dist` cutover steps live in `docs/architecture/cloudflare-dist-cutover-runbook.md`. Direct Cloudflare dashboard access has not been verified in this repository pass, and no production output-directory change is claimed. Pass 16.4 remains blocked until the branch preview passes, the dashboard settings are changed, and production smoke checks pass.
 
 ### Rollback plan
 
