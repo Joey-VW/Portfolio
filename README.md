@@ -4,9 +4,48 @@ A plain HTML/CSS/JavaScript technical portfolio hub for analytics, automation, s
 
 This is the clean active portfolio repository. `PORTFOLIO_ROADMAP.md` is the implementation-status source of truth. Some backend and live-service integrations remain intentionally deferred; fixture-based demos and disabled submission behavior must describe those limits truthfully.
 
+## Toolchain setup
+
+Repository tooling supports Node 24, npm 11, Python 3.12, and uv. Install the locked JavaScript and core Python development environments from a clean checkout:
+
+```bash
+npm ci
+uv sync --dev --locked
+```
+
+Optional Python tool families stay outside the default merge gate:
+
+```bash
+uv sync --extra capture       # Playwright and Pillow; browser install is separate
+uv sync --extra transit       # GTFS-Realtime inspection tools
+uv sync --extra bigquery      # Optional Procurement BigQuery publishing
+```
+
+The supported root checks are:
+
+```bash
+npm run format:check
+npm run lint
+npm run validate
+npm run test
+npm run check
+```
+
+Credentialed Kroger and transit operations, browser capture, BigQuery writes, production builds, and deployments are intentionally excluded from the default merge gate.
+
+GitHub Actions runs the same deterministic gate for pull requests and relevant pushes. The Kroger observation workflow remains separate, credential-gated, and unchanged by the general CI workflow.
+
+Initial JSON Schemas live in `schemas/` and are enforced by:
+
+```bash
+python tools/validate_json_contracts.py
+```
+
+The contract validator checks the project registry, Showcase configuration, PHX Transit synthetic fixtures, EV True Cost data, Shrinkflation browser data, and the generated Procurement and Quote-to-Cash artifacts. It also verifies registry/noindex consistency, route existence, public featured Showcase metadata, and obvious secrets or local absolute paths in deployable inputs.
+
 ## Local preview
 
-No build system is required. Run a small static server from the repository root so JSON project data can be fetched correctly:
+No production build is used yet. Run a small static server from the repository root so JSON project data can be fetched correctly:
 
 ```bash
 python -m http.server 8000
@@ -38,7 +77,7 @@ Key routes:
 - `/projects/ev-true-cost.html` - EV public-charging cost check for public, mostly-home, and home-only charging
 - `/projects/procurement-kpi-analysis.html` - hidden, noindex supplier-priority case study built from a validated procurement metric layer
 - `/projects/quote-to-cash-workflow-audit.html` - hidden, noindex deterministic fictional audit of CRM, billing, and revenue-recognition handoffs
-- `/projects/phx-transit-pulse.html` - hidden, noindex synthetic operations console with a real Phoenix-area basemap, fictional transit overlays, deterministic replay, explicit demonstration states, accessible records, and a schematic fallback; supporting feasibility and implementation documents live under `docs/phx-transit/`.
+- `/projects/phx-transit-pulse.html` - public synthetic operations console with a real Phoenix-area basemap, fictional transit overlays, deterministic replay, accessible records, and a schematic fallback; supporting feasibility and implementation documents live under `docs/phx-transit/`.
 - `/projects/multi-platform-publishing-system.html` - public-ready Multi-Platform Publishing System case study (currently noindex; final indexing decision is part of the production release)
 - `/projects/multi-platform-publishing-system/demo/` - public-ready Postcard Atlas fictional publishing-system demo (currently noindex; final indexing decision is part of the production release)
 
@@ -64,6 +103,13 @@ assets/img/projects/               # Future project imagery
 assets/img/og/                     # Future Open Graph/Twitter preview images
 _headers                           # Cloudflare Pages headers
 _redirects                         # Cloudflare Pages redirects
+package.json / package-lock.json   # Root npm commands and locked JavaScript tooling
+pyproject.toml / uv.lock           # Python dependencies and locked environments
+tools/check_all.py                 # Cross-platform deterministic check orchestration
+tools/validate_json_contracts.py   # Initial JSON Schema and repository contract checks
+docs/architecture/                 # Current route, deployment, and validation baselines
+docs/decisions/                    # Architecture decision records
+schemas/                           # Initial JSON Schemas for browser-readable contract data
 ```
 
 ## Print-to-PDF resume behavior
@@ -164,5 +210,5 @@ To prevent search-result drift over time, review candidate matches and lock stab
 - Add richer case-study metrics, diagrams, and links to live demos where appropriate.
 - Keep fixture-based and disabled behaviors truthful while live Sheets, Forms, Drive, and contact delivery remain deferred.
 - Replace the `mailto:` contact form with a verified Cloudflare Worker or form endpoint when backend work is prioritized.
-- Keep the site build-free until content volume justifies templating or static generation.
+- Keep the browser application static and multi-page. Prove the planned `dist/` build before any separate Cloudflare output-directory cutover.
 

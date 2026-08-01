@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://joewisto.dev/schemas/phx-transit-operations-replay.schema.json",
+  "title": "PHX Transit synthetic operations replay",
+  "type": "object",
+  "required": ["contractVersion", "meta", "routes", "stops", "frames", "map"],
+  "properties": {
+    "contractVersion": { "type": "string", "minLength": 1 },
+    "meta": {
+      "type": "object",
+      "required": [
+        "fixtureKind",
+        "mode",
+        "source",
+        "providerData",
+        "timezone",
+        "frameIntervalMs"
+      ],
+      "properties": {
+        "fixtureKind": { "type": "string" },
+        "mode": { "type": "string" },
+        "source": { "type": "string" },
+        "providerData": { "type": "boolean" },
+        "timezone": { "type": "string" },
+        "frameIntervalMs": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "routes": { "type": "array", "minItems": 1, "items": { "type": "object" } },
+    "stops": { "type": "array", "minItems": 1, "items": { "type": "object" } },
+    "frames": { "type": "array", "minItems": 1, "items": { "type": "object" } },
+    "map": {
+      "type": "object",
+      "required": ["center", "zoom", "bounds"],
+      "properties": {
+        "center": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "number" }
+        },
+        "zoom": { "type": "number" },
+        "bounds": { "type": "array", "minItems": 2, "maxItems": 2 }
+      }
+    }
+  }
+}

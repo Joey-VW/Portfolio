@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://joewisto.dev/schemas/phx-transit-state-scenarios.schema.json",
+  "title": "PHX Transit synthetic state scenarios",
+  "type": "object",
+  "required": ["contractVersion", "meta", "scenarios"],
+  "properties": {
+    "contractVersion": { "type": "string", "minLength": 1 },
+    "meta": {
+      "type": "object",
+      "required": ["fixtureKind", "mode", "source", "providerData"],
+      "properties": {
+        "fixtureKind": { "type": "string" },
+        "mode": { "type": "string" },
+        "source": { "type": "string" },
+        "providerData": { "type": "boolean" }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "object" }
+    }
+  }
+}

@@ -3,9 +3,9 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **PLANNED**
+- Status: **IN PROGRESS - Pass 16.0 through 16.2 implemented and verified; Pass 16.3 remains blocked**
 - Prepared: July 31, 2026
-- Baseline reviewed: `main` at `e1f8867` (`Publish PHX Transit Pulse and add Showcase animation (#37)`)
+- Baseline reviewed: `main` at `78b03c0` (`remove redundant h2`)
 - Primary implementation tracker: this document
 - Related sources of truth: `AGENTS.md`, `PORTFOLIO_ROADMAP.md`, `README.md`, `data/projects.json`
 
@@ -198,9 +198,9 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 
 | Pass | Status | Outcome | Production risk | Main dependency |
 | --- | --- | --- | --- | --- |
-| 16.0 Baseline and decisions | NEXT | Freeze behavior, inventory routes/data, and record architectural choices. | None | Current `main` stable |
-| 16.1 Command and dependency foundation | READY AFTER 16.0 | Add reproducible environments and one command surface without changing deployment. | Low | 16.0 |
-| 16.2 CI and contract foundation | BLOCKED | Turn existing checks into a required, deterministic PR gate and add initial schemas. | Low | 16.1 |
+| 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded against the branch's actual `main` ancestor, `78b03c0`. | None | Current `main` stable |
+| 16.1 Command and dependency foundation | DONE | Reproducible environments and one command surface are implemented with locked uv enforcement and deterministic tracked-file discovery. | Low | 16.0 |
+| 16.2 CI and contract foundation | IN REVIEW | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented and green on PR #39. | Low | 16.1 |
 | 16.3 Parallel production-build proof | BLOCKED | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
 | 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |
@@ -220,18 +220,18 @@ Create evidence that later passes can compare against and remove architectural a
 
 ### Work items
 
-- [ ] Start from the latest `main` and record the exact baseline commit.
-- [ ] Confirm the working tree is clean and preserve all newer merged work.
-- [ ] Inventory every public, hidden, redirected, and nested HTML route.
-- [ ] Inventory all browser fetch paths, dynamic asset references, Web Worker/module imports if any, and URL construction logic.
-- [ ] Build a deployment manifest that classifies each tracked top-level path as:
+- [x] Start from the latest `main` and record the exact baseline commit.
+- [x] Confirm the working tree is clean and preserve all newer merged work.
+- [x] Inventory every public, hidden, redirected, and nested HTML route.
+- [x] Inventory all browser fetch paths, dynamic asset references, Web Worker/module imports if any, and URL construction logic.
+- [x] Build a deployment manifest that classifies each tracked top-level path as:
   - required in production;
   - source only;
   - test/tooling only;
   - verification evidence;
   - unresolved and requiring review.
-- [ ] Record baseline output for all existing validators and tests.
-- [ ] Capture or document representative behavior for:
+- [x] Record baseline output for all existing validators and tests.
+- [x] Capture or document representative behavior for:
   - homepage desktop, mobile, Showcase, and print;
   - project index;
   - PHX Transit map, replay, filters, fallback, and reduced motion;
@@ -240,14 +240,14 @@ Create evidence that later passes can compare against and remove architectural a
   - EV calculations;
   - Procurement and Quote-to-Cash data rendering;
   - Postcard Atlas nested routes and media loading.
-- [ ] Add the initial architecture decision records:
+- [x] Add the initial architecture decision records:
   - `0001-static-multi-page-architecture.md`;
   - `0002-project-registry-source-of-truth.md`;
   - `0003-synthetic-and-generated-data-policy.md`;
   - `0004-build-and-dist-boundary.md`.
-- [ ] Decide and document the supported Node and Python version policy.
-- [ ] Confirm whether `uv.lock` adds practical value in the target environments; otherwise use a standards-based `pyproject.toml` plus a documented lock strategy.
-- [ ] Confirm Vite against the difficult routes before treating it as final:
+- [x] Decide and document the supported Node and Python version policy.
+- [x] Confirm whether `uv.lock` adds practical value in the target environments; otherwise use a standards-based `pyproject.toml` plus a documented lock strategy.
+- [x] Confirm Vite against the difficult routes before treating it as final:
   - root and nested HTML entry points;
   - Postcard Atlas nested assets and videos;
   - root-relative `/data`, `/projects`, `/games`, and `/assets` paths;
@@ -277,17 +277,17 @@ Make setup and validation reproducible before changing the deployment model.
 
 ### Work items
 
-- [ ] Add `package.json` and a committed `package-lock.json`.
-- [ ] Add `pyproject.toml` with the dependencies needed by maintained Python tools and tests.
-- [ ] Commit the selected Python lock artifact if Pass 16.0 approves one.
-- [ ] Add `.editorconfig`.
-- [ ] Add `.node-version` or `.nvmrc` and `.python-version` only if they match the documented environment policy.
-- [ ] Add root scripts that wrap current validators without changing their behavior.
-- [ ] Add a small Python orchestration entry point such as `tools/check_all.py` only if it reduces cross-platform quoting and duplicated task logic.
-- [ ] Separate required development dependencies from optional visual-capture dependencies.
-- [ ] Keep credentialed Kroger operations outside `npm run check`.
-- [ ] Define formatter and linter scopes narrowly enough to avoid a repository-wide reformat.
-- [ ] Update `README.md` and `AGENTS.md` with truthful setup and command instructions.
+- [x] Add `package.json` and a committed `package-lock.json`.
+- [x] Add `pyproject.toml` with the dependencies needed by maintained Python tools and tests.
+- [x] Commit the selected Python lock artifact if Pass 16.0 approves one.
+- [x] Add `.editorconfig`.
+- [x] Add `.node-version` or `.nvmrc` and `.python-version` only if they match the documented environment policy.
+- [x] Add root scripts that wrap current validators without changing their behavior.
+- [x] Add a small Python orchestration entry point such as `tools/check_all.py` only if it reduces cross-platform quoting and duplicated task logic.
+- [x] Separate required development dependencies from optional visual-capture dependencies.
+- [x] Keep credentialed Kroger operations outside `npm run check`.
+- [x] Define formatter and linter scopes narrowly enough to avoid a repository-wide reformat.
+- [x] Update `README.md` and `AGENTS.md` with truthful setup and command instructions.
 
 ### Command rollout order
 
@@ -307,6 +307,10 @@ Make setup and validation reproducible before changing the deployment model.
 - No browser-visible files or Cloudflare settings change.
 - Formatting configuration does not create an unrelated mass diff.
 
+### Implementation note
+
+Pass 16.1 is implemented. The Gravity Fleet orbit-speed conflict was resolved by restoring the level multipliers that repository history established, rather than excluding or weakening the validator. Windows clean-install verification is still pending.
+
 ## Pass 16.2 - CI and contract foundation
 
 ### Goal
@@ -315,28 +319,34 @@ Turn the repository's existing engineering checks into a reliable pull-request g
 
 ### Work items
 
-- [ ] Add `.github/workflows/ci.yml` triggered for pull requests and relevant pushes.
-- [ ] Use least-necessary permissions and concurrency cancellation for superseded runs.
-- [ ] Cache dependencies using lockfile keys without caching generated repository outputs.
-- [ ] Run jobs in an order that surfaces cheap failures before browser or build work.
-- [ ] Preserve `.github/workflows/update-kroger-observations.yml` as an independent workflow.
-- [ ] Add initial schemas for:
+- [x] Add `.github/workflows/ci.yml` triggered for pull requests and relevant pushes.
+- [x] Use least-necessary permissions and concurrency cancellation for superseded runs.
+- [x] Cache dependencies using lockfile keys without caching generated repository outputs.
+- [x] Run jobs in an order that surfaces cheap failures before browser or build work.
+- [x] Preserve `.github/workflows/update-kroger-observations.yml` as an independent workflow.
+- [x] Add initial schemas for:
   - `data/projects.json`;
   - `data/showcase-config.json`;
   - PHX Transit replay/scenario artifacts;
   - EV True Cost data;
   - Shrinkflation browser data;
   - Procurement and Quote-to-Cash generated artifacts.
-- [ ] Add schema-version and provenance fields only through backward-compatible, project-specific migrations.
-- [ ] Reuse schemas from Python and JavaScript where practical instead of creating conflicting implementations.
-- [ ] Add contract checks for:
+- [x] Add schema-version and provenance fields only through backward-compatible, project-specific migrations.
+- [x] Reuse schemas from Python and JavaScript where practical instead of creating conflicting implementations.
+- [x] Add contract checks for:
   - registry status versus route `noindex` behavior;
-  - public routes versus actual build entries;
+  - committed registry routes versus existing route files until Pass 16.3 introduces production build entries;
   - Showcase references versus public/featured projects;
-  - generated artifact reproducibility where generators exist;
+  - committed generated-artifact schema and validator coverage; rebuild-and-compare reproducibility remains a later ratchet;
   - absence of credentials and local absolute paths in deployable inputs.
-- [ ] Add `.github/pull_request_template.md` and `.github/dependabot.yml`.
-- [ ] Recommend branch-protection settings in documentation; do not claim they are enabled until GitHub confirms them.
+- [x] Add `.github/pull_request_template.md` and `.github/dependabot.yml`.
+- [x] Recommend branch-protection settings in documentation; do not claim they are enabled until GitHub confirms them.
+
+### Implementation note
+
+Pass 16.2 adds `.github/workflows/ci.yml`, `schemas/*.schema.json`, and `tools/validate_json_contracts.py`. The validator intentionally starts with broad but enforceable schema shape checks, committed route existence checks, route/noindex consistency, public featured Showcase metadata, committed generated-artifact validation, and deployable-input scanning for obvious secrets or local absolute paths. It also includes `tests/fixtures/contracts/invalid-projects.json` so `npm run test` proves an invalid schema fixture fails as expected. It does not validate production build entries until Pass 16.3 introduces them, and it does not claim generated-artifact reproducibility until generators are rebuilt and compared in a future ratchet.
+
+Recommended branch protection after the new CI proves stable: require the `Repository checks` status before merging to `main`, require branches to be up to date before merge, prefer squash merges, and keep automatic deletion of merged branches enabled. These settings are recommendations only; this branch does not claim they are enabled in GitHub.
 
 ### Suggested CI job progression
 
@@ -350,12 +360,12 @@ Turn the repository's existing engineering checks into a reliable pull-request g
 
 ### Acceptance criteria
 
-- CI runs without credentials or network-dependent live data.
-- Every existing validator is represented or its exclusion is documented.
-- CI fails on a deliberately invalid schema fixture and passes on the committed data.
-- The Kroger scheduled workflow retains its existing safety behavior.
-- Linters and formatters do not make unrelated legacy code unmergeable without a documented ratchet plan.
-- The CI status can become a required branch check once it has proven stable.
+- [x] GitHub CI completes successfully without credentials or network-dependent live data.
+- [x] Every existing validator is represented or its exclusion is documented.
+- [x] Local validation fails on a deliberately invalid schema fixture and passes on the committed data.
+- [x] The Kroger scheduled workflow retains its existing safety behavior.
+- [x] Linters and formatters do not make unrelated legacy code unmergeable without a documented ratchet plan.
+- [x] The CI status can become a required branch check once it has proven stable.
 
 ## Pass 16.3 - Parallel production-build proof
 
@@ -761,7 +771,7 @@ The program is complete when all of the following are true:
 
 ## 13. Immediate starting packet
 
-The first implementation pass should be **Pass 16.0 only**. It is intentionally read-heavy and low risk.
+The roadmap originally recommended Pass 16.0 only. At the user's direction, the first implementation combined Pass 16.0 and Pass 16.1 while preserving the boundary against CI, schemas, production build configuration, and Cloudflare changes.
 
 ### First-pass deliverable
 
@@ -778,12 +788,12 @@ docs/decisions/0004-build-and-dist-boundary.md
 
 ### First-pass completion checklist
 
-- [ ] Inspect latest `main`, not an older repository pack or QA branch.
-- [ ] Inventory current routes, redirects, fetch paths, assets, and data classifications.
-- [ ] Run and record all existing deterministic checks.
-- [ ] Test Vite's fit through a disposable proof or documented configuration study; do not commit the build yet.
-- [ ] Record unresolved path or data-classification questions.
-- [ ] Make no runtime, dependency, or Cloudflare configuration changes.
+- [x] Inspect latest `main`, not an older repository pack or QA branch.
+- [x] Inventory current routes, redirects, fetch paths, assets, and data classifications.
+- [x] Run and record all existing deterministic checks.
+- [x] Test Vite's fit through a disposable proof or documented configuration study; do not commit the build yet.
+- [x] Record unresolved path or data-classification questions.
+- [x] Make no runtime or Cloudflare configuration changes; Pass 16.1 adds development-only dependency manifests as explicitly requested.
 - [ ] Open a focused draft pull request for review.
 
 Starting with this packet gives Pass 16.1 exact inputs and prevents the build migration from becoming an improvised file move.

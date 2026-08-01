@@ -42,6 +42,7 @@ Status labels:
 | 13. PHX Transit Pulse | IN REVIEW | The synthetic operations console now uses a real interactive Phoenix-area basemap with fictional operational overlays and an automatic schematic fallback. Targeted mapped-build regression and Cloudflare preview QA remain; live ingestion is still blocked by provider terms. | Mapped-build QA and provider terms only for live ingestion or provider replay |
 | 14. Legacy analytics modernization | LATER | Selectively modernize the strongest projects from the retired analytics portfolio into complete, evidence-backed case studies that match the current portfolio's presentation and validation standards. | Current release work through Pass 12 |
 | 15. Plain-English copy pass | LATER | Apply the repository-wide copy audit so visitors understand each project before encountering technical terminology, while preserving useful technical depth and search-relevant keywords. | Passes 09-14 as applicable; complete before final public release QA |
+| 16. Repository architecture modernization | IN REVIEW | Passes 16.0-16.2 are implemented on the modernization branch: baseline/ADRs, locked command foundation, deterministic CI, and initial JSON contract validation. Production builds, `dist/`, Cloudflare cutover, source relocation, and browser testing remain deferred to later Pass 16 slices. | Current `main`; no live credentials |
 
 The recommended execution order is:
 
@@ -54,13 +55,14 @@ The recommended execution order is:
 7. Pass 12 final repository validation and release QA.
 8. Pass 14 legacy analytics modernization after the current portfolio release is stable.
 9. Pass 15 plain-English copy pass after the affected project surfaces are stable and before their final publication approval.
-10. Deferred live-ingestion, backend, and operational automation work.
+10. Pass 16 repository architecture modernization in focused slices, without changing production deployment until the approved cutover pass.
+11. Deferred live-ingestion, backend, and operational automation work.
 
 ## Decisions already made
 
 These choices remove ambiguity from later implementation work.
 
-1. **The site stays build-light.** Continue with plain HTML, CSS, and JavaScript unless a specific feature clearly justifies a build step.
+1. **The site stays static and multi-page.** Continue with plain HTML, CSS, and JavaScript while adding the approved Pass 16 tooling, CI, schemas, and later `dist/` proof. Do not introduce a framework, backend, database, or production output-directory change outside its approved pass.
 2. **This roadmap is the internal progress tracker.** Do not create a second large tracking system. `data/projects.json` should contain only the small amount of lifecycle metadata needed by the frontend.
 3. **Unfinished projects are filtered explicitly.** Add `status`, `visibility`, and `createdAt` fields instead of relying on array position, `featured`, or missing links.
 4. **Project order is newest first.** Both the projects page and Showcase launcher sort by the same `createdAt` field in descending order.

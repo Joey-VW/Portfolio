@@ -75,7 +75,7 @@ export const LEVELS = [
     shipCap: 470,
     startingShips: { player: 20, enemy: 22, orange: 21 },
     neutralDefenders: 5,
-    orbitSpeedMultiplier: 2.5, // 1.44
+    orbitSpeedMultiplier: 1.10,
     homeProduction: { player: 1.32, enemy: 1.34, orange: 1.3 },
     aiTuning: { enemy: { thinkOffset: -.45, aggressionBase: .04 }, orange: { thinkOffset: -.3, aggressionBase: .035 } },
     orbitPaths: {
@@ -99,7 +99,7 @@ export const LEVELS = [
     shipCap: 520,
     startingShips: { player: 28, enemy: 18, orange: 18 },
     neutralDefenders: 8,
-    orbitSpeedMultiplier: 4, // 5
+    orbitSpeedMultiplier: 1.21,
     homeProduction: { player: 1.34, enemy: 1.46, orange: 1.42 },
     playerHomeGraceSeconds: 10,
     aiTuning: { enemy: { thinkOffset: -.75, aggressionBase: .075 }, orange: { thinkOffset: -.6, aggressionBase: .065 } },

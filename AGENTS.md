@@ -41,14 +41,16 @@ This is Joe Wisto's public portfolio and resume site. The north star is a clear,
 
 Assume every committed file and its Git history may become public.
 
-Preserve the current build-light architecture unless the task explicitly authorizes a larger architectural change:
+Preserve the current static multi-page product architecture while following the approved Pass 16 tooling foundation:
 
 - Plain HTML, CSS, and vanilla JavaScript
 - Static JSON loaded in the browser
 - Python utilities for local validation, capture, and data preparation
+- npm as the cross-platform command surface for repository checks
+- Locked Node and Python development environments
 - Cloudflare-compatible `_headers` and `_redirects`
 
-Do not introduce a framework, bundler, package manager, backend, database, or new runtime dependency for a scoped feature without explicit approval.
+The root npm and uv manifests are repository tooling, not a browser framework or backend. Do not introduce a framework, application server, database, or new runtime dependency for a scoped feature without explicit approval. Vite is approved in principle for the later, separately scoped `dist/` proof; do not add its production configuration or change Cloudflare output settings during unrelated work.
 
 ## Source-of-truth map
 
@@ -66,6 +68,10 @@ Use the narrowest appropriate file family:
 - `data/*.json` - public, browser-readable datasets and sample data
 - `tools/` - local or backend-only validation, capture, and data-preparation utilities
 - `_headers` and `_redirects` - Cloudflare-compatible deployment behavior
+- `package.json` and `package-lock.json` - supported root commands and locked JavaScript tooling
+- `pyproject.toml` and `uv.lock` - Python environment policy and locked dependencies
+- `tools/check_all.py` - cross-platform orchestration for deterministic checks
+- `docs/architecture/` and `docs/decisions/` - current baselines and approved architecture decisions
 
 Keep feature-specific code in its matching project or game files. Change shared root files only when behavior is intentionally shared or the task targets the homepage, project registry, or Showcase Launcher.
 
@@ -163,7 +169,17 @@ python -m http.server 8000
 
 Then use `http://localhost:8000`.
 
-Run checks proportional to the changed files. Do not invent npm, formatter, linter, or test commands that the repository does not provide.
+Install the default locked tool environments with `npm ci` and `uv sync --dev --locked`. Use the supported root commands when their scope applies:
+
+```bash
+npm run format:check
+npm run lint
+npm run validate
+npm run test
+npm run check
+```
+
+The direct commands below remain supported for focused debugging. Do not invent additional npm, formatter, linter, or test commands that the repository does not provide.
 
 Use progressive validation:
 

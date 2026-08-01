@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-checks:
+    name: Repository checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Install Python dependencies
+        run: uv sync --dev --locked
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Lint tracked sources
+        run: npm run lint
+
+      - name: Validate repository contracts
+        run: npm run validate
+
+      - name: Run deterministic tests
+        run: npm run test
+
+      - name: Check diff whitespace
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --check "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            git diff --check "${{ github.event.before }}..${{ github.sha }}"
+          else
+            git diff --check "${{ github.sha }}^..${{ github.sha }}"
+          fi

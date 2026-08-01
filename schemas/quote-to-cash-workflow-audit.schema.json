@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://joewisto.dev/schemas/quote-to-cash-workflow-audit.schema.json",
+  "title": "Quote-to-Cash generated browser artifact",
+  "type": "object",
+  "required": [
+    "meta",
+    "funnel",
+    "stageTimes",
+    "bottleneck",
+    "endToEnd",
+    "activationTargetScenario",
+    "exceptions",
+    "segments",
+    "entityCounts"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["title", "subtitle", "generatedBy", "fictional", "seed"]
+    },
+    "funnel": { "type": "array", "minItems": 1, "items": { "type": "object" } },
+    "stageTimes": {
+      "type": "object",
+      "required": ["close", "activation", "recognition"]
+    },
+    "bottleneck": { "type": "object", "required": ["stage", "medianDays"] },
+    "endToEnd": {
+      "type": "object",
+      "required": ["count", "average", "median", "p75", "p90"]
+    },
+    "activationTargetScenario": {
+      "type": "object",
+      "required": [
+        "cohort",
+        "cohortCount",
+        "currentMedian",
+        "currentP90",
+        "targets"
+      ]
+    },
+    "exceptions": { "type": "array", "items": { "type": "object" } },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "object" }
+    },
+    "entityCounts": {
+      "type": "object",
+      "required": ["opportunities", "subscriptions", "revenue"]
+    }
+  }
+}

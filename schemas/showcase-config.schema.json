@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://joewisto.dev/schemas/showcase-config.schema.json",
+  "title": "Showcase launcher configuration",
+  "type": "object",
+  "required": ["version", "original", "saved"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "original": { "$ref": "#/$defs/state" },
+    "saved": { "$ref": "#/$defs/state" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "state": {
+      "type": "object",
+      "required": ["config", "nodePlacements"],
+      "properties": {
+        "config": {
+          "type": "object",
+          "required": ["layout", "node", "hub", "line", "motion"]
+        },
+        "nodePlacements": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["angle", "radius"],
+            "properties": {
+              "angle": { "type": "number" },
+              "radius": { "type": "number", "minimum": 0 }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
