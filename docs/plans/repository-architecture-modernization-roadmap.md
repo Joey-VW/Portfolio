@@ -3,7 +3,7 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **IN PROGRESS - Pass 16.0 through 16.2 implemented and verified; Pass 16.3 implementation is in review; Pass 16.4 remains blocked by Cloudflare preview and dashboard cutover**
+- Status: **IN PROGRESS - Pass 16.0 through 16.3 implemented and verified; Pass 16.4 remains blocked by the PR #41 merge and dashboard cutover**
 - Prepared: July 31, 2026
 - Baseline reviewed: `main` at `78b03c0` (`remove redundant h2`)
 - Primary implementation tracker: this document
@@ -201,7 +201,7 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 | 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded against the branch's actual `main` ancestor, `78b03c0`. | None | Current `main` stable |
 | 16.1 Command and dependency foundation | DONE | Reproducible environments and one command surface are implemented with locked uv enforcement and deterministic tracked-file discovery. | Low | 16.0 |
 | 16.2 CI and contract foundation | DONE | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented and green on PR #39. | Low | 16.1 |
-| 16.3 Parallel production-build proof | IN REVIEW | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
+| 16.3 Parallel production-build proof | DONE | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
 | 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |
 | 16.6 Focused application modularization | BLOCKED | Split large files by responsibility without redesigning features. | Medium | 16.4; 16.5 where paths overlap |
@@ -420,11 +420,11 @@ At minimum, verify that `dist/` does not contain source copies of:
 - [x] Every current public route loads from a local `dist/` server.
 - [x] Nested Postcard Atlas pages and media work from their final URLs.
 - [x] All browser data requests resolve inside `dist/`.
-- [ ] Public behavior matches the Pass 16.0 baseline at representative desktop, mobile, keyboard, reduced-motion, and print states.
+- [x] Public behavior matches the Pass 16.0 baseline at representative desktop, mobile, keyboard, reduced-motion, and print states.
 - [x] The output allowlist and denylist checks pass.
 - [x] Production still uses the old root deployment, so rollback is unnecessary in this pass.
 
-The remaining open Pass 16.3 acceptance item requires rendered browser review on the pull-request preview or an equivalent browser automation pass. Source and local HTTP smoke checks do not by themselves prove visual, keyboard, reduced-motion, or print parity.
+Pass 16.3 rendered parity was verified on an immutable Wrangler-uploaded `dist/` preview on August 1, 2026. The review covered every HTML route, browser-safe data and Postcard Atlas media, representative desktop and mobile layouts, Showcase keyboard and focus behavior, PHX Transit filtering, selection, and schematic fallback, Gravity Fleet initialization, reduced motion, redirects, response headers, preview `noindex`, console health, and a pixel comparison of the two-page US Letter print output. The pull request records the exact commit, artifact hash, immutable preview URL, branch alias, and validation evidence.
 
 ## Pass 16.4 - Cloudflare `dist/` cutover
 
