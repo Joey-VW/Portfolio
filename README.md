@@ -138,23 +138,16 @@ Use the **Print / PDF** button or press `Ctrl + P` from the homepage. The print 
 
 ## Deployment: Cloudflare Pages
 
-Cloudflare Pages is connected to this repository. `main` is the production branch, automatic deployments and pull-request previews are enabled, and the `pages.dev` deployment is working. Custom-domain attachment, canonical-host redirect, and final production-route verification remain open; see `PORTFOLIO_ROADMAP.md` for the current completion status.
+Cloudflare Pages is connected to this repository. `main` is the production branch, automatic deployments and pull-request previews are enabled, and production builds and publishes only the generated `dist/` artifact. Custom-domain attachment and canonical-host redirect remain open; see `PORTFOLIO_ROADMAP.md` for the current completion status.
 
 Repository settings:
-
-- Framework preset: **None**
-- Build command: leave blank or use `exit 0`
-- Build output directory: `/`
-- Root directory: repository root
-
-Pass 16.3 keeps those production settings in place while CI and local validation prove the generated `dist/` artifact. The planned Pass 16.4 cutover is a Cloudflare dashboard change after an approved branch preview:
 
 - Framework preset: **None**
 - Build command: `npm run build`
 - Build output directory: `dist`
 - Root directory: repository root
 
-Rollback restores the recorded root-deploy settings above and redeploys the last known-good `main` commit. Do not manually patch generated `dist/` contents.
+Pass 16.4 completed the production cutover on August 1, 2026. Rollback restores build command `exit 0` and output directory `/`, keeps framework **None** and the repository root, then redeploys the last known-good `main` commit. Do not manually patch generated `dist/` contents.
 
 The included `_headers` file adds basic security headers and cache rules. The `_redirects` file preserves simple legacy routes such as `/resume` and `/home`.
 

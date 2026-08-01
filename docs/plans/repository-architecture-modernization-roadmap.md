@@ -3,7 +3,7 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **IN PROGRESS - Pass 16.0 through 16.3 implemented and verified; Pass 16.4 remains blocked by the PR #41 merge and dashboard cutover**
+- Status: **IN PROGRESS - Pass 16.0 through 16.4 implemented and verified; Pass 16.5 is the next gated slice**
 - Prepared: July 31, 2026
 - Baseline reviewed: `main` at `78b03c0` (`remove redundant h2`)
 - Primary implementation tracker: this document
@@ -202,7 +202,7 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 | 16.1 Command and dependency foundation | DONE | Reproducible environments and one command surface are implemented with locked uv enforcement and deterministic tracked-file discovery. | Low | 16.0 |
 | 16.2 CI and contract foundation | DONE | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented and green on PR #39. | Low | 16.1 |
 | 16.3 Parallel production-build proof | DONE | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
-| 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
+| 16.4 Cloudflare `dist/` cutover | DONE | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
 | 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |
 | 16.6 Focused application modularization | BLOCKED | Split large files by responsibility without redesigning features. | Medium | 16.4; 16.5 where paths overlap |
 | 16.7 Browser quality gates | BLOCKED | Add route, interaction, accessibility, and optional performance checks. | Low to medium | 16.3 minimum |
@@ -443,20 +443,20 @@ Make the validated generated artifact the sole production deployment boundary.
 ### Work items
 
 - [x] Record the current Cloudflare Pages configuration and rollback path before changing production.
-- [ ] Change Cloudflare Pages to use the documented build command and `dist` output directory.
-- [ ] Verify environment versions match the repository's supported version policy.
-- [ ] Verify preview and production builds start from clean checkouts.
-- [ ] Test root, nested, redirected, hidden/noindex, and asset URLs on the preview.
-- [ ] Inspect response headers and caching behavior for HTML, JSON, media, and hashed assets.
-- [ ] Confirm the project registry, Showcase, and every public project load without console or network errors.
-- [ ] Confirm print/PDF behavior from the deployed homepage.
-- [ ] Perform the production switch only after preview approval.
-- [ ] Run a post-deploy production smoke pass.
+- [x] Change Cloudflare Pages to use the documented build command and `dist` output directory.
+- [x] Verify environment versions match the repository's supported version policy.
+- [x] Verify preview and production builds start from clean checkouts.
+- [x] Test root, nested, redirected, hidden/noindex, and asset URLs on the preview.
+- [x] Inspect response headers and caching behavior for HTML, JSON, media, and hashed assets.
+- [x] Confirm the project registry, Showcase, and every public project load without console or network errors.
+- [x] Confirm print/PDF behavior from the deployed homepage.
+- [x] Perform the production switch only after preview approval.
+- [x] Run a post-deploy production smoke pass.
 - [x] Retain the rollback instructions until at least one stable follow-up release succeeds.
 
 ### Current cutover status
 
-The recorded root-deploy settings and proposed `dist` cutover steps live in `docs/architecture/cloudflare-dist-cutover-runbook.md`. Direct Cloudflare dashboard access has not been verified in this repository pass, and no production output-directory change is claimed. Pass 16.4 remains blocked until the branch preview passes, the dashboard settings are changed, and production smoke checks pass.
+Pass 16.4 completed on August 1, 2026. Cloudflare deployment `b5426265-77d5-44b8-bb64-4a90933adafe` built commit `f2bd10caf56db4449161c42ec92e8a57b564e30a` with `npm run build`, Node 24.13.1, and output directory `dist`. Production route, redirect, header, JSON, media, indexing, and browser-console checks passed. The exact recovery settings and the successfully exercised root-mode recovery deployment remain recorded in `docs/architecture/cloudflare-dist-cutover-runbook.md`.
 
 ### Rollback plan
 
