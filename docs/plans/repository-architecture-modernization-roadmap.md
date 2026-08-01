@@ -3,7 +3,7 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **PLANNED**
+- Status: **IN PROGRESS - Pass 16.0 complete; Pass 16.1 implemented with one recorded baseline blocker**
 - Prepared: July 31, 2026
 - Baseline reviewed: `main` at `e1f8867` (`Publish PHX Transit Pulse and add Showcase animation (#37)`)
 - Primary implementation tracker: this document
@@ -198,8 +198,8 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 
 | Pass | Status | Outcome | Production risk | Main dependency |
 | --- | --- | --- | --- | --- |
-| 16.0 Baseline and decisions | NEXT | Freeze behavior, inventory routes/data, and record architectural choices. | None | Current `main` stable |
-| 16.1 Command and dependency foundation | READY AFTER 16.0 | Add reproducible environments and one command surface without changing deployment. | Low | 16.0 |
+| 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded at `0e08de6`. | None | Current `main` stable |
+| 16.1 Command and dependency foundation | IN REVIEW | Reproducible environments and one command surface are implemented; the gate exposes the pre-existing Gravity Fleet contract failure. | Low | 16.0 |
 | 16.2 CI and contract foundation | BLOCKED | Turn existing checks into a required, deterministic PR gate and add initial schemas. | Low | 16.1 |
 | 16.3 Parallel production-build proof | BLOCKED | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
@@ -220,18 +220,18 @@ Create evidence that later passes can compare against and remove architectural a
 
 ### Work items
 
-- [ ] Start from the latest `main` and record the exact baseline commit.
-- [ ] Confirm the working tree is clean and preserve all newer merged work.
-- [ ] Inventory every public, hidden, redirected, and nested HTML route.
-- [ ] Inventory all browser fetch paths, dynamic asset references, Web Worker/module imports if any, and URL construction logic.
-- [ ] Build a deployment manifest that classifies each tracked top-level path as:
+- [x] Start from the latest `main` and record the exact baseline commit.
+- [x] Confirm the working tree is clean and preserve all newer merged work.
+- [x] Inventory every public, hidden, redirected, and nested HTML route.
+- [x] Inventory all browser fetch paths, dynamic asset references, Web Worker/module imports if any, and URL construction logic.
+- [x] Build a deployment manifest that classifies each tracked top-level path as:
   - required in production;
   - source only;
   - test/tooling only;
   - verification evidence;
   - unresolved and requiring review.
-- [ ] Record baseline output for all existing validators and tests.
-- [ ] Capture or document representative behavior for:
+- [x] Record baseline output for all existing validators and tests.
+- [x] Capture or document representative behavior for:
   - homepage desktop, mobile, Showcase, and print;
   - project index;
   - PHX Transit map, replay, filters, fallback, and reduced motion;
@@ -240,14 +240,14 @@ Create evidence that later passes can compare against and remove architectural a
   - EV calculations;
   - Procurement and Quote-to-Cash data rendering;
   - Postcard Atlas nested routes and media loading.
-- [ ] Add the initial architecture decision records:
+- [x] Add the initial architecture decision records:
   - `0001-static-multi-page-architecture.md`;
   - `0002-project-registry-source-of-truth.md`;
   - `0003-synthetic-and-generated-data-policy.md`;
   - `0004-build-and-dist-boundary.md`.
-- [ ] Decide and document the supported Node and Python version policy.
-- [ ] Confirm whether `uv.lock` adds practical value in the target environments; otherwise use a standards-based `pyproject.toml` plus a documented lock strategy.
-- [ ] Confirm Vite against the difficult routes before treating it as final:
+- [x] Decide and document the supported Node and Python version policy.
+- [x] Confirm whether `uv.lock` adds practical value in the target environments; otherwise use a standards-based `pyproject.toml` plus a documented lock strategy.
+- [x] Confirm Vite against the difficult routes before treating it as final:
   - root and nested HTML entry points;
   - Postcard Atlas nested assets and videos;
   - root-relative `/data`, `/projects`, `/games`, and `/assets` paths;
@@ -277,17 +277,17 @@ Make setup and validation reproducible before changing the deployment model.
 
 ### Work items
 
-- [ ] Add `package.json` and a committed `package-lock.json`.
-- [ ] Add `pyproject.toml` with the dependencies needed by maintained Python tools and tests.
-- [ ] Commit the selected Python lock artifact if Pass 16.0 approves one.
-- [ ] Add `.editorconfig`.
-- [ ] Add `.node-version` or `.nvmrc` and `.python-version` only if they match the documented environment policy.
-- [ ] Add root scripts that wrap current validators without changing their behavior.
-- [ ] Add a small Python orchestration entry point such as `tools/check_all.py` only if it reduces cross-platform quoting and duplicated task logic.
-- [ ] Separate required development dependencies from optional visual-capture dependencies.
-- [ ] Keep credentialed Kroger operations outside `npm run check`.
-- [ ] Define formatter and linter scopes narrowly enough to avoid a repository-wide reformat.
-- [ ] Update `README.md` and `AGENTS.md` with truthful setup and command instructions.
+- [x] Add `package.json` and a committed `package-lock.json`.
+- [x] Add `pyproject.toml` with the dependencies needed by maintained Python tools and tests.
+- [x] Commit the selected Python lock artifact if Pass 16.0 approves one.
+- [x] Add `.editorconfig`.
+- [x] Add `.node-version` or `.nvmrc` and `.python-version` only if they match the documented environment policy.
+- [x] Add root scripts that wrap current validators without changing their behavior.
+- [x] Add a small Python orchestration entry point such as `tools/check_all.py` only if it reduces cross-platform quoting and duplicated task logic.
+- [x] Separate required development dependencies from optional visual-capture dependencies.
+- [x] Keep credentialed Kroger operations outside `npm run check`.
+- [x] Define formatter and linter scopes narrowly enough to avoid a repository-wide reformat.
+- [x] Update `README.md` and `AGENTS.md` with truthful setup and command instructions.
 
 ### Command rollout order
 
@@ -306,6 +306,10 @@ Make setup and validation reproducible before changing the deployment model.
 - `npm run check` is deterministic, offline-safe, and returns nonzero on failure.
 - No browser-visible files or Cloudflare settings change.
 - Formatting configuration does not create an unrelated mass diff.
+
+### Implementation note
+
+Pass 16.1 is implemented, but its composed gate is intentionally not green: the baseline Gravity Fleet validator contradicts the committed Level 2 and Level 3 orbit multipliers. The failure is recorded in `docs/architecture/repository-validation-baseline.md` and remains outside this two-phase architecture scope. Windows clean-install verification is also pending. Do not unblock Pass 16.2 by excluding or weakening the validator.
 
 ## Pass 16.2 - CI and contract foundation
 
@@ -761,7 +765,7 @@ The program is complete when all of the following are true:
 
 ## 13. Immediate starting packet
 
-The first implementation pass should be **Pass 16.0 only**. It is intentionally read-heavy and low risk.
+The roadmap originally recommended Pass 16.0 only. At the user's direction, the first implementation combined Pass 16.0 and Pass 16.1 while preserving the boundary against CI, schemas, production build configuration, and Cloudflare changes.
 
 ### First-pass deliverable
 
@@ -778,12 +782,12 @@ docs/decisions/0004-build-and-dist-boundary.md
 
 ### First-pass completion checklist
 
-- [ ] Inspect latest `main`, not an older repository pack or QA branch.
-- [ ] Inventory current routes, redirects, fetch paths, assets, and data classifications.
-- [ ] Run and record all existing deterministic checks.
-- [ ] Test Vite's fit through a disposable proof or documented configuration study; do not commit the build yet.
-- [ ] Record unresolved path or data-classification questions.
-- [ ] Make no runtime, dependency, or Cloudflare configuration changes.
+- [x] Inspect latest `main`, not an older repository pack or QA branch.
+- [x] Inventory current routes, redirects, fetch paths, assets, and data classifications.
+- [x] Run and record all existing deterministic checks.
+- [x] Test Vite's fit through a disposable proof or documented configuration study; do not commit the build yet.
+- [x] Record unresolved path or data-classification questions.
+- [x] Make no runtime or Cloudflare configuration changes; Pass 16.1 adds development-only dependency manifests as explicitly requested.
 - [ ] Open a focused draft pull request for review.
 
 Starting with this packet gives Pass 16.1 exact inputs and prevents the build migration from becoming an improvised file move.
