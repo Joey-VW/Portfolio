@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://joewisto.dev/schemas/projects.schema.json",
+  "title": "Portfolio project registry",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": [
+      "slug",
+      "createdAt",
+      "status",
+      "visibility",
+      "title",
+      "category",
+      "summary",
+      "value",
+      "stack",
+      "href",
+      "repo",
+      "featured"
+    ],
+    "properties": {
+      "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+      "createdAt": { "type": "string", "format": "date" },
+      "status": {
+        "type": "string",
+        "enum": ["ready", "in-progress", "planned"]
+      },
+      "visibility": { "type": "string", "enum": ["public", "hidden"] },
+      "title": { "type": "string", "minLength": 1 },
+      "category": { "type": "string", "minLength": 1 },
+      "summary": { "type": "string", "minLength": 1 },
+      "value": { "type": "string", "minLength": 1 },
+      "stack": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string", "minLength": 1 }
+      },
+      "href": { "type": "string", "pattern": "^/(projects|games)/.+\\.html$" },
+      "repo": { "type": "string", "format": "uri" },
+      "featured": { "type": "boolean" },
+      "showcase": {
+        "type": "object",
+        "required": ["title", "description", "visualKey", "motion"],
+        "properties": {
+          "title": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "visualKey": { "type": "string", "minLength": 1 },
+          "motion": { "type": "string", "enum": ["animated", "static"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  }
+}

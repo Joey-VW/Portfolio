@@ -3,7 +3,7 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **IN PROGRESS - Pass 16.0 and 16.1 complete; Pass 16.2 started**
+- Status: **IN PROGRESS - Pass 16.0 through 16.2 implemented; Pass 16.3 remains blocked**
 - Prepared: July 31, 2026
 - Baseline reviewed: `main` at `78b03c0` (`remove redundant h2`)
 - Primary implementation tracker: this document
@@ -200,7 +200,7 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 | --- | --- | --- | --- | --- |
 | 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded against the branch's actual `main` ancestor, `78b03c0`. | None | Current `main` stable |
 | 16.1 Command and dependency foundation | DONE | Reproducible environments and one command surface are implemented with locked uv enforcement and deterministic tracked-file discovery. | Low | 16.0 |
-| 16.2 CI and contract foundation | IN PROGRESS | Turn existing checks into a required, deterministic PR gate and add initial schemas. | Low | 16.1 |
+| 16.2 CI and contract foundation | IN REVIEW | Deterministic GitHub Actions CI, initial JSON Schemas, contract validation, PR template, and Dependabot are implemented. | Low | 16.1 |
 | 16.3 Parallel production-build proof | BLOCKED | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
 | 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |
@@ -319,28 +319,34 @@ Turn the repository's existing engineering checks into a reliable pull-request g
 
 ### Work items
 
-- [ ] Add `.github/workflows/ci.yml` triggered for pull requests and relevant pushes.
-- [ ] Use least-necessary permissions and concurrency cancellation for superseded runs.
-- [ ] Cache dependencies using lockfile keys without caching generated repository outputs.
-- [ ] Run jobs in an order that surfaces cheap failures before browser or build work.
-- [ ] Preserve `.github/workflows/update-kroger-observations.yml` as an independent workflow.
-- [ ] Add initial schemas for:
+- [x] Add `.github/workflows/ci.yml` triggered for pull requests and relevant pushes.
+- [x] Use least-necessary permissions and concurrency cancellation for superseded runs.
+- [x] Cache dependencies using lockfile keys without caching generated repository outputs.
+- [x] Run jobs in an order that surfaces cheap failures before browser or build work.
+- [x] Preserve `.github/workflows/update-kroger-observations.yml` as an independent workflow.
+- [x] Add initial schemas for:
   - `data/projects.json`;
   - `data/showcase-config.json`;
   - PHX Transit replay/scenario artifacts;
   - EV True Cost data;
   - Shrinkflation browser data;
   - Procurement and Quote-to-Cash generated artifacts.
-- [ ] Add schema-version and provenance fields only through backward-compatible, project-specific migrations.
-- [ ] Reuse schemas from Python and JavaScript where practical instead of creating conflicting implementations.
-- [ ] Add contract checks for:
+- [x] Add schema-version and provenance fields only through backward-compatible, project-specific migrations.
+- [x] Reuse schemas from Python and JavaScript where practical instead of creating conflicting implementations.
+- [x] Add contract checks for:
   - registry status versus route `noindex` behavior;
   - public routes versus actual build entries;
   - Showcase references versus public/featured projects;
   - generated artifact reproducibility where generators exist;
   - absence of credentials and local absolute paths in deployable inputs.
-- [ ] Add `.github/pull_request_template.md` and `.github/dependabot.yml`.
-- [ ] Recommend branch-protection settings in documentation; do not claim they are enabled until GitHub confirms them.
+- [x] Add `.github/pull_request_template.md` and `.github/dependabot.yml`.
+- [x] Recommend branch-protection settings in documentation; do not claim they are enabled until GitHub confirms them.
+
+### Implementation note
+
+Pass 16.2 adds `.github/workflows/ci.yml`, `schemas/*.schema.json`, and `tools/validate_json_contracts.py`. The validator intentionally starts with broad but enforceable schema shape checks, route/noindex consistency, public featured Showcase metadata, and deployable-input scanning for obvious secrets or local absolute paths. It also includes `tests/fixtures/contracts/invalid-projects.json` so `npm run test` proves an invalid schema fixture fails as expected.
+
+Recommended branch protection after the new CI proves stable: require the `Repository checks` status before merging to `main`, require branches to be up to date before merge, prefer squash merges, and keep automatic deletion of merged branches enabled. These settings are recommendations only; this branch does not claim they are enabled in GitHub.
 
 ### Suggested CI job progression
 
@@ -354,12 +360,12 @@ Turn the repository's existing engineering checks into a reliable pull-request g
 
 ### Acceptance criteria
 
-- CI runs without credentials or network-dependent live data.
-- Every existing validator is represented or its exclusion is documented.
-- CI fails on a deliberately invalid schema fixture and passes on the committed data.
-- The Kroger scheduled workflow retains its existing safety behavior.
-- Linters and formatters do not make unrelated legacy code unmergeable without a documented ratchet plan.
-- The CI status can become a required branch check once it has proven stable.
+- [x] CI runs without credentials or network-dependent live data.
+- [x] Every existing validator is represented or its exclusion is documented.
+- [x] CI fails on a deliberately invalid schema fixture and passes on the committed data.
+- [x] The Kroger scheduled workflow retains its existing safety behavior.
+- [x] Linters and formatters do not make unrelated legacy code unmergeable without a documented ratchet plan.
+- [x] The CI status can become a required branch check once it has proven stable.
 
 ## Pass 16.3 - Parallel production-build proof
 

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VALIDATION_COMMANDS = (
     ("Project registry", (sys.executable, "tools/validate_project_registry.py")),
     ("Project registry runtime", ("node", "tools/validate_project_registry_runtime.js")),
+    ("JSON contracts", (sys.executable, "tools/validate_json_contracts.py")),
     ("EV True Cost", (sys.executable, "tools/validate_ev_true_cost.py")),
     ("PHX Transit map", (sys.executable, "tools/validate_phx_transit_map.py")),
     ("Gravity Fleet", ("node", "tools/validate_gravity_fleet.js")),
@@ -24,6 +25,10 @@ TEST_COMMANDS = (
     (
         "Analytics modernization unit tests",
         (sys.executable, "-m", "unittest", "tests/test_analytics_modernization.py"),
+    ),
+    (
+        "JSON contract negative fixture",
+        (sys.executable, "tools/validate_json_contracts.py", "--self-test-invalid-fixture"),
     ),
     (
         "Kroger merge fixture",

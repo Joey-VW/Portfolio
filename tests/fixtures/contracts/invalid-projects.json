@@ -1,0 +1,16 @@
+[
+  {
+    "slug": "Invalid Slug With Spaces",
+    "createdAt": "not-a-date",
+    "status": "published",
+    "visibility": "public",
+    "title": "",
+    "category": "Broken fixture",
+    "summary": "This fixture is intentionally invalid and must never pass the project registry schema.",
+    "value": "Used by the contract validator self-test.",
+    "stack": [],
+    "href": "projects/missing-leading-slash.html",
+    "repo": "not-a-uri",
+    "featured": true
+  }
+]

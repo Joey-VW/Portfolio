@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://joewisto.dev/schemas/procurement-kpi-analysis.schema.json",
+  "title": "Procurement KPI generated browser artifact",
+  "type": "object",
+  "required": [
+    "meta",
+    "quality",
+    "overview",
+    "suppliers",
+    "categories",
+    "monthly"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["title", "generatedBy", "source", "assumptions"]
+    },
+    "quality": { "type": "object", "required": ["rows"] },
+    "overview": { "type": "object", "required": ["name", "orders", "spend"] },
+    "suppliers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "object" }
+    },
+    "categories": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "object" }
+    },
+    "monthly": { "type": "array", "minItems": 1, "items": { "type": "object" } }
+  }
+}

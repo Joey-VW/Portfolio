@@ -33,6 +33,16 @@ npm run check
 
 Credentialed Kroger and transit operations, browser capture, BigQuery writes, production builds, and deployments are intentionally excluded from the default merge gate.
 
+GitHub Actions runs the same deterministic gate for pull requests and relevant pushes. The Kroger observation workflow remains separate, credential-gated, and unchanged by the general CI workflow.
+
+Initial JSON Schemas live in `schemas/` and are enforced by:
+
+```bash
+python tools/validate_json_contracts.py
+```
+
+The contract validator checks the project registry, Showcase configuration, PHX Transit synthetic fixtures, EV True Cost data, Shrinkflation browser data, and the generated Procurement and Quote-to-Cash artifacts. It also verifies registry/noindex consistency, route existence, public featured Showcase metadata, and obvious secrets or local absolute paths in deployable inputs.
+
 ## Local preview
 
 No production build is used yet. Run a small static server from the repository root so JSON project data can be fetched correctly:
@@ -96,8 +106,10 @@ _redirects                         # Cloudflare Pages redirects
 package.json / package-lock.json   # Root npm commands and locked JavaScript tooling
 pyproject.toml / uv.lock           # Python dependencies and locked environments
 tools/check_all.py                 # Cross-platform deterministic check orchestration
+tools/validate_json_contracts.py   # Initial JSON Schema and repository contract checks
 docs/architecture/                 # Current route, deployment, and validation baselines
 docs/decisions/                    # Architecture decision records
+schemas/                           # Initial JSON Schemas for browser-readable contract data
 ```
 
 ## Print-to-PDF resume behavior

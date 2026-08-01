@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://joewisto.dev/schemas/shrinkflation-products.schema.json",
+  "title": "Shrinkflation browser products",
+  "type": "object",
+  "required": ["datasetNote", "baselineQuarter", "currentQuarter", "products"],
+  "properties": {
+    "datasetNote": { "type": "string", "minLength": 1 },
+    "baselineQuarter": { "type": "string", "minLength": 1 },
+    "currentQuarter": { "type": "string", "minLength": 1 },
+    "lastKrogerObservationMergeAt": { "type": "string", "format": "date-time" },
+    "products": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "productName",
+          "category",
+          "unitLabel",
+          "quarterlyHistory"
+        ],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "productName": { "type": "string", "minLength": 1 },
+          "brand": { "type": "string" },
+          "category": { "type": "string", "minLength": 1 },
+          "department": { "type": "string" },
+          "unitLabel": { "type": "string", "minLength": 1 },
+          "notes": { "type": "string" },
+          "confidence": { "type": "string" },
+          "sourceType": { "type": "string" },
+          "quarterlyHistory": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "object" }
+          },
+          "apiMatches": { "type": "array" },
+          "observations": { "type": "array" }
+        }
+      }
+    }
+  }
+}
