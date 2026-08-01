@@ -253,7 +253,7 @@ python -m http.server 4173 --bind 127.0.0.1 --directory dist
 python tools/smoke_static_routes.py --base-url http://127.0.0.1:4173
 ```
 
-`dist/` is generated and ignored. Never manually patch generated `dist/` contents; change source files, rebuild, and let validators prove the artifact. Until the approved Cloudflare cutover is complete, production still publishes the repository root.
+`dist/` is generated and ignored. Never manually patch generated `dist/` contents; change source files, rebuild, and let validators prove the artifact. Cloudflare production builds with `npm run build` and publishes only `dist/`.
 
 For browser-visible changes:
 

@@ -1,6 +1,6 @@
 # Cloudflare Dist Cutover Runbook
 
-This runbook records the Pass 16.4 dashboard change that must happen only after the Pass 16.3 generated artifact is verified locally, in CI, and on a Cloudflare pull-request preview.
+This runbook records the completed Pass 16.4 production cutover and the retained rollback procedure.
 
 ## Current Production Configuration
 
@@ -8,13 +8,13 @@ This runbook records the Pass 16.4 dashboard change that must happen only after 
 - Production branch: `main`
 - Pull-request previews: enabled
 - Framework preset: **None**
-- Build command: blank or `exit 0`
-- Build output directory: `/`
+- Build command: `npm run build`
+- Build output directory: `dist`
 - Root directory: repository root
 
-These settings keep production on the historical repository-root deployment while Pass 16.3 proves the generated `dist/` artifact.
+Cloudflare cut production over to this configuration on August 1, 2026. Deployment `b5426265-77d5-44b8-bb64-4a90933adafe` built commit `f2bd10caf56db4449161c42ec92e8a57b564e30a` with Node 24.13.1 and published the generated artifact successfully.
 
-## Proposed Pass 16.4 Configuration
+## Verified Production Configuration
 
 - Framework preset: **None**
 - Build command: `npm run build`
@@ -23,6 +23,8 @@ These settings keep production on the historical repository-root deployment whil
 - Node version: match the repository policy, currently Node 24
 
 The Cloudflare build must start from a clean checkout and must not require live Kroger, transit, BigQuery, or other credentialed data access.
+
+The pre-cutover gate produced 119 files and artifact SHA-256 `a0cd342b4d049b4f5da02b643e1c5326e571516744178e52382148a0144ea6e2`. The first Cloudflare attempt exposed Python package auto-discovery that local artifact checks did not exercise. PR #42 added explicit no-package setuptools configuration; the root-mode recovery deployment and the subsequent `dist` deployment both succeeded from clean checkouts.
 
 ## Preview Verification
 
@@ -73,3 +75,9 @@ If production smoke reveals a material regression:
 5. Capture the production-only failure as a Pass 16.3 regression test before retrying the cutover.
 
 Never manually patch generated `dist/` contents.
+
+The verified rollback values are framework preset **None**, root directory repository root, build command `exit 0`, and output directory `/`. These values were restored and proven by successful deployment `c228e77c-27ae-4a02-99b1-480714cb8bb6` before the corrected production cutover.
+
+## Production Evidence
+
+The August 1, 2026 production pass verified the homepage, project index, PHX Transit, Gravity Fleet, the hidden Postcard Atlas demo, public JSON and media, legacy redirects, security headers, JSON caching, and route-specific `noindex`. Browser checks reported no console errors. Repository-only paths such as `package.json`, `pyproject.toml`, `tools/check_all.py`, and `PORTFOLIO_ROADMAP.md` no longer return their source contents from production.
