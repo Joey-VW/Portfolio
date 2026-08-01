@@ -17,6 +17,8 @@ venv/
 .ruff_cache/
 
 node_modules/
+.npm-cache/
+.uv-cache/
 dist/
 
 

@@ -42,7 +42,7 @@ Status labels:
 | 13. PHX Transit Pulse | IN REVIEW | The synthetic operations console now uses a real interactive Phoenix-area basemap with fictional operational overlays and an automatic schematic fallback. Targeted mapped-build regression and Cloudflare preview QA remain; live ingestion is still blocked by provider terms. | Mapped-build QA and provider terms only for live ingestion or provider replay |
 | 14. Legacy analytics modernization | LATER | Selectively modernize the strongest projects from the retired analytics portfolio into complete, evidence-backed case studies that match the current portfolio's presentation and validation standards. | Current release work through Pass 12 |
 | 15. Plain-English copy pass | LATER | Apply the repository-wide copy audit so visitors understand each project before encountering technical terminology, while preserving useful technical depth and search-relevant keywords. | Passes 09-14 as applicable; complete before final public release QA |
-| 16. Repository architecture modernization | IN REVIEW | Passes 16.0-16.2 are implemented on the modernization branch: baseline/ADRs, locked command foundation, deterministic CI, and initial JSON contract validation. Production builds, `dist/`, Cloudflare cutover, source relocation, and browser testing remain deferred to later Pass 16 slices. | Current `main`; no live credentials |
+| 16. Repository architecture modernization | IN REVIEW | Passes 16.0-16.2 are merged, and Pass 16.3 is implemented and verified in PR #41 through a Wrangler-uploaded `dist/` preview. The production `dist/` cutover, source relocation, and broader browser gates remain deferred or blocked. | PR #41 merge before Pass 16.4; no live credentials |
 
 The recommended execution order is:
 

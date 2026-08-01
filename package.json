@@ -7,15 +7,19 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "format": "prettier --write package.json .github/*.md .github/*.yml .github/workflows/ci.yml schemas/*.json docs/architecture/*.md docs/decisions/*.md",
-    "format:check": "prettier --check package.json .github/*.md .github/*.yml .github/workflows/ci.yml schemas/*.json docs/architecture/*.md docs/decisions/*.md",
+    "format": "prettier --write package.json vite.config.mjs tools/*.mjs .github/*.md .github/*.yml .github/workflows/ci.yml schemas/*.json docs/architecture/*.md docs/decisions/*.md",
+    "format:check": "prettier --check package.json vite.config.mjs tools/*.mjs .github/*.md .github/*.yml .github/workflows/ci.yml schemas/*.json docs/architecture/*.md docs/decisions/*.md",
     "lint": "uv run --locked --no-sync python tools/check_all.py lint",
     "validate": "uv run --locked --no-sync python tools/check_all.py validate",
     "test": "uv run --locked --no-sync python tools/check_all.py test",
-    "check": "npm run format:check && npm run lint && npm run validate && npm run test"
+    "build": "node tools/build_site.mjs",
+    "validate:dist": "node tools/validate_dist.mjs",
+    "test:dist": "npm run build && npm run validate:dist && uv run --locked --no-sync python tools/smoke_dist.py",
+    "check": "npm run format:check && npm run lint && npm run validate && npm run test && npm run test:dist"
   },
   "devDependencies": {
-    "prettier": "3.9.6"
+    "prettier": "3.9.6",
+    "vite": "^8.2.0"
   },
   "packageManager": "npm@11.9.0"
 }

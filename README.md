@@ -28,10 +28,13 @@ npm run format:check
 npm run lint
 npm run validate
 npm run test
+npm run build
+npm run validate:dist
+npm run test:dist
 npm run check
 ```
 
-Credentialed Kroger and transit operations, browser capture, BigQuery writes, production builds, and deployments are intentionally excluded from the default merge gate.
+Credentialed Kroger and transit operations, browser capture, BigQuery writes, and deployments are intentionally excluded from the default merge gate.
 
 GitHub Actions runs the same deterministic gate for pull requests and relevant pushes. The Kroger observation workflow remains separate, credential-gated, and unchanged by the general CI workflow.
 
@@ -45,7 +48,7 @@ The contract validator checks the project registry, Showcase configuration, PHX 
 
 ## Local preview
 
-No production build is used yet. Run a small static server from the repository root so JSON project data can be fetched correctly:
+Run a small static server from the repository root when checking source files directly:
 
 ```bash
 python -m http.server 8000
@@ -55,6 +58,21 @@ Then visit:
 
 ```text
 http://localhost:8000
+```
+
+The approved Pass 16 production-build proof generates a clean `dist/` artifact without changing the current Cloudflare production output directory:
+
+```bash
+npm run build
+npm run validate:dist
+npm run test:dist
+```
+
+Serve the generated artifact when validating deployment parity:
+
+```bash
+python -m http.server 4173 --bind 127.0.0.1 --directory dist
+python tools/smoke_static_routes.py --base-url http://127.0.0.1:4173
 ```
 
 ### Showcase Dev Lab saves
@@ -107,6 +125,8 @@ package.json / package-lock.json   # Root npm commands and locked JavaScript too
 pyproject.toml / uv.lock           # Python dependencies and locked environments
 tools/check_all.py                 # Cross-platform deterministic check orchestration
 tools/validate_json_contracts.py   # Initial JSON Schema and repository contract checks
+tools/build_site.mjs               # Vite multi-page build and reviewed static-copy step
+tools/validate_dist.mjs            # Build-output allowlist, denylist, route, and fetch checks
 docs/architecture/                 # Current route, deployment, and validation baselines
 docs/decisions/                    # Architecture decision records
 schemas/                           # Initial JSON Schemas for browser-readable contract data
@@ -126,6 +146,15 @@ Repository settings:
 - Build command: leave blank or use `exit 0`
 - Build output directory: `/`
 - Root directory: repository root
+
+Pass 16.3 keeps those production settings in place while CI and local validation prove the generated `dist/` artifact. The planned Pass 16.4 cutover is a Cloudflare dashboard change after an approved branch preview:
+
+- Framework preset: **None**
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Root directory: repository root
+
+Rollback restores the recorded root-deploy settings above and redeploys the last known-good `main` commit. Do not manually patch generated `dist/` contents.
 
 The included `_headers` file adds basic security headers and cache rules. The `_redirects` file preserves simple legacy routes such as `/resume` and `/home`.
 
@@ -210,5 +239,5 @@ To prevent search-result drift over time, review candidate matches and lock stab
 - Add richer case-study metrics, diagrams, and links to live demos where appropriate.
 - Keep fixture-based and disabled behaviors truthful while live Sheets, Forms, Drive, and contact delivery remain deferred.
 - Replace the `mailto:` contact form with a verified Cloudflare Worker or form endpoint when backend work is prioritized.
-- Keep the browser application static and multi-page. Prove the planned `dist/` build before any separate Cloudflare output-directory cutover.
+- Keep the browser application static and multi-page. Complete Cloudflare preview approval before any separate Cloudflare output-directory cutover.
 

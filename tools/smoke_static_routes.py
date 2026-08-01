@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 import urllib.error
 import urllib.request
+from pathlib import PurePosixPath
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,7 +31,14 @@ CRITICAL_PATHS = (
     "/games/gravity-fleet/core.mjs",
     "/projects/phx-transit-pulse.js",
     "/projects/phx-transit-pulse-map.js",
+    "/projects/multi-platform-publishing-system/demo/assets/background_image_clean.jpg",
+    "/projects/multi-platform-publishing-system/demo/assets/video-bg/manifest.json",
+    "/projects/multi-platform-publishing-system/demo/data/blog-posts.csv",
+    "/projects/multi-platform-publishing-system/demo/data/map-photos.csv",
 )
+
+POSTCARD_DEMO_PREFIX = PurePosixPath("/projects/multi-platform-publishing-system/demo")
+POSTCARD_MANIFEST = ROOT / "projects/multi-platform-publishing-system/demo/assets/video-bg/manifest.json"
 
 
 def tracked_html_routes() -> list[str]:
@@ -54,6 +63,17 @@ def tracked_html_routes() -> list[str]:
     return sorted(routes)
 
 
+def postcard_media_paths() -> list[str]:
+    manifest = json.loads(POSTCARD_MANIFEST.read_text(encoding="utf-8"))
+    paths: set[str] = set()
+    for item in manifest.get("items", []):
+        for key in ("src", "poster"):
+            value = item.get(key)
+            if isinstance(value, str) and value.startswith("./"):
+                paths.add(str(POSTCARD_DEMO_PREFIX / value.removeprefix("./")))
+    return sorted(paths)
+
+
 def fetch_status(url: str, timeout: float) -> int:
     request = urllib.request.Request(url, method="GET")
     with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -70,7 +90,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     base_url = args.base_url.rstrip("/")
-    paths = tracked_html_routes() + list(CRITICAL_PATHS)
+    html_routes = tracked_html_routes()
+    postcard_media = postcard_media_paths()
+    paths = html_routes + list(CRITICAL_PATHS) + postcard_media
     failures: list[str] = []
 
     for route in paths:
@@ -89,7 +111,12 @@ def main() -> int:
             print(f"- {failure}", file=sys.stderr)
         return 1
 
-    print(f"Static route smoke passed: {len(tracked_html_routes())} HTML routes and {len(CRITICAL_PATHS)} critical assets.")
+    print(
+        "Static route smoke passed: "
+        f"{len(html_routes)} HTML routes, "
+        f"{len(CRITICAL_PATHS)} critical assets, "
+        f"and {len(postcard_media)} Postcard media URLs."
+    )
     return 0
 
 

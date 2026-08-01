@@ -10,6 +10,9 @@
 - [ ] `npm run lint`
 - [ ] `npm run validate`
 - [ ] `npm run test`
+- [ ] `npm run build`
+- [ ] `npm run validate:dist`
+- [ ] `npm run test:dist`
 - [ ] `npm run check`
 - [ ] Route or visual QA completed where applicable
 
