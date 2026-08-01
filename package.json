@@ -9,9 +9,9 @@
   "scripts": {
     "format": "prettier --write package.json docs/architecture/*.md docs/decisions/*.md",
     "format:check": "prettier --check package.json docs/architecture/*.md docs/decisions/*.md",
-    "lint": "uv run --frozen --no-sync python tools/check_all.py lint",
-    "validate": "uv run --frozen --no-sync python tools/check_all.py validate",
-    "test": "uv run --frozen --no-sync python tools/check_all.py test",
+    "lint": "uv run --locked --no-sync python tools/check_all.py lint",
+    "validate": "uv run --locked --no-sync python tools/check_all.py validate",
+    "test": "uv run --locked --no-sync python tools/check_all.py test",
     "check": "npm run format:check && npm run lint && npm run validate && npm run test"
   },
   "devDependencies": {

@@ -4,7 +4,7 @@
 
 - Repository: `Joey-VW/Portfolio`
 - Baseline branch: `main`
-- Baseline commit: `0e08de6a1c6be5e643703a3f651dbf1b8a8f0a33`
+- Baseline commit: `78b03c0a008a802cec3281334beaefe2b58efb13`
 - Recorded: July 31, 2026
 - Current host model: Cloudflare Pages serves the repository root with no production build.
 
@@ -97,7 +97,7 @@ The current root deployment makes tracked source and evidence reachable unless C
 
 ## Vite compatibility study
 
-A disposable Vite 8.2.0 multi-page proof was run against all 19 HTML entries on Node 24.14.0. It completed successfully and preserved nested HTML output, processed Postcard Atlas ES modules, and accepted Gravity Fleet `.mjs` imports. `_headers`, `_redirects`, and `data/` were copied by a temporary proof plugin.
+A disposable Vite 8.2.0 multi-page proof was run against all 19 tracked HTML entries on Node 24.14.0. It completed successfully and preserved nested HTML output, processed Postcard Atlas ES modules, and accepted Gravity Fleet `.mjs` imports. `_headers`, `_redirects`, and `data/` were copied by a temporary proof plugin.
 
 The proof also produced actionable warnings: classic scripts without `type="module"` are not bundled automatically, root-relative runtime files require an explicit copy policy, and Postcard Atlas media must be copied from an approved manifest. Vite is therefore approved in principle for Pass 16.3, conditional on explicit entries, an allowlisted static-copy step, route/output assertions, and no production cutover in the same pass.
 
@@ -108,3 +108,33 @@ The proof also produced actionable warnings: classic scripts without `type="modu
 - The current root deployment exposes more source and evidence than the future production boundary should contain.
 - External unpkg, Google, Drive, Forms, and product-image dependencies require deterministic fallbacks and later browser coverage; they must not become build-time requirements.
 - Pass 16.3 must decide whether classic scripts remain copied assets or migrate individually to modules. A repository-wide module conversion is not implied.
+
+## Reproducible smoke instructions
+
+From a clean checkout on this branch:
+
+```bash
+npm ci
+uv sync --dev --locked
+python -m http.server 8000
+```
+
+In a second shell, verify tracked routes and critical root assets over HTTP:
+
+```bash
+python tools/smoke_static_routes.py --base-url http://127.0.0.1:8000
+```
+
+The current smoke set covers the 19 tracked HTML routes plus 16 critical data, script, stylesheet, module, and Cloudflare-control targets.
+
+## Reproducible Vite proof instructions
+
+Pass 16.3 will add the committed build configuration. Until then, reproduce the disposable compatibility proof outside the repository or in an ignored scratch directory:
+
+1. Enumerate HTML entries from `git ls-files "*.html"`.
+2. Configure Vite with those entries as `rollupOptions.input`.
+3. Add a temporary static-copy step for `_headers`, `_redirects`, reviewed `/data/`, `/assets/`, classic route scripts, and the Postcard Atlas media manifest family.
+4. Run the proof build with Node 24 and Vite 8.2.x.
+5. Assert that every tracked HTML route, `_headers`, `_redirects`, and required root-relative runtime asset exists in the proof output.
+
+Do not commit `vite.config.*`, `dist/`, or Cloudflare output-directory changes before Pass 16.3.

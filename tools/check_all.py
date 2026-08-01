@@ -52,16 +52,22 @@ def run_commands(commands: tuple[tuple[str, tuple[str, ...]], ...]) -> int:
 
 
 def javascript_syntax_commands() -> tuple[tuple[str, tuple[str, ...]], ...]:
+    result = subprocess.run(
+        ("git", "ls-files", "--", "*.js", "*.mjs", "*.cjs"),
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     paths = sorted(
-        path
-        for suffix in ("*.js", "*.mjs", "*.cjs")
-        for path in ROOT.rglob(suffix)
-        if not {"node_modules", "dist"}.intersection(path.parts)
+        path.strip().replace("\\", "/")
+        for path in result.stdout.splitlines()
+        if path.strip()
     )
     return tuple(
         (
-            f"JavaScript syntax: {path.relative_to(ROOT).as_posix()}",
-            ("node", "--check", path.relative_to(ROOT).as_posix()),
+            f"JavaScript syntax: {path}",
+            ("node", "--check", path),
         )
         for path in paths
     )

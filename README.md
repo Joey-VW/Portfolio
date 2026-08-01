@@ -10,7 +10,7 @@ Repository tooling supports Node 24, npm 11, Python 3.12, and uv. Install the lo
 
 ```bash
 npm ci
-uv sync --dev --frozen
+uv sync --dev --locked
 ```
 
 Optional Python tool families stay outside the default merge gate:
@@ -31,7 +31,7 @@ npm run test
 npm run check
 ```
 
-`npm run validate` and `npm run check` currently expose the known Gravity Fleet orbit-speed contract failure recorded in `docs/architecture/repository-validation-baseline.md`. Credentialed Kroger and transit operations, browser capture, BigQuery writes, and deployments are intentionally excluded.
+Credentialed Kroger and transit operations, browser capture, BigQuery writes, production builds, and deployments are intentionally excluded from the default merge gate.
 
 ## Local preview
 

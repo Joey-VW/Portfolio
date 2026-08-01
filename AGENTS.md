@@ -169,7 +169,7 @@ python -m http.server 8000
 
 Then use `http://localhost:8000`.
 
-Install the default locked tool environments with `npm ci` and `uv sync --dev --frozen`. Use the supported root commands when their scope applies:
+Install the default locked tool environments with `npm ci` and `uv sync --dev --locked`. Use the supported root commands when their scope applies:
 
 ```bash
 npm run format:check

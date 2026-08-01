@@ -3,9 +3,9 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **IN PROGRESS - Pass 16.0 complete; Pass 16.1 implemented with one recorded baseline blocker**
+- Status: **IN PROGRESS - Pass 16.0 and 16.1 complete; Pass 16.2 started**
 - Prepared: July 31, 2026
-- Baseline reviewed: `main` at `e1f8867` (`Publish PHX Transit Pulse and add Showcase animation (#37)`)
+- Baseline reviewed: `main` at `78b03c0` (`remove redundant h2`)
 - Primary implementation tracker: this document
 - Related sources of truth: `AGENTS.md`, `PORTFOLIO_ROADMAP.md`, `README.md`, `data/projects.json`
 
@@ -198,9 +198,9 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 
 | Pass | Status | Outcome | Production risk | Main dependency |
 | --- | --- | --- | --- | --- |
-| 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded at `0e08de6`. | None | Current `main` stable |
-| 16.1 Command and dependency foundation | IN REVIEW | Reproducible environments and one command surface are implemented; the gate exposes the pre-existing Gravity Fleet contract failure. | Low | 16.0 |
-| 16.2 CI and contract foundation | BLOCKED | Turn existing checks into a required, deterministic PR gate and add initial schemas. | Low | 16.1 |
+| 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded against the branch's actual `main` ancestor, `78b03c0`. | None | Current `main` stable |
+| 16.1 Command and dependency foundation | DONE | Reproducible environments and one command surface are implemented with locked uv enforcement and deterministic tracked-file discovery. | Low | 16.0 |
+| 16.2 CI and contract foundation | IN PROGRESS | Turn existing checks into a required, deterministic PR gate and add initial schemas. | Low | 16.1 |
 | 16.3 Parallel production-build proof | BLOCKED | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
 | 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |
@@ -309,7 +309,7 @@ Make setup and validation reproducible before changing the deployment model.
 
 ### Implementation note
 
-Pass 16.1 is implemented, but its composed gate is intentionally not green: the baseline Gravity Fleet validator contradicts the committed Level 2 and Level 3 orbit multipliers. The failure is recorded in `docs/architecture/repository-validation-baseline.md` and remains outside this two-phase architecture scope. Windows clean-install verification is also pending. Do not unblock Pass 16.2 by excluding or weakening the validator.
+Pass 16.1 is implemented. The Gravity Fleet orbit-speed conflict was resolved by restoring the level multipliers that repository history established, rather than excluding or weakening the validator. Windows clean-install verification is still pending.
 
 ## Pass 16.2 - CI and contract foundation
 

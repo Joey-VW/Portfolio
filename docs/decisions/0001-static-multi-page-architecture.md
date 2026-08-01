@@ -18,3 +18,14 @@ Retain a static multi-page browser architecture. Add npm as a cross-platform tas
 - Shared behavior may be modularized later in focused passes, but framework conversion is out of scope.
 - Local development continues through an HTTP static server until Pass 16.3 introduces a truthful build-aware command.
 - npm does not make the browser application a Node backend.
+
+## Alternatives Considered
+
+- **React, Next.js, or another application framework:** rejected because the current product contract is route-oriented static HTML with project-specific scripts, and no server-rendered or SPA-only requirement exists.
+- **Status quo root deployment only:** rejected for the modernization program because it leaves tooling, tests, source inputs, and verification evidence difficult to separate from production.
+- **A persistent backend:** rejected because the live integrations that might justify it remain intentionally deferred and would require their own privacy and operations decision.
+
+## Follow-Up
+
+- Revisit framework or backend choices only when a concrete product feature requires them.
+- Keep future modularization focused on current responsibilities rather than a broad rewrite.

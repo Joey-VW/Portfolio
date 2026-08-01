@@ -27,3 +27,14 @@ Pass 16.5 may introduce `public/data/` and `data-src/` only after the `dist/` de
 - PHX Transit synthetic replay remains publishable; cadence captures and static verification evidence do not.
 - Procurement generated JSON remains publishable while its source CSV is source-only.
 - Shrinkflation browser data remains separate from credentialed Kroger operations and staging data.
+
+## Alternatives Considered
+
+- **Copy all `data/` files to production:** rejected because browser artifacts, source inputs, staging files, and verification evidence have different privacy and reproducibility rules.
+- **Move the full data tree before the build proof:** rejected because relocation would blur product regressions with deployment-boundary work.
+- **Treat synthetic data as private:** rejected for explicitly fictional portfolio demos whose value depends on transparent, browser-readable fixtures.
+
+## Follow-Up
+
+- Pass 16.2 should add initial schemas without forcing disruptive data moves.
+- Pass 16.5 should classify and relocate source and public data only after `dist/` behavior is proven.

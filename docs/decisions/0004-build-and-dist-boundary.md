@@ -29,3 +29,14 @@ Pass 16.3 proves `dist/` in parallel with the existing root deployment. Pass 16.
 - Root-relative paths remain supported unless a later decision explicitly changes them.
 - The build cannot require live APIs or credentials.
 - Static copying must be allowlisted; copying the entire repository is not acceptable production behavior.
+
+## Alternatives Considered
+
+- **Continue deploying the repository root indefinitely:** rejected because it cannot enforce a strict production artifact boundary.
+- **Custom Python copier only:** deferred as a fallback because Vite already handles the ES-module routes and HTML entry graph while still allowing explicit static-copy assertions.
+- **Cloudflare cutover in the same pass as the proof:** rejected because preview parity and rollback preparation must happen before production output changes.
+
+## Follow-Up
+
+- Pass 16.3 must commit the build proof, output assertions, and local `dist/` validation while production still serves the root.
+- Pass 16.4 may change Cloudflare output only after preview approval and documented rollback readiness.

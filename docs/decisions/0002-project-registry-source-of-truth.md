@@ -18,3 +18,14 @@ Keep `data/projects.json` as the canonical source for project lifecycle metadata
 - Homepage, project index, and Showcase contradictions are validation defects.
 - Secondary documentation should be generated from the registry or checked against it where practical.
 - Schema work belongs to Pass 16.2 and must preserve the current browser contract.
+
+## Alternatives Considered
+
+- **Manual route lists in HTML or build config:** rejected because publication state would drift from the registry.
+- **README as the canonical project list:** rejected because documentation should describe or be checked against product metadata, not own it.
+- **Per-page front matter introduced immediately:** deferred because the current static pages do not have a build pipeline yet.
+
+## Follow-Up
+
+- Pass 16.2 should validate registry shape and public-route consistency.
+- A later build pass may generate route inputs or documentation from the registry after the build boundary is stable.

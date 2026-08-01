@@ -2,7 +2,7 @@
 
 ## Baseline environment
 
-- Commit: `0e08de6a1c6be5e643703a3f651dbf1b8a8f0a33`
+- Commit: `78b03c0a008a802cec3281334beaefe2b58efb13`
 - Recorded: July 31, 2026
 - Node: 24.14.0
 - npm: 11.9.0
@@ -19,25 +19,24 @@ All commands were run from the repository root without live credentials. The con
 | `node tools/validate_project_registry_runtime.js`            |    0 | Lifecycle and ordering pass; expected VM warning because `fetch` is absent |
 | `python tools/validate_ev_true_cost.py`                      |    0 | Passed                                                                     |
 | `python tools/validate_phx_transit_map.py`                   |    0 | Passed: 5 routes, 14 stops, 130 progress records, 32 alert segments        |
-| `node tools/validate_gravity_fleet.js`                       |    1 | Pre-existing orbit-speed contract failure                                  |
+| `node tools/validate_gravity_fleet.js`                       |    0 | Passed after restoring the established 10 percent effective orbit contract |
 | `python tools/procurement/validate_case_data.py`             |    0 | Passed                                                                     |
 | `python tools/qtc/validate_case_data.py`                     |    0 | Passed                                                                     |
 | `python -m unittest tests/test_analytics_modernization.py`   |    0 | 13 tests passed                                                            |
 | `python tools/fetch_kroger_products.py --test-merge-fixture` |    0 | Fixture checks passed; negative fixtures emitted expected safe summaries   |
 
-## Known pre-existing failure
+## Resolved branch correction
 
-`tools/validate_gravity_fleet.js` expects each level's effective orbit speed to be exactly 10 percent above the previous level. The committed configuration uses:
+`tools/validate_gravity_fleet.js` expects each level's effective orbit speed to be exactly 10 percent above the previous level. Repository history clearly establishes that contract:
 
-- Level 1: `orbitSpeedMultiplier: 1`
-- Level 2: `orbitSpeedMultiplier: 2.5`
-- Level 3: `orbitSpeedMultiplier: 4`
+- Commit `62a38729e5d4579afb7b724e4f1649e5da3ceaf7` set the level multipliers to `1`, `1.10`, and `1.21`.
+- Commit `f59edd4c348e80a36fb44fb5e0a372887956f1f7` refined the validator to assert effective per-path speeds.
 
-The validator stops on `Level 2 inner orbit must be effectively 10% faster than Level 1`. Passes 16.0 and 16.1 do not change game behavior or weaken this assertion. The root command surface intentionally returns nonzero while the contradiction remains.
+The modernization branch had regressed the multipliers to `2.5` and `4`. Pass 16.1 restores the established multipliers instead of suppressing the validator.
 
 ## Disposable build-tool proof
 
-Vite 8.2.0 built all 19 HTML inputs in 374 ms after a temporary proof configuration enumerated the entries and copied control/data paths. The proof was not committed and did not change Cloudflare settings. It identified three requirements for Pass 16.3:
+Vite 8.2.0 built all 19 tracked HTML inputs in 374 ms after a temporary proof configuration enumerated the entries and copied control/data paths. The proof was not committed and did not change Cloudflare settings. It identified three requirements for Pass 16.3:
 
 1. Copy classic non-module scripts explicitly or migrate them in focused slices.
 2. Copy only reviewed browser data and media, including the Postcard Atlas manifest/video family.
@@ -58,17 +57,17 @@ Credentialed Kroger fetching, live transit fetching, browser capture, BigQuery p
 ## Foundation verification
 
 - `npm ci --ignore-scripts` installed the exact locked Prettier dependency.
-- `uv sync --dev --frozen` created the Python 3.12 environment from `uv.lock` and installed the locked core/dev dependency set.
+- `uv sync --dev --locked` created the Python 3.12 environment from `uv.lock` and enforced lock consistency for the core/dev dependency set.
 - `npm run format:check` passed.
 - `npm run lint` passed Python compilation, the foundation Ruff scope, and syntax checks for every committed JS, MJS, and CJS file.
 - `npm run test` passed 13 unit tests and the offline Kroger merge fixture.
-- A local HTTP smoke returned 200 for all 19 HTML routes plus 14 critical data, script, stylesheet, and Cloudflare-control targets (33 of 33 total).
-- `npm run validate` reproduced the single known Gravity Fleet failure after the other six validator groups completed.
+- A local HTTP smoke returned 200 for all 19 HTML routes plus 16 critical data, script, stylesheet, module, and Cloudflare-control targets (35 of 35 total).
+- `npm run validate` passed after the Gravity Fleet orbit-speed correction.
 
 ## Rerun expectations
 
 - `npm run lint` and `npm run format:check` should pass after the locked development dependencies are installed.
 - `npm run test` should pass offline.
-- `npm run validate` and `npm run check` should report the known Gravity Fleet failure until its game/validator contract is resolved in a separately scoped pass.
+- `npm run validate` and `npm run check` should pass in the locked default environment.
 - A new failure in any previously passing command is a migration regression.
 - Windows installation and Cloudflare rendered QA remain external verification gates; neither is claimed by this Linux baseline.
