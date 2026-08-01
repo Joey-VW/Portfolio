@@ -3,7 +3,7 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **IN PROGRESS - Pass 16.0 and 16.1 complete; Pass 16.2 in review pending a green GitHub CI run**
+- Status: **IN PROGRESS - Pass 16.0 through 16.2 implemented and verified; Pass 16.3 remains blocked**
 - Prepared: July 31, 2026
 - Baseline reviewed: `main` at `78b03c0` (`remove redundant h2`)
 - Primary implementation tracker: this document
@@ -200,7 +200,7 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 | --- | --- | --- | --- | --- |
 | 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded against the branch's actual `main` ancestor, `78b03c0`. | None | Current `main` stable |
 | 16.1 Command and dependency foundation | DONE | Reproducible environments and one command surface are implemented with locked uv enforcement and deterministic tracked-file discovery. | Low | 16.0 |
-| 16.2 CI and contract foundation | IN REVIEW | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented; GitHub CI must pass before merge. | Low | 16.1 |
+| 16.2 CI and contract foundation | IN REVIEW | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented and green on PR #39. | Low | 16.1 |
 | 16.3 Parallel production-build proof | BLOCKED | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
 | 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |
@@ -360,12 +360,12 @@ Recommended branch protection after the new CI proves stable: require the `Repos
 
 ### Acceptance criteria
 
-- [ ] GitHub CI completes successfully without credentials or network-dependent live data.
+- [x] GitHub CI completes successfully without credentials or network-dependent live data.
 - [x] Every existing validator is represented or its exclusion is documented.
 - [x] Local validation fails on a deliberately invalid schema fixture and passes on the committed data.
 - [x] The Kroger scheduled workflow retains its existing safety behavior.
 - [x] Linters and formatters do not make unrelated legacy code unmergeable without a documented ratchet plan.
-- [ ] The CI status can become a required branch check once it has proven stable.
+- [x] The CI status can become a required branch check once it has proven stable.
 
 ## Pass 16.3 - Parallel production-build proof
 
