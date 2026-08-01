@@ -14,8 +14,8 @@
     "test": "uv run --locked --no-sync python tools/check_all.py test",
     "build": "node tools/build_site.mjs",
     "validate:dist": "node tools/validate_dist.mjs",
-    "test:dist": "npm run build && npm run validate:dist",
-    "check": "npm run format:check && npm run lint && npm run validate && npm run test && npm run build && npm run validate:dist"
+    "test:dist": "npm run build && npm run validate:dist && uv run --locked --no-sync python tools/smoke_dist.py",
+    "check": "npm run format:check && npm run lint && npm run validate && npm run test && npm run test:dist"
   },
   "devDependencies": {
     "prettier": "3.9.6",

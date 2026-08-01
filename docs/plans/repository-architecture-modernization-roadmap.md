@@ -200,7 +200,7 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 | --- | --- | --- | --- | --- |
 | 16.0 Baseline and decisions | DONE | Behavior, routes/data, validation results, and architectural choices are recorded against the branch's actual `main` ancestor, `78b03c0`. | None | Current `main` stable |
 | 16.1 Command and dependency foundation | DONE | Reproducible environments and one command surface are implemented with locked uv enforcement and deterministic tracked-file discovery. | Low | 16.0 |
-| 16.2 CI and contract foundation | IN REVIEW | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented and green on PR #39. | Low | 16.1 |
+| 16.2 CI and contract foundation | DONE | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented and green on PR #39. | Low | 16.1 |
 | 16.3 Parallel production-build proof | IN REVIEW | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | BLOCKED | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
 | 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |

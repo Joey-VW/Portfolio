@@ -18,6 +18,7 @@ venv/
 
 node_modules/
 .npm-cache/
+.uv-cache/
 dist/
 
 
