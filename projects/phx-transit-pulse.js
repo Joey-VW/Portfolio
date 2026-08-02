@@ -10,6 +10,9 @@
   const $$ = (selector) => Array.from(app.querySelectorAll(selector));
   const svgNS = 'http://www.w3.org/2000/svg';
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobileLayout = window.matchMedia('(max-width: 780px)');
+  const localMapFallbackQa = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)
+    && new URLSearchParams(window.location.search).get('phxMapQa') === 'fallback';
   const state = {
     data: null,
     scenarios: [],
@@ -248,6 +251,7 @@
   async function initializeInteractiveMap() {
     setMapPresentation('loading');
     try {
+      if (localMapFallbackQa) throw new Error('Local QA requested the schematic map fallback.');
       if (!window.PHXTransitMap?.initMap) {
         throw new Error('Interactive map adapter is unavailable.');
       }
@@ -334,9 +338,69 @@
     if (state.selected && !selectionIsValid(frame)) state.selected = null;
   }
 
+  function setMobileDisclosure(panel, expanded) {
+    if (!panel) return;
+    panel.dataset.mobileCollapsed = String(!expanded);
+    panel.querySelector('[data-mobile-disclosure-toggle]')
+      ?.setAttribute('aria-expanded', String(expanded));
+  }
+
+  function updateInspectorSummary() {
+    const summary = $('[data-inspector-summary]');
+    if (!summary) return;
+    if (!state.selected) {
+      summary.textContent = 'Selected item - none';
+      return;
+    }
+    if (state.selected.type === 'route') {
+      summary.textContent = `Selected route - ${routeById(state.selected.id)?.label || state.selected.id}`;
+      return;
+    }
+    if (state.selected.type === 'alert') {
+      const alert = visibleAlerts(currentFrame()).find((item) => item.id === state.selected.id);
+      summary.textContent = `Selected alert - ${alert?.title || state.selected.id}`;
+      return;
+    }
+    summary.textContent = `Selected vehicle - ${state.selected.id}`;
+  }
+
+  function syncMobileHierarchy(event) {
+    const isMobile = event?.matches ?? mobileLayout.matches;
+    const controls = $('.phx-control-stack');
+    const navigation = $('.phx-project-links');
+    const operationsGrid = $('.phx-ops-grid');
+    const mapPanel = $('.phx-map-panel');
+    const snapshot = $('.phx-snapshot');
+    const controlTarget = isMobile ? $('[data-mobile-controls-host]') : $('[data-control-home]');
+    const navigationTarget = isMobile ? $('[data-mobile-nav-host]') : $('.phx-sidebar');
+    if (controls && controlTarget && controls.parentElement !== controlTarget) controlTarget.append(controls);
+    if (navigation && navigationTarget && navigation.parentElement !== navigationTarget) navigationTarget.append(navigation);
+    if (operationsGrid && mapPanel && snapshot) {
+      operationsGrid.insertBefore(isMobile ? mapPanel : snapshot, isMobile ? snapshot : mapPanel);
+    }
+    if (isMobile) {
+      $$('[data-mobile-disclosure]').forEach((panel) => {
+        setMobileDisclosure(panel, panel.matches('[data-inspector-disclosure]') && Boolean(state.selected));
+      });
+    }
+    state.mapAdapter?.resizeMap();
+  }
+
+  function bindMobileHierarchy() {
+    $$('[data-mobile-disclosure-toggle]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const panel = button.closest('[data-mobile-disclosure]');
+        setMobileDisclosure(panel, button.getAttribute('aria-expanded') !== 'true');
+      });
+    });
+    syncMobileHierarchy();
+    mobileLayout.addEventListener('change', syncMobileHierarchy);
+  }
+
   function setSelection(type, id) {
     if (unavailableScenario()) return;
     state.selected = { type, id };
+    if (mobileLayout.matches) setMobileDisclosure($('[data-inspector-disclosure]'), true);
     render();
     announce(`Selected fictional ${type} ${id}.`);
   }
@@ -735,7 +799,9 @@
     const root = $('[data-alerts]');
     root.replaceChildren();
     const alerts = visibleAlerts(frame);
-    $('[data-alert-count]').textContent = unavailableScenario() ? '–' : String(alerts.length);
+    const alertCount = unavailableScenario() ? '–' : String(alerts.length);
+    $('[data-alert-count]').textContent = alertCount;
+    $('[data-alert-count-mobile]').textContent = alertCount;
 
     if (unavailableScenario()) {
       root.append(el('p', '', `${currentScenario().label}: alert records are unavailable.`));
@@ -764,6 +830,7 @@
     const root = $('[data-route-signals]');
     root.replaceChildren();
     const signals = visibleRouteSignals(frame);
+    $('[data-route-count-mobile]').textContent = unavailableScenario() ? '–' : String(signals.length);
 
     if (unavailableScenario()) {
       root.append(el('p', 'phx-unavailable', `${currentScenario().label}: route signals are unavailable.`));
@@ -953,6 +1020,7 @@
   function renderInspector(frame) {
     const root = $('[data-inspector]');
     $('[data-inspector-title]').hidden = unavailableScenario() || !state.selected;
+    updateInspectorSummary();
     root.replaceChildren();
     if (unavailableScenario()) {
       root.append(el('p', '', `${currentScenario().label}: no record is presented as current.`));
@@ -1088,6 +1156,9 @@
   function render({ announceChange = false } = {}) {
     const frame = currentFrame();
     normalizeSelection(frame);
+    if (!state.selected && mobileLayout.matches) {
+      setMobileDisclosure($('[data-inspector-disclosure]'), false);
+    }
     renderStatus(frame);
     renderKpis(frame);
     renderMap(frame);
@@ -1137,6 +1208,7 @@
     state.mode = 'all';
     state.route = 'all';
     state.selected = null;
+    setMobileDisclosure($('[data-inspector-disclosure]'), false);
     $('[data-route-filter]').value = 'all';
     $$('[data-mode]').forEach((button) => {
       const active = button.dataset.mode === 'all';
@@ -1199,6 +1271,7 @@
         }
         updateRouteOptions();
         state.selected = null;
+        setMobileDisclosure($('[data-inspector-disclosure]'), false);
         render({ announceChange: true });
       });
     });
@@ -1206,6 +1279,7 @@
     $('[data-route-filter]').addEventListener('change', (event) => {
       state.route = event.target.value;
       state.selected = state.route === 'all' ? null : { type: 'route', id: state.route };
+      setMobileDisclosure($('[data-inspector-disclosure]'), Boolean(state.selected) && mobileLayout.matches);
       render({ announceChange: true });
     });
 
@@ -1267,6 +1341,7 @@
   }
 
   async function init() {
+    bindMobileHierarchy();
     try {
       const [replayResponse, scenarioResponse] = await Promise.all([
         fetch(REPLAY_URL),

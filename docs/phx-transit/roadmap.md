@@ -66,6 +66,9 @@ rewriting the underlying fixture records.
 - [x] Preserve synthetic labeling, accessible records, keyboard selection,
   reduced-motion behavior, explicit scenarios, and visible basemap attribution.
 - [x] Add a focused geographic fixture validator.
+- [x] Refine the mobile information hierarchy so the compact controls and map
+  precede the denser snapshot and progressively disclosed secondary panels,
+  while preserving the existing desktop dashboard.
 - [ ] Complete targeted desktop, tablet, mobile, short-height, 200 percent zoom,
   keyboard, reduced-motion, blocked-library, blocked-tile, console, network, and
   Cloudflare preview QA on the mapped build.
