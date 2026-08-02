@@ -9,7 +9,7 @@
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/projects/phx-transit-pulse.css">
+  <link rel="stylesheet" href="/projects/phx-transit-pulse.css?v=20260801-mobile">
 </head>
 <body class="phx-transit">
   <a class="skip-link" href="#operations">Skip to operations dashboard</a>
@@ -32,10 +32,12 @@
       <section class="phx-demo-note" aria-labelledby="demo-note-title">
         <span class="phx-demo-chip"><i aria-hidden="true"></i> Synthetic replay</span>
         <h1 id="demo-note-title">Fictional data, realistic structure</h1>
-        <p>Every operation shown is synthetic and fictional, intentionally modeled around the structure and behaviors that real GTFS and GTFS-Realtime feeds can support. This portfolio dashboard is not connected to Valley Metro.</p>
+        <p class="phx-demo-detail">Every operation shown is synthetic and fictional, intentionally modeled around the structure and behaviors that real GTFS and GTFS-Realtime feeds can support. This portfolio dashboard is not connected to Valley Metro.</p>
+        <p class="phx-demo-compact">Fictional portfolio demo - not live Valley Metro data.</p>
       </section>
 
-      <section class="phx-control-stack" aria-label="Synthetic dashboard controls">
+      <div class="phx-control-home" data-control-home>
+        <section class="phx-control-stack" aria-label="Synthetic dashboard controls">
         <div class="phx-field">
           <span>Vehicle mode</span>
           <div class="phx-segmented" role="group" aria-label="Filter by vehicle mode">
@@ -68,7 +70,8 @@
         </div>
 
         <button class="phx-reset" type="button" data-action="reset">Reset dashboard view</button>
-      </section>
+        </section>
+      </div>
 
       <details class="phx-methodology">
         <summary>What the real feeds can support</summary>
@@ -99,6 +102,8 @@
         <strong data-state-title>Synthetic replay</strong>
         <span data-state-message>Loading the fictional transit replay.</span>
       </section>
+
+      <div class="phx-mobile-controls" data-mobile-controls-host></div>
 
       <div class="phx-ops-grid">
         <section class="phx-snapshot" aria-labelledby="snapshot-title">
@@ -178,30 +183,49 @@
         </section>
 
         <aside class="phx-right-rail" aria-label="Alert and route snapshot panels">
-          <section class="phx-panel phx-alert-panel" aria-labelledby="alerts-title">
+          <section class="phx-panel phx-alert-panel" aria-labelledby="alerts-title" data-mobile-disclosure data-mobile-collapsed="true">
+            <button class="phx-mobile-panel-toggle" type="button" aria-expanded="false" aria-controls="phx-alert-content" data-mobile-disclosure-toggle>
+              <span>Active alerts</span><b data-alert-count-mobile>0</b>
+            </button>
+            <div id="phx-alert-content" class="phx-mobile-panel-content">
             <header class="phx-panel-heading">
               <div><span>Service updates</span><h2 id="alerts-title">Active alerts</h2></div>
               <b data-alert-count>0</b>
             </header>
             <div class="phx-alert-list" data-alerts></div>
+            </div>
           </section>
 
-          <section class="phx-panel phx-route-panel" aria-labelledby="routes-title">
+          <section class="phx-panel phx-route-panel" aria-labelledby="routes-title" data-mobile-disclosure data-mobile-collapsed="true">
+            <button class="phx-mobile-panel-toggle" type="button" aria-expanded="false" aria-controls="phx-route-content" data-mobile-disclosure-toggle>
+              <span>Route status</span><b data-route-count-mobile>0</b>
+            </button>
+            <div id="phx-route-content" class="phx-mobile-panel-content">
             <header class="phx-panel-heading">
               <div><span>Route status</span><h2 id="routes-title">Route snapshot</h2></div>
             </header>
             <div class="phx-route-table" data-route-signals></div>
+            </div>
           </section>
 
-          <section class="phx-panel phx-inspector-card" aria-label="Map selection">
+          <section class="phx-panel phx-inspector-card" aria-label="Map selection" data-mobile-disclosure data-mobile-collapsed="true" data-inspector-disclosure>
+            <button class="phx-mobile-panel-toggle" type="button" aria-expanded="false" aria-controls="phx-inspector-content" data-mobile-disclosure-toggle>
+              <span data-inspector-summary>Selected item - none</span>
+            </button>
+            <div id="phx-inspector-content" class="phx-mobile-panel-content">
             <header class="phx-panel-heading">
               <div><span>Map selection</span><h2 id="inspector-title" data-inspector-title hidden>Selected item</h2></div>
             </header>
             <div data-inspector class="phx-inspector"><p>Choose a route, vehicle, or alert on the map to see its details.</p></div>
+            </div>
           </section>
         </aside>
 
-        <section class="phx-insights" aria-label="Current transit details">
+        <section class="phx-insights" aria-label="Current transit details" data-mobile-disclosure data-mobile-collapsed="true">
+          <button class="phx-mobile-panel-toggle" type="button" aria-expanded="false" aria-controls="phx-insights-content" data-mobile-disclosure-toggle>
+            <span>More transit details</span>
+          </button>
+          <div id="phx-insights-content" class="phx-insights-grid phx-mobile-panel-content">
           <article class="phx-panel phx-chart-card">
             <header><span>Vehicle updates</span><small>Fresh vs. stale</small></header>
             <div class="phx-freshness-bars" data-freshness-chart></div>
@@ -218,6 +242,7 @@
             <header><span>Feed freshness</span><small>Header age</small></header>
             <div data-feed-health></div>
           </article>
+          </div>
         </section>
       </div>
 
@@ -230,12 +255,13 @@
           </table>
         </div>
       </details>
+      <div class="phx-mobile-nav" data-mobile-nav-host></div>
       <footer class="phx-disclaimer"><strong>Independent portfolio prototype.</strong> All displayed operations and metrics are intentionally fictional. No live provider data is requested or presented.</footer>
       <p class="sr-only" aria-live="polite" aria-atomic="true" data-announcer></p>
     </section>
   </main>
   <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
   <script src="/projects/phx-transit-pulse-map.js"></script>
-  <script src="/projects/phx-transit-pulse.js"></script>
+  <script src="/projects/phx-transit-pulse.js?v=20260801-mobile3"></script>
 </body>
 </html>

@@ -132,3 +132,57 @@ The dashboard behaves correctly across the tested responsive layouts, replay fun
 The remaining observations are primarily **UX polish opportunities** focused on improving mobile information density, elevating the map as the primary visualization, and reducing overall page length. These are suitable candidates for a future refinement pass rather than blockers for the current implementation.
 
 addendum: keyboard-only navigation, reduced motion, and 200% zoom pass on the Cloudflare preview ✅
+
+---
+
+# Mapped-build regression addendum
+
+**Validation Date:** August 1, 2026
+**Build:** local `main` at `78d47ef`, followed by a generated `dist` artifact
+**Environment:** Codex in-app browser, local HTTP server, Python and Node validators
+
+## Verified
+
+| Area | Result | Evidence |
+| --- | --- | --- |
+| Mapped initial load | Pass | MapLibre canvas, Phoenix-area basemap, visible attribution, and fictional overlay loaded successfully. |
+| Viewports | Pass | 1440×900, 1280×720, 1024×768, 768×1024, 430×932, 390×844, 375×812, and 360×800 had no horizontal overflow or out-of-bounds enabled controls. |
+| Replay, filters, and selection | Pass | Replay advanced and paused; Bus and route filters synchronized the dashboard, map records, and inspector. |
+| Explicit states | Pass | Current, stale, very-stale, feed-error, offline, and no-data states loaded with their intended map-record and unavailable-map behavior. |
+| Keyboard baseline | Pass | The skip link receives focus through normal Tab navigation; replay pause remained at the selected frame. |
+| Artifact and route smoke | Pass | `tools/check_all.py validate`, production build, `validate:dist`, and static route smoke all passed. The artifact hash was `a0cd342b4d049b4f5da02b643e1c5326e571516744178e52382148a0144ea6e2`. |
+| Cloudflare artifact parity | Pass | The same artifact hash was recorded for the immutable Cloudflare `dist` preview and production cutover review on August 1, including PHX Transit filtering, selection, schematic fallback, and console health. See `docs/architecture/cloudflare-dist-cutover-runbook.md`. |
+
+## Observations and remaining targeted checks
+
+- MapLibre emitted one non-fatal warning from the third-party style about optional sprite image `circle-11`; the map remained interactive and no application error occurred.
+- The in-app browser does not provide controllable browser zoom, reduced-motion emulation, request blocking, or tab-visibility controls. Therefore direct mapped-build checks for 200% zoom, reduced motion, hidden-tab pause, and independently blocked MapLibre and tile/style requests remain open.
+- The prior Cloudflare parity review confirms deployed fallback behavior for the identical generated artifact, but it does not replace a fresh controlled regression of each individual failure mode.
+
+---
+
+# Mobile hierarchy refinement addendum
+
+**Validation Date:** August 1, 2026
+**Environment:** Codex in-app browser, local HTTP source preview, and generated `dist` artifact
+
+## Result
+
+The mobile hierarchy refinement passed its local responsive and interaction gate. Mobile now presents a compact fictional-data masthead, live replay state, shared controls, and the map before the KPI snapshot. Alerts, routes, selected-item details, and supporting insight cards use closed-by-default disclosure controls; selecting a map record opens the selected-item disclosure, and Reset clears and closes it.
+
+## Verified
+
+- No horizontal overflow at 360, 375, 390, 430, 768, 1024, or 1440 CSS pixels.
+- The canonical controls and navigation move between their mobile and desktop hosts without duplication or state loss.
+- The map precedes the KPI snapshot at the existing mobile breakpoint; desktop and larger tablet composition remains unchanged.
+- Alerts and route counts remain current in collapsed summaries across replay frames.
+- Current, stale, very-stale, feed-error, offline, and no-data scenarios retain their intended availability behavior.
+- `?phxMapQa=fallback` on localhost deterministically exercises the schematic fallback while preserving filters, records, and responsive layout.
+- Map-record selection opens the selected-item disclosure; Reset clears the selection and restores the closed state.
+- Desktop alerts, routes, inspector, and insight cards remain expanded, with mobile disclosure buttons removed from the desktop accessibility tree.
+- The final generated artifact passed `validate:dist` with SHA-256 `bf4eb31fbbab542f8740434ef05fad51e90f6e8361aa80ea2ff0689943550aed`.
+
+## Remaining external checks
+
+- A controlled 200 percent browser-zoom and reduced-motion pass remains required on the updated mapped build because the in-app browser does not expose those emulation controls.
+- Review the generated artifact on a fresh Cloudflare preview before closing the overall Pass 13.1a QA checkbox.
