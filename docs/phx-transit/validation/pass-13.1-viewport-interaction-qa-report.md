@@ -137,6 +137,8 @@ addendum: keyboard-only navigation, reduced motion, and 200% zoom pass on the Cl
 
 # Mapped-build regression addendum
 
+> **Evidence boundary:** The report above records the original schematic-build browser QA. This addendum records mapped-build local and artifact evidence. A result from the earlier section is not automatically a mapped-build pass unless it is repeated below.
+
 **Validation Date:** August 1, 2026
 **Build:** local `main` at `78d47ef`, followed by a generated `dist` artifact
 **Environment:** Codex in-app browser, local HTTP server, Python and Node validators
@@ -184,5 +186,7 @@ The mobile hierarchy refinement passed its local responsive and interaction gate
 
 ## Remaining external checks
 
-- A controlled 200 percent browser-zoom and reduced-motion pass remains required on the updated mapped build because the in-app browser does not expose those emulation controls.
-- Review the generated artifact on a fresh Cloudflare preview before closing the overall Pass 13.1a QA checkbox.
+- Complete controlled short-height, 200 percent browser-zoom, full keyboard traversal, reduced-motion, and hidden-tab pause/restoration checks on the updated mapped build.
+- Independently block MapLibre and the style/tile requests to verify each fallback path, then review console and network health.
+- Review the generated artifact on a fresh Cloudflare preview and record the deployed commit, preview URL, browser, viewport, result, and any defects before closing Pass 13.1a.
+- Do not treat the August 1 production-cutover parity evidence as proof of a post-PR #44 production release; that production smoke result is not recorded in this repository.

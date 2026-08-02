@@ -60,7 +60,7 @@ Then visit:
 http://localhost:8000
 ```
 
-The approved Pass 16 production-build proof generates a clean `dist/` artifact without changing the current Cloudflare production output directory:
+The production build generates the clean `dist/` artifact that Cloudflare Pages publishes:
 
 ```bash
 npm run build
@@ -89,7 +89,7 @@ Key routes:
 
 - `/` - homepage resume/professional snapshot
 - `/projects/` - project index rendered from `data/projects.json`
-- `/games/colony-ops-lab.html` - playable colony telemetry experiment
+- `/games/colony-ops-lab.html` - hidden, `noindex` playable colony telemetry experiment
 - `/games/gravity-fleet-lab.html` - playable orbital RTS telemetry experiment
 - `/projects/shrinkflation-tracker.html` - consumer analytics prototype for unit-price changes
 - `/projects/ev-true-cost.html` - EV public-charging cost check for public, mostly-home, and home-only charging
@@ -232,5 +232,5 @@ To prevent search-result drift over time, review candidate matches and lock stab
 - Add richer case-study metrics, diagrams, and links to live demos where appropriate.
 - Keep fixture-based and disabled behaviors truthful while live Sheets, Forms, Drive, and contact delivery remain deferred.
 - Replace the `mailto:` contact form with a verified Cloudflare Worker or form endpoint when backend work is prioritized.
-- Keep the browser application static and multi-page. Complete Cloudflare preview approval before any separate Cloudflare output-directory cutover.
+- Keep the browser application static and multi-page. Preserve the verified Cloudflare `dist/` boundary and rollback procedure for future build changes.
 

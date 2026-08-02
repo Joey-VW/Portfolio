@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: July 28, 2026
+- Last reviewed: August 2, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -40,7 +40,7 @@ Status labels:
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
 | 13. PHX Transit Pulse | IN REVIEW | The synthetic operations console now uses a real interactive Phoenix-area basemap with fictional operational overlays and an automatic schematic fallback. Targeted mapped-build regression and Cloudflare preview QA remain; live ingestion is still blocked by provider terms. | Mapped-build QA and provider terms only for live ingestion or provider replay |
-| 14. Legacy analytics modernization | LATER | Selectively modernize the strongest projects from the retired analytics portfolio into complete, evidence-backed case studies that match the current portfolio's presentation and validation standards. | Current release work through Pass 12 |
+| 14. Legacy analytics modernization | IN REVIEW | Passes 14.0-14.3 are implemented. Procurement and Where Revenue Gets Stuck remain hidden pending publication QA; legacy-repository retirement remains gated. | Rendered publication QA and migration decisions before Pass 14.4 |
 | 15. Plain-English copy pass | LATER | Apply the repository-wide copy audit so visitors understand each project before encountering technical terminology, while preserving useful technical depth and search-relevant keywords. | Passes 09-14 as applicable; complete before final public release QA |
 | 16. Repository architecture modernization | IN REVIEW | Passes 16.0-16.4 are implemented and verified. Cloudflare now builds from the repository command and publishes only `dist/`; source relocation and broader browser gates remain deferred. | Stable `dist/` release gate before Pass 16.5; no live credentials |
 
@@ -53,9 +53,9 @@ The recommended execution order is:
 5. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
 6. Pass 11 custom-domain and production-route release.
 7. Pass 12 final repository validation and release QA.
-8. Pass 14 legacy analytics modernization after the current portfolio release is stable.
+8. Pass 14 publication QA for the implemented Procurement and Where Revenue Gets Stuck case studies after the current portfolio release is stable.
 9. Pass 15 plain-English copy pass after the affected project surfaces are stable and before their final publication approval.
-10. Pass 16 repository architecture modernization in focused slices, without changing production deployment until the approved cutover pass.
+10. Pass 16 repository architecture modernization in focused slices after recording the post-cutover production-stability gate.
 11. Deferred live-ingestion, backend, and operational automation work.
 
 ## Decisions already made
@@ -75,7 +75,7 @@ These choices remove ambiguity from later implementation work.
 
 ## Pass 01 - Project governance
 
-Implemented and verified July 15, 2026. The current registry contains five public/ready projects and four hidden or unlisted projects, with PHX Transit Pulse published and Colony Ops retained as a hidden project. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
+Implemented and verified July 15, 2026. As reconciled August 2, 2026, the registry contains five public/ready projects and five hidden projects, with PHX Transit Pulse published and Colony Ops retained as a hidden project. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
 
 ### 01.1 Add explicit lifecycle metadata
 
@@ -1188,16 +1188,17 @@ Current PHX Transit queue:
 - [x] Complete the synthetic operations-console redesign while preserving fictional data, deterministic behavior, accessibility, and explicit non-live labeling.
 - [x] Resolve the interactive-map plan's dependency-delivery, tile-service, synthetic-geography, and fallback decision gates.
 - [x] Replace the schematic-only primary map with a real Phoenix-area basemap plus fictional routes, stops, vehicles, and alerts while preserving the accessible records table and a reliable fallback.
-- [ ] Run targeted regression QA on the mapped current build, including responsive and short-height layouts, 200 percent zoom, keyboard-only navigation, reduced motion, replay and filtering, record selection, scenario states, hidden-tab behavior, blocked-library and blocked-tile fallback behavior, console and network checks, and a Cloudflare preview.
-- [ ] Update the detailed PHX Transit roadmap and validation evidence to describe what the redesigned and mapped experience actually ships.
+- [x] Run repository-supported mapped-build regression across 360-1440 pixel layouts, all six demonstration states, replay, filtering, selection/reset, schematic fallback, artifact validation, and route smoke testing; record the mobile-hierarchy follow-up separately.
+- [x] Update the detailed PHX Transit roadmap and validation evidence to distinguish the original schematic baseline, mapped-build local regression, artifact-parity evidence, and remaining controlled checks.
+- [ ] Complete controlled mapped-build checks for short-height layouts, 200 percent zoom, full keyboard traversal, reduced motion, hidden-tab restoration, independently blocked MapLibre and style/tile requests, and console/network health on a fresh Cloudflare preview.
 
-Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. The baseline QA record remains at [`docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md`](docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md). Current design guidance and the proposed map implementation are documented in [`docs/phx-transit/design/README.md`](docs/phx-transit/design/README.md) and [`docs/phx-transit/plans/interactive-map-implementation-plan.md`](docs/phx-transit/plans/interactive-map-implementation-plan.md), with later live-data gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
+Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. The baseline and mapped-build QA record remains at [`docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md`](docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md). Current design guidance and the completed historical map plan are documented in [`docs/phx-transit/design/README.md`](docs/phx-transit/design/README.md) and [`docs/phx-transit/plans/interactive-map-implementation-plan.md`](docs/phx-transit/plans/interactive-map-implementation-plan.md), with later live-data gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
 
 ## Pass 14 - Legacy analytics modernization
 
-**Status: IN PROGRESS.** Passes 14.0–14.3 are implemented; publication QA and legacy-repository retirement remain gated. The legacy `Joey-VW/DataAnalyticsPortfolio` repository contains useful analytics work, but its strongest projects predate the current portfolio's standards for plain-language storytelling, reproducible data preparation, interactive presentation, validation, accessibility, and truthful lifecycle metadata. Do not copy the old repository wholesale. Treat it as source material and selectively rebuild only the projects that materially strengthen the current portfolio.
+**Status: IN REVIEW.** Passes 14.0-14.3 are implemented; rendered publication QA for Procurement and Where Revenue Gets Stuck and legacy-repository retirement remain gated. The legacy `Joey-VW/DataAnalyticsPortfolio` repository contains useful analytics work, but its strongest projects predate the current portfolio's standards for plain-language storytelling, reproducible data preparation, interactive presentation, validation, accessibility, and truthful lifecycle metadata. Do not copy the old repository wholesale. Treat it as source material and selectively rebuild only the projects that materially strengthen the current portfolio.
 
-This pass should begin only after the current release path through Pass 12 is stable. Small registry or documentation corrections discovered during planning may be handled earlier when they are low-risk and independently verifiable.
+Rendered publication QA and lifecycle changes should resume only after the current release path through Pass 12 is stable. Small registry or documentation corrections may be handled earlier when they are low-risk and independently verifiable.
 
 ### Migration decisions
 
@@ -1396,7 +1397,7 @@ Acceptance criteria:
 
 ### 15.3 P2 hidden and pre-publication projects
 
-- [ ] Apply the audit to PHX Transit Pulse before publication, using plain-language labels first and GTFS-Realtime, feed-age, operational, and reliability terminology as supporting detail.
+- [x] Apply the audit to PHX Transit Pulse before publication, using plain-language labels first and GTFS-Realtime, feed-age, operational, and reliability terminology as supporting detail. Completed before publication in PR #36.
 - [ ] Review Procurement KPI Analysis and Quote-to-Cash Workflow Audit after their modernization copy stabilizes and before either project changes to public/ready.
 - [ ] Review CFPB Complaint Intelligence, Video Cutter, and any other hidden project only when an actual implementation approaches publication; do not spend release time polishing placeholder copy that may be replaced.
 - [ ] Add project-specific copy acceptance checks to publication QA for future projects so jargon does not accumulate again.

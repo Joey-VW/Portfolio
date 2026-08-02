@@ -55,6 +55,8 @@ rewriting the underlying fixture records.
 
 ## Pass 13.1a - Interactive fictional map - implementation complete; QA pending
 
+The original Pass 13.1 schematic QA is complete and remains valid only as baseline evidence. The August 1 mapped-build regression verified repository-supported responsive layouts, all six demonstration states, replay, filters, selection, deterministic schematic fallback, artifact validation, and route smoke testing. PR #44 then refined the mobile information hierarchy and passed its local source and generated-artifact checks. The controlled checks below remain open and must not be inferred from the earlier schematic or artifact-parity reviews.
+
 - [x] Resolve dependency delivery, basemap service, fictional geography, and
   fallback decision gates.
 - [x] Add fictional map metadata, GeoJSON route geometry, and geographic stop,
@@ -69,9 +71,13 @@ rewriting the underlying fixture records.
 - [x] Refine the mobile information hierarchy so the compact controls and map
   precede the denser snapshot and progressively disclosed secondary panels,
   while preserving the existing desktop dashboard.
-- [ ] Complete targeted desktop, tablet, mobile, short-height, 200 percent zoom,
-  keyboard, reduced-motion, blocked-library, blocked-tile, console, network, and
-  Cloudflare preview QA on the mapped build.
+- [x] Complete repository-supported desktop, tablet, mobile, scenario, replay,
+  filtering, selection, fallback, artifact, and route-smoke regression on the
+  mapped build, including the later mobile-hierarchy refinement.
+- [ ] Complete controlled short-height, 200 percent zoom, full-keyboard,
+  reduced-motion, hidden-tab restoration, independently blocked-library,
+  blocked-style/tile, console, network, and fresh Cloudflare preview QA on the
+  mapped build.
 
 The implementation uses pinned MapLibre GL JS `5.24.0` and OpenFreeMap's public
 dark style. No secret or account is required. The basemap is real geographic

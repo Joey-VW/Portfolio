@@ -1,4 +1,6 @@
-# Current Route and Deployment Inventory
+# Pre-Pass-16 Route and Deployment Inventory
+
+> **Historical baseline:** This document records the repository-root deployment model at commit `78b03c0` on July 31, 2026. Pass 16.4 superseded that model on August 1, 2026; Cloudflare now builds with `npm run build` and publishes only `dist/`. See [`cloudflare-dist-cutover-runbook.md`](cloudflare-dist-cutover-runbook.md) for the active configuration and verified rollback values.
 
 ## Baseline
 
@@ -6,9 +8,9 @@
 - Baseline branch: `main`
 - Baseline commit: `78b03c0a008a802cec3281334beaefe2b58efb13`
 - Recorded: July 31, 2026
-- Current host model: Cloudflare Pages serves the repository root with no production build.
+- Baseline host model: Cloudflare Pages served the repository root with no production build.
 
-This inventory records the current static site contract before a generated `dist/` boundary is introduced. It does not authorize route moves, source moves, or deployment changes.
+This inventory records the static site contract before the generated `dist/` boundary was introduced. It does not describe the active deployment configuration or authorize route moves, source moves, or deployment changes.
 
 ## HTML route inventory
 
@@ -146,4 +148,4 @@ python -m http.server 4173 --bind 127.0.0.1 --directory dist
 python tools/smoke_static_routes.py --base-url http://127.0.0.1:4173
 ```
 
-`dist/` is generated and ignored. Do not manually patch it, commit it, or change Cloudflare's production output directory until the Pass 16.3 acceptance criteria and Cloudflare preview gate pass.
+`dist/` is generated and ignored. Do not manually patch or commit it. The historical restriction on changing Cloudflare's output directory was satisfied by Passes 16.3 and 16.4; use the cutover runbook for the current production contract.
