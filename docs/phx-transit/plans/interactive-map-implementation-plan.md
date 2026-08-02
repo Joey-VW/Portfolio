@@ -1,8 +1,14 @@
 # PHX Transit Pulse — Interactive Map Implementation Plan
 
 **Created:** July 25, 2026 at 8:34 PM Arizona time  
-**Status:** Proposed implementation plan  
+**Status:** Completed historical implementation plan
 **Target:** Replace the current schematic-only map with a real, interactive Phoenix-area basemap while preserving synthetic operational data, deterministic replay, accessibility, and explicit non-live labeling.
+
+## Implementation outcome
+
+The mapped experience shipped in July 2026 and was followed by route polish, publication, and the PR #44 mobile-hierarchy refinement. The public page now uses pinned MapLibre GL JS and OpenFreeMap for Phoenix-area geographic context; every operational route, stop, vehicle, alert, and metric remains fictional and deterministic. Filtering, replay, synchronized selection, accessible records, explicit scenario states, and the schematic fallback were preserved.
+
+This file now records the decisions that guided implementation. Current status and remaining controlled QA belong in [`../roadmap.md`](../roadmap.md) and [`../validation/pass-13.1-viewport-interaction-qa-report.md`](../validation/pass-13.1-viewport-interaction-qa-report.md).
 
 ## 1. Objective
 
@@ -23,9 +29,9 @@ The visual direction remains the supplied dashboard concept:
 - route, alert, and vehicle inspection;
 - persistent synthetic-data disclosure.
 
-## 2. Current implementation
+## 2. Historical pre-map implementation
 
-The current map is an inline SVG schematic rendered inside `projects/phx-transit-pulse.html`.
+At the time this plan was written, the map was an inline SVG schematic rendered inside `projects/phx-transit-pulse.html`. That description is retained as historical context, not as the current implementation.
 
 Operational graphics are produced by `projects/phx-transit-pulse.js` from synthetic fixture fields such as:
 

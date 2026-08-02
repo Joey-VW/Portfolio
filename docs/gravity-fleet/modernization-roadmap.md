@@ -9,7 +9,8 @@
 * Human Checkpoint 1 was completed July 22, 2026 on current `main` after PRs #15, #16, and #17 using Chrome on Windows 10 and Safari on an iPhone 14 Pro Max.
 * PR #18, `Introduce Gravity Fleet camera and viewport system`, merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e` and completes Pass 10.3 repository work.
 * PR #19, `Build Gravity Fleet mobile shell and touch controls`, merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after completing Passes 10.4-10.5 implementation and QA.
-* PR #20, `Add Gravity Fleet mobile telemetry analytics`, and PR #21, `Fix Gravity Fleet mobile match-end recovery`, are merged and verified. They complete Pass 10.6; active work is now Pass 10.7 page, header, and analytics polish.
+* PR #20, `Add Gravity Fleet mobile telemetry analytics`, and PR #21, `Fix Gravity Fleet mobile match-end recovery`, are merged and verified. They complete Pass 10.6.
+* PRs #23 and #25 completed Pass 10.7 page-shell, shared-header, setup, and orbit-speed polish. Pass 10.8 integrated QA, cleanup verification, and human release approval are the sole active Gravity Fleet gate.
 
 ## North star
 
@@ -643,6 +644,8 @@ PR #20 merged this telemetry work. Deployed-browser and mobile review then verif
 
 ## Pass 10.7 - Condense the Gravity page and stabilize the shared header
 
+**Status:** Complete through PRs #23 and #25. The acceptance checks below describe the merged implementation and its recorded review; cross-site and final release coverage remains in Pass 10.8.
+
 **Size:** Medium
 **Risk:** Medium because `styles.css` is shared
 **Purpose:** Fix the surrounding page without mixing it into the game engine.
@@ -716,14 +719,14 @@ When entering the mobile match:
 
 ### Acceptance criteria
 
-* [ ] Header remains one row at the previously failing 856×375-like dimensions.
-* [ ] Header remains coherent at 320–430 portrait widths.
-* [ ] Gravity hero buttons do not clip or overflow.
-* [ ] Mission briefing does not dominate the initial phone view.
-* [ ] Desktop hero composition remains polished.
-* [ ] Active mobile gameplay contains no portfolio-header collision.
-* [ ] Shared CSS changes do not regress other project pages.
-* [ ] Production debug controls remain hidden by default.
+* [x] Header remains one row at the previously failing 856×375-like dimensions.
+* [x] Header remains coherent at 320–430 portrait widths.
+* [x] Gravity hero buttons do not clip or overflow.
+* [x] Mission briefing does not dominate the initial phone view.
+* [x] Desktop hero composition remains polished.
+* [x] Active mobile gameplay contains no portfolio-header collision.
+* [x] Shared CSS changes do not regress other project pages in the recorded Pass 10.7 review; final release regression remains in Pass 10.8.
+* [x] Production debug controls remain hidden by default.
 
 ---
 

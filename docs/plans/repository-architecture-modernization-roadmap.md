@@ -3,7 +3,7 @@
 > Program intent: give the portfolio a professional build, validation, and deployment foundation without replacing its successful static multi-page architecture or rewriting working projects.
 
 - Proposed portfolio pass: **Pass 16 - Repository architecture modernization**
-- Status: **IN PROGRESS - Pass 16.0 through 16.4 implemented and verified; Pass 16.5 is the next gated slice**
+- Status: **IN PROGRESS - Pass 16.0 through 16.4 implemented and verified; Pass 16.7 is dependency-ready, while Pass 16.5 remains deferred until Gate C production evidence is recorded**
 - Prepared: July 31, 2026
 - Baseline reviewed: `main` at `78b03c0` (`remove redundant h2`)
 - Primary implementation tracker: this document
@@ -203,10 +203,10 @@ This is a destination, not a single-PR move list. Passes may keep compatibility 
 | 16.2 CI and contract foundation | DONE | Deterministic GitHub Actions CI, initial JSON Schemas, committed-artifact contract validation, PR template, and Dependabot are implemented and green on PR #39. | Low | 16.1 |
 | 16.3 Parallel production-build proof | DONE | Generate `dist/` and test it while production still deploys the repository root. | Medium | 16.2 |
 | 16.4 Cloudflare `dist/` cutover | DONE | Make `dist/` the only deployed artifact with a tested rollback path. | High | 16.3 and approved preview |
-| 16.5 Source and data-boundary migration | BLOCKED | Move source into consistent locations after deployment behavior is stable. | Medium | 16.4 |
-| 16.6 Focused application modularization | BLOCKED | Split large files by responsibility without redesigning features. | Medium | 16.4; 16.5 where paths overlap |
-| 16.7 Browser quality gates | BLOCKED | Add route, interaction, accessibility, and optional performance checks. | Low to medium | 16.3 minimum |
-| 16.8 Documentation and governance closeout | BLOCKED | Reduce duplicated status, archive history, and make the new model maintainable. | Low | 16.4-16.7 |
+| 16.5 Source and data-boundary migration | DEFERRED | Move source into consistent locations after the post-cutover production-stability gate is recorded. | Medium | Gate C evidence after 16.4 |
+| 16.6 Focused application modularization | DEFERRED | Split large files by responsibility without redesigning features. | Medium | 16.5 where paths overlap |
+| 16.7 Browser quality gates | READY | Add route, interaction, accessibility, and optional performance checks against `dist/`; sequencing remains behind current release gates. | Low to medium | 16.3 minimum - satisfied |
+| 16.8 Documentation and governance closeout | DEFERRED | Reduce duplicated status, archive history, and make the new model maintainable. | Low | 16.5-16.7 |
 
 The critical rule is that Pass 16.3 proves the output while the old deployment remains active. Pass 16.4 changes Cloudflare only after the generated artifact has achieved functional parity.
 
@@ -692,14 +692,11 @@ Implementation must verify the current command names against live `main`; this l
 
 ### Merge gate after Pass 16.3
 
+Use `npm run check` as the canonical repository merge gate. It runs the documented checks and invokes `test:dist`, which owns the production build; do not add a separate `npm run build` immediately before it.
+
 ```bash
 npm ci
-npm run format:check
-npm run lint
-npm run validate
-npm run test
-npm run build
-npm run test:dist
+npm run check
 ```
 
 ### Pass-specific manual gates
@@ -782,9 +779,9 @@ The program is complete when all of the following are true:
 - Active documentation describes current reality and historical detail is archived rather than lost.
 - The repository remains recognizably a polished static portfolio, with more reliable engineering and no unnecessary platform complexity.
 
-## 13. Immediate starting packet
+## 13. Historical starting packet - complete
 
-The roadmap originally recommended Pass 16.0 only. At the user's direction, the first implementation combined Pass 16.0 and Pass 16.1 while preserving the boundary against CI, schemas, production build configuration, and Cloudflare changes.
+This section records the initial Pass 16.0-16.1 packet. It is historical context, not current execution guidance. The files were created, later passes added CI and contracts, and Pass 16.4 completed the Cloudflare `dist/` cutover on August 1, 2026.
 
 ### First-pass deliverable
 
@@ -807,9 +804,9 @@ docs/decisions/0004-build-and-dist-boundary.md
 - [x] Test Vite's fit through a disposable proof or documented configuration study; do not commit the build yet.
 - [x] Record unresolved path or data-classification questions.
 - [x] Make no runtime or Cloudflare configuration changes; Pass 16.1 adds development-only dependency manifests as explicitly requested.
-- [ ] Open a focused draft pull request for review.
+- [x] Open and merge the focused implementation pull requests through the verified Pass 16.4 cutover.
 
-Starting with this packet gives Pass 16.1 exact inputs and prevents the build migration from becoming an improvised file move.
+This packet supplied the inputs used by the completed implementation. Current work begins only after the applicable release sequencing and Gate C evidence are satisfied.
 
 ## 14. Explicitly deferred decisions
 

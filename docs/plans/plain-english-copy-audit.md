@@ -1,4 +1,14 @@
-Yes. I reviewed the current `main` branch through the connected GitHub repo, including the homepage, projects registry/hub, the public interactive projects, their dynamically generated UI copy, and the hidden/in-progress project pages that are likely to surface later. I treated visible copy, controls, helper text, statuses, empty/error states, accessibility labels, and data-driven strings as part of the front end; I did **not** treat source-only terminology, CSS class names, or local debug labs as copy problems.
+# Plain-English Copy Audit
+
+## Current status - August 2, 2026
+
+This is a saved July 2026 audit, not a current repository assessment. PHX Transit Pulse received its plain-English pass in PR #36 and is now public; its publication recommendation below is complete and superseded. PR #34 replaced the Procurement placeholder and implemented the Quote-to-Cash case study now titled **Where Revenue Gets Stuck**. Those two analytics projects remain hidden pending rendered publication QA and final copy approval.
+
+Recommendations for global portfolio language, Gravity Fleet, Colony Ops, Shrinkflation, the Publishing System and Postcard Atlas, and small EV terminology corrections remain candidates until the canonical Pass 15 tracker records them complete. Historical observations below are preserved rather than rewritten as if they described current `main`.
+
+## Original audit
+
+I reviewed the then-current `main` branch through the connected GitHub repo, including the homepage, projects registry/hub, the public interactive projects, their dynamically generated UI copy, and the hidden/in-progress project pages that were likely to surface later. I treated visible copy, controls, helper text, statuses, empty/error states, accessibility labels, and data-driven strings as part of the front end; I did **not** treat source-only terminology, CSS class names, or local debug labs as copy problems.
 
 ## Overall assessment
 
@@ -376,9 +386,9 @@ while the stack can continue listing Canvas, JavaScript, telemetry, etc.
 
 ---
 
-# 8. PHX Transit Pulse
+# 8. PHX Transit Pulse - completed and superseded
 
-Because PHX is still hidden/in progress, I'd make this a **future-facing plain-English pass**, not part of the first PR. The registry currently marks it hidden.
+This recommendation described the July 2026 baseline. PHX Transit Pulse received the planned plain-English pass in PR #36 and is now public; use the canonical roadmap for any later copy work.
 
 Importantly, I would **not strip the transit terminology out**. This project is specifically showing that you can reason about transit operations and GTFS-Realtime.
 
