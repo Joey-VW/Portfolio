@@ -53,9 +53,9 @@ A focused review correction keeps scenario-derived ages, counts, map markers,
 inspectors, filters, and non-map route records internally consistent without
 rewriting the underlying fixture records.
 
-## Pass 13.1a - Interactive fictional map - implementation complete; QA pending
+## Pass 13.1a - Interactive fictional map - approved and closed
 
-The original Pass 13.1 schematic QA is complete and remains valid only as baseline evidence. The August 1 mapped-build regression verified repository-supported responsive layouts, all six demonstration states, replay, filters, selection, deterministic schematic fallback, artifact validation, and route smoke testing. PR #44 then refined the mobile information hierarchy and passed its local source and generated-artifact checks. The controlled checks below remain open and must not be inferred from the earlier schematic or artifact-parity reviews.
+The original Pass 13.1 schematic QA is complete and remains valid only as baseline evidence. The August 1 mapped-build regression verified repository-supported responsive layouts, all six demonstration states, replay, filters, selection, deterministic schematic fallback, artifact validation, and route smoke testing. PR #44 then refined the mobile information hierarchy and passed its local source and generated-artifact checks. On August 3, 2026, the controlled mapped-build review of commit `6111ac3d702e24baefb0a9219bcaa31fe9ef80a9` and immutable Cloudflare deployment `https://b5736fb1.portfolio-deo.pages.dev/` completed. Joey Wisto approved Pass 13.1a for closeout with the accepted 200 percent zoom limitation recorded in the QA report.
 
 - [x] Resolve dependency delivery, basemap service, fictional geography, and
   fallback decision gates.
@@ -74,10 +74,11 @@ The original Pass 13.1 schematic QA is complete and remains valid only as baseli
 - [x] Complete repository-supported desktop, tablet, mobile, scenario, replay,
   filtering, selection, fallback, artifact, and route-smoke regression on the
   mapped build, including the later mobile-hierarchy refinement.
-- [ ] Complete controlled short-height, 200 percent zoom, full-keyboard,
+- [x] Complete controlled short-height, 200 percent zoom, full-keyboard,
   reduced-motion, hidden-tab restoration, independently blocked-library,
-  blocked-style/tile, console, network, and fresh Cloudflare preview QA on the
-  mapped build.
+  console, network, and fresh Cloudflare preview QA on the mapped build.
+
+Blocked-style and individual blocked-tile resilience checks were explicitly removed from the release gate and remain nonblocking follow-up work for automated map-resilience coverage. They were not executed and must not be represented as passing.
 
 The implementation uses pinned MapLibre GL JS `5.24.0` and OpenFreeMap's public
 dark style. No secret or account is required. The basemap is real geographic

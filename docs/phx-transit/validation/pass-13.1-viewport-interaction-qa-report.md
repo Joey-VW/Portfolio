@@ -190,3 +190,36 @@ The mobile hierarchy refinement passed its local responsive and interaction gate
 - Independently block MapLibre and the style/tile requests to verify each fallback path, then review console and network health.
 - Review the generated artifact on a fresh Cloudflare preview and record the deployed commit, preview URL, browser, viewport, result, and any defects before closing Pass 13.1a.
 - Do not treat the August 1 production-cutover parity evidence as proof of a post-PR #44 production release; that production smoke result is not recorded in this repository.
+
+---
+
+# Pass 13.1a controlled mapped-build closeout
+
+**Validation Date:** August 3, 2026
+
+**Build:** `6111ac3d702e24baefb0a9219bcaa31fe9ef80a9`
+
+**Immutable Cloudflare deployment:** `https://b5736fb1.portfolio-deo.pages.dev/`
+
+**Reviewers:** Joey Wisto for supplied human evidence and approval; Codex Work Mode for agent-executed production-artifact checks
+
+## Result
+
+Pass 13.1a is approved and closed. Review-log rows HR-008 through HR-022 trace the controlled checks and final decision. The release gate passed or was explicitly accepted with the limitations below.
+
+## Controlled evidence
+
+- Artifact traceability: the Cloudflare deployment identifies commit `6111ac3d702e24baefb0a9219bcaa31fe9ef80a9`; Joey supplied Chrome-on-Windows deployment evidence.
+- Core dashboard operation: the generated production artifact passed mapped load, filters, route and vehicle selection, replay, Reset, metrics, alerts, and overflow review at 1440 by 900.
+- Responsive short-height coverage: 1366 by 650, 1440 by 700, 667 by 375, and 844 by 390 passed with the map present, no page-wide horizontal overflow, and reachable scrollable content.
+- 200 percent zoom: Joey approved the deployed behavior for this release. The compressed layout requires horizontal scrolling and therefore does not strictly meet the original no-horizontal-scroll criterion; this limitation is accepted, not represented as a clean pass.
+- Reduced motion, hidden-tab restoration, blocked MapLibre fallback, full forward and reverse keyboard traversal, deployed network health, and local artifact console health passed.
+- Direct load, refresh, Back, and Forward initialization passed on the production artifact.
+
+## Deferred nonblocking follow-up
+
+The independent blocked-style request check (HR-016) and individual blocked-tile request check (HR-017) were removed from the Pass 13.1a release gate by Joey Wisto and deferred to automated map-resilience testing. They were not executed and are not claimed as passing. The completed blocked-MapLibre check provides representative manual coverage of total mapping-library failure, but it does not prove the two deferred failure modes.
+
+## Approval
+
+HR-022 records Joey Wisto's August 3, 2026 approval. No blocking defect remains for Pass 13.1a closeout.
