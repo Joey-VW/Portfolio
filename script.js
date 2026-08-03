@@ -65,7 +65,7 @@ const initMobileHeader = () => {
   const navigation = header?.querySelector(".topnav");
   if (!header || !toggle || !navigation) return;
 
-  const mobileQuery = window.matchMedia("(max-width: 640px)");
+  const mobileQuery = window.matchMedia("(max-width: 980px)");
   const setOpen = (open, restoreFocus = false) => {
     header.toggleAttribute("data-mobile-menu-open", open);
     toggle.setAttribute("aria-expanded", String(open));

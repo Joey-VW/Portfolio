@@ -583,6 +583,10 @@ Implementation note (July 20, 2026): The fallback URL normalization, compact hor
 
 QA progress note (August 3, 2026): Automated Cloudflare-preview review completed the responsive matrix, representative shared-site routes, Showcase Escape and focus return, Postcard Atlas navigation, journal filtering and deep links, photo filtering, map markers and attribution, Ask validation and disabled-delivery truthfulness, keyboard samples, and console review. A discovered Postcard Atlas lightbox focus defect was corrected and retested on the updated preview. Keep Pass 09.7 and its checkboxes open until Joey completes the review-log rows that still require physical-phone or unavailable DevTools evidence: HR-024, HR-026, HR-032, HR-034, HR-043, and HR-044.
 
+Human QA follow-up (August 3, 2026): Joey approved HR-026, HR-034, HR-043, and HR-044, and confirmed that HR-032's core 200% zoom behavior passes. DEF-09.7-002 tracks the remaining homepage header height issue at phone landscape, short-height, and 200% zoom conditions. DEF-09.7-003 tracks shared project-page back-control alignment and mobile hero-action label collisions. This PR implements both focused corrections across the homepage and all four public project pages that use the shared portfolio header; HR-024, HR-027, and HR-032 remain open until the corrected immutable preview is retested. The proposed 2 x 2 mobile impact-card layout remains optional and is not included because the resulting 320px cards would be too narrow for comfortable reading.
+
+Approved separate polish follow-up: remove the redundant `See the answer` and `Try your numbers` EV hero actions without resizing or repositioning the adjacent hero animation. Keep that work outside the Pass 09.7 closeout PR.
+
 Pass 09 acceptance criteria:
 
 - Every High and Medium finding transferred from the initial mobile audit into subsections 09.1-09.5 is fixed or explicitly dispositioned with rationale.
