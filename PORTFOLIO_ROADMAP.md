@@ -518,7 +518,7 @@ Cloudflare preview and production checks were not available during that audit. V
 
 ## Pass 09 - Mobile layout corrections and responsive bug fixes
 
-**Status: IN REVIEW.** Source corrections were merged through PRs #6-#12. The first mobile audit's actionable findings are now preserved in subsections 09.1-09.6, while its generated screenshot set and standalone report have been retired as obsolete working artifacts. The remaining work is the regression and deployment verification in 09.7.
+**Status: DONE.** Source corrections were merged through PRs #6-#12, and Pass 09.7 regression and deployment verification closed through PR #47. The first mobile audit's actionable findings are preserved in subsections 09.1-09.6, while its generated screenshot set and standalone report have been retired as obsolete working artifacts.
 
 Implement these subsections as focused, independently reviewable handoffs while preserving the build-light architecture and the Pass 08 preservation contract.
 
@@ -573,13 +573,19 @@ After functional and accessibility corrections, consider the EV and publishing-s
 
 ### 09.7 Mobile regression and deployment verification
 
-- [ ] Review 320, 360, 375, 390, and 430px portrait widths; 768 and 1024px breakpoint-sensitive widths; relevant mobile landscape layouts; and 200% browser zoom.
-- [ ] Verify no horizontal overflow or clipped content; direct load, refresh, Back/Forward, and anchor/hash behavior; keyboard navigation and visible focus; reduced motion; touch targets; and console and failed-network-request checks.
-- [ ] Verify actual background videos and fallback recovery; Leaflet/OpenStreetMap attribution, markers, panels, and deep links; Photos filtering and lightbox; Journal filtering, expansion, and deep links; Ask validation and truthful disabled delivery; and homepage, Projects, project-page, and Showcase mobile layouts.
-- [ ] Review a real Cloudflare pull-request preview where deployment behavior is involved.
-- [ ] Include updated captures for materially changed routes in implementation PRs, using the existing QA screenshots only as before evidence. Do not create replacement screenshots for this documentation-only pass.
+- [x] Review 320, 360, 375, 390, and 430px portrait widths; 768 and 1024px breakpoint-sensitive widths; relevant mobile landscape layouts; and 200% browser zoom.
+- [x] Verify no horizontal overflow or clipped content; direct load, refresh, Back/Forward, and anchor/hash behavior; keyboard navigation and visible focus; reduced motion; touch targets; and console and failed-network-request checks.
+- [x] Verify actual background videos and fallback recovery; Leaflet/OpenStreetMap attribution, markers, panels, and deep links; Photos filtering and lightbox; Journal filtering, expansion, and deep links; Ask validation and truthful disabled delivery; and homepage, Projects, project-page, and Showcase mobile layouts.
+- [x] Review a real Cloudflare pull-request preview where deployment behavior is involved.
+- [x] Include updated captures for materially changed routes in implementation PRs, using the existing QA screenshots only as before evidence. Do not create replacement screenshots for this documentation-only pass.
 
 Implementation note (July 20, 2026): The fallback URL normalization, compact horizontally scrollable Postcard Atlas navigation, coarse-pointer touch targets, production debug-query gating, tablet navigation breakpoint, landscape touch-target corrections, and homepage mobile navigation disclosure with compact brand and print controls are implemented. Codex completed source implementation and local checks; Cloudflare preview deployment begins only after the branch and pull request are created, and external browser/visual QA remains a separate review step. Leave the Pass 09.7 browser and deployment checkboxes open until that review is completed.
+
+QA progress note (August 3, 2026): Automated Cloudflare-preview review completed the responsive matrix, representative shared-site routes, Showcase Escape and focus return, Postcard Atlas navigation, journal filtering and deep links, photo filtering, map markers and attribution, Ask validation and disabled-delivery truthfulness, keyboard samples, and console review. A discovered Postcard Atlas lightbox focus defect was corrected and retested on an updated preview. Joey then completed the physical-phone, actual 200% zoom, blocked-video fallback, reduced-motion, and final DevTools console/network checks recorded in HR-024, HR-026, HR-032, HR-034, HR-043, and HR-044.
+
+Human QA follow-up (August 3, 2026): Joey approved HR-026, HR-034, HR-043, and HR-044, and confirmed that HR-032's core 200% zoom behavior passes. DEF-09.7-002 corrected the remaining homepage header height issue at phone landscape, short-height, and 200% zoom conditions. DEF-09.7-003 corrected shared project-page back-control alignment and mobile hero-action label collisions across all four public project pages that use the shared portfolio header. HR-024, HR-027, and HR-032 passed focused retesting on immutable correction preview `https://a21766d5.portfolio-deo.pages.dev/` at commit `25bd3f7b19a9a1f2b95f4b0dd50c4d7d5e68c598`. The proposed 2 x 2 mobile impact-card layout remains optional and was not included because the resulting 320px cards would be too narrow for comfortable reading.
+
+Approved separate polish follow-up: remove the redundant `See the answer` and `Try your numbers` EV hero actions without resizing or repositioning the adjacent hero animation. Keep that work outside the Pass 09.7 closeout PR.
 
 Pass 09 acceptance criteria:
 
@@ -1178,7 +1184,7 @@ Do not claim broader QA occurred unless there is evidence.
 
 ## Pass 13 - PHX Transit Pulse
 
-**Status: IN REVIEW.** Pass 13.1's original hidden, synthetic-only dashboard and deterministic replay were completed and human-verified on July 25, 2026. That QA established the baseline behavior for responsive layouts, 200 percent zoom, keyboard-only navigation, reduced motion, the Cloudflare preview, replay controls, filtering, map and table selection, explicit demonstration states, hidden-tab pause, and console and network behavior.
+**Status: IN REVIEW.** Pass 13.1a is approved and closed. Its mapped-build closeout was completed August 3, 2026 against commit `6111ac3d702e24baefb0a9219bcaa31fe9ef80a9` and immutable Cloudflare deployment `https://b5736fb1.portfolio-deo.pages.dev/`. The accepted 200 percent zoom limitation and the explicitly deferred blocked-style and individual blocked-tile resilience checks remain documented as nonblocking follow-up work; those deferred checks were not run and are not claimed as passing. Later PHX Transit passes remain gated as described below.
 
 Commit `728434f23210611e1efc9da7c218cbedbed1fec5` subsequently delivered a material working-copy redesign across the PHX Transit fixtures, HTML, CSS, and JavaScript. The July 26 mapped-build implementation then added pinned MapLibre GL JS, OpenFreeMap's dark Phoenix-area basemap, fictional geographic overlays, synchronized interaction, and the retained schematic fallback. The route-polish pass later aligned those fictional service patterns to OpenStreetMap road and rail infrastructure without introducing provider operational data or runtime routing. Because these changes occurred after the recorded Pass 13.1 QA, the earlier report must not be treated as full verification of the current mapped build.
 
@@ -1190,7 +1196,7 @@ Current PHX Transit queue:
 - [x] Replace the schematic-only primary map with a real Phoenix-area basemap plus fictional routes, stops, vehicles, and alerts while preserving the accessible records table and a reliable fallback.
 - [x] Run repository-supported mapped-build regression across 360-1440 pixel layouts, all six demonstration states, replay, filtering, selection/reset, schematic fallback, artifact validation, and route smoke testing; record the mobile-hierarchy follow-up separately.
 - [x] Update the detailed PHX Transit roadmap and validation evidence to distinguish the original schematic baseline, mapped-build local regression, artifact-parity evidence, and remaining controlled checks.
-- [ ] Complete controlled mapped-build checks for short-height layouts, 200 percent zoom, full keyboard traversal, reduced motion, hidden-tab restoration, independently blocked MapLibre and style/tile requests, and console/network health on a fresh Cloudflare preview.
+- [x] Complete the controlled mapped-build release gate for short-height layouts, 200 percent zoom, full keyboard traversal, reduced motion, hidden-tab restoration, blocked MapLibre, console/network health, and a fresh Cloudflare preview; preserve blocked-style and individual blocked-tile resilience as nonblocking follow-up work without claiming those checks passed.
 
 Public live ingestion and provider-derived replay remain blocked until provider terms permit the intended credential handling, polling, caching, retention, normalization, and redistribution. The baseline and mapped-build QA record remains at [`docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md`](docs/phx-transit/validation/pass-13.1-viewport-interaction-qa-report.md). Current design guidance and the completed historical map plan are documented in [`docs/phx-transit/design/README.md`](docs/phx-transit/design/README.md) and [`docs/phx-transit/plans/interactive-map-implementation-plan.md`](docs/phx-transit/plans/interactive-map-implementation-plan.md), with later live-data gates maintained in [`docs/phx-transit/roadmap.md`](docs/phx-transit/roadmap.md).
 
