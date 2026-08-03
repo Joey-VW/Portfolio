@@ -17,6 +17,7 @@ const lightboxClose = document.querySelector(".atlas-lightbox-close");
 
 let photos = STATIC_SAMPLE_PHOTOS;
 let hasLoadedInitialContent = false;
+let lightboxReturnFocus = null;
 
 function groupByCluster(items) {
   return items.reduce((groups, item) => {
@@ -52,6 +53,7 @@ function renderLocationOptions(items) {
 
 function openLightbox(photo) {
   if (!photo.imageUrl || !lightbox) return;
+  lightboxReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   lightboxImage.src = photo.imageUrl;
   lightboxImage.alt = photo.title;
   lightboxTitle.textContent = photo.title;
@@ -60,6 +62,7 @@ function openLightbox(photo) {
   lightbox.classList.add("is-open");
   lightbox.setAttribute("aria-hidden", "false");
   document.body.classList.add("atlas-lightbox-active");
+  lightboxClose?.focus();
 }
 
 function closeLightbox() {
@@ -68,6 +71,8 @@ function closeLightbox() {
   lightbox.setAttribute("aria-hidden", "true");
   document.body.classList.remove("atlas-lightbox-active");
   lightboxImage.src = "";
+  lightboxReturnFocus?.focus();
+  lightboxReturnFocus = null;
 }
 
 function highlightHashTarget() {
@@ -208,7 +213,25 @@ lightbox?.addEventListener("click", (event) => {
   if (event.target === lightbox) closeLightbox();
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeLightbox();
+  if (!lightbox?.classList.contains("is-open")) return;
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeLightbox();
+    return;
+  }
+  if (event.key !== "Tab") return;
+
+  const focusable = [lightboxClose, lightboxOriginal].filter((element) => element && !element.hidden);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 });
 window.addEventListener("hashchange", highlightHashTarget);
 
