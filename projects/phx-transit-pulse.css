@@ -102,7 +102,10 @@
 }
 
 .phx-mark {
+  display: block;
   width: 58px;
+  height: auto;
+  aspect-ratio: 1;
   flex: 0 0 58px;
   fill: var(--phx-orange);
   filter: drop-shadow(0 0 15px rgba(255, 91, 26, .22));
