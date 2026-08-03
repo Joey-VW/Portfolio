@@ -581,6 +581,8 @@ After functional and accessibility corrections, consider the EV and publishing-s
 
 Implementation note (July 20, 2026): The fallback URL normalization, compact horizontally scrollable Postcard Atlas navigation, coarse-pointer touch targets, production debug-query gating, tablet navigation breakpoint, landscape touch-target corrections, and homepage mobile navigation disclosure with compact brand and print controls are implemented. Codex completed source implementation and local checks; Cloudflare preview deployment begins only after the branch and pull request are created, and external browser/visual QA remains a separate review step. Leave the Pass 09.7 browser and deployment checkboxes open until that review is completed.
 
+QA progress note (August 3, 2026): Automated Cloudflare-preview review completed the responsive matrix, representative shared-site routes, Showcase Escape and focus return, Postcard Atlas navigation, journal filtering and deep links, photo filtering, map markers and attribution, Ask validation and disabled-delivery truthfulness, keyboard samples, and console review. A discovered Postcard Atlas lightbox focus defect was corrected and retested on the updated preview. Keep Pass 09.7 and its checkboxes open until Joey completes the review-log rows that still require physical-phone or unavailable DevTools evidence: HR-024, HR-026, HR-032, HR-034, HR-043, and HR-044.
+
 Pass 09 acceptance criteria:
 
 - Every High and Medium finding transferred from the initial mobile audit into subsections 09.1-09.5 is fixed or explicitly dispositioned with rationale.
