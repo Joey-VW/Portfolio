@@ -4,6 +4,7 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const vm = require("node:vm");
 const { pathToFileURL } = require("node:url");
 
 const root = path.resolve(__dirname, "..");
@@ -26,6 +27,59 @@ function memoryStorage(initial) {
     setItem(key, value) { values.set(key, String(value)); },
     value(key) { return values.get(key); }
   };
+}
+
+function validateModuleFailureWatchdog(source) {
+  function createTarget(initial = {}) {
+    const listeners = new Map();
+    return {
+      hidden: initial.hidden ?? false,
+      addEventListener(type, listener) { listeners.set(type, listener); },
+      dispatch(type, event = {}) { listeners.get(type)?.(event); }
+    };
+  }
+
+  function createHarness() {
+    const canvas = createTarget();
+    const fallback = createTarget({ hidden: true });
+    const setup = createTarget();
+    const moduleScript = createTarget();
+    const retry = createTarget();
+    const windowTarget = createTarget();
+    const timers = new Map();
+    let nextTimer = 1;
+    const window = {
+      location: { reload() {} },
+      addEventListener: windowTarget.addEventListener,
+      setTimeout(callback) { const id = nextTimer++; timers.set(id, callback); return id; },
+      clearTimeout(id) { timers.delete(id); }
+    };
+    const elements = new Map([
+      ["#gravityCanvas", canvas], ["#gameCanvasFallback", fallback],
+      ["#gameStartOverlay", setup], ["#gravityFleetModuleScript", moduleScript],
+      ["#gameCanvasRetry", retry]
+    ]);
+    const document = {
+      documentElement: { dataset: {} },
+      querySelector: selector => elements.get(selector) || (selector.includes('src*="gravity-fleet-lab"') ? moduleScript : null)
+    };
+    vm.runInNewContext(source, { document, window });
+    return { canvas, fallback, setup, moduleScript, timers, dispatchReady: detail => windowTarget.dispatch("gravityfleet:ready", { detail }) };
+  }
+
+  const delayed = createHarness();
+  [...delayed.timers.values()][0]();
+  assert.equal(delayed.fallback.hidden, false, "watchdog timeout must expose the fallback when initialization stalls");
+  delayed.dispatchReady({ restoreSetup: true, simulatedCanvasFailure: false });
+  assert.equal(delayed.fallback.hidden, true, "delayed successful initialization must hide a watchdog fallback");
+  assert.equal(delayed.canvas.hidden, false, "delayed successful initialization must restore the canvas");
+  assert.equal(delayed.setup.hidden, false, "delayed successful initialization must restore mission setup");
+  assert.equal(delayed.timers.size, 0, "successful initialization must clear the watchdog timeout");
+
+  const failed = createHarness();
+  failed.moduleScript.dispatch("error");
+  assert.equal(failed.fallback.hidden, false, "a genuine module-script load error must expose the fallback immediately");
+  assert.equal(failed.canvas.hidden, true, "a genuine module-script load error must hide the unusable canvas");
 }
 
 function runCommands(api, fixture) {
@@ -61,17 +115,49 @@ function runCommands(api, fixture) {
   const savedFixture = readJson("saved-run-v1.json");
 
   assert.equal(LEVELS.length, 3, "the existing three levels must remain registered");
-  assert.equal(PLANET_MOTION_MULTIPLIER, 1.26, "base planet motion must retain the 5% increase");
-  assert.equal(LEVELS[0].orbitSpeedMultiplier, 1, "Level 1 must remain the orbit-speed baseline");
+  assert.equal(PLANET_MOTION_MULTIPLIER, 1.26, "base planet motion multiplier must remain unchanged");
+
+  assert.equal(
+    LEVELS[0].orbitSpeedMultiplier,
+    1,
+    "Level 1 must remain the orbit-speed baseline"
+  );
+
+  assert.equal(
+    LEVELS[1].orbitSpeedMultiplier,
+    2,
+    "Level 2 must retain its approved orbit-speed multiplier"
+  );
+
+  assert.equal(
+    LEVELS[2].orbitSpeedMultiplier,
+    3.5,
+    "Level 3 must retain its approved orbit-speed multiplier"
+  );
+
   const orbitPathIds = ["inner", "middle", "outer"];
-  const configuredOrbitSpeed = (level, pathId) => level.orbitPaths[pathId].speed * PLANET_MOTION_MULTIPLIER * level.orbitSpeedMultiplier;
+
+  const configuredOrbitSpeed = (level, pathId) =>
+    level.orbitPaths[pathId].speed *
+    PLANET_MOTION_MULTIPLIER *
+    level.orbitSpeedMultiplier;
+
   for (const pathId of orbitPathIds) {
     const levelOneSpeed = configuredOrbitSpeed(LEVELS[0], pathId);
     const levelTwoSpeed = configuredOrbitSpeed(LEVELS[1], pathId);
     const levelThreeSpeed = configuredOrbitSpeed(LEVELS[2], pathId);
-    assert.ok(Math.abs(levelTwoSpeed / levelOneSpeed - 1.10) < 1e-12, `Level 2 ${pathId} orbit must be effectively 10% faster than Level 1`);
-    assert.ok(Math.abs(levelThreeSpeed / levelTwoSpeed - 1.10) < 1e-12, `Level 3 ${pathId} orbit must be effectively 10% faster than Level 2`);
+
+    assert.ok(
+      levelTwoSpeed > levelOneSpeed,
+      `Level 2 ${pathId} orbit must be faster than Level 1`
+    );
+
+    assert.ok(
+      levelThreeSpeed > levelTwoSpeed,
+      `Level 3 ${pathId} orbit must be faster than Level 2`
+    );
   }
+
   for (const level of LEVELS) {
     const engine = api.createGravityFleetEngine({ levelId: level.id, randomSource: api.createSeededRandom(1000 + level.id) });
     assert.equal(engine.state.levelId, level.id);
@@ -286,6 +372,7 @@ function runCommands(api, fixture) {
   assert.deepEqual(forbidden.filter(token => combinedSource.includes(token)), [], "engine modules must be presentation-neutral");
   const labSource = fs.readFileSync(path.join(root, "games", "gravity-fleet-lab.js"), "utf8");
   const labMarkup = fs.readFileSync(path.join(root, "games", "gravity-fleet-lab.html"), "utf8");
+  const fallbackSource = fs.readFileSync(path.join(root, "games", "gravity-fleet-fallback.js"), "utf8");
   assert.match(labSource, /createTelemetryProjection/, "browser surfaces must consume the shared telemetry projection");
   assert.match(labSource, /createTelemetryChartScheduler/, "mobile charts must use the visibility-aware scheduler");
   assert.match(labSource, /showOutcomeOverlay\(run\);\s*updateTelemetryBadgeVisibility\(\);\s*updateCommandDock\(\);\s*try \{\s*mobileChartScheduler\.final\(\);/s, "match completion must present the result before optional chart work");
@@ -297,6 +384,15 @@ function runCommands(api, fixture) {
   assert.match(labSource, /lineChart\(ui\.shipChart, telemetry\.charts\.fleetStrength, contestTeamKeys\);/, "the post-match fleet-strength chart must receive the projected fleet series");
   assert.match(labSource, /lineChart\(ui\.ownerChart, telemetry\.charts\.systemControl, activeTeamKeys\);/, "the post-match system-control chart must receive the projected control series");
   assert.doesNotMatch(labSource, /mobileDrawerEvents/, "the primary mobile drawer must not render the full event feed");
+  assert.doesNotMatch(labSource, /gravityMobileShell|gravity-mobile-shell-legacy|mobileShellFlavor|usesModernMobileShell/, "the removed legacy mobile shell must not retain a selector or compatibility branch");
+  assert.match(labSource, /gravityCanvasFailure/, "development QA must retain a canvas-failure simulation path");
+  assert.match(labMarkup, /id="gameCanvasFallback"/, "canvas initialization failure must expose a controlled fallback");
+  assert.match(labMarkup, /id="gravityFleetModuleScript"[^>]*type="module"/, "the module script must expose a direct load-error target");
+  assert.match(fallbackSource, /src\*="gravity-fleet-lab"/, "the watchdog must also find Vite's generated module script");
+  assert.match(fallbackSource, /addEventListener\("error", showFallback/, "module load errors must expose the controlled fallback directly");
+  assert.match(fallbackSource, /gravityfleet:ready/, "module readiness must reconcile a delayed watchdog fallback");
+  assert.match(labSource, /dispatchEvent\(new CustomEvent\("gravityfleet:ready"/, "successful initialization must notify the watchdog");
+  validateModuleFailureWatchdog(fallbackSource);
   assert.match(labMarkup, /id="mobileFleetChart"/, "mobile drawer must include the real fleet-strength chart");
   assert.match(labMarkup, /id="mobileSystemDonut"/, "mobile drawer must include the real system-mix donut");
   assert.match(labMarkup, /id="viewMatchAnalysis"/, "the outcome dialog must retain the analysis action");

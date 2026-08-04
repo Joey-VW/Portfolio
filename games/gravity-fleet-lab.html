@@ -78,7 +78,15 @@
           </div>
         </div>
         <div class="game-stage">
-          <canvas id="gravityCanvas" width="1280" height="800" tabindex="-1" aria-label="Interactive orbital RTS map with planets, ships, and wormholes" aria-describedby="gameKeyboardNote"></canvas>
+          <canvas id="gravityCanvas" width="1280" height="800" tabindex="-1" aria-label="Interactive orbital RTS map with planets, ships, and wormholes" aria-describedby="gameKeyboardNote">Gravity Fleet requires browser canvas support. The mission briefing, project navigation, and portfolio links remain available on this page.</canvas>
+          <section class="panel empty-state game-canvas-fallback" id="gameCanvasFallback" role="status" hidden>
+            <h3>Tactical map unavailable</h3>
+            <p>Your browser could not initialize the Gravity Fleet canvas. You can still review the mission briefing, explore the portfolio, or reload to try again.</p>
+            <div class="hero-actions">
+              <button class="button primary" id="gameCanvasRetry" type="button">Reload tactical map</button>
+              <a class="button" href="/projects/">Browse projects</a>
+            </div>
+          </section>
           <button class="mission-setup-trigger" id="missionSetupTrigger" type="button" hidden>Choose level</button>
           <p id="gameKeyboardNote" class="game-keyboard-note">The tactical map is pointer and touch controlled. Mission, telemetry, mode, and return controls remain available by keyboard.</p>
           <section class="mobile-shell-status" id="mobileShellStatus" aria-live="assertive" hidden>
@@ -352,6 +360,7 @@
   <button class="back-to-game" id="backToGame" type="button" hidden><span aria-hidden="true">↑</span><span>Back to game</span></button>
   <footer class="site-footer"><p>Gravity Fleet Lab is a static, frontend-only portfolio experiment: no backend, no external libraries, no persistent server data.</p><p class="footer-links"><a href="/index.html">Home</a><a href="/projects/">Projects</a><a href="mailto:joey.wisto@gmail.com">Email</a></p></footer>
   <script src="/script.js"></script>
-  <script type="module" src="/games/gravity-fleet-lab.js"></script>
+  <script id="gravityFleetModuleScript" type="module" src="/games/gravity-fleet-lab.js"></script>
+  <script src="/games/gravity-fleet-fallback.js"></script>
 </body>
 </html>

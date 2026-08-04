@@ -346,20 +346,6 @@ html[data-gravity-input="hybrid"] .coarse-pointer-copy { display: block; }
 .mobile-tutorial-actions b { color: var(--cyan); font-size: 1rem; }
 
 @media (max-width: 900px) and (any-pointer: coarse) {
-  body.gravity-mobile-shell-legacy .mobile-hud-primary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .45rem; }
-  body.gravity-mobile-shell-legacy .mobile-hud-mission,
-  body.gravity-mobile-shell-legacy .mobile-hud-timer { display: grid; gap: .08rem; margin: 0; }
-  body.gravity-mobile-shell-legacy .mobile-hud-primary p span { color: rgba(223,232,255,.76); font-size: .55rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-  body.gravity-mobile-shell-legacy .mobile-hud-primary p strong { color: var(--cyan); font-size: 1rem; }
-  body.gravity-mobile-shell-legacy .mobile-hud-factions { grid-column: 1 / -1; display: flex; gap: .6rem; margin: 0; }
-  body.gravity-mobile-shell-legacy .mobile-hud-factions div { display: grid; }
-  body.gravity-mobile-shell-legacy .mobile-hud-factions dt { color: var(--muted); font-size: .52rem; font-weight: 900; text-transform: uppercase; }
-  body.gravity-mobile-shell-legacy .mobile-hud-factions dd { margin: 0; font-size: .65rem; }
-  body.gravity-mobile-shell-legacy .mobile-hud-actions { position: fixed; top: max(.65rem, env(safe-area-inset-top)); right: max(.7rem, env(safe-area-inset-right)); display: flex; gap: .3rem; pointer-events: auto; }
-  body.gravity-mobile-shell-legacy .mobile-hud-action { min-width: 44px; min-height: 44px; border: 1px solid rgba(111,248,255,.4); border-radius: 999px; color: var(--text); background: rgba(3,7,18,.82); font: inherit; }
-  body.gravity-mobile-shell-legacy .mobile-hud-action span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  body.gravity-mobile-shell-legacy .mobile-hud-status { max-width: calc(100% - 15rem); }
-
   body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage { display: block; }
   body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage > :not(.mobile-match-shell):not(.mobile-shell-status) { display: none !important; }
   body.gravity-mobile-shell-modern > .game-stage.gravity-mobile-stage .mobile-match-shell:not([hidden]) {

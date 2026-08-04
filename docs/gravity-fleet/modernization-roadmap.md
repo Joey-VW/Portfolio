@@ -280,7 +280,7 @@ Add a temporary camera-debug mode showing:
 **Risk:** Medium–High
 **Purpose:** Replace independently fixed overlays with a composed game interface.
 
-**Status: implementation and QA complete in PR #19; merge pending.** Cloudflare-preview desktop QA and iPhone 17 Pro Max portrait and landscape QA passed. The CSS Grid shell owns compact HUD, measured tactical viewport, command dock, and telemetry host regions. It is the default mobile presentation. `?gravityDebug=1&gravityMobileShell=legacy` restores the retained shell for QA, while `?gravityDebug=1&gravityMobileShell=modern` selects the replacement explicitly. DOM placement, page scrolling, focus, inert state, and viewport listeners are restored on exit or readiness rollback. See `docs/gravity-fleet/mobile-shell-touch-controls.md` for the implementation contract.
+**Status: complete through PR #19, with legacy-shell removal approved in HR-062 and implemented during Pass 10.8.** Cloudflare-preview desktop QA and physical portrait and landscape QA passed. The CSS Grid shell owns compact HUD, measured tactical viewport, command dock, and telemetry host regions. DOM placement, page scrolling, focus, inert state, and viewport listeners are restored on exit or readiness rollback. See `docs/gravity-fleet/mobile-shell-touch-controls.md` for the shipped implementation contract.
 
 The current mobile implementation uses a viewport-fixed stage plus separate fixed HUD, mode controls, return action, backdrop, and drawer.
 
@@ -372,7 +372,7 @@ Cut over only after:
 * [x] Pause genuinely stops the simulation. Deterministic validation confirms no engine, elapsed-time, or telemetry-timeline advancement and a fresh timing epoch on Resume.
 * [x] Return to setup restores the page reliably.
 * [x] No stale fixed mobile elements remain behind the new shell.
-* [ ] The old mobile shell can be removed after cutover. Parity is proven; retain it temporarily as a development rollback path until Pass 10.8 cleanup.
+* [x] The old mobile shell was removed after Joey Wisto approved replacement parity in HR-061 and removal in HR-062 on August 3, 2026.
 
 ---
 

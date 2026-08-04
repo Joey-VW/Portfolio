@@ -35,11 +35,11 @@ Status labels:
 | 06. Gravity Fleet game flow | DONE | Match flow, navigation, terminology, level-three fairness, and command states feel intentional. | None |
 | 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 12. | Pass 06 |
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
-| 09. Mobile layout corrections and responsive bug fixes | IN REVIEW | Source corrections merged through PRs #6-#12; remaining work is the documented regression and deployment verification. | Pass 08 structural integration |
+| 09. Mobile layout corrections and responsive bug fixes | DONE | Source corrections merged through PRs #6-#12; Pass 09.7 regression and deployment verification closed through PR #47. | Pass 08 structural integration |
 | 10. Gravity Fleet modernization | IN REVIEW | Passes 10.0-10.7 are merged, including the page-shell polish in PR #23 and setup/orbit-speed follow-up in PR #25. Pass 10.8 integrated QA, cleanup verification, and release approval remain open. | Pass 06, Pass 07, merged PRs #13, #15-#21, #23, #25, and Pass 09 shared-header coordination |
 | 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
 | 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
-| 13. PHX Transit Pulse | IN REVIEW | The synthetic operations console now uses a real interactive Phoenix-area basemap with fictional operational overlays and an automatic schematic fallback. Targeted mapped-build regression and Cloudflare preview QA remain; live ingestion is still blocked by provider terms. | Mapped-build QA and provider terms only for live ingestion or provider replay |
+| 13. PHX Transit Pulse | IN REVIEW | Pass 13.1a mapped-build regression and Cloudflare preview QA are complete. Later PHX Transit work remains gated; live ingestion is still blocked by provider terms. | Provider terms only for live ingestion or provider replay |
 | 14. Legacy analytics modernization | IN REVIEW | Passes 14.0-14.3 are implemented. Procurement and Where Revenue Gets Stuck remain hidden pending publication QA; legacy-repository retirement remains gated. | Rendered publication QA and migration decisions before Pass 14.4 |
 | 15. Plain-English copy pass | LATER | Apply the repository-wide copy audit so visitors understand each project before encountering technical terminology, while preserving useful technical depth and search-relevant keywords. | Passes 09-14 as applicable; complete before final public release QA |
 | 16. Repository architecture modernization | IN REVIEW | Passes 16.0-16.4 are implemented and verified. Cloudflare now builds from the repository command and publishes only `dist/`; source relocation and broader browser gates remain deferred. | Stable `dist/` release gate before Pass 16.5; no live credentials |
@@ -48,15 +48,13 @@ The recommended execution order is:
 
 1. Completed governance and feature passes.
 2. Completed faithful Pass 08 publishing-system integration.
-3. PHX Transit Pulse targeted regression and Cloudflare preview QA on the mapped synthetic build.
-4. Pass 09.7 regression and deployment verification.
-5. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
-6. Pass 11 custom-domain and production-route release.
-7. Pass 12 final repository validation and release QA.
-8. Pass 14 publication QA for the implemented Procurement and Where Revenue Gets Stuck case studies after the current portfolio release is stable.
-9. Pass 15 plain-English copy pass after the affected project surfaces are stable and before their final publication approval.
-10. Pass 16 repository architecture modernization in focused slices after recording the post-cutover production-stability gate.
-11. Deferred live-ingestion, backend, and operational automation work.
+3. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
+4. Pass 11 custom-domain and production-route release.
+5. Pass 12 final repository validation and release QA.
+6. Pass 14 publication QA for the implemented Procurement and Where Revenue Gets Stuck case studies after the current portfolio release is stable.
+7. Pass 15 plain-English copy pass after the affected project surfaces are stable and before their final publication approval.
+8. Pass 16 repository architecture modernization in focused slices after recording the post-cutover production-stability gate.
+9. Deferred live-ingestion, backend, and operational automation work.
 
 ## Decisions already made
 
@@ -761,7 +759,7 @@ Automated camera and gameplay checks pass. Observable desktop parity, portrait s
 
 **Purpose:** Replace independently fixed overlays with one safe-area-aware layout system.
 
-**Implementation and QA complete in PR #19; merge pending.** Cloudflare-preview desktop review and iPhone 17 Pro Max portrait and landscape review passed. The composed shell is the default mobile presentation. Developers can recover the earlier presentation with `?gravityDebug=1&gravityMobileShell=legacy`; `?gravityDebug=1&gravityMobileShell=modern` selects the replacement explicitly. The tactical canvas is measured from the shell-owned viewport rather than interim top/bottom reservations. See `docs/gravity-fleet/mobile-shell-touch-controls.md` for the shell, pause, gesture, and rollback contract.
+**Implementation and QA complete through PR #19, with legacy-shell removal approved in HR-062 and implemented during Pass 10.8.** The composed shell is the only mobile presentation. The tactical canvas is measured from the shell-owned viewport, while supported development diagnostics remain available through `?gravityDebug=1`. See `docs/gravity-fleet/mobile-shell-touch-controls.md` for the shipped shell, pause, gesture, and failure-recovery contract.
 
 Required shell regions:
 
@@ -793,7 +791,7 @@ Mobile match shell
 - [x] Ensure Resume resets timing without a large elapsed-time jump.
 - [x] Keep setup, tutorial, outcome, and return flows accessible and viewport-safe in the source implementation.
 - [x] Cut over only after portrait and landscape play, setup, pause, drawer, outcome, and return flows work without a black screen.
-- [ ] Remove the old mobile shell only after the replacement reaches parity. Parity is proven; retain the legacy shell temporarily as a development rollback path until Pass 10.8 cleanup.
+- [x] Remove the old mobile shell after replacement parity and HR-062 approval. Pass 10.8 removes its development selector, presentation branches, and shell-only CSS while preserving the composed portrait and landscape shell.
 
 Acceptance criteria:
 
@@ -1055,13 +1053,13 @@ Cloudflare preview:
 
 Final cleanup:
 
-- [ ] Remove the old mobile shell after replacement parity is confirmed.
+- [x] Remove the old mobile shell after replacement parity is confirmed and HR-062 is approved.
 - [ ] Remove the two-tap mobile wormhole fallback if no longer required.
 - [ ] Remove dead device-condition branches.
 - [ ] Remove temporary camera visualization and development logging.
 - [ ] Remove duplicate telemetry calculations.
-- [ ] Remove unused CSS only after reference checks.
-- [ ] Update roadmap and supporting docs to describe what actually shipped.
+- [x] Remove legacy-shell-only CSS after reference checks.
+- [x] Update roadmap and supporting docs to describe the composed shell, supported diagnostics, and approved cleanup.
 - [ ] Retain a small useful before/after reference set and remove obsolete troubleshooting images when they no longer provide architectural value.
 
 Pass 10 release acceptance criteria:

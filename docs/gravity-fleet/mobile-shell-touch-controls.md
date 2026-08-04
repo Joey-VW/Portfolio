@@ -15,8 +15,8 @@ The original DOM locations are retained as placeholders. Leaving the match resto
 
 The modern shell is the default. Development-only query flags are:
 
-- `?gravityDebug=1&gravityMobileShell=modern` - force the modern shell with diagnostics;
-- `?gravityDebug=1&gravityMobileShell=legacy` - retain the Pass 10.3 fixed-overlay shell for rollback QA.
+- `?gravityDebug=1` - expose supported diagnostics while the composed shell remains the only mobile presentation.
+- `?gravityDebug=1&gravityCanvasFailure=1` - simulate unavailable canvas initialization for controlled fallback QA.
 
 No shell selector is exposed in the public interface. A readiness failure pauses the engine, cancels input, restores the page, and exposes Retry and Return to mission setup.
 
@@ -24,7 +24,7 @@ No shell selector is exposed in the public interface. A readiness failure pauses
 
 The modern shell writes `VisualViewport` offset and dimensions into stage CSS variables. CSS Grid and safe-area padding reserve the HUD, command dock, and telemetry handle before the tactical viewport is measured.
 
-The canvas backing surface follows that tactical element and the active DPR cap. The camera receives the full measured canvas region; the interim hard-coded top and bottom reservations remain only for the legacy flag. Portrait keeps the Pass 10.3 `-90°` world rotation and landscape stays native. All pointer coordinates continue through the inverse camera transform.
+The canvas backing surface follows that tactical element and the active DPR cap. The camera receives the full measured canvas region. Portrait keeps the Pass 10.3 `-90°` world rotation and landscape stays native. All pointer coordinates continue through the inverse camera transform.
 
 Resize, `VisualViewport`, and orientation events cancel an incomplete gesture before recalculating the camera.
 
