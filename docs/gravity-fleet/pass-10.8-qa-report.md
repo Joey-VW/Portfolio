@@ -46,6 +46,14 @@ The generated `dist/` artifact was served over HTTP and exercised in the Codex i
 
 The in-app browser did not expose coarse-pointer emulation, reduced-motion emulation, request interception, or browser zoom controls. Those capabilities are not claimed from viewport resizing alone. Joey's physical evidence remains authoritative for the completed mobile rows, while the final immutable Cloudflare artifact and any remaining agent-executable row limitations must be recorded honestly in the Review Log.
 
+## Module-watchdog correction artifact
+
+PR #49 runtime commit `cda8262416806f16699fb28bf8d7ad31c666860b` corrects the module-failure watchdog. The rebuilt 122-file production artifact has SHA-256 `a582968c3f3d322ba8bd4810e1fbccd4d54bedfe072e8bdc4a8c06df76cbe1b7`. Cloudflare Pages assigned immutable deployment `2beb3b5d-fe98-43cc-a27e-07d4f42dbcdc` and URL `https://2beb3b5d.portfolio-deo.pages.dev/` to that commit.
+
+Local rendered production-artifact QA verified that a genuinely missing generated module exposes the fallback immediately through the module script's `error` event. After the module was restored, a successful initialization remained ready beyond the five-second backup timeout with the fallback hidden, the canvas and mission setup restored, and no application console errors. The controlled `gravityCanvasFailure=1` simulation continued to display the fallback. Deterministic validator coverage separately advances the backup timeout before delivering a delayed success event and proves that the false fallback is removed and the timeout is cleared.
+
+At the time this evidence was recorded, Cloudflare's deployment API reported the immutable deployment as active, but both its immutable hostname and branch alias still returned Cloudflare's temporary `Deployment Not Found` propagation page. The URL and deployment identifier are recorded exactly, but deployed-browser success is not claimed until the edge hostname serves the artifact.
+
 ## Validation record
 
 `npm ci` and `uv sync --dev --locked` completed successfully. `npm run lint`, `npm run validate`, `npm run test`, `npm run build`, `npm run validate:dist`, and `npm run test:dist` completed successfully. The dedicated Gravity Fleet validator passed.
