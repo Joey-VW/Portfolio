@@ -219,6 +219,69 @@
   .ev-hero-scene { aspect-ratio: 4 / 2.65; min-height: 12rem; border-radius: 18px; }
   .ev-showcase-scene { transform: translate(40px, 48px) scale(8.15); }
 }
+
+/* Preserve the EV illustration footprint after removing the redundant hero CTAs. */
+@media (min-width: 861px) {
+  .ev-hero-scene {
+    min-height: clamp(16.25rem, 22vw, 17.5rem);
+  }
+}
+
+/* Keep the stacked tablet layout from letting the illustration dominate the viewport. */
+@media (min-width: 521px) and (max-width: 860px) {
+  .ev-hero-scene {
+    width: min(100%, 36rem);
+    min-height: 0;
+    justify-self: center;
+  }
+
+  /*
+   * The wide tablet scene uses the SVG viewBox almost edge to edge. The
+   * desktop 8.7x composition therefore extends below the scene while the
+   * vehicle is charging. Recenter and scale the complete charging state so
+   * the charger, cable, car, wheels, and ground line remain visible; the
+   * vehicle can still travel beyond the edges during entry and exit.
+   */
+  .ev-showcase-scene {
+    transform: translate(121px, 15px) scale(7.2);
+    transform-origin: 0 0;
+  }
+}
+
+/* Compact the narrow-phone hero and keep section links in one swipeable row. */
+@media (max-width: 520px) {
+  .ev-hero-lower {
+    gap: .5rem;
+  }
+
+  .ev-hero-scene {
+    margin-top: 0;
+  }
+
+  .ev-subnav {
+    flex-wrap: nowrap;
+    gap: .25rem;
+    margin: .5rem 0 1.25rem;
+    padding: .25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 16px;
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ev-subnav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ev-subnav a {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: .55rem .75rem;
+    white-space: nowrap;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .ev-showcase-car, .ev-showcase-wheel, .ev-showcase-cable, .ev-showcase-bolt, .ev-showcase-charger-bolt, .ev-showcase-status { transition: none; }
 }
