@@ -30,6 +30,7 @@ The canonical automated scenario is `tools/fixtures/gravity-fleet/level-1-comman
 - Removed the legacy shell class toggles and shell-only CSS.
 - Preserved the composed portrait and landscape shell, shared simulation, camera transforms, scoring, AI, physics, telemetry meanings, saved-run compatibility, and supported `gravityDebug=1` diagnostics.
 - Added controlled canvas-initialization and critical-module failure states. `?gravityDebug=1&gravityCanvasFailure=1` is the supported canvas fallback simulation.
+- The external module watchdog now listens for a real module-script load error, retains a five-second initialization timeout as a backup, and reconciles a delayed success by clearing the timeout, hiding a non-simulated fallback, restoring the canvas, and restoring mission setup.
 - Added deterministic validator assertions that the legacy selector and compatibility branches remain absent.
 
 ## Local production-artifact evidence
@@ -40,7 +41,7 @@ The generated `dist/` artifact was served over HTTP and exercised in the Codex i
 - The responsive matrix at 1280 x 720, 1366 x 768, 1440 x 900, 1920 x 1080, 360 x 800, 390 x 844, 430 x 932, 667 x 375, 844 x 390, 768 x 900, and 1024 x 768 reported zero document-level horizontal overflow.
 - Direct load and refresh passed before a run and after the result flow.
 - The canvas-failure simulation displayed `Tactical map unavailable`, hid the unusable canvas and setup dialog, preserved navigation, and exposed reload and project-navigation actions.
-- Temporarily withholding the built critical game module caused the external watchdog to expose the same controlled fallback after three seconds. The generated module was restored immediately and artifact validation was rerun.
+- Temporarily withholding the built critical game module caused the external watchdog to expose the same controlled fallback. The generated module was restored immediately and artifact validation was rerun. Validator coverage also proves that a successful initialization arriving after the backup timeout removes the false fallback and restores the playable setup state.
 - A clean fresh tab reported no application console errors after direct load.
 
 The in-app browser did not expose coarse-pointer emulation, reduced-motion emulation, request interception, or browser zoom controls. Those capabilities are not claimed from viewport resizing alone. Joey's physical evidence remains authoritative for the completed mobile rows, while the final immutable Cloudflare artifact and any remaining agent-executable row limitations must be recorded honestly in the Review Log.

@@ -20,7 +20,6 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     canvas.hidden = true;
     document.querySelector("#gameCanvasFallback")?.removeAttribute("hidden");
     document.querySelector("#gameStartOverlay")?.setAttribute("hidden", "");
-    document.querySelector("#gameCanvasRetry")?.addEventListener("click", () => window.location.reload());
     return;
   }
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -3074,4 +3073,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   scheduleLiveTelemetryUpdate();
   scheduleAnimationFrame();
   document.documentElement.dataset.gravityFleetModule = "ready";
+  window.dispatchEvent(new CustomEvent("gravityfleet:ready", {
+    detail: { restoreSetup: !state?.running, simulatedCanvasFailure: false }
+  }));
 })();

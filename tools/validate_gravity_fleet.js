@@ -4,6 +4,7 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const vm = require("node:vm");
 const { pathToFileURL } = require("node:url");
 
 const root = path.resolve(__dirname, "..");
@@ -26,6 +27,59 @@ function memoryStorage(initial) {
     setItem(key, value) { values.set(key, String(value)); },
     value(key) { return values.get(key); }
   };
+}
+
+function validateModuleFailureWatchdog(source) {
+  function createTarget(initial = {}) {
+    const listeners = new Map();
+    return {
+      hidden: initial.hidden ?? false,
+      addEventListener(type, listener) { listeners.set(type, listener); },
+      dispatch(type, event = {}) { listeners.get(type)?.(event); }
+    };
+  }
+
+  function createHarness() {
+    const canvas = createTarget();
+    const fallback = createTarget({ hidden: true });
+    const setup = createTarget();
+    const moduleScript = createTarget();
+    const retry = createTarget();
+    const windowTarget = createTarget();
+    const timers = new Map();
+    let nextTimer = 1;
+    const window = {
+      location: { reload() {} },
+      addEventListener: windowTarget.addEventListener,
+      setTimeout(callback) { const id = nextTimer++; timers.set(id, callback); return id; },
+      clearTimeout(id) { timers.delete(id); }
+    };
+    const elements = new Map([
+      ["#gravityCanvas", canvas], ["#gameCanvasFallback", fallback],
+      ["#gameStartOverlay", setup], ["#gravityFleetModuleScript", moduleScript],
+      ["#gameCanvasRetry", retry]
+    ]);
+    const document = {
+      documentElement: { dataset: {} },
+      querySelector: selector => elements.get(selector) || (selector.includes('src*="gravity-fleet-lab"') ? moduleScript : null)
+    };
+    vm.runInNewContext(source, { document, window });
+    return { canvas, fallback, setup, moduleScript, timers, dispatchReady: detail => windowTarget.dispatch("gravityfleet:ready", { detail }) };
+  }
+
+  const delayed = createHarness();
+  [...delayed.timers.values()][0]();
+  assert.equal(delayed.fallback.hidden, false, "watchdog timeout must expose the fallback when initialization stalls");
+  delayed.dispatchReady({ restoreSetup: true, simulatedCanvasFailure: false });
+  assert.equal(delayed.fallback.hidden, true, "delayed successful initialization must hide a watchdog fallback");
+  assert.equal(delayed.canvas.hidden, false, "delayed successful initialization must restore the canvas");
+  assert.equal(delayed.setup.hidden, false, "delayed successful initialization must restore mission setup");
+  assert.equal(delayed.timers.size, 0, "successful initialization must clear the watchdog timeout");
+
+  const failed = createHarness();
+  failed.moduleScript.dispatch("error");
+  assert.equal(failed.fallback.hidden, false, "a genuine module-script load error must expose the fallback immediately");
+  assert.equal(failed.canvas.hidden, true, "a genuine module-script load error must hide the unusable canvas");
 }
 
 function runCommands(api, fixture) {
@@ -301,7 +355,12 @@ function runCommands(api, fixture) {
   assert.doesNotMatch(labSource, /gravityMobileShell|gravity-mobile-shell-legacy|mobileShellFlavor|usesModernMobileShell/, "the removed legacy mobile shell must not retain a selector or compatibility branch");
   assert.match(labSource, /gravityCanvasFailure/, "development QA must retain a canvas-failure simulation path");
   assert.match(labMarkup, /id="gameCanvasFallback"/, "canvas initialization failure must expose a controlled fallback");
-  assert.match(fallbackSource, /gravityFleetModule/, "module failure watchdog must expose the controlled fallback");
+  assert.match(labMarkup, /id="gravityFleetModuleScript"[^>]*type="module"/, "the module script must expose a direct load-error target");
+  assert.match(fallbackSource, /src\*="gravity-fleet-lab"/, "the watchdog must also find Vite's generated module script");
+  assert.match(fallbackSource, /addEventListener\("error", showFallback/, "module load errors must expose the controlled fallback directly");
+  assert.match(fallbackSource, /gravityfleet:ready/, "module readiness must reconcile a delayed watchdog fallback");
+  assert.match(labSource, /dispatchEvent\(new CustomEvent\("gravityfleet:ready"/, "successful initialization must notify the watchdog");
+  validateModuleFailureWatchdog(fallbackSource);
   assert.match(labMarkup, /id="mobileFleetChart"/, "mobile drawer must include the real fleet-strength chart");
   assert.match(labMarkup, /id="mobileSystemDonut"/, "mobile drawer must include the real system-mix donut");
   assert.match(labMarkup, /id="viewMatchAnalysis"/, "the outcome dialog must retain the analysis action");
