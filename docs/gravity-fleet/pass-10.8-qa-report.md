@@ -2,9 +2,9 @@
 
 ## Release boundary
 
-Pass 10.8 is the active Gravity Fleet release gate. Pass 09.7 and PHX Transit Pass 13.1a are complete and remain preserved in their historical evidence. HR-065 remains pending Joey Wisto's final approval after the pull request and immutable Cloudflare preview are ready.
+Pass 10.8 is complete and approved for merge. Pass 09.7 and PHX Transit Pass 13.1a are complete and remain preserved in their historical evidence. Joey Wisto approved HR-065 on August 4, 2026 for runtime commit `2dc732af3d3eba86f50109add77d302d49fe5255` and immutable Cloudflare preview `https://4471768d.portfolio-deo.pages.dev/`.
 
-The authoritative row-level status, exact release-candidate commit, immutable preview URL, reviewer, date, evidence, defects, and retest state are recorded in the Portfolio Review Log. This repository report summarizes the implemented cleanup and the evidence boundary without duplicating uncaptured artifacts.
+The authoritative row-level status, exact release-candidate commit, immutable preview URL, reviewer, date, evidence, defects, and retest state are recorded in the Portfolio Review Log. This repository report summarizes the implemented cleanup and evidence boundary without representing unperformed checks as complete. Any commit after the approved runtime candidate is documentation-only closeout unless separately identified.
 
 ## Human evidence recorded
 
@@ -17,7 +17,19 @@ Joey Wisto reviewed the mobile experience on August 3, 2026 and reported the fol
 - HR-061 replacement-experience parity - Pass.
 - HR-062 legacy mobile shell removal - Approved.
 
-The review covered portrait, landscape, live orientation changes, touch usability, and modern-versus-legacy experience parity. Exact device details, screenshots, commit identifiers, and deployment URLs were not supplied for those physical checks, so this report does not infer them.
+On August 4, 2026, Joey also tested the three shipped level configurations, accepted the final orbit-speed tuning, and approved HR-065 for release.
+
+The earlier physical review covered portrait, landscape, live orientation changes, touch usability, and modern-versus-legacy experience parity. Exact device details and screenshots were not supplied for those physical checks, so this report does not infer them.
+
+## Approved level tuning
+
+The final release candidate keeps Level 1 as the baseline and ships the following approved level-specific orbit-speed multipliers:
+
+- Level 1: `1`
+- Level 2: `2`
+- Level 3: `3.5`
+
+Joey Wisto manually tested the levels and approved this tuning on August 4, 2026. The dedicated validator pins these values and confirms that each successive level is faster than the prior level.
 
 ## Repeatable scenario
 
@@ -44,22 +56,30 @@ The generated `dist/` artifact was served over HTTP and exercised in the Codex i
 - Temporarily withholding the built critical game module caused the external watchdog to expose the same controlled fallback. The generated module was restored immediately and artifact validation was rerun. Validator coverage also proves that a successful initialization arriving after the backup timeout removes the false fallback and restores the playable setup state.
 - A clean fresh tab reported no application console errors after direct load.
 
-The in-app browser did not expose coarse-pointer emulation, reduced-motion emulation, request interception, or browser zoom controls. Those capabilities are not claimed from viewport resizing alone. Joey's physical evidence remains authoritative for the completed mobile rows, while the final immutable Cloudflare artifact and any remaining agent-executable row limitations must be recorded honestly in the Review Log.
+The in-app browser did not expose coarse-pointer emulation, reduced-motion emulation, request interception, or browser zoom controls. Those capabilities are not claimed from viewport resizing alone. Joey's physical evidence remains authoritative for the completed mobile rows, and remaining unchecked review items remain recorded as nonblocking follow-ups rather than silently marked complete.
 
 ## Module-watchdog correction artifact
 
-PR #49 runtime commit `cda8262416806f16699fb28bf8d7ad31c666860b` corrects the module-failure watchdog. The rebuilt 122-file production artifact has SHA-256 `a582968c3f3d322ba8bd4810e1fbccd4d54bedfe072e8bdc4a8c06df76cbe1b7`. Cloudflare Pages assigned immutable deployment `2beb3b5d-fe98-43cc-a27e-07d4f42dbcdc` and URL `https://2beb3b5d.portfolio-deo.pages.dev/` to that commit.
+PR #49 runtime commit `cda8262416806f16699fb28bf8d7ad31c666860b` corrected the module-failure watchdog. The rebuilt 122-file production artifact had SHA-256 `a582968c3f3d322ba8bd4810e1fbccd4d54bedfe072e8bdc4a8c06df76cbe1b7`. Cloudflare Pages assigned immutable deployment `2beb3b5d-fe98-43cc-a27e-07d4f42dbcdc` and URL `https://2beb3b5d.portfolio-deo.pages.dev/` to that commit.
 
 Local rendered production-artifact QA verified that a genuinely missing generated module exposes the fallback immediately through the module script's `error` event. After the module was restored, a successful initialization remained ready beyond the five-second backup timeout with the fallback hidden, the canvas and mission setup restored, and no application console errors. The controlled `gravityCanvasFailure=1` simulation continued to display the fallback. Deterministic validator coverage separately advances the backup timeout before delivering a delayed success event and proves that the false fallback is removed and the timeout is cleared.
 
-At the time this evidence was recorded, Cloudflare's deployment API reported the immutable deployment as active, but both its immutable hostname and branch alias still returned Cloudflare's temporary `Deployment Not Found` propagation page. The URL and deployment identifier are recorded exactly, but deployed-browser success is not claimed until the edge hostname serves the artifact.
+## Final approved release candidate
+
+- Runtime commit: `2dc732af3d3eba86f50109add77d302d49fe5255`
+- Immutable Cloudflare preview: `https://4471768d.portfolio-deo.pages.dev/`
+- Cloudflare result: deploy successful
+- GitHub Actions run: `30928985986` - success
+- Human approval: HR-065 approved by Joey Wisto on August 4, 2026
+
+The final runtime commit includes the approved Level 2 and Level 3 orbit-speed retuning. Joey tested the levels and accepted the release candidate.
 
 ## Validation record
 
-`npm ci` and `uv sync --dev --locked` completed successfully. `npm run lint`, `npm run validate`, `npm run test`, `npm run build`, `npm run validate:dist`, and `npm run test:dist` completed successfully. The dedicated Gravity Fleet validator passed.
+`npm ci` and `uv sync --dev --locked` completed successfully. Local `npm run lint`, `npm run validate`, `npm run test`, `npm run build`, `npm run validate:dist`, and `npm run test:dist` completed successfully. The dedicated Gravity Fleet validator passed.
 
-`npm run format:check` and therefore the aggregate `npm run check` remain blocked by pre-existing Prettier findings in the untouched files `docs/architecture/cloudflare-dist-cutover-runbook.md` and `docs/architecture/current-route-and-deployment-inventory.md`. Pass 10.8 does not modify those files or claim that failure as resolved.
+GitHub Actions passed formatting, tracked-source linting, repository-contract validation, deterministic tests, production-artifact testing, and diff-whitespace validation on runtime commit `2dc732af3d3eba86f50109add77d302d49fe5255`.
 
-## HR-065 recommendation
+## HR-065 decision
 
-After the pull request produces an immutable Cloudflare preview, repeat the supported final artifact checks and review the consolidated Review Log evidence. If no blocking regression appears, Pass 10.8 is suitable for Joey Wisto's final HR-065 decision. HR-065 must remain `Not Started` until Joey explicitly approves the exact commit and deployed artifact.
+**Approved.** Joey Wisto approved the exact runtime commit and immutable deployed artifact on August 4, 2026 after testing the final level tuning. No blocking defects remain for PR #49. Existing unchecked Pass 10.8 items remain visible as nonblocking follow-ups and are not represented as completed by this approval.
