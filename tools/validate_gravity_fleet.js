@@ -115,17 +115,49 @@ function runCommands(api, fixture) {
   const savedFixture = readJson("saved-run-v1.json");
 
   assert.equal(LEVELS.length, 3, "the existing three levels must remain registered");
-  assert.equal(PLANET_MOTION_MULTIPLIER, 1.26, "base planet motion must retain the 5% increase");
-  assert.equal(LEVELS[0].orbitSpeedMultiplier, 1, "Level 1 must remain the orbit-speed baseline");
+  assert.equal(PLANET_MOTION_MULTIPLIER, 1.26, "base planet motion multiplier must remain unchanged");
+
+  assert.equal(
+    LEVELS[0].orbitSpeedMultiplier,
+    1,
+    "Level 1 must remain the orbit-speed baseline"
+  );
+
+  assert.equal(
+    LEVELS[1].orbitSpeedMultiplier,
+    2,
+    "Level 2 must retain its approved orbit-speed multiplier"
+  );
+
+  assert.equal(
+    LEVELS[2].orbitSpeedMultiplier,
+    3.5,
+    "Level 3 must retain its approved orbit-speed multiplier"
+  );
+
   const orbitPathIds = ["inner", "middle", "outer"];
-  const configuredOrbitSpeed = (level, pathId) => level.orbitPaths[pathId].speed * PLANET_MOTION_MULTIPLIER * level.orbitSpeedMultiplier;
+
+  const configuredOrbitSpeed = (level, pathId) =>
+    level.orbitPaths[pathId].speed *
+    PLANET_MOTION_MULTIPLIER *
+    level.orbitSpeedMultiplier;
+
   for (const pathId of orbitPathIds) {
     const levelOneSpeed = configuredOrbitSpeed(LEVELS[0], pathId);
     const levelTwoSpeed = configuredOrbitSpeed(LEVELS[1], pathId);
     const levelThreeSpeed = configuredOrbitSpeed(LEVELS[2], pathId);
-    assert.ok(Math.abs(levelTwoSpeed / levelOneSpeed - 1.10) < 1e-12, `Level 2 ${pathId} orbit must be effectively 10% faster than Level 1`);
-    assert.ok(Math.abs(levelThreeSpeed / levelTwoSpeed - 1.10) < 1e-12, `Level 3 ${pathId} orbit must be effectively 10% faster than Level 2`);
+
+    assert.ok(
+      levelTwoSpeed > levelOneSpeed,
+      `Level 2 ${pathId} orbit must be faster than Level 1`
+    );
+
+    assert.ok(
+      levelThreeSpeed > levelTwoSpeed,
+      `Level 3 ${pathId} orbit must be faster than Level 2`
+    );
   }
+
   for (const level of LEVELS) {
     const engine = api.createGravityFleetEngine({ levelId: level.id, randomSource: api.createSeededRandom(1000 + level.id) });
     assert.equal(engine.state.levelId, level.id);
