@@ -11,7 +11,18 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   const canvas = document.querySelector("#gravityCanvas");
   if (!canvas) return;
 
-  const ctx = canvas.getContext("2d");
+  const gravityQuery = new URLSearchParams(window.location.search);
+  const localDevelopmentHost = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(window.location.hostname);
+  const mobileDiagnosticsEnabled = gravityQuery.get("gravityDebug") === "1";
+  const simulateCanvasFailure = (mobileDiagnosticsEnabled || localDevelopmentHost) && gravityQuery.get("gravityCanvasFailure") === "1";
+  const ctx = simulateCanvasFailure ? null : canvas.getContext("2d");
+  if (!ctx) {
+    canvas.hidden = true;
+    document.querySelector("#gameCanvasFallback")?.removeAttribute("hidden");
+    document.querySelector("#gameStartOverlay")?.setAttribute("hidden", "");
+    document.querySelector("#gameCanvasRetry")?.addEventListener("click", () => window.location.reload());
+    return;
+  }
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const GAME_VISIBILITY_THRESHOLD = 0.35;
 
@@ -202,13 +213,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   let lastSuccessfulDrawAt = 0;
   let lastSuccessfulSimulationAt = 0;
   let lastRuntimeError = "";
-  const gravityQuery = new URLSearchParams(window.location.search);
-  const mobileDiagnosticsEnabled = gravityQuery.get("gravityDebug") === "1";
-  const localDevelopmentHost = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(window.location.hostname);
   const developmentMetricsEnabled = mobileDiagnosticsEnabled || localDevelopmentHost;
-  const requestedMobileShell = gravityQuery.get("gravityMobileShell");
-  const mobileShellFlavor = developmentMetricsEnabled && requestedMobileShell === "legacy" ? "legacy" : "modern";
-  const usesModernMobileShell = () => mobileShellFlavor === "modern";
   const mobileDomPlacements = new Map();
   const performanceMonitor = createPerformanceMonitor({ enabled: developmentMetricsEnabled });
   const mobileChartScheduler = createTelemetryChartScheduler({
@@ -237,7 +242,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
       ...performanceMonitor.snapshot(),
       runtime: runtime.snapshot(),
       profile: presentationProfile().id,
-      shell: { flavor: mobileShellFlavor, state: mobileShellState, drawerOpen: mobileDrawerOpen },
+      shell: { state: mobileShellState, drawerOpen: mobileDrawerOpen },
       input: { mode: wormMode ? "wormhole" : "launch", activePointerId },
       match: { running: Boolean(state?.running), paused: Boolean(state?.paused), acceptingInput: Boolean(state?.acceptingInput) },
       camera: camera.diagnostics(),
@@ -413,7 +418,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     if (ui.mobileShellCommand) ui.mobileShellCommand.inert = false;
     document.body.classList.remove("gravity-mobile-drawer-open");
     resetRuntimeTiming();
-    if (restoreFocus) (usesModernMobileShell() ? ui.mobileTelemetryHandle : ui.mobileTelemetryToggle)?.focus({ preventScroll: true });
+    if (restoreFocus) ui.mobileTelemetryHandle?.focus({ preventScroll: true });
   }
 
   function openMobileTelemetryDrawer() {
@@ -443,8 +448,8 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     target.append(element);
   }
 
-  function mountModernMobileShell() {
-    if (!usesModernMobileShell() || !ui.mobileShell) return;
+  function mountMobileShell() {
+    if (!ui.mobileShell) return;
     ui.mobileShell.hidden = false;
     moveIntoMobileShell(canvas, ui.mobileTacticalViewport);
     moveIntoMobileShell(ui.mobileHud, ui.mobileShellTop);
@@ -453,7 +458,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     moveIntoMobileShell(ui.mobileTelemetryDrawer, ui.mobileShellTelemetry);
   }
 
-  function restoreModernMobileShell() {
+  function restoreMobileShell() {
     mobileDomPlacements.forEach((placeholder, element) => {
       if (placeholder.parentNode) placeholder.parentNode.replaceChild(element, placeholder);
     });
@@ -477,7 +482,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     stagePortalParent.insertBefore(stagePortalPlaceholder, gameStage);
     document.body.append(gameStage);
     gameStage.classList.add("gravity-mobile-stage");
-    mountModernMobileShell();
+    mountMobileShell();
     syncVisualViewportVariables();
     cameraViewportDirty = true;
   }
@@ -485,7 +490,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   function restoreGameStage() {
     if (!gameStage || gameStage.parentElement !== document.body) return;
     setMobileShellBackgroundInert(false);
-    restoreModernMobileShell();
+    restoreMobileShell();
     if (stagePortalPlaceholder?.parentNode) stagePortalPlaceholder.parentNode.replaceChild(gameStage, stagePortalPlaceholder);
     else if (stagePortalParent) stagePortalParent.append(gameStage);
     stagePortalPlaceholder = null;
@@ -502,11 +507,6 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     return Boolean(usesMobilePresentation() && gameStage?.parentElement === document.body);
   }
 
-  function readCameraSafeArea(name) {
-    const value = Number.parseFloat(window.getComputedStyle(gameStage).getPropertyValue(`--gravity-safe-${name}`));
-    return Number.isFinite(value) ? Math.max(0, value) : 0;
-  }
-
   function visibleCanvasCssRect(canvasRect) {
     const viewport = window.visualViewport;
     const viewportLeft = viewport?.offsetLeft || 0;
@@ -518,26 +518,6 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     const right = clamp(viewportRight - canvasRect.left, left, canvasRect.width);
     const bottom = clamp(viewportBottom - canvasRect.top, top, canvasRect.height);
     return { x: left, y: top, width: Math.max(1, right - left), height: Math.max(1, bottom - top) };
-  }
-
-  function mobileTacticalCssRect(visibleRect, orientation) {
-    if (usesModernMobileShell() && ui.mobileTacticalViewport?.contains(canvas)) return visibleRect;
-    const portrait = orientation === CAMERA_ORIENTATIONS.portrait;
-    const safeTop = readCameraSafeArea("top");
-    const safeRight = readCameraSafeArea("right");
-    const safeBottom = readCameraSafeArea("bottom");
-    const safeLeft = readCameraSafeArea("left");
-    const edge = portrait ? 12 : 14;
-    const topReserve = safeTop + (portrait ? 72 : 54);
-    const bottomReserve = safeBottom + (portrait ? 132 : 64);
-    const x = visibleRect.x + safeLeft + edge;
-    const y = visibleRect.y + topReserve;
-    return {
-      x,
-      y,
-      width: Math.max(1, visibleRect.width - safeLeft - safeRight - edge * 2),
-      height: Math.max(1, visibleRect.height - topReserve - bottomReserve)
-    };
   }
 
   function updateCameraViewport() {
@@ -568,7 +548,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
       : visibleCss.height > visibleCss.width
         ? CAMERA_ORIENTATIONS.portrait
         : CAMERA_ORIENTATIONS.landscape;
-    const tacticalCss = mobile ? mobileTacticalCssRect(visibleCss, orientation) : visibleCss;
+    const tacticalCss = visibleCss;
     const scaleX = canvas.width / Math.max(1, rect.width);
     const scaleY = canvas.height / Math.max(1, rect.height);
     const toBackingRect = source => ({ x: source.x * scaleX, y: source.y * scaleY, width: source.width * scaleX, height: source.height * scaleY });
@@ -619,13 +599,11 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     document.body.classList.toggle("gravity-mobile-preparing", preparing);
     document.documentElement.classList.toggle("gravity-mobile-match", active);
     document.body.classList.toggle("gravity-mobile-match", active);
-    document.documentElement.classList.toggle("gravity-mobile-shell-modern", mobileShellVisible && usesModernMobileShell());
-    document.body.classList.toggle("gravity-mobile-shell-modern", mobileShellVisible && usesModernMobileShell());
-    document.documentElement.classList.toggle("gravity-mobile-shell-legacy", mobileShellVisible && !usesModernMobileShell());
-    document.body.classList.toggle("gravity-mobile-shell-legacy", mobileShellVisible && !usesModernMobileShell());
+    document.documentElement.classList.toggle("gravity-mobile-shell-modern", mobileShellVisible);
+    document.body.classList.toggle("gravity-mobile-shell-modern", mobileShellVisible);
     document.documentElement.dataset.gravityMatchState = state?.paused ? "paused" : active ? "running" : "inactive";
     setMobileShellBackgroundInert(Boolean(mobileShellVisible && gameStage?.parentElement === document.body));
-    if (ui.mobileShell && usesModernMobileShell()) ui.mobileShell.hidden = !mobileShellVisible;
+    if (ui.mobileShell) ui.mobileShell.hidden = !mobileShellVisible;
     if (ui.mobileHud) ui.mobileHud.hidden = !(active && !state?.ended);
     if (ui.mobileModeControls) ui.mobileModeControls.hidden = !(active && !state?.ended);
     if (ui.mobileMatchExit) ui.mobileMatchExit.hidden = !(preparing || active);
@@ -635,7 +613,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
       ui.mobilePause.setAttribute("aria-label", state?.paused ? "Resume match" : "Pause match");
     }
     setText(ui.mobileDrawerPause, state.paused ? "Resume match" : "Close telemetry");
-    engine.setPlayerWormholeLifespan(active && usesModernMobileShell() ? WORMHOLE_LIFESPAN_PROFILES.mobileTactical : WORMHOLE_LIFESPAN_PROFILES.desktopClassic);
+    engine.setPlayerWormholeLifespan(active ? WORMHOLE_LIFESPAN_PROFILES.mobileTactical : WORMHOLE_LIFESPAN_PROFILES.desktopClassic);
     if (!active || state?.ended) closeMobileTelemetryDrawer();
     mobileHudSignature = "";
     scheduleCameraViewportUpdate({ cancelGestures: false });
@@ -677,9 +655,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     const hud = visibleSurfaceDetails(ui.mobileHud);
     const controls = visibleSurfaceDetails(ui.mobileModeControls);
     const exit = visibleSurfaceDetails(ui.mobileMatchExit);
-    const stackingValid = usesModernMobileShell()
-      ? stage.position === "fixed" && stage.zIndex >= 900 && shell.valid && tactical.valid
-      : stage.position === "fixed" && stage.zIndex >= 900 && hud.zIndex > stage.zIndex && controls.zIndex > stage.zIndex && exit.zIndex > stage.zIndex;
+    const stackingValid = stage.position === "fixed" && stage.zIndex >= 900 && shell.valid && tactical.valid;
     return { stage, shell, tactical, surface, hud, controls, exit, stackingValid, valid: gameStage?.parentElement === document.body && [stage, surface, hud, controls, exit].every(item => item.valid) && stackingValid && canvas.width > 0 && canvas.height > 0 };
   }
 
@@ -716,9 +692,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
     requestAnimationFrame(() => requestAnimationFrame(() => {
       try {
         let surface = mobileSurfaceDetails();
-        const preparationVisible = usesModernMobileShell()
-          ? surface.stage.valid && surface.shell.valid && surface.tactical.valid && surface.surface.valid
-          : surface.stage.valid && surface.surface.valid && surface.exit.valid;
+        const preparationVisible = surface.stage.valid && surface.shell.valid && surface.tactical.valid && surface.surface.valid;
         if (!preparationVisible || gameStage?.parentElement !== document.body) throw new Error("Mobile game surface is not viewport-visible in its body-level shell.");
         cameraViewportDirty = true;
         updateCameraViewport();
@@ -758,7 +732,7 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
       const inertChildren = [...document.body.children].filter(element => element.inert).map(element => element.id || element.className || element.tagName).join(", ") || "none";
       const focused = document.activeElement?.id ? `#${document.activeElement.id}` : document.activeElement?.tagName || "none";
       panel.textContent = [
-        `shell: ${mobileShellFlavor}/${mobileShellState}`, `input: ${document.documentElement.dataset.gravityInput || "unknown"}/${wormMode ? "wormhole" : "launch"}`, `viewport: ${window.innerWidth} × ${window.innerHeight}`,
+        `shell: ${mobileShellState}`, `input: ${document.documentElement.dataset.gravityInput || "unknown"}/${wormMode ? "wormhole" : "launch"}`, `viewport: ${window.innerWidth} × ${window.innerHeight}`,
         `stage parent: ${gameStage?.parentElement === document.body ? "body" : gameStage?.parentElement?.className || "none"}`, `stage: ${Math.round(stage.rect?.width || 0)} × ${Math.round(stage.rect?.height || 0)} ${stage.position} z:${stage.zIndex} ${stage.display}/${stage.visibility}/${stage.opacity} intersect:${stage.intersects}`,
         `canvas CSS: ${Math.round(surface.rect?.width || 0)} × ${Math.round(surface.rect?.height || 0)} z:${surface.zIndex} ${surface.display}/${surface.visibility}/${surface.opacity} intersect:${surface.intersects}`,
         `shell/tactical: ${Math.round(shell.rect?.width || 0)} × ${Math.round(shell.rect?.height || 0)} / ${Math.round(tactical.rect?.width || 0)} × ${Math.round(tactical.rect?.height || 0)}`,
@@ -3099,4 +3073,5 @@ import { createTelemetryChartScheduler, createTelemetryProjection } from "./grav
   reset();
   scheduleLiveTelemetryUpdate();
   scheduleAnimationFrame();
+  document.documentElement.dataset.gravityFleetModule = "ready";
 })();

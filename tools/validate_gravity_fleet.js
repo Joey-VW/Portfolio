@@ -286,6 +286,7 @@ function runCommands(api, fixture) {
   assert.deepEqual(forbidden.filter(token => combinedSource.includes(token)), [], "engine modules must be presentation-neutral");
   const labSource = fs.readFileSync(path.join(root, "games", "gravity-fleet-lab.js"), "utf8");
   const labMarkup = fs.readFileSync(path.join(root, "games", "gravity-fleet-lab.html"), "utf8");
+  const fallbackSource = fs.readFileSync(path.join(root, "games", "gravity-fleet-fallback.js"), "utf8");
   assert.match(labSource, /createTelemetryProjection/, "browser surfaces must consume the shared telemetry projection");
   assert.match(labSource, /createTelemetryChartScheduler/, "mobile charts must use the visibility-aware scheduler");
   assert.match(labSource, /showOutcomeOverlay\(run\);\s*updateTelemetryBadgeVisibility\(\);\s*updateCommandDock\(\);\s*try \{\s*mobileChartScheduler\.final\(\);/s, "match completion must present the result before optional chart work");
@@ -297,6 +298,10 @@ function runCommands(api, fixture) {
   assert.match(labSource, /lineChart\(ui\.shipChart, telemetry\.charts\.fleetStrength, contestTeamKeys\);/, "the post-match fleet-strength chart must receive the projected fleet series");
   assert.match(labSource, /lineChart\(ui\.ownerChart, telemetry\.charts\.systemControl, activeTeamKeys\);/, "the post-match system-control chart must receive the projected control series");
   assert.doesNotMatch(labSource, /mobileDrawerEvents/, "the primary mobile drawer must not render the full event feed");
+  assert.doesNotMatch(labSource, /gravityMobileShell|gravity-mobile-shell-legacy|mobileShellFlavor|usesModernMobileShell/, "the removed legacy mobile shell must not retain a selector or compatibility branch");
+  assert.match(labSource, /gravityCanvasFailure/, "development QA must retain a canvas-failure simulation path");
+  assert.match(labMarkup, /id="gameCanvasFallback"/, "canvas initialization failure must expose a controlled fallback");
+  assert.match(fallbackSource, /gravityFleetModule/, "module failure watchdog must expose the controlled fallback");
   assert.match(labMarkup, /id="mobileFleetChart"/, "mobile drawer must include the real fleet-strength chart");
   assert.match(labMarkup, /id="mobileSystemDonut"/, "mobile drawer must include the real system-mix donut");
   assert.match(labMarkup, /id="viewMatchAnalysis"/, "the outcome dialog must retain the analysis action");

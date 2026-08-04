@@ -16,6 +16,7 @@ const copyEntries = [
   "data/showcase-config.json",
   "data/ev-true-cost.json",
   "data/gravity-fleet-sample-runs.json",
+  "games/gravity-fleet-fallback.js",
   "data/colony-sample-runs.json",
   "data/procurement-kpi-analysis.json",
   "data/quote-to-cash-workflow-audit.json",
