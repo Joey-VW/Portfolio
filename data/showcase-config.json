@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "original": {
     "config": {
       "layout": {
@@ -33,7 +33,15 @@
       "line": {
         "width": 2,
         "activeWidth": 1.6,
-        "opacity": 0.72
+        "opacity": 0.72,
+        "bendDirection": "alternating",
+        "gradientEnabled": false,
+        "startColor": "#6ff8ff",
+        "middleColor": "#9fa7ff",
+        "endColor": "#c77dff",
+        "middleStop": 0.54,
+        "glowBlur": 7,
+        "glowOpacity": 0.3
       },
       "motion": {
         "hubTravelDuration": 400,
@@ -53,6 +61,16 @@
         "settleDistance": 0.35,
         "settleVelocity": 0.05,
         "easing": "easeOutCubic"
+      },
+      "effects": {
+        "nodeShadowBlur": 66,
+        "nodeShadowOpacity": 0.52,
+        "nodeGlowBlur": 30,
+        "nodeGlowOpacity": 0.09,
+        "hubShadowBlur": 76,
+        "hubShadowOpacity": 0.42,
+        "hubGlowBlur": 46,
+        "hubGlowOpacity": 0.2
       }
     },
     "nodePlacements": [
@@ -83,6 +101,36 @@
       {
         "angle": 180,
         "radius": 163
+      }
+    ],
+    "webs": [
+      {
+        "id": "node-1",
+        "overrides": {}
+      },
+      {
+        "id": "node-2",
+        "overrides": {}
+      },
+      {
+        "id": "node-3",
+        "overrides": {}
+      },
+      {
+        "id": "node-4",
+        "overrides": {}
+      },
+      {
+        "id": "node-5",
+        "overrides": {}
+      },
+      {
+        "id": "node-6",
+        "overrides": {}
+      },
+      {
+        "id": "node-7",
+        "overrides": {}
       }
     ]
   },
@@ -119,7 +167,15 @@
       "line": {
         "width": 2,
         "activeWidth": 1.6,
-        "opacity": 0.72
+        "opacity": 0.72,
+        "bendDirection": "alternating",
+        "gradientEnabled": true,
+        "startColor": "#6ff8ff",
+        "middleColor": "#9fa7ff",
+        "endColor": "#c77dff",
+        "middleStop": 0.54,
+        "glowBlur": 7,
+        "glowOpacity": 0.3
       },
       "motion": {
         "hubTravelDuration": 400,
@@ -139,6 +195,16 @@
         "settleDistance": 0.35,
         "settleVelocity": 0.05,
         "easing": "easeOutCubic"
+      },
+      "effects": {
+        "nodeShadowBlur": 66,
+        "nodeShadowOpacity": 0.52,
+        "nodeGlowBlur": 30,
+        "nodeGlowOpacity": 0.09,
+        "hubShadowBlur": 76,
+        "hubShadowOpacity": 0.42,
+        "hubGlowBlur": 46,
+        "hubGlowOpacity": 0.2
       }
     },
     "nodePlacements": [
@@ -169,6 +235,36 @@
       {
         "angle": 154,
         "radius": 163
+      }
+    ],
+    "webs": [
+      {
+        "id": "node-1",
+        "overrides": {}
+      },
+      {
+        "id": "node-2",
+        "overrides": {}
+      },
+      {
+        "id": "node-3",
+        "overrides": {}
+      },
+      {
+        "id": "node-4",
+        "overrides": {}
+      },
+      {
+        "id": "node-5",
+        "overrides": {}
+      },
+      {
+        "id": "node-6",
+        "overrides": {}
+      },
+      {
+        "id": "node-7",
+        "overrides": {}
       }
     ]
   }

@@ -140,6 +140,9 @@ def validate_instance(value: object, schema: dict[str, object], root_schema: dic
         minimum = schema.get("minimum")
         if isinstance(minimum, int | float) and value < minimum:
             errors.append(f"{path}: expected value >= {minimum}")
+        maximum = schema.get("maximum")
+        if isinstance(maximum, int | float) and value > maximum:
+            errors.append(f"{path}: expected value <= {maximum}")
 
     if isinstance(value, list):
         min_items = schema.get("minItems")

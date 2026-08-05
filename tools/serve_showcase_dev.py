@@ -8,6 +8,8 @@ import ipaddress
 import json
 import math
 import os
+import re
+from copy import deepcopy
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -18,8 +20,10 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "data" / "showcase-config.json"
 ENDPOINT = "/__dev/showcase-config"
 MAX_BODY_BYTES = 32_768
-GROUPS = ("layout", "node", "hub", "line", "motion")
+CURRENT_VERSION = 2
+GROUPS = ("layout", "node", "hub", "line", "motion", "effects")
 NODE_PLACEMENT_COUNT = 7
+HEX_COLOR_PATTERN = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 ALLOWED_BIND_HOSTS = {"127.0.0.1", "localhost", "::1"}
 ALLOWED_HOSTNAMES = {"127.0.0.1", "localhost", "::1"}
@@ -57,6 +61,16 @@ DESCRIPTORS: dict[str, dict[str, dict[str, Any]]] = {
         "width": {"min": 0.5, "max": 6},
         "activeWidth": {"min": 0.5, "max": 8},
         "opacity": {"min": 0, "max": 1},
+        "bendDirection": {
+            "options": {"alternating", "clockwise", "counterclockwise"}
+        },
+        "gradientEnabled": {"type": "boolean"},
+        "startColor": {"type": "color"},
+        "middleColor": {"type": "color"},
+        "endColor": {"type": "color"},
+        "middleStop": {"min": 0.1, "max": 0.9},
+        "glowBlur": {"min": 0, "max": 18},
+        "glowOpacity": {"min": 0, "max": 1},
     },
     "motion": {
         "hubTravelDuration": {"min": 80, "max": 1500},
@@ -77,6 +91,53 @@ DESCRIPTORS: dict[str, dict[str, dict[str, Any]]] = {
         "settleVelocity": {"min": 0.01, "max": 2},
         "easing": {"options": {"linear", "easeOutCubic", "easeInOutCubic"}},
     },
+    "effects": {
+        "nodeShadowBlur": {"min": 20, "max": 100},
+        "nodeShadowOpacity": {"min": 0, "max": 1},
+        "nodeGlowBlur": {"min": 0, "max": 60},
+        "nodeGlowOpacity": {"min": 0, "max": 0.5},
+        "hubShadowBlur": {"min": 20, "max": 120},
+        "hubShadowOpacity": {"min": 0, "max": 1},
+        "hubGlowBlur": {"min": 0, "max": 80},
+        "hubGlowOpacity": {"min": 0, "max": 0.5},
+    },
+}
+
+LINE_V2_DEFAULTS = {
+    "bendDirection": "alternating",
+    "gradientEnabled": True,
+    "startColor": "#6ff8ff",
+    "middleColor": "#9fa7ff",
+    "endColor": "#c77dff",
+    "middleStop": 0.54,
+    "glowBlur": 7,
+    "glowOpacity": 0.3,
+}
+
+EFFECT_DEFAULTS = {
+    "nodeShadowBlur": 66,
+    "nodeShadowOpacity": 0.52,
+    "nodeGlowBlur": 30,
+    "nodeGlowOpacity": 0.09,
+    "hubShadowBlur": 76,
+    "hubShadowOpacity": 0.42,
+    "hubGlowBlur": 46,
+    "hubGlowOpacity": 0.2,
+}
+
+WEB_OVERRIDE_DESCRIPTORS: dict[str, dict[str, Any]] = {
+    "bend": {"min": -80, "max": 80},
+    "bendDirection": {"options": {-1, 1}},
+    "gradientEnabled": {"type": "boolean"},
+    "startColor": {"type": "color"},
+    "middleColor": {"type": "color"},
+    "endColor": {"type": "color"},
+    "middleStop": {"min": 0.1, "max": 0.9},
+    "width": {"min": 0.5, "max": 6},
+    "activeWidth": {"min": 0.5, "max": 8},
+    "opacity": {"min": 0, "max": 1},
+    "glowBlur": {"min": 0, "max": 18},
+    "glowOpacity": {"min": 0, "max": 1},
 }
 
 
@@ -169,36 +230,29 @@ def effective_origin_port(scheme: str, explicit_port: int | None) -> int | None:
     return None
 
 
-def validate_snapshot(snapshot: Any) -> dict[str, Any]:
-    if not isinstance(snapshot, dict) or set(snapshot) != {"config", "nodePlacements"}:
-        raise reject("Payload must contain only config and nodePlacements.")
+def validate_descriptor_value(value: Any, descriptor: dict[str, Any], path: str) -> None:
+    if descriptor.get("type") == "boolean":
+        if not isinstance(value, bool):
+            raise reject(f"{path} must be a boolean.")
+        return
+    if descriptor.get("type") == "color":
+        if not isinstance(value, str) or not HEX_COLOR_PATTERN.fullmatch(value):
+            raise reject(f"{path} must be a six-digit hex color.")
+        return
+    if "options" in descriptor:
+        if value not in descriptor["options"]:
+            raise reject(f"{path} is not an allowed value.")
+        return
+    if (
+        not isinstance(value, (int, float))
+        or isinstance(value, bool)
+        or not math.isfinite(value)
+        or not descriptor["min"] <= value <= descriptor["max"]
+    ):
+        raise reject(f"{path} must be a finite number in range.")
 
-    config = snapshot["config"]
-    if not isinstance(config, dict) or set(config) != set(GROUPS):
-        raise reject("Config must contain exactly the expected groups.")
 
-    for group in GROUPS:
-        group_value = config[group]
-        descriptors = DESCRIPTORS[group]
-
-        if not isinstance(group_value, dict) or set(group_value) != set(descriptors):
-            raise reject(f"Config group {group} has missing or extra keys.")
-
-        for key, descriptor in descriptors.items():
-            value = group_value[key]
-
-            if "options" in descriptor:
-                if value not in descriptor["options"]:
-                    raise reject(f"{group}.{key} is not an allowed value.")
-            elif (
-                not isinstance(value, (int, float))
-                or isinstance(value, bool)
-                or not math.isfinite(value)
-                or not descriptor["min"] <= value <= descriptor["max"]
-            ):
-                raise reject(f"{group}.{key} must be a finite number in range.")
-
-    placements = snapshot["nodePlacements"]
+def validate_placements(placements: Any) -> None:
     if not isinstance(placements, list) or len(placements) != NODE_PLACEMENT_COUNT:
         raise reject(
             f"nodePlacements must contain {NODE_PLACEMENT_COUNT} entries."
@@ -229,7 +283,81 @@ def validate_snapshot(snapshot: Any) -> dict[str, Any]:
         ):
             raise reject(f"Node placement {index} radius is invalid.")
 
+
+def validate_snapshot(snapshot: Any) -> dict[str, Any]:
+    if not isinstance(snapshot, dict) or set(snapshot) != {
+        "config",
+        "nodePlacements",
+        "webs",
+    }:
+        raise reject("Payload must contain only config, nodePlacements, and webs.")
+
+    config = snapshot["config"]
+    if not isinstance(config, dict) or set(config) != set(GROUPS):
+        raise reject("Config must contain exactly the expected groups.")
+
+    for group in GROUPS:
+        group_value = config[group]
+        descriptors = DESCRIPTORS[group]
+        if not isinstance(group_value, dict) or set(group_value) != set(descriptors):
+            raise reject(f"Config group {group} has missing or extra keys.")
+        for key, descriptor in descriptors.items():
+            validate_descriptor_value(group_value[key], descriptor, f"{group}.{key}")
+
+    validate_placements(snapshot["nodePlacements"])
+
+    webs = snapshot["webs"]
+    if not isinstance(webs, list) or len(webs) != NODE_PLACEMENT_COUNT:
+        raise reject(f"webs must contain {NODE_PLACEMENT_COUNT} entries.")
+    for index, web in enumerate(webs, start=1):
+        if (
+            not isinstance(web, dict)
+            or set(web) != {"id", "overrides"}
+            or web["id"] != f"node-{index}"
+            or not isinstance(web["overrides"], dict)
+        ):
+            raise reject(f"Web {index} is malformed.")
+        for key, value in web["overrides"].items():
+            descriptor = WEB_OVERRIDE_DESCRIPTORS.get(key)
+            if descriptor is None:
+                raise reject(f"Web {index} override {key} is unsupported.")
+            validate_descriptor_value(value, descriptor, f"webs.{index - 1}.overrides.{key}")
+
     return snapshot
+
+
+def validate_v1_snapshot(snapshot: Any) -> dict[str, Any]:
+    if not isinstance(snapshot, dict) or set(snapshot) != {"config", "nodePlacements"}:
+        raise reject("Version 1 snapshot must contain only config and nodePlacements.")
+    config = snapshot["config"]
+    v1_groups = ("layout", "node", "hub", "line", "motion")
+    if not isinstance(config, dict) or set(config) != set(v1_groups):
+        raise reject("Version 1 config must contain exactly the expected groups.")
+    for group in v1_groups:
+        descriptors = DESCRIPTORS[group]
+        keys = set(descriptors)
+        if group == "line":
+            keys = {"width", "activeWidth", "opacity"}
+        group_value = config[group]
+        if not isinstance(group_value, dict) or set(group_value) != keys:
+            raise reject(f"Version 1 config group {group} has missing or extra keys.")
+        for key in keys:
+            validate_descriptor_value(group_value[key], descriptors[key], f"{group}.{key}")
+    validate_placements(snapshot["nodePlacements"])
+    return snapshot
+
+
+def migrate_v1_snapshot(snapshot: Any, *, neutral_gradient: bool) -> dict[str, Any]:
+    migrated = deepcopy(validate_v1_snapshot(snapshot))
+    migrated["config"]["line"].update(deepcopy(LINE_V2_DEFAULTS))
+    if neutral_gradient:
+        migrated["config"]["line"]["gradientEnabled"] = False
+    migrated["config"]["effects"] = deepcopy(EFFECT_DEFAULTS)
+    migrated["webs"] = [
+        {"id": f"node-{index}", "overrides": {}}
+        for index in range(1, NODE_PLACEMENT_COUNT + 1)
+    ]
+    return validate_snapshot(migrated)
 
 
 def validate_existing_config(current: Any) -> dict[str, Any]:
@@ -243,25 +371,33 @@ def validate_existing_config(current: Any) -> dict[str, Any]:
             "version, original, and saved."
         )
 
-    # bool is a subclass of int, so use an exact comparison here.
-    if current["version"] != 1 or isinstance(current["version"], bool):
-        raise reject("Current configuration version must be 1.")
+    version = current["version"]
+    if version not in {1, CURRENT_VERSION} or isinstance(version, bool):
+        raise reject("Current configuration version must be 1 or 2.")
 
     try:
-        validate_snapshot(current["original"])
+        original = (
+            migrate_v1_snapshot(current["original"], neutral_gradient=True)
+            if version == 1
+            else validate_snapshot(current["original"])
+        )
     except ValueError as error:
         raise reject(
             f"Current original configuration is invalid: {error}"
         ) from error
 
     try:
-        validate_snapshot(current["saved"])
+        saved = (
+            migrate_v1_snapshot(current["saved"], neutral_gradient=False)
+            if version == 1
+            else validate_snapshot(current["saved"])
+        )
     except ValueError as error:
         raise reject(
             f"Current saved configuration is invalid: {error}"
         ) from error
 
-    return current
+    return {"version": CURRENT_VERSION, "original": original, "saved": saved}
 
 
 class ShowcaseDevServer(ThreadingHTTPServer):
@@ -453,7 +589,7 @@ class ShowcaseDevHandler(SimpleHTTPRequestHandler):
             current_config = validate_existing_config(current_data)
 
             next_config = {
-                "version": 1,
+                "version": CURRENT_VERSION,
                 "original": current_config["original"],
                 "saved": submitted_snapshot,
             }
