@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: August 2, 2026
+- Last reviewed: August 4, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -22,6 +22,7 @@ Status labels:
 - `BLOCKED` - waiting on another pass or an external setup step.
 - `LATER` - intentionally deferred until higher-impact work is complete.
 - `DONE` - implemented and verified.
+- `CURRENT` - the accepted public release currently in use, while optional follow-up work remains deferred.
 
 ## Recommended execution order
 
