@@ -40,6 +40,7 @@
       "href": { "type": "string", "pattern": "^/(projects|games)/.+\\.html$" },
       "repo": { "type": "string", "format": "uri" },
       "featured": { "type": "boolean" },
+      "featuredRank": { "type": "integer", "minimum": 1 },
       "showcase": {
         "type": "object",
         "required": ["title", "description", "visualKey", "motion"],

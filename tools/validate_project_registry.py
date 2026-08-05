@@ -78,6 +78,7 @@ def main() -> int:
 
     seen_slugs: set[str] = set()
     seen_hrefs: set[str] = set()
+    seen_featured_ranks: set[int] = set()
     publishable: list[dict[str, object]] = []
     unfinished: list[dict[str, object]] = []
 
@@ -107,6 +108,15 @@ def main() -> int:
         title = project.get("title")
         if not isinstance(title, str) or not title.strip():
             errors.append(f"{slug}: missing valid title")
+
+        featured_rank = project.get("featuredRank")
+        if featured_rank is not None:
+            if not isinstance(featured_rank, int) or isinstance(featured_rank, bool) or featured_rank <= 0:
+                errors.append(f"{slug}: featuredRank must be a positive integer")
+            elif featured_rank in seen_featured_ranks:
+                errors.append(f"{slug}: duplicate featuredRank {featured_rank}")
+            else:
+                seen_featured_ranks.add(featured_rank)
 
         created_at = project.get("createdAt")
         status = project.get("status")
