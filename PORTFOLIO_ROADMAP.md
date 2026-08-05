@@ -2,7 +2,7 @@
 
 > North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
-- Last reviewed: August 2, 2026
+- Last reviewed: August 4, 2026
 - Primary tracker: this file
 - Public project registry: `data/projects.json`
 
@@ -22,6 +22,7 @@ Status labels:
 - `BLOCKED` - waiting on another pass or an external setup step.
 - `LATER` - intentionally deferred until higher-impact work is complete.
 - `DONE` - implemented and verified.
+- `CURRENT` - the accepted public release currently in use, while optional follow-up work remains deferred.
 
 ## Recommended execution order
 
@@ -36,22 +37,22 @@ Status labels:
 | 07. Gravity Fleet analytics | DONE | Analytics, minimap, control hints, and planet-motion implementation are complete; physical validation is deferred to Pass 12. | Pass 06 |
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
 | 09. Mobile layout corrections and responsive bug fixes | DONE | Source corrections merged through PRs #6-#12; Pass 09.7 regression and deployment verification closed through PR #47. | Pass 08 structural integration |
-| 10. Gravity Fleet modernization | IN REVIEW | Passes 10.0-10.7 are merged, including the page-shell polish in PR #23 and setup/orbit-speed follow-up in PR #25. Pass 10.8 integrated QA, cleanup verification, and release approval remain open. | Pass 06, Pass 07, merged PRs #13, #15-#21, #23, #25, and Pass 09 shared-header coordination |
-| 11. Production deployment and custom-domain release | BLOCKED | Complete custom-domain and final production-route work; contact delivery remains deferred. | Pass 09, Pass 10, and domain access |
-| 12. Final repository validation and release QA | LATER | Complete final repository validation after mobile corrections, Gravity Fleet device QA, and production-route release. | Pass 11 production release |
+| 10. Gravity Fleet modernization | DONE | Passes 10.0-10.8 are merged and approved, including integrated QA and the approved legacy-shell cleanup. Comprehensive physical frame-pacing and fairness work remains deferred to Pass 12. | Pass 06, Pass 07, merged PRs #13, #15-#21, #23, #25, and Pass 09 shared-header coordination |
+| 11. Production deployment and custom-domain release | CURRENT | The working Cloudflare `pages.dev` deployment is the acceptable public release. Custom-domain selection, purchase, attachment, canonical-host redirects, and contact delivery are deferred. | Cloudflare Pages connection |
+| 12. Final repository validation and release QA | LATER | Comprehensive repository and production validation remains explicitly deferred; targeted publication QA continues per project. | Future release scope |
 | 13. PHX Transit Pulse | IN REVIEW | Pass 13.1a mapped-build regression and Cloudflare preview QA are complete. Later PHX Transit work remains gated; live ingestion is still blocked by provider terms. | Provider terms only for live ingestion or provider replay |
-| 14. Legacy analytics modernization | IN REVIEW | Passes 14.0-14.3 are implemented. Procurement and Where Revenue Gets Stuck remain hidden pending publication QA; legacy-repository retirement remains gated. | Rendered publication QA and migration decisions before Pass 14.4 |
+| 14. Legacy analytics modernization | IN REVIEW | Passes 14.0-14.3 are implemented. Procurement KPI Analysis and Where Revenue Gets Stuck passed targeted publication QA and are public/ready; legacy-repository retirement remains gated. | Pass 14.4 disposition |
 | 15. Plain-English copy pass | LATER | Apply the repository-wide copy audit so visitors understand each project before encountering technical terminology, while preserving useful technical depth and search-relevant keywords. | Passes 09-14 as applicable; complete before final public release QA |
-| 16. Repository architecture modernization | IN REVIEW | Passes 16.0-16.4 are implemented and verified. Cloudflare now builds from the repository command and publishes only `dist/`; source relocation and broader browser gates remain deferred. | Stable `dist/` release gate before Pass 16.5; no live credentials |
+| 16. Repository architecture modernization | IN REVIEW | Passes 16.0-16.4 are implemented and verified. Cloudflare now builds from the repository command and publishes only `dist/`; Pass 16.5+ work remains deferred. | Stable `dist/` release gate before Pass 16.5; no live credentials |
 
 The recommended execution order is:
 
 1. Completed governance and feature passes.
 2. Completed faithful Pass 08 publishing-system integration.
-3. Pass 10.8 Gravity Fleet integrated QA, cleanup verification, and release approval.
-4. Pass 11 custom-domain and production-route release.
-5. Pass 12 final repository validation and release QA.
-6. Pass 14 publication QA for the implemented Procurement and Where Revenue Gets Stuck case studies after the current portfolio release is stable.
+3. Targeted publication QA and lifecycle curation for completed projects.
+4. Pass 11 custom-domain work when a domain is selected and available.
+5. Pass 12 comprehensive final repository validation and release QA.
+6. Pass 14.4 legacy-repository retirement after disposition criteria are met.
 7. Pass 15 plain-English copy pass after the affected project surfaces are stable and before their final publication approval.
 8. Pass 16 repository architecture modernization in focused slices after recording the post-cutover production-stability gate.
 9. Deferred live-ingestion, backend, and operational automation work.
@@ -63,7 +64,7 @@ These choices remove ambiguity from later implementation work.
 1. **The site stays static and multi-page.** Continue with plain HTML, CSS, and JavaScript while adding the approved Pass 16 tooling, CI, schemas, and later `dist/` proof. Do not introduce a framework, backend, database, or production output-directory change outside its approved pass.
 2. **This roadmap is the internal progress tracker.** Do not create a second large tracking system. `data/projects.json` should contain only the small amount of lifecycle metadata needed by the frontend.
 3. **Unfinished projects are filtered explicitly.** Add `status`, `visibility`, and `createdAt` fields instead of relying on array position, `featured`, or missing links.
-4. **Project order is newest first.** Both the projects page and Showcase launcher sort by the same `createdAt` field in descending order.
+4. **Project order is newest first.** The projects page sorts publishable projects by `createdAt` descending; homepage featured cards and the seven-node Showcase use positive `featuredRank`, then the same deterministic date fallback.
 5. **The contact form should eventually submit.** Keep the current email-draft fallback until a Cloudflare endpoint is deployed and verified. Do not ship a submit button that silently fails.
 6. **Gravity Fleet work is split into game-flow and analytics passes.** The combined request is too large for one safe, reviewable change.
 7. **Prototype extraction and cleanup are complete.** The EV scene was integrated and verified, and the standalone looping-animation prototype was removed as an obsolete artifact. Future cleanup should remove only files proven superseded or temporary.
@@ -73,7 +74,7 @@ These choices remove ambiguity from later implementation work.
 
 ## Pass 01 - Project governance
 
-Implemented and verified July 15, 2026. As reconciled August 2, 2026, the registry contains five public/ready projects and five hidden projects, with PHX Transit Pulse published and Colony Ops retained as a hidden project. Automated HTTP DOM verification confirms that every public consumer uses the same lifecycle filter and creation-date order. This pass is complete.
+Implemented and verified July 15, 2026. As reconciled August 4, 2026, the registry contains eight public/ready projects and two hidden projects. Featured projects use validated, unique positive ranks; only ready/public projects render, while the complete projects page retains creation-date order. This pass is complete.
 
 ### 01.1 Add explicit lifecycle metadata
 
@@ -595,7 +596,7 @@ Pass 09 acceptance criteria:
 
 ## Pass 10 - Gravity Fleet modernization
 
-**Status: IN REVIEW.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. PR #20 completed Pass 10.6 telemetry and analytics, and PR #21 corrected mobile match-end recovery; both are merged and verified following deployed-browser and mobile review. PR #23 completed Pass 10.7 page, header, and analytics polish, and PR #25 added the approved setup and orbit-speed follow-up. Pass 10.8 integrated QA, cleanup verification, and release approval remain open. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
+**Status: DONE.** PR A / Passes 10.0-10.1 merged through PR #15 and commit `46dfa0ba05af90886506e779687786103030abc9`. PR B / Pass 10.2 implementation merged through PR #16 and commit `e8a46eb6571df4b8d1b885aad3c41b5c6cca0e05`; its automated fixed-step validation passes. Human Checkpoint 1 was recorded July 22, 2026 after PR #17. PR #18 / Pass 10.3 merged July 23, 2026 UTC through commit `8041c60f05ba9f99979bc968d8ac67af6231c68e`. PR #19 / Passes 10.4-10.5 merged July 23, 2026 UTC through commit `9cf984ef417851726b49c8f7b9f37f24636fe21b` after automated validation, Cloudflare-preview desktop QA, and physical-device portrait and landscape QA on an iPhone 17 Pro Max. PR #20 completed Pass 10.6 telemetry and analytics, and PR #21 corrected mobile match-end recovery; both are merged and verified following deployed-browser and mobile review. PR #23 completed Pass 10.7 page, header, and analytics polish, and PR #25 added the approved setup and orbit-speed follow-up. Merged Pass 10.8 evidence approves its integrated QA and cleanup; unperformed comprehensive physical frame-pacing and fairness checks remain deferred to Pass 12. PR #13 and commit `d8fe7a0ff010dd78815b1ffe3292ec5f0de964d9` remain historical mobile-reference evidence, not the finished adaptive presentation.
 
 Authoritative supporting documents:
 
@@ -1126,7 +1127,7 @@ Possible later options are modular Canvas 2D, a PixiJS renderer prototype behind
 
 ## Pass 11 - Production deployment and custom-domain release
 
-**Status: BLOCKED by Pass 09 and Pass 10.** Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the `pages.dev` deployment is working.
+**Status: CURRENT RELEASE.** Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the working `pages.dev` deployment is the acceptable current public release. Custom-domain work is deferred and does not block this release.
 
 ### 11.1 Complete remaining production release work
 
@@ -1429,6 +1430,10 @@ Pass completion criteria:
 - No material regressions appear in layout, accessibility, project lifecycle filtering, data claims, or interactions.
 
 ## Deferred ideas and guardrails
+
+### Future project visual-identity pass
+
+Document-only treatments to evaluate in a later dedicated visual pass: Gravity Fleet - deep space, stars, radar, or orbital paths; PHX Transit - subdued streets, route lines, or transit nodes; EV True Cost - road, charging pulse, or electrical-flow motifs; Shrinkflation - shelves, barcodes, receipts, or unit-price patterns; Publishing System/Postcard Atlas - maps, journals, photo frames, or travel routes; Procurement - KPI matrix, ledger, scorecard, or supplier network; Quote-to-Cash - lifecycle stages, handoff nodes, or pipeline flow; Colony Ops - planetary contours, resource hexes, or colony networks. Do not implement these treatments in the current pass.
 
 - Do not add a framework solely to organize this roadmap. Reconsider templating only when duplicated page structure becomes a material maintenance problem.
 - The approved Postcard Atlas staging source, fictional content, local fixtures, fallback image, background videos, and manifest are preservation requirements, not material to replace or disable.

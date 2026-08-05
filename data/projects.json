@@ -19,6 +19,7 @@
     "href": "/projects/phx-transit-pulse.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
     "featured": true,
+    "featuredRank": 1,
     "showcase": {
       "title": "PHX Transit Pulse",
       "description": "Transit movement, delays & alerts",
@@ -46,6 +47,7 @@
     "href": "/projects/shrinkflation-tracker.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
     "featured": true,
+    "featuredRank": 7,
     "showcase": {
       "title": "Shrink Tracker",
       "description": "Spot hidden unit-price hikes",
@@ -73,6 +75,7 @@
     "href": "/games/gravity-fleet-lab.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
     "featured": true,
+    "featuredRank": 2,
     "showcase": {
       "title": "Gravity Fleet",
       "description": "Orbital strategy with telemetry",
@@ -84,7 +87,7 @@
     "slug": "colony-ops-lab",
     "createdAt": "2026-07-04",
     "status": "ready",
-    "visibility": "hidden",
+    "visibility": "public",
     "title": "Colony Ops Lab",
     "category": "Interactive Data Viz",
     "summary": "A playable 60-second colony resource allocation simulation that turns session telemetry into KPI dashboards, charts, heatmaps, and benchmarks.",
@@ -110,8 +113,8 @@
   {
     "slug": "procurement-kpi-analysis",
     "createdAt": "2025-06-21",
-    "status": "in-progress",
-    "visibility": "hidden",
+    "status": "ready",
+    "visibility": "public",
     "title": "Procurement KPI Analysis",
     "category": "BI + ETL",
     "summary": "Supplier performance analytics model for cost, savings, lead time, delivery reliability, defects, and compliance.",
@@ -127,6 +130,7 @@
     "href": "/projects/procurement-kpi-analysis.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
     "featured": true,
+    "featuredRank": 3,
     "showcase": {
       "title": "Procurement KPI",
       "description": "Supplier performance at a glance",
@@ -137,8 +141,8 @@
   {
     "slug": "quote-to-cash-workflow-audit",
     "createdAt": "2025-06-30",
-    "status": "in-progress",
-    "visibility": "hidden",
+    "status": "ready",
+    "visibility": "public",
     "title": "Where Revenue Gets Stuck",
     "category": "Revenue + Process Analytics",
     "summary": "A deterministic, fictional Quote-to-Cash audit that measures conversion loss, stage timing, broken handoffs, and recognition backlog.",
@@ -153,7 +157,14 @@
     ],
     "href": "/projects/quote-to-cash-workflow-audit.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
-    "featured": false
+    "featured": true,
+    "featuredRank": 5,
+    "showcase": {
+      "title": "Revenue Flow",
+      "description": "Trace lifecycle handoffs and delays",
+      "visualKey": "quote-to-cash",
+      "motion": "static"
+    }
   },
   {
     "slug": "cfpb-complaint-intelligence",
@@ -222,6 +233,7 @@
     "href": "/projects/multi-platform-publishing-system.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
     "featured": true,
+    "featuredRank": 4,
     "showcase": {
       "title": "Publishing System",
       "description": "Travel publishing without code",
@@ -249,6 +261,7 @@
     "href": "/projects/ev-true-cost.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
     "featured": true,
+    "featuredRank": 6,
     "showcase": {
       "title": "Public Charging",
       "description": "Compare gasoline and charging costs",

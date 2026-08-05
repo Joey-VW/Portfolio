@@ -30,6 +30,13 @@ const sortProjectsNewestFirst = (projects = []) => [...projects].sort((a, b) => 
   return String(a.slug || "").localeCompare(String(b.slug || ""), "en");
 });
 
+const sortFeaturedProjects = (projects = []) => [...projects].sort((a, b) => {
+  const aRank = Number.isInteger(a.featuredRank) && a.featuredRank > 0 ? a.featuredRank : Number.POSITIVE_INFINITY;
+  const bRank = Number.isInteger(b.featuredRank) && b.featuredRank > 0 ? b.featuredRank : Number.POSITIVE_INFINITY;
+  if (aRank !== bRank) return aRank - bRank;
+  return sortProjectsNewestFirst([a, b]).indexOf(a) === 0 ? -1 : 1;
+});
+
 const getPublishableProjects = (projects) => sortProjectsNewestFirst(
   (Array.isArray(projects) ? projects : []).filter(isProjectPublishable)
 );
@@ -137,7 +144,7 @@ const renderProjectCards = async () => {
 
     grids.forEach((grid) => {
       const selectedProjects = grid.hasAttribute("data-project-featured")
-        ? projects.filter((project) => project.featured === true)
+        ? sortFeaturedProjects(projects.filter((project) => project.featured === true))
         : projects;
       const parsedLimit = Number.parseInt(grid.dataset.projectLimit || selectedProjects.length, 10);
       const limit = Number.isFinite(parsedLimit) && parsedLimit >= 0 ? parsedLimit : selectedProjects.length;
@@ -298,6 +305,7 @@ const showcaseVisualSvg = (visualKey = "default") => {
     "shelf-signal": `<svg class="showcase-scene-svg shelf-scene" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><path class="shelf-frame" d="M7 12v33M31 12v33M5 27h28M5 44h28"/><rect class="pkg pkg-a" x="10" y="18" width="7" height="9" rx="1"/><rect class="pkg pkg-before" x="20" y="14" width="8" height="13" rx="1"/><rect class="pkg pkg-current" x="20" y="14" width="8" height="13" rx="1"/><rect class="pkg pkg-c" x="11" y="34" width="8" height="10" rx="1"/><path class="chart-grid" d="M38 20h27M38 31h27M49 15v29M60 15v29"/><path class="chart-axis" d="M38 15v29h28"/><path class="unit-rise" d="M40 40c6-2 9-7 13-8 5-2 7-9 12-12"/><circle class="unit-dot" cx="65" cy="20" r="2.4"/></svg>`,
     "colony-ops": `<svg class="showcase-scene-svg static-scene" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><path class="terrain" d="M8 42c10-8 20-9 31-3 7 4 14 3 25-4"/><rect x="18" y="20" width="12" height="11" rx="2"/><rect x="39" y="15" width="10" height="16" rx="2"/><path d="M30 25h9M24 31v8M44 31v7"/><circle cx="24" cy="41" r="3"/><circle cx="44" cy="40" r="3"/></svg>`,
     "procurement-kpi": `<svg class="showcase-scene-svg static-scene" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><path d="M13 42h46"/><rect x="17" y="29" width="8" height="13" rx="1"/><rect x="32" y="18" width="8" height="24" rx="1"/><rect x="47" y="25" width="8" height="17" rx="1"/><path class="accent" d="M14 24l15-7 13 9 16-15"/><circle cx="29" cy="17" r="2.5"/><circle cx="42" cy="26" r="2.5"/></svg>`,
+    "quote-to-cash": `<svg class="showcase-scene-svg static-scene" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><rect x="8" y="21" width="12" height="14" rx="2"/><rect x="30" y="21" width="12" height="14" rx="2"/><rect x="52" y="21" width="12" height="14" rx="2"/><path class="accent" d="M20 28h9m13 0h9M24 24l5 4-5 4m24-8 5 4-5 4"/><path d="M8 42h56"/></svg>`,
     "cfpb-signals": `<svg class="showcase-scene-svg static-scene" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><path d="M12 17h31a8 8 0 0 1 0 16H29l-11 8v-8h-6a8 8 0 0 1 0-16Z"/><path class="accent" d="M49 19l4 7 8-13"/><path d="M22 24h21M52 36h9M49 42h7"/></svg>`,
     "publishing-system": `<svg class="showcase-scene-svg static-scene" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><path d="M11 42 25 14l16 28 18-25"/><path class="accent" d="M25 14l3 21 13 7"/><circle cx="25" cy="14" r="4"/><circle cx="41" cy="42" r="4"/><path d="M12 42h16"/></svg>`,
   };
@@ -1237,9 +1245,10 @@ const initShowcase = (showcaseSnapshots) => {
   const loadProjects = async () => {
     try {
       const projects = getPublishableProjects(await loadProjectRegistry())
-        .filter((project) => project.featured === true)
+        .filter((project) => project.featured === true);
+      const featuredProjects = sortFeaturedProjects(projects)
         .slice(0, 7);
-      projects.forEach((project, index) => {
+      featuredProjects.forEach((project, index) => {
         const meta = showcaseMeta(project);
         const title = meta.title || project.title;
         const description = meta.description || project.summary || project.category || "Project case study";

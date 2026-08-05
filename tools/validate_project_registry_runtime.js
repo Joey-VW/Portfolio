@@ -64,4 +64,14 @@ const actual = evaluate(
 );
 
 assert.equal(actual, JSON.stringify(["Alpha", "Zulu", "Older"]));
+
+const featuredFixture = [
+  { title: "Fallback", slug: "fallback", createdAt: "2026-07-16" },
+  { title: "Rank two", slug: "two", createdAt: "2026-01-01", featuredRank: 2 },
+  { title: "Rank one", slug: "one", createdAt: "2025-01-01", featuredRank: 1 },
+];
+const featuredActual = evaluate(
+  `JSON.stringify(sortFeaturedProjects(${JSON.stringify(featuredFixture)}).map(({ title }) => title))`
+);
+assert.equal(featuredActual, JSON.stringify(["Rank one", "Rank two", "Fallback"]));
 console.log("Project lifecycle and deterministic ordering checks passed.");
