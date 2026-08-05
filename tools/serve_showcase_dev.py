@@ -287,6 +287,14 @@ class ShowcaseDevHandler(SimpleHTTPRequestHandler):
     def showcase_server(self) -> ShowcaseDevServer:
         return self.server  # type: ignore[return-value]
 
+    def end_headers(self) -> None:
+        """Prevent stale local assets while using the Showcase Dev Lab."""
+        if self.command in {"GET", "HEAD"}:
+            self.send_header("Cache-Control", "no-store, max-age=0")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
+        super().end_headers()
+
     def validate_write_source(self) -> None:
         """Reject write requests that are not clearly directed at this server."""
         client_hostname = normalize_hostname(self.client_address[0])
@@ -455,6 +463,7 @@ class ShowcaseDevHandler(SimpleHTTPRequestHandler):
             with NamedTemporaryFile(
                 "w",
                 encoding="utf-8",
+                newline="\n",
                 dir=CONFIG_PATH.parent,
                 prefix=f".{CONFIG_PATH.name}.",
                 suffix=".tmp",

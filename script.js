@@ -342,6 +342,7 @@ const initShowcase = (showcaseSnapshots) => {
   let hub = { x: 0, y: 0, collapsedX: 0, collapsedY: 0, expandedX: 0, expandedY: 0 };
   let pointer = { x: 0, y: 0, active: false };
   let lastLauncherCenter = null;
+  let overlapAvoidanceEnabled = true;
 
   const easingFns = {
     linear: (t) => t,
@@ -586,7 +587,7 @@ const initShowcase = (showcaseSnapshots) => {
   const buildShowcaseDevLab = () => {
     if (!debugAvailable) return;
     const tabButtons = labTabs.map(({ id, label }, index) => `<button type="button" role="tab" id="showcase-dev-tab-${id}" aria-controls="showcase-dev-panel-${id}" aria-selected="${index === 0 ? "true" : "false"}" tabindex="${index === 0 ? "0" : "-1"}" data-showcase-tab="${id}">${label}</button>`).join("");
-    const panels = labTabs.map(({ id, label }, index) => `<section class="showcase-dev-tabpanel" role="tabpanel" id="showcase-dev-panel-${id}" aria-labelledby="showcase-dev-tab-${id}" data-showcase-panel="${id}" ${index === 0 ? "" : "hidden"}><h4>${escapeHtml(label)}</h4><div class="showcase-dev-controls">${configDescriptors[id].map((descriptor) => renderControl(id, descriptor)).join("")}${id === "layout" ? `<div class="showcase-dev-polar"><h5>Polar nodes</h5>${renderPlacementControls()}</div>` : ""}</div></section>`).join("");
+    const panels = labTabs.map(({ id, label }, index) => `<section class="showcase-dev-tabpanel" role="tabpanel" id="showcase-dev-panel-${id}" aria-labelledby="showcase-dev-tab-${id}" data-showcase-panel="${id}" ${index === 0 ? "" : "hidden"}><h4>${escapeHtml(label)}</h4><div class="showcase-dev-controls">${configDescriptors[id].map((descriptor) => renderControl(id, descriptor)).join("")}${id === "layout" ? `<label class="showcase-dev-control"><span><span>Avoid desktop overlaps</span><input type="checkbox" data-showcase-overlap-avoidance checked></span></label><div class="showcase-dev-polar"><h5>Polar nodes</h5>${renderPlacementControls()}</div>` : ""}</div></section>`).join("");
     const lab = document.createElement("aside");
     lab.className = "showcase-dev-panel";
     lab.setAttribute("aria-label", "Showcase Dev Lab");
@@ -619,6 +620,7 @@ const initShowcase = (showcaseSnapshots) => {
     const drawer = lab.querySelector("[data-showcase-debug-drawer]");
     const configOutput = lab.querySelector("[data-showcase-config-output]");
     const status = lab.querySelector("[data-showcase-status]");
+    const overlapToggle = lab.querySelector("[data-showcase-overlap-avoidance]");
     const tabs = Array.from(lab.querySelectorAll("[role='tab']"));
     let activeGroup = "layout";
     const setStatus = (message) => { status.textContent = message; };
@@ -647,6 +649,12 @@ const initShowcase = (showcaseSnapshots) => {
       drawer.hidden = !toggle.checked;
       try { localStorage.setItem(debugStorageKey, String(toggle.checked)); } catch { /* The toggle remains usable for the current page load. */ }
       if (toggle.checked) syncLabControls(lab);
+    });
+
+    overlapToggle?.addEventListener("change", () => {
+      overlapAvoidanceEnabled = overlapToggle.checked;
+      applyLabPreview("layout");
+      setStatus(overlapAvoidanceEnabled ? "Desktop overlap avoidance enabled." : "Desktop overlap avoidance disabled for precise positioning.");
     });
 
     lab.querySelector(".showcase-dev-tabs").addEventListener("click", (event) => {
@@ -927,12 +935,14 @@ const initShowcase = (showcaseSnapshots) => {
         x = clamp(x, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
         y = clamp(y, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
         rect = { x, y, width: size.width, height: size.height };
-        for (let attempt = 0; attempt < 10 && placed.some((other) => rectsOverlap(rect, other)); attempt += 1) {
-          const angle = Math.atan2(y - hub.expandedY, x - hub.expandedX) + attempt * 0.34;
-          const push = 18 + attempt * 10;
-          x = clamp(x + Math.cos(angle) * push, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
-          y = clamp(y + Math.sin(angle) * push, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
-          rect = { x, y, width: size.width, height: size.height };
+        if (overlapAvoidanceEnabled) {
+          for (let attempt = 0; attempt < 10 && placed.some((other) => rectsOverlap(rect, other)); attempt += 1) {
+            const angle = Math.atan2(y - hub.expandedY, x - hub.expandedX) + attempt * 0.34;
+            const push = 18 + attempt * 10;
+            x = clamp(x + Math.cos(angle) * push, layout.viewportMargin + size.width / 2, window.innerWidth - layout.viewportMargin - size.width / 2);
+            y = clamp(y + Math.sin(angle) * push, layout.viewportMargin + size.height / 2, window.innerHeight - layout.viewportMargin - size.height / 2);
+            rect = { x, y, width: size.width, height: size.height };
+          }
         }
       }
       placed.push(rect);
