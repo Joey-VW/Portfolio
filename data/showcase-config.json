@@ -91,35 +91,35 @@
       "layout": {
         "desktopDistanceScale": 1,
         "mobileDistanceScale": 1,
-        "hubXRatio": 0.52,
-        "hubYOffsetRatio": 0.05,
+        "hubXRatio": 0.56,
+        "hubYOffsetRatio": 0.1,
         "mobileHubYRatio": 0.16,
-        "viewportMargin": 18,
-        "collisionGap": 14,
-        "lineBend": 30,
-        "lineEndpointGap": 4
+        "viewportMargin": 24,
+        "collisionGap": 16,
+        "lineBend": 22,
+        "lineEndpointGap": 6
       },
       "node": {
-        "desktopWidth": 232,
-        "desktopHeight": 92,
+        "desktopWidth": 210,
+        "desktopHeight": 84,
         "mobileWidth": 166,
         "mobileHeight": 66,
         "backgroundOpacity": 0.96,
-        "hoverBackgroundOpacity": 0.85,
+        "hoverBackgroundOpacity": 0.99,
         "borderWidth": 1,
         "borderOpacity": 0.2,
-        "borderRadius": 24
+        "borderRadius": 22
       },
       "hub": {
         "desktopWidth": 128,
-        "desktopHeight": 72,
+        "desktopHeight": 70,
         "mobileWidth": 96,
         "mobileHeight": 44
       },
       "line": {
-        "width": 2,
-        "activeWidth": 1.6,
-        "opacity": 0.72
+        "width": 1.8,
+        "activeWidth": 2.5,
+        "opacity": 0.84
       },
       "motion": {
         "hubTravelDuration": 400,
@@ -143,32 +143,32 @@
     },
     "nodePlacements": [
       {
-        "angle": 0,
-        "radius": 266
+        "angle": 184,
+        "radius": 190
       },
       {
-        "angle": 27,
-        "radius": 201
+        "angle": 342,
+        "radius": 225
       },
       {
-        "angle": 61,
-        "radius": 224
+        "angle": 12,
+        "radius": 230
       },
       {
-        "angle": 85,
-        "radius": 294
+        "angle": 38,
+        "radius": 240
       },
       {
-        "angle": 103,
-        "radius": 163
+        "angle": 66,
+        "radius": 238
       },
       {
-        "angle": 129,
-        "radius": 163
+        "angle": 96,
+        "radius": 225
       },
       {
-        "angle": 154,
-        "radius": 163
+        "angle": 128,
+        "radius": 215
       }
     ]
   }
