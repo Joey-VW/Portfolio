@@ -179,109 +179,22 @@ const showcaseLauncher = document.querySelector("[data-showcase-launcher]");
 // Showcase tuning is loaded from data/showcase-config.json so saved Dev Lab work can ship as a repository change.
 const SHOWCASE_CONFIG_URL = "/data/showcase-config.json";
 const SHOWCASE_SAVE_ENDPOINT = "/__dev/showcase-config";
-const SHOWCASE_GROUPS = ["layout", "node", "hub", "line", "motion"];
-const SHOWCASE_NODE_PLACEMENT_COUNT = 7;
-const SHOWCASE_EASING_OPTIONS = ["linear", "easeOutCubic", "easeInOutCubic"];
-const showcaseConfig = { layout: {}, node: {}, hub: {}, line: {}, motion: {} };
-
-const showcaseConfigDescriptors = {
-  layout: [
-    { key: "desktopDistanceScale", label: "Desktop distance", min: 0.7, max: 1.4, step: 0.01 },
-    { key: "mobileDistanceScale", label: "Mobile distance", min: 0.7, max: 1.35, step: 0.01 },
-    { key: "hubXRatio", label: "Hub X", min: 0.25, max: 0.75, step: 0.01 },
-    { key: "hubYOffsetRatio", label: "Hub Y offset", min: 0.05, max: 0.45, step: 0.01 },
-    { key: "mobileHubYRatio", label: "Mobile hub Y", min: 0.08, max: 0.35, step: 0.01 },
-    { key: "viewportMargin", label: "Viewport margin", min: 0, max: 80, step: 1, unit: "px" },
-    { key: "collisionGap", label: "Collision gap", min: 0, max: 48, step: 1, unit: "px" },
-    { key: "lineBend", label: "Line bend", min: -80, max: 80, step: 1, unit: "px" },
-    { key: "lineEndpointGap", label: "Endpoint gap", min: 0, max: 24, step: 1, unit: "px" },
-  ],
-  node: [
-    { key: "desktopWidth", label: "Desktop width", min: 160, max: 320, step: 1, unit: "px" },
-    { key: "desktopHeight", label: "Desktop height", min: 64, max: 140, step: 1, unit: "px" },
-    { key: "mobileWidth", label: "Mobile width", min: 120, max: 220, step: 1, unit: "px" },
-    { key: "mobileHeight", label: "Mobile height", min: 48, max: 96, step: 1, unit: "px" },
-    { key: "backgroundOpacity", label: "Background", min: 0, max: 1, step: 0.01 },
-    { key: "hoverBackgroundOpacity", label: "Hover background", min: 0, max: 1, step: 0.01 },
-    { key: "borderWidth", label: "Border width", min: 0, max: 4, step: 0.1, unit: "px" },
-    { key: "borderOpacity", label: "Border opacity", min: 0, max: 1, step: 0.01 },
-    { key: "borderRadius", label: "Border radius", min: 0, max: 32, step: 1, unit: "px" },
-  ],
-  hub: [
-    { key: "desktopWidth", label: "Desktop width", min: 80, max: 200, step: 1, unit: "px" },
-    { key: "desktopHeight", label: "Desktop height", min: 40, max: 120, step: 1, unit: "px" },
-    { key: "mobileWidth", label: "Mobile width", min: 72, max: 150, step: 1, unit: "px" },
-    { key: "mobileHeight", label: "Mobile height", min: 34, max: 80, step: 1, unit: "px" },
-  ],
-  line: [
-    { key: "width", label: "Width", min: 0.5, max: 6, step: 0.1, unit: "px" },
-    { key: "activeWidth", label: "Active width", min: 0.5, max: 8, step: 0.1, unit: "px" },
-    { key: "opacity", label: "Opacity", min: 0, max: 1, step: 0.01 },
-  ],
-  motion: [
-    { key: "hubTravelDuration", label: "Hub travel", min: 80, max: 1500, step: 10, unit: "ms" },
-    { key: "hubCollapseDuration", label: "Hub collapse", min: 80, max: 1500, step: 10, unit: "ms" },
-    { key: "hubArcStrength", label: "Arc strength", min: 0, max: 0.6, step: 0.01 },
-    { key: "hubArcDirection", label: "Arc direction", type: "select", options: [[-1, "Opposite"], [1, "Current"]] },
-    { key: "hubArcMin", label: "Minimum arc", min: 0, max: 240, step: 1, unit: "px" },
-    { key: "hubArcMax", label: "Maximum arc", min: 0, max: 400, step: 1, unit: "px" },
-    { key: "webDeployDuration", label: "Web deploy", min: 60, max: 1200, step: 10, unit: "ms" },
-    { key: "webDeployStagger", label: "Web stagger", min: 0, max: 200, step: 1, unit: "ms" },
-    { key: "nodeRevealDelay", label: "Node delay", min: 0, max: 1000, step: 10, unit: "ms" },
-    { key: "nodeRevealDuration", label: "Node reveal", min: 50, max: 1200, step: 10, unit: "ms" },
-    { key: "pointerStrength", label: "Pointer spring", min: 0.01, max: 0.5, step: 0.01 },
-    { key: "pointerDamping", label: "Pointer damping", min: 0, max: 0.98, step: 0.01 },
-    { key: "pointerRadius", label: "Pointer radius", min: 100, max: 1200, step: 10, unit: "px" },
-    { key: "pointerInfluence", label: "Pointer influence", min: 0, max: 80, step: 1, unit: "px" },
-    { key: "settleDistance", label: "Settle distance", min: 0.05, max: 5, step: 0.05, unit: "px" },
-    { key: "settleVelocity", label: "Settle velocity", min: 0.01, max: 2, step: 0.01 },
-    { key: "easing", label: "Easing", type: "select", options: SHOWCASE_EASING_OPTIONS.map((value) => [value, value]) },
-  ],
-};
-
-const cloneShowcaseValue = (value) => JSON.parse(JSON.stringify(value));
-
-const validateShowcaseSnapshot = (snapshot, label = "configuration") => {
-  if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) throw new Error(`Invalid Showcase ${label}: expected object.`);
-  const allowedSnapshotKeys = ["config", "nodePlacements"];
-  Object.keys(snapshot).forEach((key) => { if (!allowedSnapshotKeys.includes(key)) throw new Error(`Invalid Showcase ${label}: unexpected ${key}.`); });
-  if (!snapshot.config || typeof snapshot.config !== "object" || Array.isArray(snapshot.config)) throw new Error(`Invalid Showcase ${label}: missing config.`);
-  Object.keys(snapshot.config).forEach((group) => { if (!SHOWCASE_GROUPS.includes(group)) throw new Error(`Invalid Showcase ${label}: unexpected group ${group}.`); });
-  SHOWCASE_GROUPS.forEach((group) => {
-    const sourceGroup = snapshot.config[group];
-    if (!sourceGroup || typeof sourceGroup !== "object" || Array.isArray(sourceGroup)) throw new Error(`Invalid Showcase ${label}: missing ${group}.`);
-    const descriptors = showcaseConfigDescriptors[group];
-    const allowedKeys = descriptors.map(({ key }) => key);
-    Object.keys(sourceGroup).forEach((key) => { if (!allowedKeys.includes(key)) throw new Error(`Invalid Showcase ${label}: unexpected ${group}.${key}.`); });
-    descriptors.forEach((descriptor) => {
-      if (!(descriptor.key in sourceGroup)) throw new Error(`Invalid Showcase ${label}: missing ${group}.${descriptor.key}.`);
-      const value = sourceGroup[descriptor.key];
-      if (descriptor.type === "select") {
-        if (!descriptor.options.some(([optionValue]) => String(optionValue) === String(value))) throw new Error(`Invalid Showcase ${label}: ${group}.${descriptor.key} is outside allowed values.`);
-        return;
-      }
-      if (typeof value !== "number" || !Number.isFinite(value) || value < descriptor.min || value > descriptor.max) throw new Error(`Invalid Showcase ${label}: ${group}.${descriptor.key} is outside allowed range.`);
-    });
-  });
-  if (!Array.isArray(snapshot.nodePlacements) || snapshot.nodePlacements.length !== SHOWCASE_NODE_PLACEMENT_COUNT) throw new Error(`Invalid Showcase ${label}: nodePlacements must contain ${SHOWCASE_NODE_PLACEMENT_COUNT} entries.`);
-  snapshot.nodePlacements.forEach((placement, index) => {
-    if (!placement || typeof placement !== "object" || Array.isArray(placement)) throw new Error(`Invalid Showcase ${label}: node placement ${index + 1} must be an object.`);
-    const keys = Object.keys(placement);
-    if (keys.length !== 2 || !keys.includes("angle") || !keys.includes("radius")) throw new Error(`Invalid Showcase ${label}: node placement ${index + 1} has unexpected keys.`);
-    if (typeof placement.angle !== "number" || !Number.isFinite(placement.angle) || placement.angle < 0 || placement.angle > 359) throw new Error(`Invalid Showcase ${label}: node placement ${index + 1} angle is invalid.`);
-    if (typeof placement.radius !== "number" || !Number.isFinite(placement.radius) || placement.radius < 60 || placement.radius > 320) throw new Error(`Invalid Showcase ${label}: node placement ${index + 1} radius is invalid.`);
-  });
-  return cloneShowcaseValue(snapshot);
-};
+const showcaseContract = window.ShowcaseConfigContract;
+const {
+  VERSION: SHOWCASE_CONFIG_VERSION = 0,
+  GROUPS: SHOWCASE_GROUPS = [],
+  DESCRIPTORS: showcaseConfigDescriptors = {},
+  clone: cloneShowcaseValue = (value) => JSON.parse(JSON.stringify(value)),
+  equal: showcaseValuesEqual = () => false,
+  migrateFile: migrateShowcaseFile = () => { throw new Error("Showcase configuration contract failed to load."); },
+  validateSnapshot: validateShowcaseSnapshot = () => { throw new Error("Showcase configuration contract failed to load."); },
+} = showcaseContract || {};
+const showcaseConfig = Object.fromEntries(SHOWCASE_GROUPS.map((group) => [group, {}]));
 
 const loadShowcaseConfig = async () => {
   const response = await fetch(SHOWCASE_CONFIG_URL, { cache: "no-cache" });
   if (!response.ok) throw new Error(`Showcase configuration request failed with ${response.status}.`);
-  const file = await response.json();
-  if (!file || typeof file !== "object" || file.version !== 1) throw new Error("Showcase configuration version is unsupported.");
-  const original = validateShowcaseSnapshot(file.original, "original");
-  const saved = validateShowcaseSnapshot(file.saved, "saved");
-  return { version: file.version, original, saved };
+  return migrateShowcaseFile(await response.json());
 };
 
 const showcaseDefaults = {
@@ -323,7 +236,7 @@ const initShowcase = (showcaseSnapshots) => {
   };
   applySnapshotToRuntime(showcaseSnapshots.saved);
 
-  const { layout, node: nodeConfig, hub: hubConfig, line: lineConfig, motion } = showcaseConfig;
+  const { layout, node: nodeConfig, hub: hubConfig, line: lineConfig, motion, effects } = showcaseConfig;
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const isReduced = () => reducedMotionQuery.matches;
   const isDesktop = () => window.matchMedia("(min-width: 860px) and (min-height: 620px) and (pointer: fine)").matches;
@@ -343,6 +256,12 @@ const initShowcase = (showcaseSnapshots) => {
   let pointer = { x: 0, y: 0, active: false };
   let lastLauncherCenter = null;
   let overlapAvoidanceEnabled = true;
+  let devEditingActive = false;
+  let selectedTarget = null;
+  let manipulation = null;
+  let devLabElement = null;
+  let devLabPopup = null;
+  let popupMonitor = 0;
 
   const easingFns = {
     linear: (t) => t,
@@ -352,10 +271,11 @@ const initShowcase = (showcaseSnapshots) => {
 
   // Browser-coordinate polar placements: 0deg = right, 90deg = down, 180deg = left, and 270deg = up.
   const nodePlacements = cloneShowcaseValue(showcaseSnapshots.saved.nodePlacements);
+  const webs = cloneShowcaseValue(showcaseSnapshots.saved.webs);
   const devLabState = {
     original: cloneShowcaseValue(showcaseSnapshots.original),
     saved: cloneShowcaseValue(showcaseSnapshots.saved),
-    working: { config: showcaseConfig, nodePlacements },
+    working: { config: showcaseConfig, nodePlacements, webs },
     dirty: false,
     saving: false,
   };
@@ -380,8 +300,9 @@ const initShowcase = (showcaseSnapshots) => {
     { id: "layout", label: "Layout" },
     { id: "node", label: "Nodes" },
     { id: "hub", label: "Hub" },
-    { id: "line", label: "Lines" },
+    { id: "line", label: "Webs" },
     { id: "motion", label: "Motion" },
+    { id: "effects", label: "Effects" },
   ];
 
   const ease = (t) => (easingFns[motion.easing] || easingFns.easeOutCubic)(clamp(t, 0, 1));
@@ -419,7 +340,11 @@ const initShowcase = (showcaseSnapshots) => {
   const cleanNumber = (value, descriptor) => {
     const number = Number(value);
     if (!Number.isFinite(number)) return null;
-    return clamp(number, descriptor.min, descriptor.max);
+    const clamped = clamp(number, descriptor.min, descriptor.max);
+    const step = Number(descriptor.step) || 0;
+    if (!step) return clamped;
+    const decimals = String(step).includes(".") ? String(step).split(".")[1].length : 0;
+    return Number((Math.round((clamped - descriptor.min) / step) * step + descriptor.min).toFixed(decimals));
   };
 
   const normalizeValue = (value, descriptor, defaultValue) => {
@@ -428,6 +353,8 @@ const initShowcase = (showcaseSnapshots) => {
       if (!match) return null;
       return typeof defaultValue === "number" ? Number(match[0]) : String(match[0]);
     }
+    if (descriptor.type === "boolean") return value === true || value === "true";
+    if (descriptor.type === "color") return /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
     return cleanNumber(value, descriptor);
   };
 
@@ -445,13 +372,21 @@ const initShowcase = (showcaseSnapshots) => {
     overlay.style.setProperty("--showcase-line-width", lineConfig.width);
     overlay.style.setProperty("--showcase-line-active-width", lineConfig.activeWidth);
     overlay.style.setProperty("--showcase-line-opacity", lineConfig.opacity);
+    overlay.style.setProperty("--showcase-node-shadow-blur", `${effects.nodeShadowBlur}px`);
+    overlay.style.setProperty("--showcase-node-shadow-opacity", effects.nodeShadowOpacity);
+    overlay.style.setProperty("--showcase-node-glow-blur", `${effects.nodeGlowBlur}px`);
+    overlay.style.setProperty("--showcase-node-glow-opacity", effects.nodeGlowOpacity);
+    overlay.style.setProperty("--showcase-hub-shadow-blur", `${effects.hubShadowBlur}px`);
+    overlay.style.setProperty("--showcase-hub-shadow-opacity", effects.hubShadowOpacity);
+    overlay.style.setProperty("--showcase-hub-glow-blur", `${effects.hubGlowBlur}px`);
+    overlay.style.setProperty("--showcase-hub-glow-opacity", effects.hubGlowOpacity);
   };
 
   const applyLabPreview = (group) => {
     enforceInvariants();
     refreshOffsets();
     applyVisualConfig();
-    if (projectsLoaded && ["layout", "node", "hub", "line"].includes(group)) {
+    if (projectsLoaded && ["layout", "node", "hub", "line", "effects"].includes(group)) {
       updateLayout();
       snapTo(targetExpanded || state === "expanded");
       renderPositions();
@@ -473,11 +408,12 @@ const initShowcase = (showcaseSnapshots) => {
   const replaceRuntimeSnapshot = (snapshot) => {
     applySnapshotToRuntime(snapshot);
     nodePlacements.splice(0, nodePlacements.length, ...cloneShowcaseValue(snapshot.nodePlacements));
+    webs.splice(0, webs.length, ...cloneShowcaseValue(snapshot.webs));
     enforceInvariants();
     refreshOffsets();
   };
 
-  const currentSnapshot = () => validateShowcaseSnapshot({ config: cloneShowcaseValue(showcaseConfig), nodePlacements: cloneShowcaseValue(nodePlacements) }, "working");
+  const currentSnapshot = () => validateShowcaseSnapshot({ config: cloneShowcaseValue(showcaseConfig), nodePlacements: cloneShowcaseValue(nodePlacements), webs: cloneShowcaseValue(webs) }, "working");
 
 
   const syncSaveButton = (lab) => {
@@ -488,17 +424,18 @@ const initShowcase = (showcaseSnapshots) => {
     saveButton.setAttribute("aria-busy", String(devLabState.saving));
   };
 
+  let refreshLabState = () => {};
   const markDirty = (lab, message = "Unsaved changes") => {
-    devLabState.dirty = true;
+    devLabState.dirty = !showcaseValuesEqual(currentSnapshot(), devLabState.saved);
     syncSaveButton(lab);
-    lab.querySelector("[data-showcase-status]").textContent = message;
+    refreshLabState(lab);
+    lab.querySelector("[data-showcase-status]").textContent = devLabState.dirty ? message : "Working configuration matches saved values";
   };
 
 
   const canUseSaveEndpoint = () => localDebugHost && ["http:", "https:"].includes(window.location.protocol);
 
-  const formatObject = (object, indent = 2) => JSON.stringify(object, null, indent).replace(/"([A-Za-z_$][\w$]*)":/g, "$1:");
-  const configText = () => `const showcaseConfig = ${formatObject(showcaseConfig)};\n\n// Browser-coordinate polar placements: 0deg = right, 90deg = down, 180deg = left, and 270deg = up.\nconst nodePlacements = ${formatObject(nodePlacements)};`;
+  const configText = () => JSON.stringify({ version: SHOWCASE_CONFIG_VERSION, ...currentSnapshot() }, null, 2);
 
   removeLegacyLabStorage();
 
@@ -509,7 +446,7 @@ const initShowcase = (showcaseSnapshots) => {
     overlay.innerHTML = `<button class="showcase-close" type="button" aria-label="Close project showcase" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 7 10 10M17 7 7 17"/></svg>
     </button><div class="showcase-content">
-      <svg class="showcase-lines" aria-hidden="true"></svg>
+      <svg class="showcase-lines" aria-hidden="true"><defs data-showcase-line-defs></defs></svg>
       <a class="showcase-center" href="/projects/">View all</a>
       <p class="showcase-error" hidden>Project data is temporarily unavailable. <a href="/projects/">View all projects</a>.</p>
     </div>`;
@@ -518,6 +455,10 @@ const initShowcase = (showcaseSnapshots) => {
     document.body.append(overlay);
     applyVisualConfig();
     overlay.addEventListener("pointermove", (event) => {
+      if (manipulation) {
+        pointer.active = false;
+        return;
+      }
       if (event.target.closest(".showcase-dev-panel")) {
         pointer.active = false;
         requestMotionFrame();
@@ -529,7 +470,10 @@ const initShowcase = (showcaseSnapshots) => {
     }, { passive: true });
     overlay.addEventListener("pointerleave", () => { pointer.active = false; requestMotionFrame(); }, { passive: true });
     overlay.addEventListener("click", (event) => {
-      if (state === "expanded" && (event.target === overlay || event.target === showcaseContent || event.target.closest(".showcase-lines"))) beginTransition(false);
+      if (state === "expanded" && (event.target === overlay || event.target === showcaseContent || event.target.closest(".showcase-lines"))) {
+        if (devEditingActive) setSelection();
+        else beginTransition(false);
+      }
     });
     showcaseClose.addEventListener("click", () => beginTransition(false));
   };
@@ -546,96 +490,146 @@ const initShowcase = (showcaseSnapshots) => {
     requestAnimationFrame(() => beginTransition(true));
   };
 
-  const syncLabControls = (lab) => {
-    if (!lab) return;
-    Object.entries(configDescriptors).forEach(([group, descriptors]) => {
-      descriptors.forEach((descriptor) => {
-        const value = showcaseConfig[group][descriptor.key];
-        lab.querySelectorAll(`[data-config-group="${group}"][data-config-key="${descriptor.key}"]`).forEach((input) => { input.value = String(value); });
-        const output = lab.querySelector(`[data-config-output="${group}.${descriptor.key}"]`);
-        if (output) output.textContent = valueLabel(value, descriptor);
-      });
-    });
-    nodePlacements.forEach((placement, index) => {
-      ["angle", "radius"].forEach((key) => {
-        const descriptor = key === "angle" ? { unit: "deg" } : { unit: "px" };
-        lab.querySelectorAll(`[data-placement-index="${index}"][data-placement-key="${key}"]`).forEach((input) => { input.value = String(placement[key]); });
-        const output = lab.querySelector(`[data-placement-output="${index}.${key}"]`);
-        if (output) output.textContent = valueLabel(placement[key], descriptor);
-      });
-    });
-  };
+  const placementDescriptor = (key) => key === "angle"
+    ? { label: "Angle", min: 0, max: 359, step: 1, unit: "deg", help: "Clockwise browser angle: 0 right, 90 down." }
+    : { label: "Radius", min: 60, max: 320, step: 1, unit: "px", help: "Distance from the hub before viewport scaling.", apply: "node-radius" };
+  const webAppearanceKeys = ["gradientEnabled", "startColor", "middleColor", "endColor", "middleStop", "width", "activeWidth", "opacity", "glowBlur", "glowOpacity"];
+  let selectedWebIndex = 0;
+
+  const defaultWebDirection = (index) => lineConfig.bendDirection === "clockwise" ? 1 : lineConfig.bendDirection === "counterclockwise" ? -1 : (index % 2 ? -1 : 1);
+  const resolvedWeb = (index) => ({
+    bend: layout.lineBend,
+    bendDirection: defaultWebDirection(index),
+    ...Object.fromEntries(webAppearanceKeys.map((key) => [key, lineConfig[key]])),
+    ...webs[index].overrides,
+  });
+  const valueAtPath = (snapshot, path) => path.split(".").reduce((value, key) => value?.[/^\d+$/.test(key) ? Number(key) : key], snapshot);
+  const displayComparison = (value, descriptor = {}) => value === undefined ? "Global" : valueLabel(value, descriptor);
+
+  const renderHelp = (path, help) => `<span class="showcase-dev-help-wrap"><button type="button" class="showcase-dev-help" data-help-path="${path}" data-help-copy="${escapeHtml(help || "Adjust this Showcase value.")}" aria-label="Explain this control" aria-expanded="false">?</button><span class="showcase-dev-help-popover" role="tooltip" hidden></span></span>`;
+  const renderModified = () => `<span class="showcase-dev-modified" hidden aria-label="Modified from saved value.">*<span class="sr-only"> Modified from saved value.</span></span>`;
 
   const renderControl = (group, descriptor) => {
     const id = `showcase-dev-${group}-${descriptor.key}`;
+    const path = `config.${group}.${descriptor.key}`;
+    let input = "";
     if (descriptor.type === "select") {
-      const options = descriptor.options.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join("");
-      return `<label class="showcase-dev-control" for="${id}"><span>${escapeHtml(descriptor.label)}</span><select id="${id}" data-config-group="${group}" data-config-key="${escapeHtml(descriptor.key)}">${options}</select></label>`;
+      input = `<select id="${id}" data-config-group="${group}" data-config-key="${descriptor.key}">${descriptor.options.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join("")}</select>`;
+    } else if (descriptor.type === "boolean") {
+      input = `<input id="${id}" type="checkbox" data-config-group="${group}" data-config-key="${descriptor.key}">`;
+    } else if (descriptor.type === "color") {
+      input = `<input id="${id}" type="color" data-config-group="${group}" data-config-key="${descriptor.key}">`;
+    } else {
+      input = `<span class="showcase-dev-inputs"><input id="${id}-range" type="range" min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-config-group="${group}" data-config-key="${descriptor.key}" aria-label="${escapeHtml(descriptor.label)} slider"><input id="${id}-number" type="text" inputmode="decimal" data-numeric min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-config-group="${group}" data-config-key="${descriptor.key}" aria-label="${escapeHtml(descriptor.label)} value"></span>`;
     }
-    return `<label class="showcase-dev-control"><span>${escapeHtml(descriptor.label)} <output data-config-output="${group}.${descriptor.key}"></output></span><span class="showcase-dev-inputs"><input id="${id}-range" type="range" min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-config-group="${group}" data-config-key="${escapeHtml(descriptor.key)}" aria-label="${escapeHtml(descriptor.label)}"><input id="${id}-number" type="number" min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-config-group="${group}" data-config-key="${escapeHtml(descriptor.key)}" aria-label="${escapeHtml(descriptor.label)} value"></span></label>`;
+    return `<div class="showcase-dev-control" data-showcase-path="${path}" data-showcase-group="${group}"><span class="showcase-dev-label-row"><label for="${id}${descriptor.type && descriptor.type !== "number" ? "" : "-number"}">${escapeHtml(descriptor.label)}</label><output data-config-output="${group}.${descriptor.key}"></output>${renderHelp(path, descriptor.help)}${renderModified()}</span>${input}</div>`;
   };
 
   const renderPlacementControls = () => nodePlacements.map((placement, index) => `
-    <fieldset class="showcase-dev-polar-group">
+    <fieldset class="showcase-dev-polar-group" data-node-placement="${index}">
       <legend>Node ${index + 1}</legend>
       ${["angle", "radius"].map((key) => {
-        const descriptor = key === "angle" ? { label: "Angle", min: 0, max: 359, step: 1, unit: "deg" } : { label: "Radius", min: 60, max: 320, step: 1, unit: "px" };
-        return `<label class="showcase-dev-control"><span>${descriptor.label} <output data-placement-output="${index}.${key}"></output></span><span class="showcase-dev-inputs"><input type="range" min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-placement-index="${index}" data-placement-key="${key}" aria-label="Node ${index + 1} ${descriptor.label}"><input type="number" min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-placement-index="${index}" data-placement-key="${key}" aria-label="Node ${index + 1} ${descriptor.label} value"></span></label>`;
+        const descriptor = placementDescriptor(key);
+        const path = `nodePlacements.${index}.${key}`;
+        return `<div class="showcase-dev-control" data-showcase-path="${path}" data-showcase-group="layout"><span class="showcase-dev-label-row"><label for="showcase-placement-${index}-${key}-number">${descriptor.label}</label><output data-placement-output="${index}.${key}"></output>${renderHelp(path, descriptor.help)}${renderModified()}</span><span class="showcase-dev-inputs"><input type="range" min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-placement-index="${index}" data-placement-key="${key}" aria-label="Node ${index + 1} ${descriptor.label} slider"><input id="showcase-placement-${index}-${key}-number" type="text" inputmode="decimal" data-numeric min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-placement-index="${index}" data-placement-key="${key}" aria-label="Node ${index + 1} ${descriptor.label} value"></span>${descriptor.apply ? `<button type="button" class="showcase-dev-apply" data-apply-radius="${index}">Apply radius to all nodes</button>` : ""}</div>`;
       }).join("")}
     </fieldset>`).join("");
+
+  const renderWebInspector = () => {
+    const appearanceControls = webAppearanceKeys.map((key) => {
+      const descriptor = descriptorFor("line", key);
+      if (descriptor.type === "boolean") return `<label class="showcase-dev-web-field" data-web-path-key="${key}"><span>${descriptor.label} ${renderModified()}</span><input type="checkbox" data-web-key="${key}"></label>`;
+      if (descriptor.type === "color") return `<label class="showcase-dev-web-field" data-web-path-key="${key}"><span>${descriptor.label} ${renderModified()}</span><input type="color" data-web-key="${key}"></label>`;
+      return `<label class="showcase-dev-web-field" data-web-path-key="${key}"><span>${descriptor.label} ${renderModified()}</span><input type="text" inputmode="decimal" data-numeric min="${descriptor.min}" max="${descriptor.max}" step="${descriptor.step}" data-web-key="${key}"></label>`;
+    }).join("");
+    return `<section class="showcase-dev-web-inspector" aria-labelledby="showcase-web-inspector-title"><h5 id="showcase-web-inspector-title">Selected web</h5><label class="showcase-dev-web-select"><span>Web</span><select data-web-select>${webs.map((web, index) => `<option value="${index}">Node ${index + 1}</option>`).join("")}</select></label><label class="showcase-dev-web-toggle"><input type="checkbox" data-web-use-global><span>Use global settings</span></label><div class="showcase-dev-web-section" data-web-path-key="bend"><label class="showcase-dev-web-toggle"><input type="checkbox" data-web-override-toggle="bend"><span>Override bend ${renderModified()}</span></label><input type="text" inputmode="decimal" data-numeric min="-80" max="80" step="1" data-web-key="bend"><button type="button" class="showcase-dev-apply" data-apply-web="bend">Apply bend to all webs</button></div><div class="showcase-dev-web-section" data-web-path-key="bendDirection"><label class="showcase-dev-web-toggle"><input type="checkbox" data-web-override-toggle="bendDirection"><span>Override direction ${renderModified()}</span></label><select data-web-key="bendDirection"><option value="1">Clockwise</option><option value="-1">Counterclockwise</option></select><button type="button" class="showcase-dev-apply" data-apply-web="bendDirection">Apply direction to all webs</button></div><details class="showcase-dev-web-section"><summary>Appearance override</summary><label class="showcase-dev-web-toggle"><input type="checkbox" data-web-override-toggle="appearance"><span>Override appearance</span></label><div class="showcase-dev-web-appearance">${appearanceControls}</div><button type="button" class="showcase-dev-apply" data-apply-web="appearance">Apply appearance to all webs</button></details><div class="showcase-dev-web-buttons"><button type="button" data-reset-web>Reset this web to global</button><button type="button" data-clear-webs>Clear all overrides</button></div></section>`;
+  };
+
+  const syncLabControls = (lab, preserveInput = null) => {
+    if (!lab) return;
+    Object.entries(configDescriptors).forEach(([group, descriptors]) => descriptors.forEach((descriptor) => {
+      const value = showcaseConfig[group][descriptor.key];
+      lab.querySelectorAll(`[data-config-group="${group}"][data-config-key="${descriptor.key}"]`).forEach((input) => {
+        if (input === preserveInput) return;
+        if (descriptor.type === "boolean") input.checked = value;
+        else input.value = String(value);
+      });
+      const output = lab.querySelector(`[data-config-output="${group}.${descriptor.key}"]`);
+      if (output) output.textContent = descriptor.type === "boolean" ? (value ? "On" : "Off") : descriptor.type === "color" ? value : valueLabel(value, descriptor);
+    }));
+    nodePlacements.forEach((placement, index) => ["angle", "radius"].forEach((key) => {
+      const descriptor = placementDescriptor(key);
+      lab.querySelectorAll(`[data-placement-index="${index}"][data-placement-key="${key}"]`).forEach((input) => { if (input !== preserveInput) input.value = String(placement[key]); });
+      const output = lab.querySelector(`[data-placement-output="${index}.${key}"]`);
+      if (output) output.textContent = valueLabel(placement[key], descriptor);
+    }));
+    const web = webs[selectedWebIndex];
+    const resolved = resolvedWeb(selectedWebIndex);
+    const webSelect = lab.querySelector("[data-web-select]");
+    if (webSelect && webSelect !== preserveInput) webSelect.value = String(selectedWebIndex);
+    const useGlobal = lab.querySelector("[data-web-use-global]");
+    if (useGlobal) useGlobal.checked = Object.keys(web.overrides).length === 0;
+    lab.querySelectorAll("[data-web-override-toggle]").forEach((input) => {
+      const group = input.dataset.webOverrideToggle;
+      input.checked = group === "appearance" ? webAppearanceKeys.some((key) => key in web.overrides) : group in web.overrides;
+    });
+    lab.querySelectorAll("[data-web-key]").forEach((input) => {
+      const key = input.dataset.webKey;
+      const enabled = key === "bend" || key === "bendDirection" ? key in web.overrides : webAppearanceKeys.some((appearanceKey) => appearanceKey in web.overrides);
+      input.disabled = !enabled;
+      if (input !== preserveInput) {
+        if (input.type === "checkbox") input.checked = Boolean(resolved[key]);
+        else input.value = String(resolved[key]);
+      }
+    });
+    lab.querySelectorAll("[data-web-path-key]").forEach((control) => {
+      control.dataset.showcasePath = `webs.${selectedWebIndex}.overrides.${control.dataset.webPathKey}`;
+      control.dataset.showcaseGroup = "line";
+    });
+    const overlap = lab.querySelector("[data-showcase-overlap-avoidance]");
+    if (overlap) overlap.checked = overlapAvoidanceEnabled;
+    refreshLabState(lab);
+  };
+
+  refreshLabState = (lab) => {
+    if (!lab) return;
+    const working = currentSnapshot();
+    lab.querySelectorAll("[data-showcase-path]").forEach((control) => {
+      const path = control.dataset.showcasePath;
+      const modified = !showcaseValuesEqual(valueAtPath(working, path), valueAtPath(devLabState.saved, path));
+      const marker = control.querySelector(".showcase-dev-modified");
+      if (marker) marker.hidden = !modified;
+      control.classList.toggle("is-modified", modified);
+    });
+    lab.querySelectorAll("[data-showcase-tab]").forEach((tab) => {
+      const group = tab.dataset.showcaseTab;
+      const modified = !showcaseValuesEqual(working.config[group], devLabState.saved.config[group]) || (group === "layout" && !showcaseValuesEqual(working.nodePlacements, devLabState.saved.nodePlacements)) || (group === "line" && !showcaseValuesEqual(working.webs, devLabState.saved.webs));
+      tab.classList.toggle("is-modified", modified);
+      tab.setAttribute("aria-label", `${tab.textContent.replace(/ \*$/, "")}${modified ? ". Modified from saved values." : ""}`);
+      tab.dataset.modified = modified ? "true" : "false";
+    });
+  };
 
   const buildShowcaseDevLab = () => {
     if (!debugAvailable) return;
     const tabButtons = labTabs.map(({ id, label }, index) => `<button type="button" role="tab" id="showcase-dev-tab-${id}" aria-controls="showcase-dev-panel-${id}" aria-selected="${index === 0 ? "true" : "false"}" tabindex="${index === 0 ? "0" : "-1"}" data-showcase-tab="${id}">${label}</button>`).join("");
-    const panels = labTabs.map(({ id, label }, index) => `<section class="showcase-dev-tabpanel" role="tabpanel" id="showcase-dev-panel-${id}" aria-labelledby="showcase-dev-tab-${id}" data-showcase-panel="${id}" ${index === 0 ? "" : "hidden"}><h4>${escapeHtml(label)}</h4><div class="showcase-dev-controls">${configDescriptors[id].map((descriptor) => renderControl(id, descriptor)).join("")}${id === "layout" ? `<label class="showcase-dev-control"><span><span>Avoid desktop overlaps</span><input type="checkbox" data-showcase-overlap-avoidance checked></span></label><div class="showcase-dev-polar"><h5>Polar nodes</h5>${renderPlacementControls()}</div>` : ""}</div></section>`).join("");
+    const panels = labTabs.map(({ id, label }, index) => `<section class="showcase-dev-tabpanel" role="tabpanel" id="showcase-dev-panel-${id}" aria-labelledby="showcase-dev-tab-${id}" data-showcase-panel="${id}" ${index === 0 ? "" : "hidden"}><h4>${escapeHtml(label)}</h4><div class="showcase-dev-controls">${configDescriptors[id].map((descriptor) => renderControl(id, descriptor)).join("")}${id === "layout" ? `<label class="showcase-dev-overlap"><span>Avoid desktop overlaps</span><input type="checkbox" data-showcase-overlap-avoidance checked></label><div class="showcase-dev-polar"><h5>Polar nodes</h5>${renderPlacementControls()}</div>` : ""}${id === "line" ? renderWebInspector() : ""}</div></section>`).join("");
     const lab = document.createElement("aside");
+    devLabElement = lab;
     lab.className = "showcase-dev-panel";
     lab.setAttribute("aria-label", "Showcase Dev Lab");
-    lab.innerHTML = `
-      <label class="showcase-dev-toggle">
-        <input type="checkbox" data-showcase-debug-toggle ${debugInitiallyEnabled ? "checked" : ""}>
-        <span>Showcase Dev Lab</span>
-      </label>
-      <section class="showcase-dev-drawer" data-showcase-debug-drawer ${debugInitiallyEnabled ? "" : "hidden"}>
-        <header><div><strong>Showcase Dev Lab</strong><small>Local runtime preview</small></div></header>
-        <nav class="showcase-dev-labs" aria-label="Development labs"><button type="button" class="is-selected" aria-current="page">Showcase</button></nav>
-        <div class="showcase-dev-tabs" role="tablist" aria-label="Showcase configuration">${tabButtons}</div>
-        ${panels}
-        <div class="showcase-dev-actions">
-          <button type="button" data-showcase-save>Save</button>
-          <button type="button" data-showcase-reset-all>Reset to saved</button>
-          <button type="button" data-showcase-replay>Replay</button>
-          <button type="button" data-showcase-copy>Copy config</button>
-        </div>
-        <details class="showcase-dev-advanced">
-          <summary>Advanced</summary>
-          <button type="button" data-showcase-restore-originals>Restore originals</button>
-        </details>
-        <textarea class="showcase-dev-output" data-showcase-config-output readonly hidden aria-label="Current Showcase configuration"></textarea>
-        <p class="showcase-dev-status" data-showcase-status aria-live="polite">Using saved configuration</p>
-      </section>`;
+    lab.innerHTML = `<label class="showcase-dev-toggle"><input type="checkbox" data-showcase-debug-toggle ${debugInitiallyEnabled ? "checked" : ""}><span>Showcase Dev Lab</span></label><section class="showcase-dev-drawer" data-showcase-debug-drawer ${debugInitiallyEnabled ? "" : "hidden"}><header class="showcase-dev-shell-header"><div class="showcase-dev-title"><strong>Showcase Dev Lab</strong><small>One live working configuration</small></div><button type="button" data-showcase-popout>Pop out</button><nav class="showcase-dev-labs" aria-label="Development labs"><button type="button" class="is-selected" aria-current="page">Showcase</button></nav><div class="showcase-dev-tabs" role="tablist" aria-label="Showcase configuration">${tabButtons}</div></header><div class="showcase-dev-scroll">${panels}</div><footer class="showcase-dev-shell-footer"><div class="showcase-dev-actions"><button type="button" data-showcase-save>Save</button><button type="button" data-showcase-reset-all>Reset to saved</button><button type="button" data-showcase-replay>Replay</button><button type="button" data-showcase-copy>Copy config</button></div><details class="showcase-dev-advanced"><summary>Advanced</summary><button type="button" data-showcase-restore-originals>Restore originals to working state</button></details><textarea class="showcase-dev-output" data-showcase-config-output readonly hidden aria-label="Current version 2 Showcase configuration"></textarea><p class="showcase-dev-status" data-showcase-status aria-live="polite">Using saved configuration</p></footer></section>`;
     overlay.append(lab);
 
     const toggle = lab.querySelector("[data-showcase-debug-toggle]");
     const drawer = lab.querySelector("[data-showcase-debug-drawer]");
     const configOutput = lab.querySelector("[data-showcase-config-output]");
     const status = lab.querySelector("[data-showcase-status]");
-    const overlapToggle = lab.querySelector("[data-showcase-overlap-avoidance]");
     const tabs = Array.from(lab.querySelectorAll("[role='tab']"));
-    let activeGroup = "layout";
     const setStatus = (message) => { status.textContent = message; };
     const updateOutput = () => { configOutput.value = configText(); };
 
-    const saveButton = lab.querySelector("[data-showcase-save]");
-
-    if (!canUseSaveEndpoint()) {
-      saveButton.title = "Start with python tools/serve_showcase_dev.py to save.";
-    }
-
-    syncSaveButton(lab);
-
     const activateTab = (tab, focus = false) => {
-      activeGroup = tab.dataset.showcaseTab;
       tabs.forEach((candidate) => {
         const selected = candidate === tab;
         candidate.setAttribute("aria-selected", String(selected));
@@ -645,213 +639,242 @@ const initShowcase = (showcaseSnapshots) => {
       if (focus) tab.focus();
     };
 
+    const dockLab = (message = "Dev Lab docked. Unsaved edits preserved.") => {
+      if (devLabPopup && !devLabPopup.closed) devLabPopup.close();
+      devLabPopup = null;
+      if (popupMonitor) window.clearInterval(popupMonitor);
+      popupMonitor = 0;
+      lab.classList.remove("is-popped-out");
+      overlay.append(lab);
+      lab.querySelector("[data-showcase-popout]").textContent = "Pop out";
+      setStatus(message);
+    };
+    const popOutLab = () => {
+      let popup = null;
+      try { popup = window.open("", "showcaseDevLab", "popup=yes,width=720,height=820,resizable=yes,scrollbars=no"); } catch { /* Reported below. */ }
+      if (!popup) {
+        setStatus("Popup blocked. Allow popups for this local page and try again.");
+        return;
+      }
+      devLabPopup = popup;
+      popup.document.open();
+      popup.document.write(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Showcase Dev Lab</title><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/assets/css/showcase-expanded-shadows.css"></head><body class="showcase-dev-popout-body"></body></html>`);
+      popup.document.close();
+      lab.classList.add("is-popped-out");
+      popup.document.body.append(lab);
+      lab.querySelector("[data-showcase-popout]").textContent = "Dock";
+      setStatus("Popped out. The main window remains the preview and state owner.");
+      popup.focus();
+      popupMonitor = window.setInterval(() => {
+        if (devLabPopup?.closed) dockLab("Popup closed. Dev Lab redocked with unsaved edits preserved.");
+      }, 400);
+    };
+
+    const closeHelp = (except = null) => lab.querySelectorAll("[data-help-path]").forEach((button) => {
+      if (button === except) return;
+      button.setAttribute("aria-expanded", "false");
+      button.dataset.pinned = "false";
+      const popover = button.nextElementSibling;
+      if (popover) popover.hidden = true;
+    });
+    const openHelp = (button, pinned = false) => {
+      closeHelp(button);
+      const path = button.dataset.helpPath;
+      const descriptor = path.startsWith("config.") ? descriptorFor(path.split(".")[1], path.split(".")[2]) : placementDescriptor(path.endsWith("angle") ? "angle" : "radius");
+      const popover = button.nextElementSibling;
+      const working = currentSnapshot();
+      popover.textContent = `${button.dataset.helpCopy} Saved: ${displayComparison(valueAtPath(devLabState.saved, path), descriptor)}. Original: ${displayComparison(valueAtPath(devLabState.original, path), descriptor)}.`;
+      popover.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      button.dataset.pinned = String(pinned);
+    };
+
     toggle.addEventListener("change", () => {
       drawer.hidden = !toggle.checked;
-      try { localStorage.setItem(debugStorageKey, String(toggle.checked)); } catch { /* The toggle remains usable for the current page load. */ }
+      devEditingActive = toggle.checked;
+      overlay.classList.toggle("is-dev-editing", devEditingActive);
+      try { localStorage.setItem(debugStorageKey, String(toggle.checked)); } catch { /* Current page state remains authoritative. */ }
       if (toggle.checked) syncLabControls(lab);
+      else selectedTarget = null;
     });
+    devEditingActive = toggle.checked;
+    overlay.classList.toggle("is-dev-editing", devEditingActive);
+    lab.querySelector("[data-showcase-popout]").addEventListener("click", () => lab.classList.contains("is-popped-out") ? dockLab() : popOutLab());
+    window.addEventListener("beforeunload", () => { if (devLabPopup && !devLabPopup.closed) devLabPopup.close(); });
 
-    overlapToggle?.addEventListener("change", () => {
-      overlapAvoidanceEnabled = overlapToggle.checked;
-      applyLabPreview("layout");
-      setStatus(overlapAvoidanceEnabled ? "Desktop overlap avoidance enabled." : "Desktop overlap avoidance disabled for precise positioning.");
-    });
-
-    lab.querySelector(".showcase-dev-tabs").addEventListener("click", (event) => {
-      const tab = event.target.closest("[role='tab']");
-      if (tab) activateTab(tab);
-    });
+    lab.querySelector(".showcase-dev-tabs").addEventListener("click", (event) => { const tab = event.target.closest("[role='tab']"); if (tab) activateTab(tab); });
     lab.querySelector(".showcase-dev-tabs").addEventListener("keydown", (event) => {
       if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
-      const current = tabs.indexOf(document.activeElement);
+      const current = tabs.indexOf(lab.ownerDocument.activeElement);
       const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
       activateTab(tabs[nextIndex], true);
     });
 
+    lab.querySelectorAll("[data-help-path]").forEach((button) => {
+      button.addEventListener("pointerenter", () => openHelp(button));
+      button.addEventListener("pointerleave", () => { if (button.dataset.pinned !== "true") closeHelp(); });
+      button.addEventListener("focus", () => openHelp(button));
+      button.addEventListener("blur", () => { if (button.dataset.pinned !== "true") closeHelp(); });
+      button.addEventListener("click", (event) => { event.preventDefault(); openHelp(button, button.dataset.pinned !== "true"); });
+    });
+    lab.ownerDocument.addEventListener("pointerdown", (event) => { if (!event.target.closest?.(".showcase-dev-help-wrap")) closeHelp(); });
+
+    const mutateAndPreview = (group, preserveInput = null, message) => {
+      enforceInvariants();
+      syncLabControls(lab, preserveInput);
+      updateOutput();
+      applyLabPreview(group);
+      markDirty(lab, message);
+    };
+    const readInputValue = (input, descriptor, currentValue) => {
+      if (descriptor.type === "boolean") return input.checked;
+      if (descriptor.type === "color") return normalizeValue(input.value, descriptor, currentValue);
+      if (descriptor.type === "select") return normalizeValue(input.value, descriptor, currentValue);
+      if (input.matches("[data-numeric]") && !/^-?(?:\d+\.?\d*|\.\d+)$/.test(input.value)) return null;
+      return normalizeValue(input.value, descriptor, currentValue);
+    };
+
     lab.addEventListener("input", (event) => {
       const configInput = event.target.closest("[data-config-group][data-config-key]");
       const placementInput = event.target.closest("[data-placement-index][data-placement-key]");
+      const webInput = event.target.closest("[data-web-key]");
       if (configInput) {
-        const group = configInput.dataset.configGroup;
-        const key = configInput.dataset.configKey;
+        const { configGroup: group, configKey: key } = configInput.dataset;
         const descriptor = descriptorFor(group, key);
-        if (!descriptor) return;
-        const value = normalizeValue(configInput.value, descriptor, showcaseConfig[group][key]);
+        const value = readInputValue(configInput, descriptor, showcaseConfig[group][key]);
         if (value === null) return;
         showcaseConfig[group][key] = value;
-        enforceInvariants();
-        syncLabControls(lab);
-        updateOutput();
-        applyLabPreview(group);
-        markDirty(lab);
-        return;
-      }
-      if (placementInput) {
+        mutateAndPreview(group, configInput);
+      } else if (placementInput) {
         const index = Number(placementInput.dataset.placementIndex);
         const key = placementInput.dataset.placementKey;
-        const descriptor = key === "angle" ? { min: 0, max: 359, step: 1 } : { min: 60, max: 320, step: 1 };
-        const value = cleanNumber(placementInput.value, descriptor);
-        if (!nodePlacements[index] || value === null) return;
+        if (placementInput.matches("[data-numeric]") && !/^-?(?:\d+\.?\d*|\.\d+)$/.test(placementInput.value)) return;
+        const value = cleanNumber(placementInput.value, placementDescriptor(key));
+        if (value === null) return;
         nodePlacements[index][key] = value;
-        syncLabControls(lab);
-        updateOutput();
+        mutateAndPreview("layout", placementInput);
+      } else if (webInput && !webInput.disabled) {
+        const key = webInput.dataset.webKey;
+        const descriptor = key === "bend" ? { min: -80, max: 80, step: 1 } : key === "bendDirection" ? { type: "select", options: [[-1, "Counterclockwise"], [1, "Clockwise"]] } : descriptorFor("line", key);
+        const value = readInputValue(webInput, descriptor, resolvedWeb(selectedWebIndex)[key]);
+        if (value === null) return;
+        webs[selectedWebIndex].overrides[key] = value;
+        mutateAndPreview("line", webInput);
+      }
+    });
+    lab.addEventListener("change", (event) => {
+      if (event.target.matches("[data-numeric][data-config-key], [data-numeric][data-placement-key], [data-numeric][data-web-key]")) syncLabControls(lab);
+      if (event.target.matches("[data-showcase-overlap-avoidance]")) {
+        overlapAvoidanceEnabled = event.target.checked;
         applyLabPreview("layout");
-        markDirty(lab);
+        setStatus(overlapAvoidanceEnabled ? "Desktop overlap avoidance enabled." : "Desktop overlap avoidance disabled for precise positioning.");
+      }
+      if (event.target.matches("[data-web-select]")) {
+        selectedWebIndex = Number(event.target.value);
+        selectedTarget = { type: "node", index: selectedWebIndex };
+        syncLabControls(lab);
+      }
+      if (event.target.matches("[data-web-use-global]")) {
+        if (event.target.checked) webs[selectedWebIndex].overrides = {};
+        mutateAndPreview("line", null, "Selected web now inherits global settings");
+      }
+      if (event.target.matches("[data-web-override-toggle]")) {
+        const group = event.target.dataset.webOverrideToggle;
+        const overrides = webs[selectedWebIndex].overrides;
+        const keys = group === "appearance" ? webAppearanceKeys : [group];
+        keys.forEach((key) => {
+          if (event.target.checked) overrides[key] = resolvedWeb(selectedWebIndex)[key];
+          else delete overrides[key];
+        });
+        mutateAndPreview("line");
+      }
+    });
+    lab.addEventListener("focusout", (event) => {
+      if (event.target.matches("[data-numeric]")) syncLabControls(lab);
+    });
+    lab.addEventListener("click", (event) => {
+      const radiusButton = event.target.closest("[data-apply-radius]");
+      if (radiusButton) {
+        const radius = nodePlacements[Number(radiusButton.dataset.applyRadius)].radius;
+        nodePlacements.forEach((placement) => { placement.radius = radius; });
+        mutateAndPreview("layout", null, "Applied radius to all nodes");
+      }
+      const applyWeb = event.target.closest("[data-apply-web]");
+      if (applyWeb) {
+        const group = applyWeb.dataset.applyWeb;
+        const source = webs[selectedWebIndex].overrides;
+        const keys = group === "appearance" ? webAppearanceKeys : [group];
+        webs.forEach((web) => keys.forEach((key) => { if (key in source) web.overrides[key] = source[key]; }));
+        mutateAndPreview("line", null, `Applied ${group === "bendDirection" ? "direction" : group} to all webs`);
+      }
+      if (event.target.closest("[data-reset-web]")) {
+        webs[selectedWebIndex].overrides = {};
+        mutateAndPreview("line", null, "Selected web reset to global settings");
+      }
+      if (event.target.closest("[data-clear-webs]")) {
+        webs.forEach((web) => { web.overrides = {}; });
+        mutateAndPreview("line", null, "Cleared all per-web overrides");
       }
     });
 
-
-    const persistSnapshot = async (snapshot, successMessage) => {
-      if (!canUseSaveEndpoint()) {
-        throw new Error(
-          "Saving is unavailable on this server. " +
-          "Start with python tools/serve_showcase_dev.py to save."
-        );
-      }
-
-      const response = await fetch(SHOWCASE_SAVE_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(snapshot),
-      });
-
-      if (response.status === 501) {
-        throw new Error(
-          "Saving is unavailable on this server. " +
-          "Start with python tools/serve_showcase_dev.py to save."
-        );
-      }
-
+    const persistSnapshot = async (snapshot) => {
+      if (!canUseSaveEndpoint()) throw new Error("Saving is unavailable on this server. Start with python tools/serve_showcase_dev.py to save.");
+      const response = await fetch(SHOWCASE_SAVE_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(snapshot) });
       let result = null;
-
-      try {
-        result = await response.json();
-      } catch {
-        // Standard `python -m http.server` and proxy errors may return HTML.
-      }
-
-      if (!response.ok || result?.ok !== true) {
-        throw new Error(
-          result?.error || `Save failed with HTTP ${response.status}.`
-        );
-      }
-
+      try { result = await response.json(); } catch { /* Some unsupported servers return HTML. */ }
+      if (!response.ok || result?.ok !== true) throw new Error(result?.error || `Save failed with HTTP ${response.status}.`);
       devLabState.saved = cloneShowcaseValue(snapshot);
       devLabState.dirty = false;
-      setStatus(successMessage);
     };
-
-
+    if (!canUseSaveEndpoint()) lab.querySelector("[data-showcase-save]").title = "Start with python tools/serve_showcase_dev.py to save.";
     lab.querySelector("[data-showcase-save]").addEventListener("click", async () => {
       if (devLabState.saving || !devLabState.dirty) return;
-
       devLabState.saving = true;
       syncSaveButton(lab);
       setStatus("Saving...");
-
       try {
-        const snapshot = currentSnapshot();
-        await persistSnapshot(
-          snapshot,
-          "Saved to data/showcase-config.json"
-        );
+        await persistSnapshot(currentSnapshot());
+        syncLabControls(lab);
+        setStatus("Saved to data/showcase-config.json");
       } catch (error) {
-        // Keep the state dirty so the user can retry.
         devLabState.dirty = true;
-        setStatus(
-          error instanceof Error
-            ? error.message
-            : "Save failed. Start the dedicated local Dev Lab server and try again."
-        );
+        setStatus(error instanceof Error ? error.message : "Save failed. Working changes were preserved.");
       } finally {
         devLabState.saving = false;
         syncSaveButton(lab);
       }
     });
-
-
     lab.querySelector("[data-showcase-reset-all]").addEventListener("click", () => {
       replaceRuntimeSnapshot(devLabState.saved);
       devLabState.dirty = false;
-
       syncLabControls(lab);
       updateOutput();
       applyLabPreview("layout");
       syncSaveButton(lab);
-
       setStatus("Reset to last saved configuration");
     });
-
-
-
-    lab.querySelector("[data-showcase-restore-originals]").addEventListener("click", async () => {
-      if (
-        !window.confirm(
-          "Restore the original Showcase configuration and save it to data/showcase-config.json?"
-        )
-      ) {
-        return;
-      }
-
-      if (devLabState.saving) return;
-
-      const previousWorking = currentSnapshot();
-
-      devLabState.saving = true;
-      syncSaveButton(lab);
-      setStatus("Saving...");
-
+    lab.querySelector("[data-showcase-restore-originals]").addEventListener("click", () => {
+      if (!window.confirm("Restore original values to the working configuration? This does not save automatically.")) return;
       replaceRuntimeSnapshot(devLabState.original);
       syncLabControls(lab);
       updateOutput();
       applyLabPreview("layout");
-
-      try {
-        const snapshot = currentSnapshot();
-        await persistSnapshot(
-          snapshot,
-          "Original configuration restored"
-        );
-      } catch (error) {
-        replaceRuntimeSnapshot(previousWorking);
-        devLabState.dirty = true;
-
-        syncLabControls(lab);
-        updateOutput();
-        applyLabPreview("layout");
-
-        setStatus(
-          error instanceof Error
-            ? error.message
-            : "Restore failed. Start the dedicated local Dev Lab server and try again."
-        );
-      } finally {
-        devLabState.saving = false;
-        syncSaveButton(lab);
-      }
+      markDirty(lab, "Original values restored to working state. Save to persist them.");
     });
-
-
-    lab.querySelector("[data-showcase-replay]").addEventListener("click", () => {
-      replayMotion();
-      setStatus("Replaying with the current values.");
-    });
-
+    lab.querySelector("[data-showcase-replay]").addEventListener("click", () => { replayMotion(); setStatus("Replaying with current working values."); });
     lab.querySelector("[data-showcase-copy]").addEventListener("click", async () => {
       updateOutput();
       configOutput.hidden = false;
       configOutput.select();
-      try {
-        await navigator.clipboard.writeText(configOutput.value);
-        setStatus("Config copied to the clipboard.");
-      } catch {
-        setStatus("Clipboard unavailable. The config text is selected below.");
-      }
+      try { await navigator.clipboard.writeText(configOutput.value); setStatus("Complete version 2 config copied."); }
+      catch { setStatus("Clipboard unavailable. The complete config is selected below."); }
     });
+    lab.addEventListener("keydown", (event) => { if (event.key === "Escape") closeHelp(); });
 
     syncLabControls(lab);
     updateOutput();
+    syncSaveButton(lab);
   };
 
   const setInteractive = (interactive) => {
@@ -988,9 +1011,37 @@ const initShowcase = (showcaseSnapshots) => {
     return { x: center.x + dx * t, y: center.y + dy * t };
   };
 
+  const colorWithOpacity = (color, opacity) => {
+    const value = Number.parseInt(color.slice(1), 16);
+    return `rgba(${value >> 16}, ${(value >> 8) & 255}, ${value & 255}, ${clamp(opacity, 0, 1)})`;
+  };
+
+  const syncLineGradient = (defs, index, settings, start, end) => {
+    const id = `showcase-web-gradient-${index + 1}`;
+    let gradient = defs.querySelector(`#${id}`);
+    if (!gradient) {
+      gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+      gradient.id = id;
+      gradient.setAttribute("gradientUnits", "userSpaceOnUse");
+      gradient.innerHTML = `<stop data-stop="start"></stop><stop data-stop="middle"></stop><stop data-stop="end"></stop>`;
+      defs.append(gradient);
+    }
+    gradient.setAttribute("x1", start.x.toFixed(1));
+    gradient.setAttribute("y1", start.y.toFixed(1));
+    gradient.setAttribute("x2", end.x.toFixed(1));
+    gradient.setAttribute("y2", end.y.toFixed(1));
+    gradient.querySelector('[data-stop="start"]').setAttribute("stop-color", settings.startColor);
+    const middle = gradient.querySelector('[data-stop="middle"]');
+    middle.setAttribute("offset", String(settings.middleStop));
+    middle.setAttribute("stop-color", settings.middleColor);
+    gradient.querySelector('[data-stop="end"]').setAttribute("stop-color", settings.endColor);
+    return id;
+  };
+
   const renderPositions = () => {
     if (!overlay) return;
     const lines = overlay.querySelector(".showcase-lines");
+    const defs = lines.querySelector("[data-showcase-line-defs]");
     const center = overlay.querySelector(".showcase-center");
     const hubSize = currentHubSize();
     lines.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
@@ -1007,11 +1058,19 @@ const initShowcase = (showcaseSnapshots) => {
         path.dataset.line = String(index);
         lines.append(path);
       }
-      const bend = ((index % 2) ? -1 : 1) * layout.lineBend;
+      const webSettings = resolvedWeb(index);
+      const bend = webSettings.bendDirection * webSettings.bend;
       const control = { x: (hub.x + node.x) / 2 + bend, y: (hub.y + node.y) / 2 - bend * 0.35 };
       const start = rectangleEdgePoint({ x: hub.x, y: hub.y }, hubSize, { x: control.x - hub.x, y: control.y - hub.y });
       const end = rectangleEdgePoint({ x: node.x, y: node.y }, { width: node.width, height: node.height }, { x: control.x - node.x, y: control.y - node.y });
+      const gradientId = syncLineGradient(defs, index, webSettings, start, end);
       path.setAttribute("d", `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} Q ${control.x.toFixed(1)} ${control.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)}`);
+      path.style.stroke = webSettings.gradientEnabled ? `url(#${gradientId})` : [webSettings.startColor, webSettings.endColor, webSettings.middleColor][index % 3];
+      path.style.strokeWidth = String(node.active ? webSettings.activeWidth : webSettings.width);
+      path.style.setProperty("--showcase-web-opacity", webSettings.opacity);
+      const glowBlur = webSettings.glowBlur + (node.active ? 2 : 0);
+      const glowOpacity = clamp(webSettings.glowOpacity + (node.active ? 0.18 : 0), 0, 1);
+      path.style.filter = glowBlur > 0 && glowOpacity > 0 ? `drop-shadow(0 0 ${glowBlur}px ${colorWithOpacity(node.active ? webSettings.endColor : webSettings.middleColor, glowOpacity)})` : "none";
       const length = path.getTotalLength();
       const lineProgress = Number.parseFloat(path.style.getPropertyValue("--line-progress") || "0");
       path.style.strokeDasharray = length.toFixed(2);
@@ -1020,6 +1079,142 @@ const initShowcase = (showcaseSnapshots) => {
       node.el.style.setProperty("--x", `${node.x}px`);
       node.el.style.setProperty("--y", `${node.y}px`);
     });
+  };
+
+  const setSelection = (type = null, index = null) => {
+    selectedTarget = type ? { type, index } : null;
+    overlay.querySelector(".showcase-center")?.classList.toggle("is-dev-selected", type === "hub");
+    nodes.forEach((node, nodeIndex) => node.el.classList.toggle("is-dev-selected", type === "node" && nodeIndex === index));
+    if (type === "node") selectedWebIndex = index;
+    if (devLabElement) syncLabControls(devLabElement);
+  };
+
+  const addResizeHandles = (element) => {
+    if (!debugAvailable || element.querySelector("[data-showcase-resize]")) return;
+    ["e", "s", "se"].forEach((direction) => {
+      const handle = document.createElement("span");
+      handle.className = `showcase-dev-resize-handle is-${direction}`;
+      handle.dataset.showcaseResize = direction;
+      handle.setAttribute("aria-hidden", "true");
+      element.append(handle);
+    });
+  };
+
+  const reconcileDraggedNode = (index) => {
+    const node = nodes[index];
+    const viewportScale = Math.min(window.innerWidth / 1280, 1.1);
+    const distanceScale = viewportScale * layout.desktopDistanceScale;
+    const dx = (node.expandedX - hub.expandedX) / distanceScale;
+    const dy = (node.expandedY - hub.expandedY) / distanceScale;
+    nodePlacements[index].angle = Math.round(((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360);
+    nodePlacements[index].radius = Math.round(clamp(Math.hypot(dx, dy), 60, 320));
+    refreshOffsets();
+  };
+
+  const beginManipulation = (event, type, index, resizeDirection = null) => {
+    if (!devEditingActive || state !== "expanded") return;
+    if ((type === "node" || type === "hub") && !resizeDirection && !isDesktop()) {
+      devLabElement?.querySelector("[data-showcase-status]")?.replaceChildren("Direct positioning uses the desktop tuning context. Mobile sizing remains available.");
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    setSelection(type, index);
+    const target = type === "hub" ? overlay.querySelector(".showcase-center") : nodes[index]?.el;
+    target?.setPointerCapture?.(event.pointerId);
+    pointer.active = false;
+    manipulation = {
+      type,
+      index,
+      resizeDirection,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      startSnapshot: currentSnapshot(),
+      moved: false,
+      nodeSize: currentNodeSize(),
+      hubSize: currentHubSize(),
+    };
+    overlay.classList.add("is-dev-manipulating");
+  };
+
+  const moveManipulation = (event) => {
+    if (!manipulation || event.pointerId !== manipulation.pointerId) return;
+    event.preventDefault();
+    const dx = event.clientX - manipulation.startX;
+    const dy = event.clientY - manipulation.startY;
+    manipulation.moved ||= Math.hypot(dx, dy) > 3;
+    if (manipulation.resizeDirection) {
+      const group = manipulation.type === "node" ? "node" : "hub";
+      const config = manipulation.type === "node" ? nodeConfig : hubConfig;
+      const start = manipulation.type === "node" ? manipulation.nodeSize : manipulation.hubSize;
+      const prefix = isDesktop() ? "desktop" : "mobile";
+      if (manipulation.resizeDirection.includes("e")) config[`${prefix}Width`] = cleanNumber(start.width + dx, descriptorFor(group, `${prefix}Width`));
+      if (manipulation.resizeDirection.includes("s")) config[`${prefix}Height`] = cleanNumber(start.height + dy, descriptorFor(group, `${prefix}Height`));
+      applyLabPreview(group);
+    } else if (manipulation.type === "node") {
+      const viewportScale = Math.min(window.innerWidth / 1280, 1.1);
+      const distanceScale = viewportScale * layout.desktopDistanceScale;
+      const polarX = (event.clientX - hub.expandedX) / distanceScale;
+      const polarY = (event.clientY - hub.expandedY) / distanceScale;
+      nodePlacements[manipulation.index].angle = Math.round(((Math.atan2(polarY, polarX) * 180 / Math.PI) + 360) % 360);
+      nodePlacements[manipulation.index].radius = Math.round(clamp(Math.hypot(polarX, polarY), 60, 320));
+      refreshOffsets();
+      updateLayout();
+      reconcileDraggedNode(manipulation.index);
+      updateLayout();
+      snapTo(true);
+      renderPositions();
+    } else {
+      const topbar = document.querySelector(".topbar")?.getBoundingClientRect();
+      const shell = document.querySelector(".resume-shell")?.getBoundingClientRect();
+      const left = shell ? shell.left : window.innerWidth * 0.1;
+      const width = shell ? shell.width : window.innerWidth * 0.8;
+      layout.hubXRatio = cleanNumber((event.clientX - left) / width, descriptorFor("layout", "hubXRatio"));
+      layout.hubYOffsetRatio = cleanNumber((event.clientY - (topbar?.bottom || 90)) / window.innerHeight, descriptorFor("layout", "hubYOffsetRatio"));
+      applyLabPreview("layout");
+    }
+    if (devLabElement) {
+      syncLabControls(devLabElement);
+      markDirty(devLabElement, manipulation.resizeDirection ? "Global size changed by direct manipulation" : "Position changed by direct manipulation");
+    }
+  };
+
+  const finishManipulation = (event, cancel = false) => {
+    if (!manipulation || (event?.pointerId !== undefined && event.pointerId !== manipulation.pointerId)) return false;
+    const target = manipulation.type === "hub" ? overlay.querySelector(".showcase-center") : nodes[manipulation.index]?.el;
+    if (cancel) {
+      replaceRuntimeSnapshot(manipulation.startSnapshot);
+      applyLabPreview("layout");
+      if (devLabElement) syncLabControls(devLabElement);
+    }
+    target?.releasePointerCapture?.(manipulation.pointerId);
+    const moved = manipulation.moved;
+    manipulation = null;
+    overlay.classList.remove("is-dev-manipulating");
+    pointer.active = false;
+    if (devLabElement) markDirty(devLabElement, cancel ? "Manipulation cancelled" : "Direct manipulation complete");
+    return moved;
+  };
+
+  const bindDirectEditing = () => {
+    if (!debugAvailable) return;
+    const center = overlay.querySelector(".showcase-center");
+    addResizeHandles(center);
+    center.addEventListener("pointerdown", (event) => beginManipulation(event, "hub", null, event.target.closest("[data-showcase-resize]")?.dataset.showcaseResize || null));
+    center.addEventListener("click", (event) => {
+      if (!devEditingActive) return;
+      event.preventDefault();
+      setSelection("hub", null);
+    });
+    center.addEventListener("keydown", (event) => {
+      if (!devEditingActive || !["Enter", " "].includes(event.key)) return;
+      event.preventDefault();
+      setSelection("hub", null);
+    });
+    overlay.addEventListener("pointermove", moveManipulation);
+    overlay.addEventListener("pointerup", (event) => finishManipulation(event));
+    overlay.addEventListener("pointercancel", (event) => finishManipulation(event, true));
   };
 
   const setLineProgress = (progress, elapsed = motion.webDeployDuration + motion.webDeployStagger * Math.max(0, nodes.length - 1)) => {
@@ -1166,6 +1361,7 @@ const initShowcase = (showcaseSnapshots) => {
   };
 
   function stepPointer() {
+    if (manipulation) return false;
     let moving = false;
     nodes.forEach((node) => {
       let tx = node.expandedX;
@@ -1273,6 +1469,20 @@ const initShowcase = (showcaseSnapshots) => {
         el.addEventListener("mouseleave", () => { model.active = false; renderPositions(); });
         el.addEventListener("focus", () => { model.active = true; renderPositions(); });
         el.addEventListener("blur", () => { model.active = false; renderPositions(); });
+        if (debugAvailable) {
+          addResizeHandles(el);
+          el.addEventListener("pointerdown", (event) => beginManipulation(event, "node", index, event.target.closest("[data-showcase-resize]")?.dataset.showcaseResize || null));
+          el.addEventListener("click", (event) => {
+            if (!devEditingActive) return;
+            event.preventDefault();
+            setSelection("node", index);
+          });
+          el.addEventListener("keydown", (event) => {
+            if (!devEditingActive || !["Enter", " "].includes(event.key)) return;
+            event.preventDefault();
+            setSelection("node", index);
+          });
+        }
         nodes.push(model);
       });
       projectsLoaded = true;
@@ -1286,6 +1496,7 @@ const initShowcase = (showcaseSnapshots) => {
 
   buildOverlay();
   buildShowcaseDevLab();
+  bindDirectEditing();
   loadProjects();
 
   showcaseLauncher.addEventListener("click", (event) => {
@@ -1297,11 +1508,26 @@ const initShowcase = (showcaseSnapshots) => {
   document.addEventListener("click", (event) => {
     if (["collapsed", "collapsing"].includes(state)) return;
     if (event.target.closest(".showcase-overlay, [data-showcase-launcher]")) return;
+    if (devEditingActive) {
+      setSelection();
+      return;
+    }
     beginTransition(false);
   }, true);
 
   document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || state === "collapsed") return;
+    if (event.key !== "Escape") return;
+    if (manipulation) {
+      event.preventDefault();
+      finishManipulation(null, true);
+      return;
+    }
+    if (devEditingActive && selectedTarget) {
+      event.preventDefault();
+      setSelection();
+      return;
+    }
+    if (state === "collapsed") return;
     event.preventDefault();
     beginTransition(false);
   });
@@ -1319,8 +1545,10 @@ const initShowcase = (showcaseSnapshots) => {
   }, { passive: true });
 };
 
-loadShowcaseConfig()
-  .then((showcaseSnapshots) => initShowcase(showcaseSnapshots))
-  .catch((error) => {
-    console.error("Showcase launcher disabled because configuration could not be loaded.", error);
-  });
+if (showcaseLauncher) {
+  loadShowcaseConfig()
+    .then((showcaseSnapshots) => initShowcase(showcaseSnapshots))
+    .catch((error) => {
+      console.error("Showcase launcher disabled because configuration could not be loaded.", error);
+    });
+}
