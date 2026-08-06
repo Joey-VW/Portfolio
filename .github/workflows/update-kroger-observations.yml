@@ -5,6 +5,11 @@ on:
   schedule:
     # GitHub cron is UTC. America/Phoenix is UTC-7 year-round, so 15:15 UTC is Wednesday 8:15 AM Phoenix time.
     - cron: "15 15 * * 3"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/update-kroger-observations.yml"
 
 permissions:
   contents: write
@@ -17,7 +22,10 @@ jobs:
   update-observations:
     name: Update Kroger observation data
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || vars.KROGER_SCHEDULE_ENABLED == 'true'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[run-kroger-update]'))
     env:
       KROGER_CLIENT_ID: ${{ secrets.KROGER_CLIENT_ID }}
       KROGER_CLIENT_SECRET: ${{ secrets.KROGER_CLIENT_SECRET }}
