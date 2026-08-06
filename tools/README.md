@@ -141,11 +141,43 @@ Product images are not downloaded or committed. Kroger's developer terms note th
 
 `serve_showcase_dev.py` serves the repository root and exposes one local-only write endpoint for saving Showcase Dev Lab configuration changes to `data/showcase-config.json`:
 
-```bash
-python tools/serve_showcase_dev.py
+```powershell
+.\.venv\Scripts\python.exe tools\serve_showcase_dev.py
 ```
 
-Open the printed localhost URL, enable or open Showcase Dev Lab through its approved local debug mechanism, adjust controls, select **Save**, review the Git diff for `data/showcase-config.json`, and commit the JSON change through the normal Git workflow. The standard `python -m http.server` command can preview committed saved configuration but cannot process Dev Lab saves. The dedicated server is required only when writing a new saved configuration; production remains static and only reads the committed JSON.
+Open `http://127.0.0.1:8000/?showcaseDebug=1`, expand Showcase, and enable **Showcase Dev Lab**. The panel has a fixed header and footer; only the active controls scroll. **Pop out** moves the same live editor into a separate same-origin browser window. The main page remains the preview and state owner. Closing the popup redocks the editor and preserves unsaved values. If the browser blocks the popup, the docked editor remains available and reports the block in its status area.
+
+All editing surfaces use one working configuration. Sliders, number fields, direct manipulation, safe Apply actions, and docked or popped-out controls update that state. A visible `*` means the working value differs from the current saved value. Help buttons explain a setting and show its **Saved** and **Original** values. Saved is the last file-backed state; Original is the immutable baseline and may differ from Saved.
+
+With the expanded Showcase open and the lab enabled:
+
+- Select a node or the hub by clicking it. Project links work normally when the lab is disabled.
+- Drag a desktop node to edit its polar angle and radius. Live collision handling remains active, and the final displayed position is reconciled back into the saved polar values.
+- Drag the desktop hub to edit the existing hub ratios.
+- Use the east, south, or corner handles on a selected node or hub to change the applicable global desktop or mobile width and height. Node dimensions apply to every node.
+- Press Escape during a drag or resize to restore the values from before that manipulation. Press Escape again to clear selection.
+
+The **Webs** tab contains global gradient, width, opacity, glow, and bend-direction controls. Each of the seven web entries inherits those settings through an empty `overrides` object by default. Select a web to override its bend, bend direction, or compatible appearance values. A web can be reset to global settings; compatible override groups can be applied to all webs; **Clear all overrides** restores complete inheritance. Arbitrary SVG control points are not supported.
+
+The persistent actions behave as follows:
+
+- **Save** validates the complete version 2 working snapshot and atomically replaces only the `saved` block after the server confirms success.
+- **Reset to saved** discards working changes without writing a file.
+- **Replay** previews motion without resetting other edits.
+- **Copy config** copies the complete version 2 file shape.
+- Advanced **Restore originals to working state** loads Original into the editor, marks differences from Saved, and does not save automatically.
+
+The browser and save server deliberately migrate a valid version 1 file to version 2. Existing layout, node, hub, line, motion, and placement values are preserved. The migration adds the approved effect defaults, seven empty web override entries, neutral gradient fields to Original, and the requested gradient defaults to Saved. Malformed files or snapshots fail validation and are not written.
+
+The standard `python -m http.server` command can preview committed saved configuration but cannot process Dev Lab saves. The dedicated server is required only for file writes; production remains static and only reads committed JSON. Browser popup policies may require allowing popups for the localhost origin. Direct polar positioning is a desktop tuning action because the public compact layout intentionally uses its existing grid semantics.
+
+After saving, review and validate the tracked configuration before committing:
+
+```powershell
+git diff -- data/showcase-config.json
+git diff --check -- data/showcase-config.json
+.\.venv\Scripts\python.exe tools\validate_json_contracts.py --schemas-only
+```
 
 ## GitHub Actions Kroger observation updates
 

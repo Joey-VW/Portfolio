@@ -5,32 +5,285 @@
   "type": "object",
   "required": ["version", "original", "saved"],
   "properties": {
-    "version": { "type": "integer", "minimum": 1 },
+    "version": { "type": "integer", "enum": [2] },
     "original": { "$ref": "#/$defs/state" },
     "saved": { "$ref": "#/$defs/state" }
   },
   "additionalProperties": false,
   "$defs": {
+    "boundedOpacity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+    "layout": {
+      "type": "object",
+      "required": [
+        "desktopDistanceScale",
+        "mobileDistanceScale",
+        "hubXRatio",
+        "hubYOffsetRatio",
+        "mobileHubYRatio",
+        "viewportMargin",
+        "collisionGap",
+        "lineBend",
+        "lineEndpointGap"
+      ],
+      "properties": {
+        "desktopDistanceScale": {
+          "type": "number",
+          "minimum": 0.7,
+          "maximum": 1.4
+        },
+        "mobileDistanceScale": {
+          "type": "number",
+          "minimum": 0.7,
+          "maximum": 1.35
+        },
+        "hubXRatio": { "type": "number", "minimum": 0.25, "maximum": 0.75 },
+        "hubYOffsetRatio": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 0.45
+        },
+        "mobileHubYRatio": {
+          "type": "number",
+          "minimum": 0.08,
+          "maximum": 0.35
+        },
+        "viewportMargin": { "type": "number", "minimum": 0, "maximum": 80 },
+        "collisionGap": { "type": "number", "minimum": 0, "maximum": 48 },
+        "lineBend": { "type": "number", "minimum": -80, "maximum": 80 },
+        "lineEndpointGap": { "type": "number", "minimum": 0, "maximum": 24 }
+      },
+      "additionalProperties": false
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "desktopWidth",
+        "desktopHeight",
+        "mobileWidth",
+        "mobileHeight",
+        "backgroundOpacity",
+        "hoverBackgroundOpacity",
+        "borderWidth",
+        "borderOpacity",
+        "borderRadius"
+      ],
+      "properties": {
+        "desktopWidth": { "type": "number", "minimum": 160, "maximum": 320 },
+        "desktopHeight": { "type": "number", "minimum": 64, "maximum": 140 },
+        "mobileWidth": { "type": "number", "minimum": 120, "maximum": 220 },
+        "mobileHeight": { "type": "number", "minimum": 48, "maximum": 96 },
+        "backgroundOpacity": { "$ref": "#/$defs/boundedOpacity" },
+        "hoverBackgroundOpacity": { "$ref": "#/$defs/boundedOpacity" },
+        "borderWidth": { "type": "number", "minimum": 0, "maximum": 4 },
+        "borderOpacity": { "$ref": "#/$defs/boundedOpacity" },
+        "borderRadius": { "type": "number", "minimum": 0, "maximum": 32 }
+      },
+      "additionalProperties": false
+    },
+    "hub": {
+      "type": "object",
+      "required": [
+        "desktopWidth",
+        "desktopHeight",
+        "mobileWidth",
+        "mobileHeight"
+      ],
+      "properties": {
+        "desktopWidth": { "type": "number", "minimum": 80, "maximum": 200 },
+        "desktopHeight": { "type": "number", "minimum": 40, "maximum": 120 },
+        "mobileWidth": { "type": "number", "minimum": 72, "maximum": 150 },
+        "mobileHeight": { "type": "number", "minimum": 34, "maximum": 80 }
+      },
+      "additionalProperties": false
+    },
+    "line": {
+      "type": "object",
+      "required": [
+        "width",
+        "activeWidth",
+        "opacity",
+        "bendDirection",
+        "gradientEnabled",
+        "startColor",
+        "middleColor",
+        "endColor",
+        "middleStop",
+        "glowBlur",
+        "glowOpacity"
+      ],
+      "properties": {
+        "width": { "type": "number", "minimum": 0.5, "maximum": 6 },
+        "activeWidth": { "type": "number", "minimum": 0.5, "maximum": 8 },
+        "opacity": { "$ref": "#/$defs/boundedOpacity" },
+        "bendDirection": {
+          "type": "string",
+          "enum": ["alternating", "clockwise", "counterclockwise"]
+        },
+        "gradientEnabled": { "type": "boolean" },
+        "startColor": { "$ref": "#/$defs/color" },
+        "middleColor": { "$ref": "#/$defs/color" },
+        "endColor": { "$ref": "#/$defs/color" },
+        "middleStop": { "type": "number", "minimum": 0.1, "maximum": 0.9 },
+        "glowBlur": { "type": "number", "minimum": 0, "maximum": 18 },
+        "glowOpacity": { "$ref": "#/$defs/boundedOpacity" }
+      },
+      "additionalProperties": false
+    },
+    "motion": {
+      "type": "object",
+      "required": [
+        "hubTravelDuration",
+        "hubCollapseDuration",
+        "hubArcStrength",
+        "hubArcDirection",
+        "hubArcMin",
+        "hubArcMax",
+        "webDeployDuration",
+        "webDeployStagger",
+        "nodeRevealDelay",
+        "nodeRevealDuration",
+        "pointerStrength",
+        "pointerDamping",
+        "pointerRadius",
+        "pointerInfluence",
+        "settleDistance",
+        "settleVelocity",
+        "easing"
+      ],
+      "properties": {
+        "hubTravelDuration": {
+          "type": "number",
+          "minimum": 80,
+          "maximum": 1500
+        },
+        "hubCollapseDuration": {
+          "type": "number",
+          "minimum": 80,
+          "maximum": 1500
+        },
+        "hubArcStrength": { "type": "number", "minimum": 0, "maximum": 0.6 },
+        "hubArcDirection": { "type": "number", "enum": [-1, 1] },
+        "hubArcMin": { "type": "number", "minimum": 0, "maximum": 240 },
+        "hubArcMax": { "type": "number", "minimum": 0, "maximum": 400 },
+        "webDeployDuration": {
+          "type": "number",
+          "minimum": 60,
+          "maximum": 1200
+        },
+        "webDeployStagger": { "type": "number", "minimum": 0, "maximum": 200 },
+        "nodeRevealDelay": { "type": "number", "minimum": 0, "maximum": 1000 },
+        "nodeRevealDuration": {
+          "type": "number",
+          "minimum": 50,
+          "maximum": 1200
+        },
+        "pointerStrength": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 0.5
+        },
+        "pointerDamping": { "type": "number", "minimum": 0, "maximum": 0.98 },
+        "pointerRadius": { "type": "number", "minimum": 100, "maximum": 1200 },
+        "pointerInfluence": { "type": "number", "minimum": 0, "maximum": 80 },
+        "settleDistance": { "type": "number", "minimum": 0.05, "maximum": 5 },
+        "settleVelocity": { "type": "number", "minimum": 0.01, "maximum": 2 },
+        "easing": {
+          "type": "string",
+          "enum": ["linear", "easeOutCubic", "easeInOutCubic"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "effects": {
+      "type": "object",
+      "required": [
+        "nodeShadowBlur",
+        "nodeShadowOpacity",
+        "nodeGlowBlur",
+        "nodeGlowOpacity",
+        "hubShadowBlur",
+        "hubShadowOpacity",
+        "hubGlowBlur",
+        "hubGlowOpacity"
+      ],
+      "properties": {
+        "nodeShadowBlur": { "type": "number", "minimum": 20, "maximum": 100 },
+        "nodeShadowOpacity": { "$ref": "#/$defs/boundedOpacity" },
+        "nodeGlowBlur": { "type": "number", "minimum": 0, "maximum": 60 },
+        "nodeGlowOpacity": { "type": "number", "minimum": 0, "maximum": 0.5 },
+        "hubShadowBlur": { "type": "number", "minimum": 20, "maximum": 120 },
+        "hubShadowOpacity": { "$ref": "#/$defs/boundedOpacity" },
+        "hubGlowBlur": { "type": "number", "minimum": 0, "maximum": 80 },
+        "hubGlowOpacity": { "type": "number", "minimum": 0, "maximum": 0.5 }
+      },
+      "additionalProperties": false
+    },
+    "config": {
+      "type": "object",
+      "required": ["layout", "node", "hub", "line", "motion", "effects"],
+      "properties": {
+        "layout": { "$ref": "#/$defs/layout" },
+        "node": { "$ref": "#/$defs/node" },
+        "hub": { "$ref": "#/$defs/hub" },
+        "line": { "$ref": "#/$defs/line" },
+        "motion": { "$ref": "#/$defs/motion" },
+        "effects": { "$ref": "#/$defs/effects" }
+      },
+      "additionalProperties": false
+    },
+    "placement": {
+      "type": "object",
+      "required": ["angle", "radius"],
+      "properties": {
+        "angle": { "type": "number", "minimum": 0, "maximum": 359 },
+        "radius": { "type": "number", "minimum": 60, "maximum": 320 }
+      },
+      "additionalProperties": false
+    },
+    "webOverrides": {
+      "type": "object",
+      "properties": {
+        "bend": { "type": "number", "minimum": -80, "maximum": 80 },
+        "bendDirection": { "type": "number", "enum": [-1, 1] },
+        "gradientEnabled": { "type": "boolean" },
+        "startColor": { "$ref": "#/$defs/color" },
+        "middleColor": { "$ref": "#/$defs/color" },
+        "endColor": { "$ref": "#/$defs/color" },
+        "middleStop": { "type": "number", "minimum": 0.1, "maximum": 0.9 },
+        "width": { "type": "number", "minimum": 0.5, "maximum": 6 },
+        "activeWidth": { "type": "number", "minimum": 0.5, "maximum": 8 },
+        "opacity": { "$ref": "#/$defs/boundedOpacity" },
+        "glowBlur": { "type": "number", "minimum": 0, "maximum": 18 },
+        "glowOpacity": { "$ref": "#/$defs/boundedOpacity" }
+      },
+      "additionalProperties": false
+    },
+    "web": {
+      "type": "object",
+      "required": ["id", "overrides"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^node-[1-7]$" },
+        "overrides": { "$ref": "#/$defs/webOverrides" }
+      },
+      "additionalProperties": false
+    },
     "state": {
       "type": "object",
-      "required": ["config", "nodePlacements"],
+      "required": ["config", "nodePlacements", "webs"],
       "properties": {
-        "config": {
-          "type": "object",
-          "required": ["layout", "node", "hub", "line", "motion"]
-        },
+        "config": { "$ref": "#/$defs/config" },
         "nodePlacements": {
           "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "required": ["angle", "radius"],
-            "properties": {
-              "angle": { "type": "number" },
-              "radius": { "type": "number", "minimum": 0 }
-            },
-            "additionalProperties": false
-          }
+          "minItems": 7,
+          "maxItems": 7,
+          "items": { "$ref": "#/$defs/placement" }
+        },
+        "webs": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": { "$ref": "#/$defs/web" }
         }
       },
       "additionalProperties": false

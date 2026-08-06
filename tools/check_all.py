@@ -23,6 +23,14 @@ VALIDATION_COMMANDS = (
 
 TEST_COMMANDS = (
     (
+        "Showcase configuration contract tests",
+        ("node", "tests/test_showcase_config.js"),
+    ),
+    (
+        "Showcase Dev Lab server tests",
+        (sys.executable, "-m", "unittest", "tests/test_showcase_dev_server.py"),
+    ),
+    (
         "Analytics modernization unit tests",
         (sys.executable, "-m", "unittest", "tests/test_analytics_modernization.py"),
     ),
