@@ -664,9 +664,31 @@ const initShowcase = (showcaseSnapshots) => {
       popup.document.body.append(lab);
       lab.querySelector("[data-showcase-popout]").textContent = "Dock";
       setStatus("Popped out. The main window remains the preview and state owner.");
+
+      const handlePopupClose = () => {
+        if (lab.ownerDocument === popup.document) {
+          overlay.append(lab);
+        }
+
+        lab.classList.remove("is-popped-out");
+        lab.querySelector("[data-showcase-popout]").textContent = "Pop out";
+        devLabPopup = null;
+
+        if (popupMonitor) {
+          window.clearInterval(popupMonitor);
+          popupMonitor = 0;
+        }
+
+        setStatus("Popup closed. Dev Lab redocked with unsaved edits preserved.");
+      };
+
+      popup.addEventListener("beforeunload", handlePopupClose, { once: true });
       popup.focus();
+
       popupMonitor = window.setInterval(() => {
-        if (devLabPopup?.closed) dockLab("Popup closed. Dev Lab redocked with unsaved edits preserved.");
+        if (!devLabPopup || devLabPopup.closed) {
+          handlePopupClose();
+        }
       }, 400);
     };
 
@@ -1016,25 +1038,104 @@ const initShowcase = (showcaseSnapshots) => {
     return `rgba(${value >> 16}, ${(value >> 8) & 255}, ${value & 255}, ${clamp(opacity, 0, 1)})`;
   };
 
+  const parseHexChannels = (color) => {
+    const value = Number.parseInt(color.slice(1), 16);
+    return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+  };
+
+  const formatHexChannels = (channels) => `#${channels
+    .map((channel) => Math.round(clamp(channel, 0, 255)).toString(16).padStart(2, "0"))
+    .join("")}`;
+
+  const smoothGradientColors = (
+    startColor,
+    middleColor,
+    endColor,
+    middleStop,
+    offsets
+  ) => {
+    const startChannels = parseHexChannels(startColor);
+    const middleChannels = parseHexChannels(middleColor);
+    const endChannels = parseHexChannels(endColor);
+    const denominator = middleStop * (middleStop - 1);
+
+    const curves = startChannels.map((startChannel, index) => {
+      const endDelta = endChannels[index] - startChannel;
+      const middleDelta = middleChannels[index] - startChannel;
+      const quadratic = (
+        middleDelta - endDelta * middleStop
+      ) / denominator;
+      const linear = endDelta - quadratic;
+
+      return [quadratic, linear, startChannel];
+    });
+
+    return offsets.map((offset) => formatHexChannels(
+      curves.map(
+        ([quadratic, linear, startChannel]) =>
+          quadratic * offset * offset
+          + linear * offset
+          + startChannel
+      )
+    ));
+  };
+
   const syncLineGradient = (defs, index, settings, start, end) => {
     const id = `showcase-web-gradient-${index + 1}`;
     let gradient = defs.querySelector(`#${id}`);
+
     if (!gradient) {
-      gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+      gradient = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "linearGradient"
+      );
       gradient.id = id;
       gradient.setAttribute("gradientUnits", "userSpaceOnUse");
-      gradient.innerHTML = `<stop data-stop="start"></stop><stop data-stop="middle"></stop><stop data-stop="end"></stop>`;
       defs.append(gradient);
     }
+
+    gradient.setAttribute("color-interpolation", "sRGB");
     gradient.setAttribute("x1", start.x.toFixed(1));
     gradient.setAttribute("y1", start.y.toFixed(1));
     gradient.setAttribute("x2", end.x.toFixed(1));
     gradient.setAttribute("y2", end.y.toFixed(1));
-    gradient.querySelector('[data-stop="start"]').setAttribute("stop-color", settings.startColor);
-    const middle = gradient.querySelector('[data-stop="middle"]');
-    middle.setAttribute("offset", String(settings.middleStop));
-    middle.setAttribute("stop-color", settings.middleColor);
-    gradient.querySelector('[data-stop="end"]').setAttribute("stop-color", settings.endColor);
+
+    const middleStop = clamp(Number(settings.middleStop), 0.1, 0.9);
+    const offsets = [
+      0,
+      middleStop * 0.25,
+      middleStop * 0.5,
+      middleStop * 0.75,
+      middleStop,
+      middleStop + (1 - middleStop) * 0.25,
+      middleStop + (1 - middleStop) * 0.5,
+      middleStop + (1 - middleStop) * 0.75,
+      1,
+    ];
+
+    let stops = Array.from(gradient.querySelectorAll("stop"));
+
+    if (stops.length !== offsets.length) {
+      stops = offsets.map(() => document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "stop"
+      ));
+      gradient.replaceChildren(...stops);
+    }
+
+    const colors = smoothGradientColors(
+      settings.startColor,
+      settings.middleColor,
+      settings.endColor,
+      middleStop,
+      offsets
+    );
+
+    stops.forEach((stop, stopIndex) => {
+      stop.setAttribute("offset", offsets[stopIndex].toFixed(4));
+      stop.setAttribute("stop-color", colors[stopIndex]);
+    });
+
     return id;
   };
 
