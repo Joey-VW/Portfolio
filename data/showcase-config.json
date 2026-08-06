@@ -139,8 +139,8 @@
       "layout": {
         "desktopDistanceScale": 1,
         "mobileDistanceScale": 1,
-        "hubXRatio": 0.52,
-        "hubYOffsetRatio": 0.05,
+        "hubXRatio": 0.53,
+        "hubYOffsetRatio": 0.24,
         "mobileHubYRatio": 0.16,
         "viewportMargin": 18,
         "collisionGap": 14,
@@ -149,33 +149,33 @@
       },
       "node": {
         "desktopWidth": 232,
-        "desktopHeight": 92,
+        "desktopHeight": 64,
         "mobileWidth": 166,
         "mobileHeight": 66,
         "backgroundOpacity": 0.96,
-        "hoverBackgroundOpacity": 0.85,
-        "borderWidth": 1,
-        "borderOpacity": 0.2,
+        "hoverBackgroundOpacity": 0.99,
+        "borderWidth": 0.1,
+        "borderOpacity": 0.65,
         "borderRadius": 24
       },
       "hub": {
-        "desktopWidth": 128,
-        "desktopHeight": 72,
+        "desktopWidth": 131,
+        "desktopHeight": 54,
         "mobileWidth": 96,
         "mobileHeight": 44
       },
       "line": {
         "width": 2,
-        "activeWidth": 1.6,
-        "opacity": 0.72,
+        "activeWidth": 2.4,
+        "opacity": 0.9,
         "bendDirection": "alternating",
         "gradientEnabled": true,
         "startColor": "#6ff8ff",
         "middleColor": "#9fa7ff",
         "endColor": "#c77dff",
         "middleStop": 0.54,
-        "glowBlur": 7,
-        "glowOpacity": 0.3
+        "glowBlur": 3,
+        "glowOpacity": 1
       },
       "motion": {
         "hubTravelDuration": 400,
@@ -185,55 +185,55 @@
         "hubArcMin": 18,
         "hubArcMax": 96,
         "webDeployDuration": 280,
-        "webDeployStagger": 20,
+        "webDeployStagger": 40,
         "nodeRevealDelay": 140,
-        "nodeRevealDuration": 180,
+        "nodeRevealDuration": 670,
         "pointerStrength": 0.16,
         "pointerDamping": 0.05,
-        "pointerRadius": 140,
+        "pointerRadius": 280,
         "pointerInfluence": 30,
         "settleDistance": 0.35,
         "settleVelocity": 0.05,
         "easing": "easeOutCubic"
       },
       "effects": {
-        "nodeShadowBlur": 66,
-        "nodeShadowOpacity": 0.52,
-        "nodeGlowBlur": 30,
-        "nodeGlowOpacity": 0.09,
+        "nodeShadowBlur": 20,
+        "nodeShadowOpacity": 0.7,
+        "nodeGlowBlur": 20,
+        "nodeGlowOpacity": 0.1,
         "hubShadowBlur": 76,
         "hubShadowOpacity": 0.42,
         "hubGlowBlur": 46,
-        "hubGlowOpacity": 0.2
+        "hubGlowOpacity": 0.1
       }
     },
     "nodePlacements": [
       {
-        "angle": 0,
-        "radius": 266
+        "angle": 324,
+        "radius": 192
       },
       {
-        "angle": 27,
-        "radius": 201
+        "angle": 1,
+        "radius": 227
       },
       {
-        "angle": 61,
-        "radius": 224
+        "angle": 31,
+        "radius": 223
       },
       {
-        "angle": 85,
-        "radius": 294
+        "angle": 101,
+        "radius": 180
       },
       {
-        "angle": 103,
-        "radius": 163
+        "angle": 159,
+        "radius": 213
       },
       {
-        "angle": 129,
-        "radius": 163
+        "angle": 186,
+        "radius": 230
       },
       {
-        "angle": 154,
+        "angle": 224,
         "radius": 163
       }
     ],
