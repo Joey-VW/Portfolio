@@ -138,7 +138,7 @@ Use the **Print / PDF** button or press `Ctrl + P` from the homepage. The print 
 
 ## Deployment: Cloudflare Pages
 
-Cloudflare Pages is connected to this repository. `main` is the production branch, automatic deployments and pull-request previews are enabled, and production builds and publishes only the generated `dist/` artifact. Custom-domain attachment and canonical-host redirect remain open; see `PORTFOLIO_ROADMAP.md` for the current completion status.
+Cloudflare Pages is connected to this repository. `main` is the production branch, automatic deployments and pull-request previews are enabled, and production builds and publishes only the generated `dist/` artifact. The selected future custom domain is `wistoworks.com`; attachment and canonical-host redirect remain open. See `PORTFOLIO_ROADMAP.md` for the current completion status.
 
 Repository settings:
 

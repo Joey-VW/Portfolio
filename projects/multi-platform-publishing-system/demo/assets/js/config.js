@@ -9,8 +9,8 @@ export const SITE_CONFIG = {
     ownerName: "Postcard Atlas",
     defaultLocation: "Seattle, Washington",
     basePath: "./",
-    canonicalBaseUrl: "https://joewisto.com/projects/multi-platform-publishing-system/demo/",
-    sharedImageUrl: "https://joewisto.com/projects/multi-platform-publishing-system/demo/assets/background_image_clean.jpg",
+    canonicalBaseUrl: "https://wistoworks.com/projects/multi-platform-publishing-system/demo/",
+    sharedImageUrl: "https://wistoworks.com/projects/multi-platform-publishing-system/demo/assets/background_image_clean.jpg",
   },
 
   content: {

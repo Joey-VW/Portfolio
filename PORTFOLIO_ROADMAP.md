@@ -1,6 +1,6 @@
 # Portfolio Roadmap
 
-> North star: make joewisto.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
+> North star: make wistoworks.com immediately understandable, easy to explore, honest about what is finished, and strong enough that every public project demonstrates both technical judgment and thoughtful presentation.
 
 - Last reviewed: August 4, 2026
 - Primary tracker: this file
@@ -1134,7 +1134,7 @@ Possible later options are modular Canvas 2D, a PixiJS renderer prototype behind
 - [x] Connect `Joey-VW/Portfolio` to Cloudflare Pages.
 - [x] Use `main` as the production branch.
 - [x] Enable automatic deployments and pull-request previews.
-- [ ] Attach `joewisto.com`, confirm HTTPS, choose a canonical hostname, and add the redirect from the other host.
+- [ ] Attach `wistoworks.com`, confirm HTTPS, choose a canonical hostname, and add the redirect from the other host.
 - [ ] Verify final production routes, `_headers`, `_redirects`, caching, deep links, JSON fetches, metadata, favicon, 404 behavior, and Postcard Atlas deployment-only behavior.
 
 Acceptance criteria:

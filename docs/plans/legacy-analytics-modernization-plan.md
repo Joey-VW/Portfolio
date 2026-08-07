@@ -857,7 +857,7 @@ Acceptance criterion:
 After Procurement and QTC are public and their source material is safely represented:
 
 1. Rewrite the old repository README as a **Legacy / Archived Portfolio** notice.
-2. Link prominently to `joewisto.com` and the current portfolio.
+2. Link prominently to the current portfolio at `https://wistoworks.com/`.
 3. Identify:
 
    * Procurement → migrated

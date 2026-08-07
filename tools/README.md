@@ -281,7 +281,7 @@ python tools/capture_page.py http://127.0.0.1:5500/projects/shrinkflation-tracke
 Capture a full-page screenshot of a reachable public URL:
 
 ```bash
-python tools/capture_page.py https://joewisto.com --mode full
+python tools/capture_page.py https://wistoworks.com/ --mode full
 ```
 
 Use grid mode when a very tall full-page image is hard to review or share. Grid output defaults to a two-column, top-to-bottom contact sheet. Override it with `--grid-columns 1`, `--grid-columns 2`, or `--grid-columns 3` when needed:
