@@ -4,6 +4,12 @@ const DATA_URL = new URL(
 );
 const THRESHOLDS = { meaningful: 2, modest: 5 };
 const state = { products: [], lastFocusedImage: null, modalToken: 0 };
+const LOCAL_PRODUCT_IMAGE_FALLBACKS = Object.freeze({
+  "sliced-cheese": { url: "/assets/img/projects/shrinkflation/sliced-cheese.webp", alt: "Sliced cheese package", source: "Curated local product image" },
+  "greek-yogurt-cups": { url: "/assets/img/projects/shrinkflation/greek-yogurt-cups.webp", alt: "Greek yogurt cups", source: "Curated local product image" },
+  "peanut-butter": { url: "/assets/img/projects/shrinkflation/peanut-butter.webp", alt: "Peanut butter jar", source: "Curated local product image" },
+  "rice-bag": { url: "/assets/img/projects/shrinkflation/rice-bag.webp", alt: "Bag of rice", source: "Curated local product image" }
+});
 
 const calculateUnitPrice = (price, size) => (size ? price / size : 0);
 const percentChange = (previous, current) => (previous ? ((current - previous) / previous) * 100 : 0);
@@ -108,7 +114,7 @@ function legacyImageCandidates(match, product) {
 
 function getProductImageCandidates(product) {
   const seen = new Set();
-  return (product.apiMatches || []).flatMap((match, matchIndex) => {
+  const apiCandidates = (product.apiMatches || []).flatMap((match, matchIndex) => {
     const source = match?.description || product.brand || "Product image";
     const normalized = Array.isArray(match?.imageCandidates) ? match.imageCandidates : null;
     const candidates = normalized || legacyImageCandidates(match, product);
@@ -127,6 +133,8 @@ function getProductImageCandidates(product) {
     seen.add(candidate.url);
     return true;
   }).sort((a, b) => imagePerspectiveRank(a) - imagePerspectiveRank(b) || imageSizeRank(a) - imageSizeRank(b) || a.matchIndex - b.matchIndex || a.candidateIndex - b.candidateIndex);
+  const localFallback = LOCAL_PRODUCT_IMAGE_FALLBACKS[product.id];
+  return localFallback ? [...apiCandidates, localFallback] : apiCandidates;
 }
 
 function storeImageCandidates(button, candidates, activeIndex = 0) {
