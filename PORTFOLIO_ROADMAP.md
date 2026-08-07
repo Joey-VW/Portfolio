@@ -74,7 +74,7 @@ These choices remove ambiguity from later implementation work.
 
 ## Pass 01 - Project governance
 
-Implemented and verified July 15, 2026. As reconciled August 4, 2026, the registry contains eight public/ready projects and two hidden projects. Featured projects use validated, unique positive ranks; only ready/public projects render, while the complete projects page retains creation-date order. This pass is complete.
+Implemented and verified July 15, 2026. As reconciled August 6, 2026, the registry contains seven public/ready projects and three hidden projects. Colony Ops Lab is intentionally `in-progress` and `hidden` until further work justifies republication. Featured projects use validated, unique positive ranks; only ready/public projects render, while the complete projects page retains creation-date order. This pass is complete.
 
 ### 01.1 Add explicit lifecycle metadata
 
@@ -1371,7 +1371,6 @@ Acceptance criteria:
 - [ ] Update global portfolio language where navigation, card taxonomy, résumé framing, and repeated labels describe implementation before value.
 - [ ] Review `data/projects.json` so project summaries and categories describe what each project helps a visitor understand or do before describing the stack or architecture.
 - [ ] Complete the Gravity Fleet pass across desktop and mobile controls, setup/help text, live states, pause/reset messages, post-match results, benchmark comparisons, and accessibility labels.
-- [ ] Complete the Colony Ops pass across instructions, controls, generated insights, results language, sample comparisons, and reduced-motion messaging.
 - [ ] Complete the Shrinkflation Tracker pass across metric labels, data-status language, source/history explanations, formulas, and modeled-versus-collected data disclosures.
 
 Priority guidance from the audit:
@@ -1383,7 +1382,7 @@ Priority guidance from the audit:
 Acceptance criteria:
 
 - A nontechnical visitor can understand the purpose of each public control, metric, status, and result without reading implementation documentation.
-- Gravity Fleet and Colony Ops retain their game-specific tone while removing unnecessary analytics jargon from the first layer.
+- Gravity Fleet retains its game-specific tone while removing unnecessary analytics jargon from the first layer.
 - Shrinkflation clearly distinguishes collected observations, sample or modeled history, parsing/review states, and formulas.
 - Project-card copy remains accurate, concise, and consistent wherever the registry is rendered.
 
@@ -1405,6 +1404,7 @@ Acceptance criteria:
 - [x] Apply the audit to PHX Transit Pulse before publication, using plain-language labels first and GTFS-Realtime, feed-age, operational, and reliability terminology as supporting detail. Completed before publication in PR #36.
 - [ ] Review Procurement KPI Analysis and Quote-to-Cash Workflow Audit after their modernization copy stabilizes and before either project changes to public/ready.
 - [ ] Review CFPB Complaint Intelligence, Video Cutter, and any other hidden project only when an actual implementation approaches publication; do not spend release time polishing placeholder copy that may be replaced.
+- [ ] Review Colony Ops Lab only when further implementation approaches republication; keep its copy work out of the current public-facing queue while it remains hidden.
 - [ ] Add project-specific copy acceptance checks to publication QA for future projects so jargon does not accumulate again.
 
 Acceptance criteria:
