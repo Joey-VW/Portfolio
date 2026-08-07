@@ -38,7 +38,7 @@ Status labels:
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
 | 09. Mobile layout corrections and responsive bug fixes | DONE | Source corrections merged through PRs #6-#12; Pass 09.7 regression and deployment verification closed through PR #47. | Pass 08 structural integration |
 | 10. Gravity Fleet modernization | DONE | Passes 10.0-10.8 are merged and approved, including integrated QA and the approved legacy-shell cleanup. Comprehensive physical frame-pacing and fairness work remains deferred to Pass 12. | Pass 06, Pass 07, merged PRs #13, #15-#21, #23, #25, and Pass 09 shared-header coordination |
-| 11. Production deployment and custom-domain release | CURRENT | The working Cloudflare `pages.dev` deployment is the acceptable public release. Custom-domain selection, purchase, attachment, canonical-host redirects, and contact delivery are deferred. | Cloudflare Pages connection |
+| 11. Production deployment and custom-domain release | CURRENT | The working Cloudflare `pages.dev` deployment is the acceptable public release. `wistoworks.com` is the selected future custom domain; attachment, canonical-host redirects, and contact delivery are deferred. | Cloudflare Pages connection |
 | 12. Final repository validation and release QA | LATER | Comprehensive repository and production validation remains explicitly deferred; targeted publication QA continues per project. | Future release scope |
 | 13. PHX Transit Pulse | IN REVIEW | Pass 13.1a mapped-build regression and Cloudflare preview QA are complete. Later PHX Transit work remains gated; live ingestion is still blocked by provider terms. | Provider terms only for live ingestion or provider replay |
 | 14. Legacy analytics modernization | IN REVIEW | Passes 14.0-14.3 are implemented. Procurement KPI Analysis and Where Revenue Gets Stuck passed targeted publication QA and are public/ready; legacy-repository retirement remains gated. | Pass 14.4 disposition |
@@ -1127,7 +1127,7 @@ Possible later options are modular Canvas 2D, a PixiJS renderer prototype behind
 
 ## Pass 11 - Production deployment and custom-domain release
 
-**Status: CURRENT RELEASE.** Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the working `pages.dev` deployment is the acceptable current public release. Custom-domain work is deferred and does not block this release.
+**Status: CURRENT RELEASE.** Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the working `pages.dev` deployment is the acceptable current public release. `wistoworks.com` is the selected future custom domain; attachment and canonical-host work are deferred and do not block this release.
 
 ### 11.1 Complete remaining production release work
 
@@ -1201,7 +1201,7 @@ Public live ingestion and provider-derived replay remain blocked until provider 
 
 ## Pass 14 - Legacy analytics modernization
 
-**Status: IN REVIEW.** Passes 14.0-14.3 are implemented; rendered publication QA for Procurement and Where Revenue Gets Stuck and legacy-repository retirement remain gated. The legacy `Joey-VW/DataAnalyticsPortfolio` repository contains useful analytics work, but its strongest projects predate the current portfolio's standards for plain-language storytelling, reproducible data preparation, interactive presentation, validation, accessibility, and truthful lifecycle metadata. Do not copy the old repository wholesale. Treat it as source material and selectively rebuild only the projects that materially strengthen the current portfolio.
+**Status: IN REVIEW.** Passes 14.0-14.3 are implemented; Procurement KPI Analysis and Where Revenue Gets Stuck are public and ready, while legacy-repository retirement remains gated. The legacy `Joey-VW/DataAnalyticsPortfolio` repository contains useful analytics work, but its strongest projects predate the current portfolio's standards for plain-language storytelling, reproducible data preparation, interactive presentation, validation, accessibility, and truthful lifecycle metadata. Do not copy the old repository wholesale. Treat it as source material and selectively rebuild only the projects that materially strengthen the current portfolio.
 
 Rendered publication QA and lifecycle changes should resume only after the current release path through Pass 12 is stable. Small registry or documentation corrections may be handled earlier when they are low-risk and independently verifiable.
 
@@ -1399,10 +1399,10 @@ Acceptance criteria:
 - EV Cost Check remains concise and technically accurate, including units and source classifications.
 - Shared labels use the same wording across homepage, project hub, project pages, and generated UI where they represent the same concept.
 
-### 15.3 P2 hidden and pre-publication projects
+### 15.3 P2 project-specific follow-up and pre-publication projects
 
 - [x] Apply the audit to PHX Transit Pulse before publication, using plain-language labels first and GTFS-Realtime, feed-age, operational, and reliability terminology as supporting detail. Completed before publication in PR #36.
-- [ ] Review Procurement KPI Analysis and Quote-to-Cash Workflow Audit after their modernization copy stabilizes and before either project changes to public/ready.
+- [ ] Review Procurement KPI Analysis and Where Revenue Gets Stuck for any needed follow-up public-facing copy polish.
 - [ ] Review CFPB Complaint Intelligence, Video Cutter, and any other hidden project only when an actual implementation approaches publication; do not spend release time polishing placeholder copy that may be replaced.
 - [ ] Review Colony Ops Lab only when further implementation approaches republication; keep its copy work out of the current public-facing queue while it remains hidden.
 - [ ] Add project-specific copy acceptance checks to publication QA for future projects so jargon does not accumulate again.

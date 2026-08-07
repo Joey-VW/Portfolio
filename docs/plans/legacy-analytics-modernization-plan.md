@@ -6,9 +6,9 @@
 * Current: [Joey-VW/Portfolio](https://github.com/Joey-VW/Portfolio)
 * Review date: July 28, 2026
 
-## Current status - August 2, 2026
+## Current status - August 7, 2026
 
-Passes 14.0-14.3 are implemented in the current portfolio. Procurement KPI Analysis and the Quote-to-Cash case study, publicly titled **Where Revenue Gets Stuck**, now have deterministic pipelines, browser experiences, data contracts, validators, and the shared focused `DataFrameInspector`. Both registry entries remain hidden and in progress until rendered publication QA and final approval are complete. Pass 14.4 legacy-repository retirement remains blocked until both migration outcomes are settled.
+Passes 14.0-14.3 are implemented in the current portfolio. Procurement KPI Analysis and the Quote-to-Cash case study, publicly titled **Where Revenue Gets Stuck**, now have deterministic pipelines, browser experiences, data contracts, validators, and the shared focused `DataFrameInspector`. Both registry entries are public and ready. Pass 14.4 legacy-repository retirement remains blocked until both migration outcomes are settled.
 
 The audit and future-tense implementation sections below are retained as historical design rationale. Where they describe placeholders, hard-coded legacy workflows, or work still to be built, they describe the reviewed baseline rather than current `main`. The completion checkboxes and publication gates in `PORTFOLIO_ROADMAP.md` are authoritative.
 

@@ -93,11 +93,11 @@ Key routes:
 - `/games/gravity-fleet-lab.html` - playable orbital RTS telemetry experiment
 - `/projects/shrinkflation-tracker.html` - consumer analytics prototype for unit-price changes
 - `/projects/ev-true-cost.html` - EV public-charging cost check for public, mostly-home, and home-only charging
-- `/projects/procurement-kpi-analysis.html` - hidden, noindex supplier-priority case study built from a validated procurement metric layer
-- `/projects/quote-to-cash-workflow-audit.html` - hidden, noindex deterministic fictional audit of CRM, billing, and revenue-recognition handoffs
+- `/projects/procurement-kpi-analysis.html` - public supplier-priority case study built from a validated procurement metric layer
+- `/projects/quote-to-cash-workflow-audit.html` - public deterministic fictional audit of CRM, billing, and revenue-recognition handoffs
 - `/projects/phx-transit-pulse.html` - public synthetic operations console with a real Phoenix-area basemap, fictional transit overlays, deterministic replay, accessible records, and a schematic fallback; supporting feasibility and implementation documents live under `docs/phx-transit/`.
-- `/projects/multi-platform-publishing-system.html` - public-ready Multi-Platform Publishing System case study (currently noindex; final indexing decision is part of the production release)
-- `/projects/multi-platform-publishing-system/demo/` - public-ready Postcard Atlas fictional publishing-system demo (currently noindex; final indexing decision is part of the production release)
+- `/projects/multi-platform-publishing-system.html` - public Multi-Platform Publishing System case study
+- `/projects/multi-platform-publishing-system/demo/` - public Postcard Atlas fictional publishing-system demo (`noindex`)
 
 ## Project structure
 
@@ -233,4 +233,3 @@ To prevent search-result drift over time, review candidate matches and lock stab
 - Keep fixture-based and disabled behaviors truthful while live Sheets, Forms, Drive, and contact delivery remain deferred.
 - Replace the `mailto:` contact form with a verified Cloudflare Worker or form endpoint when backend work is prioritized.
 - Keep the browser application static and multi-page. Preserve the verified Cloudflare `dist/` boundary and rollback procedure for future build changes.
-
