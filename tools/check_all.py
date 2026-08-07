@@ -27,6 +27,10 @@ TEST_COMMANDS = (
         ("node", "tests/test_showcase_config.js"),
     ),
     (
+        "Project registry crawler-state tests",
+        (sys.executable, "-m", "unittest", "tests/test_project_registry.py"),
+    ),
+    (
         "Showcase Dev Lab server tests",
         (sys.executable, "-m", "unittest", "tests/test_showcase_dev_server.py"),
     ),
