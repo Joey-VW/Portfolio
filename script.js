@@ -241,6 +241,7 @@ const initShowcase = (showcaseSnapshots) => {
   const isReduced = () => reducedMotionQuery.matches;
   const isDesktop = () => window.matchMedia("(min-width: 860px) and (min-height: 620px) and (pointer: fine)").matches;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const HUB_ACTION_SWAP_PROGRESS = 0.5;
 
   let overlay;
   let showcaseContent;
@@ -447,11 +448,19 @@ const initShowcase = (showcaseSnapshots) => {
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 7 10 10M17 7 7 17"/></svg>
     </button><div class="showcase-content">
       <svg class="showcase-lines" aria-hidden="true"><defs data-showcase-line-defs></defs></svg>
-      <a class="showcase-center" href="/projects/">View all</a>
+      <a class="showcase-center" href="/projects/" aria-label="View all projects">
+        <span data-showcase-center-label>View all</span>
+      </a>
       <p class="showcase-error" hidden>Project data is temporarily unavailable. <a href="/projects/">View all projects</a>.</p>
     </div>`;
     showcaseContent = overlay.querySelector(".showcase-content");
     showcaseClose = overlay.querySelector(".showcase-close");
+    const showcaseCenter = overlay.querySelector(".showcase-center");
+    showcaseCenter.addEventListener("click", (event) => {
+      if (!overlay.classList.contains("is-hub-interactive")) {
+        event.preventDefault();
+      }
+    });
     document.body.append(overlay);
     applyVisualConfig();
     overlay.addEventListener("pointermove", (event) => {
@@ -899,13 +908,52 @@ const initShowcase = (showcaseSnapshots) => {
     syncSaveButton(lab);
   };
 
-  const setInteractive = (interactive) => {
+  const setHubLabel = (mode) => {
+    const center = overlay?.querySelector(".showcase-center");
+    const label = center?.querySelector("[data-showcase-center-label]");
+    if (!center || !label) return;
+
+    const isViewAll = mode === "view-all";
+
+    label.textContent = isViewAll ? "View all" : "Showcase";
+    center.setAttribute(
+      "aria-label",
+      isViewAll ? "View all projects" : "Project showcase"
+    );
+    center.classList.toggle("is-showcase-label", !isViewAll);
+  };
+
+  const setHubInteractive = (interactive) => {
+    const center = overlay?.querySelector(".showcase-center");
+
+    overlay?.classList.toggle("is-hub-interactive", interactive);
+
+    if (!center) return;
+
+    center.setAttribute("aria-hidden", String(!interactive));
+    center.tabIndex = interactive ? 0 : -1;
+
+    if (interactive) {
+      center.removeAttribute("aria-disabled");
+    } else {
+      center.setAttribute("aria-disabled", "true");
+
+      if (center.ownerDocument.activeElement === center) {
+        center.blur();
+      }
+    }
+  };
+
+  const setProjectInteractive = (interactive) => {
     overlay?.classList.toggle("is-interactive", interactive);
-    overlay?.querySelector(".showcase-center")?.toggleAttribute("aria-hidden", !interactive);
-    overlay?.querySelector(".showcase-center")?.setAttribute("tabindex", interactive ? "0" : "-1");
+
     showcaseClose?.toggleAttribute("hidden", !interactive);
     showcaseClose?.setAttribute("aria-hidden", String(!interactive));
-    if (showcaseClose) showcaseClose.tabIndex = interactive ? 0 : -1;
+
+    if (showcaseClose) {
+      showcaseClose.tabIndex = interactive ? 0 : -1;
+    }
+
     nodes.forEach((node) => {
       node.el.toggleAttribute("aria-hidden", !interactive);
       node.el.setAttribute("tabindex", interactive ? "0" : "-1");
@@ -1365,17 +1413,32 @@ const initShowcase = (showcaseSnapshots) => {
 
   const setVisualState = (nextState) => {
     state = nextState;
+
     overlay.classList.toggle("is-expanded", nextState === "expanded");
     overlay.classList.toggle("is-hub-expanding", nextState === "hub-expanding");
     overlay.classList.toggle("is-web-deploying", nextState === "web-deploying");
     overlay.classList.toggle("is-nodes-revealing", nextState === "nodes-revealing");
     overlay.classList.toggle("is-collapsing", nextState === "collapsing");
     overlay.classList.toggle("is-collapsed", nextState === "collapsed");
+
     const active = nextState !== "collapsed";
+
     showcaseLauncher.classList.toggle("is-detached", active);
     showcaseLauncher.setAttribute("aria-expanded", active ? "true" : "false");
-    setInteractive(nextState === "expanded");
-    if (nextState === "collapsing" && !isDesktop()) showcaseClose?.removeAttribute("hidden");
+
+    setProjectInteractive(nextState === "expanded");
+
+    if (nextState === "expanded") {
+      setHubLabel("view-all");
+      setHubInteractive(true);
+    } else if (nextState === "collapsed") {
+      setHubLabel("showcase");
+      setHubInteractive(false);
+    }
+
+    if (nextState === "collapsing" && !isDesktop()) {
+      showcaseClose?.removeAttribute("hidden");
+    }
   };
 
   const requestMotionFrame = () => {
@@ -1444,6 +1507,12 @@ const initShowcase = (showcaseSnapshots) => {
       node.vx = 0;
       node.vy = 0;
     });
+    setHubLabel("view-all");
+
+    // Opening starts disabled. During a desktop return flight, View all
+    // remains available until the halfway swap back to Showcase.
+    setHubInteractive(!expanded && !mobileClose);
+
     activeTransition = {
       expanded,
       start: now,
@@ -1451,9 +1520,15 @@ const initShowcase = (showcaseSnapshots) => {
       to,
       reverse: !expanded,
       mobileClose,
-      duration: expanded ? motion.hubTravelDuration : (mobileClose ? 180 : motion.hubCollapseDuration),
+      hubActionReady: false,
+      hubLabelSwapped: false,
+      duration: expanded
+        ? motion.hubTravelDuration
+        : (mobileClose ? 180 : motion.hubCollapseDuration),
     };
+
     setVisualState(expanded ? "hub-expanding" : "collapsing");
+
     if (!expanded && !mobileClose) setNodeReveal(0);
     overlay.style.setProperty("--showcase-hub-opacity", "1");
     overlay.style.setProperty("--showcase-backdrop-opacity", "1");
@@ -1500,6 +1575,27 @@ const initShowcase = (showcaseSnapshots) => {
       : hubArcPoint(transition.from, transition.to, hubProgress, transition.reverse);
     hub.x = point.x;
     hub.y = point.y;
+
+    if (
+      transition.expanded
+      && !transition.hubActionReady
+      && hubProgress >= HUB_ACTION_SWAP_PROGRESS
+    ) {
+      transition.hubActionReady = true;
+      setHubLabel("view-all");
+      setHubInteractive(true);
+    }
+
+    if (
+      !transition.expanded
+      && !transition.mobileClose
+      && !transition.hubLabelSwapped
+      && hubProgress >= HUB_ACTION_SWAP_PROGRESS
+    ) {
+      transition.hubLabelSwapped = true;
+      setHubInteractive(false);
+      setHubLabel("showcase");
+    }
 
     if (transition.expanded) {
       nodes.forEach((node) => { node.x = node.expandedX; node.y = node.expandedY; });
@@ -1588,7 +1684,9 @@ const initShowcase = (showcaseSnapshots) => {
       });
       projectsLoaded = true;
       updateLayout();
-      setInteractive(false);
+      setProjectInteractive(false);
+      setHubLabel("showcase");
+      setHubInteractive(false);
     } catch (error) {
       overlay.querySelector(".showcase-error").hidden = false;
       console.error(error);

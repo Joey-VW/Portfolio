@@ -141,6 +141,8 @@ def main() -> int:
 
         if lifecycle_valid and status == "ready" and visibility == "public":
             publishable.append(project)
+            if path and path.is_file() and has_noindex(path):
+                errors.append(f"{slug}: public route must not contain robots noindex: {href}")
         else:
             unfinished.append(project)
             if path and path.is_file() and not has_noindex(path):

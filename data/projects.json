@@ -86,8 +86,8 @@
   {
     "slug": "colony-ops-lab",
     "createdAt": "2026-07-04",
-    "status": "ready",
-    "visibility": "public",
+    "status": "in-progress",
+    "visibility": "hidden",
     "title": "Colony Ops Lab",
     "category": "Interactive Data Viz",
     "summary": "A playable 60-second colony resource allocation simulation that turns session telemetry into KPI dashboards, charts, heatmaps, and benchmarks.",
@@ -102,13 +102,7 @@
     ],
     "href": "/games/colony-ops-lab.html",
     "repo": "https://github.com/Joey-VW/Portfolio",
-    "featured": false,
-    "showcase": {
-      "title": "Colony Ops",
-      "description": "Resource strategy meets analytics",
-      "visualKey": "colony-ops",
-      "motion": "static"
-    }
+    "featured": false
   },
   {
     "slug": "procurement-kpi-analysis",

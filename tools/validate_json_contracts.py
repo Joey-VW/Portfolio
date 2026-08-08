@@ -25,9 +25,7 @@ SCHEMA_TARGETS = (
     ("schemas/quote-to-cash-workflow-audit.schema.json", "data/quote-to-cash-workflow-audit.json"),
 )
 
-APPROVED_NOINDEX_EXCEPTIONS = {
-    "/projects/multi-platform-publishing-system.html",
-}
+APPROVED_NOINDEX_EXCEPTIONS = set()
 
 DEPLOYABLE_PATHS = (
     "*.html",
@@ -122,8 +120,9 @@ def validate_instance(value: object, schema: dict[str, object], root_schema: dic
     if isinstance(expected_type, str) and not type_matches(value, expected_type):
         return [f"{path}: expected {expected_type}, got {type(value).__name__}"]
 
-    if "enum" in schema and value not in schema["enum"]:
-        errors.append(f"{path}: expected one of {schema['enum']!r}")
+    enum_values = schema.get("enum")
+    if isinstance(enum_values, list) and value not in enum_values:
+        errors.append(f"{path}: expected one of {enum_values!r}")
 
     if isinstance(value, str):
         min_length = schema.get("minLength")

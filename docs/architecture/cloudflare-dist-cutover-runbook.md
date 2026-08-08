@@ -11,6 +11,7 @@ This runbook records the completed Pass 16.4 production cutover and the retained
 - Build command: `npm run build`
 - Build output directory: `dist`
 - Root directory: repository root
+- Public host: Cloudflare Pages `pages.dev` until `wistoworks.com` is attached
 
 Cloudflare cut production over to this configuration on August 1, 2026. Deployment `b5426265-77d5-44b8-bb64-4a90933adafe` built commit `f2bd10caf56db4449161c42ec92e8a57b564e30a` with Node 24.13.1 and published the generated artifact successfully.
 
