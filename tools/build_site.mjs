@@ -10,6 +10,7 @@ const dist = join(root, "dist");
 const copyEntries = [
   "_headers",
   "_redirects",
+  "_routes.json",
   "script.js",
   "showcase-config.js",
   "styles.css",
