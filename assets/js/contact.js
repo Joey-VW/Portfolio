@@ -5,7 +5,7 @@ if (form) {
   const status = form.querySelector("[data-contact-status]");
   const emailFallback = form.querySelector("[data-contact-email]");
   const defaultButtonLabel = submitButton?.textContent || "Send";
-  const startedAt = performance.now();
+  let startedAt = performance.now();
   let submitting = false;
 
   const setStatus = (state = "", message = "") => {
@@ -18,19 +18,16 @@ if (form) {
     const name = String(form.elements.name?.value || "").trim();
     const email = String(form.elements.email?.value || "").trim();
     const message = String(form.elements.message?.value || "").trim();
-    const body = [
-      "Hi Joe,",
-      "",
-      message,
-      "",
-      name ? `Name: ${name}` : "",
-      email ? `Reply-to: ${email}` : "",
-    ]
-      .filter((line, index, lines) => line || index < 4 || lines[index - 1])
-      .join("\n")
-      .trimEnd();
+    const bodyLines = ["Hi Joe,", ""];
 
-    return `mailto:joey.wisto@gmail.com?subject=${encodeURIComponent("Portfolio inquiry - Joe Wisto")}&body=${encodeURIComponent(body)}`;
+    if (message) bodyLines.push(message);
+    if (name || email) {
+      bodyLines.push("");
+      if (name) bodyLines.push(`Name: ${name}`);
+      if (email) bodyLines.push(`Reply-to: ${email}`);
+    }
+
+    return `mailto:joey.wisto@gmail.com?subject=${encodeURIComponent("Portfolio inquiry - Joe Wisto")}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
   };
 
   const syncDraftEmail = () => {
@@ -48,7 +45,7 @@ if (form) {
 
   form.addEventListener("input", () => {
     syncDraftEmail();
-    if (status?.classList.contains("is-error")) setStatus();
+    if (status?.textContent) setStatus();
   });
 
   emailFallback?.addEventListener("click", syncDraftEmail);
@@ -82,6 +79,7 @@ if (form) {
       if (!response.ok || result?.ok !== true) throw new Error("Contact submission was not accepted.");
 
       form.reset();
+      startedAt = performance.now();
       syncDraftEmail();
       setStatus("success", "Thanks! Your message has been sent. I’ll get back to you shortly.");
     } catch (error) {
