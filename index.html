@@ -18,6 +18,7 @@
   <link rel="icon" href="./assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./assets/css/showcase-expanded-shadows.css" />
+  <link rel="stylesheet" href="./assets/css/contact.css" />
 </head>
 
 <body>
@@ -70,7 +71,7 @@
         </p>
 
         <div class="hero-actions" aria-label="Primary links">
-          <a class="button primary" href="mailto:joey.wisto@gmail.com?subject=Resume%20Inquiry%20-%20Joe%20Wisto">
+          <a class="button primary" href="#contact">
             Contact
           </a>
           <a class="button external-button" href="https://www.linkedin.com/in/joey-wisto" target="_blank" rel="noopener noreferrer" aria-label="Open Joe Wisto on LinkedIn in a new tab">
@@ -391,23 +392,31 @@
           automation, reporting, practical web tools, and the systems that connect them. If you have
           a problem that needs clearer structure or a more reliable workflow, I’d be glad to hear about it.
         </p>
-        <p>Prefer email? Write to <a href="mailto:joey.wisto@gmail.com">joey.wisto@gmail.com</a>.</p>
+        <p class="print-only">Email: <a href="mailto:joey.wisto@gmail.com">joey.wisto@gmail.com</a>.</p>
       </div>
 
-      <form class="contact-form" action="mailto:joey.wisto@gmail.com" method="post" enctype="text/plain">
+      <form class="contact-form" action="/api/contact" method="post" data-contact-form>
         <label>
-          Your name
-          <input name="name" type="text" autocomplete="name" placeholder="Your name" />
+          Name
+          <input name="name" type="text" autocomplete="name" placeholder="Your name" maxlength="100" required />
         </label>
         <label>
           Email
-          <input name="email" type="email" autocomplete="email" placeholder="you@company.com" />
+          <input name="email" type="email" autocomplete="email" placeholder="you@company.com" maxlength="254" required />
         </label>
         <label>
           Message
-          <textarea name="message" rows="4" placeholder="Tell me a little about the role or project..."></textarea>
+          <textarea name="message" rows="4" placeholder="Tell me a little about the role or project..." maxlength="5000" required></textarea>
         </label>
-        <button class="button primary" type="submit">Open email draft</button>
+        <label class="contact-honeypot" aria-hidden="true">
+          Company website
+          <input name="companyWebsite" type="text" tabindex="-1" autocomplete="off" />
+        </label>
+        <div class="contact-form-footer">
+          <button class="button primary" type="submit" data-contact-submit>Send</button>
+          <p class="contact-form-help">Having trouble? <a href="mailto:joey.wisto@gmail.com?subject=Portfolio%20inquiry%20-%20Joe%20Wisto" data-contact-email>Draft an email instead</a>.</p>
+        </div>
+        <p class="contact-form-status" data-contact-status role="status" aria-live="polite"></p>
       </form>
     </section>
   </main>
@@ -423,5 +432,6 @@
 
   <script src="./showcase-config.js"></script>
   <script src="./script.js"></script>
+  <script type="module" src="./assets/js/contact.js"></script>
 </body>
 </html>
