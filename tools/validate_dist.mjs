@@ -157,7 +157,9 @@ for (const file of requiredFiles) {
 
 if (existsSync(join(dist, "_routes.json"))) {
   try {
-    const routes = JSON.parse(readFileSync(join(dist, "_routes.json"), "utf8"));
+    const routes = JSON.parse(
+      readFileSync(join(dist, "_routes.json"), "utf8"),
+    );
     const routesAreScoped =
       routes?.version === 1 &&
       Array.isArray(routes.include) &&
@@ -169,7 +171,9 @@ if (existsSync(join(dist, "_routes.json"))) {
       fail("_routes.json must invoke Pages Functions only for /api/contact.");
     }
   } catch (error) {
-    fail(`Invalid _routes.json: ${error instanceof Error ? error.message : error}`);
+    fail(
+      `Invalid _routes.json: ${error instanceof Error ? error.message : error}`,
+    );
   }
 }
 
