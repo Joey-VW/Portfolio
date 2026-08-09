@@ -13,6 +13,7 @@ const dist = join(root, "dist");
 const requiredFiles = [
   "_headers",
   "_redirects",
+  "_routes.json",
   "index.html",
   "styles.css",
   "script.js",
@@ -152,6 +153,25 @@ for (const file of gitLsFiles(["*.html"]).map(routeForHtml)) {
 for (const file of requiredFiles) {
   if (!existsSync(join(dist, file)))
     fail(`Missing required dist file: ${file}`);
+}
+
+if (existsSync(join(dist, "_routes.json"))) {
+  try {
+    const routes = JSON.parse(readFileSync(join(dist, "_routes.json"), "utf8"));
+    const routesAreScoped =
+      routes?.version === 1 &&
+      Array.isArray(routes.include) &&
+      routes.include.length === 1 &&
+      routes.include[0] === "/api/contact" &&
+      Array.isArray(routes.exclude) &&
+      routes.exclude.length === 0;
+    if (!routesAreScoped) {
+      fail("_routes.json must invoke Pages Functions only for /api/contact.");
+    }
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    fail(`Invalid _routes.json: ${detail}`);
+  }
 }
 
 for (const entry of forbiddenTopLevel) {

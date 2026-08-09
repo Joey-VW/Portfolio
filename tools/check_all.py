@@ -23,6 +23,10 @@ VALIDATION_COMMANDS = (
 
 TEST_COMMANDS = (
     (
+        "Contact function tests",
+        ("node", "tests/test_contact_function.mjs"),
+    ),
+    (
         "Showcase configuration contract tests",
         ("node", "tests/test_showcase_config.js"),
     ),
