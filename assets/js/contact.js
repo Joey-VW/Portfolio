@@ -27,7 +27,7 @@ if (form) {
       if (email) bodyLines.push(`Reply-to: ${email}`);
     }
 
-    return `mailto:joey.wisto@gmail.com?subject=${encodeURIComponent("Portfolio inquiry - Joe Wisto")}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    return `mailto:connect@wistoworks.com?subject=${encodeURIComponent("Portfolio inquiry - Joe Wisto")}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
   };
 
   const syncDraftEmail = () => {
