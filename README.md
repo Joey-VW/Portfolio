@@ -1,66 +1,255 @@
-# Joe Wisto Portfolio Hub
+# Joe Wisto — Systems • Automation • Analytics • BI
 
-A plain HTML/CSS/JavaScript technical portfolio hub for analytics, automation, systems, BI, reporting workflows, and project case studies for **Joe Wisto | Analytics, Automation, Systems & BI**. The homepage still works as a recruiter-friendly professional snapshot and print-to-PDF resume, while `/projects` introduces the first version of a broader case-study hub.
+<p align="center">
+  <img
+    src="./assets/img/og/joe-wisto-portfolio.svg"
+    alt="Joe Wisto — Systems, Automation, Analytics, BI"
+    width="100%"
+  />
+</p>
 
-This is the clean active portfolio repository. `PORTFOLIO_ROADMAP.md` is the implementation-status source of truth. Some backend and live-service integrations remain intentionally deferred; fixture-based demos and disabled submission behavior must describe those limits truthfully.
+<p align="center">
+  <strong>I build clean systems, robust automation, and meaningful insights.</strong>
+</p>
 
-## Toolchain setup
+<p align="center">
+  <a href="https://wistoworks.com/">Live Portfolio</a>
+  ·
+  <a href="https://wistoworks.com/projects/">Projects</a>
+  ·
+  <a href="https://www.linkedin.com/in/joey-wisto">LinkedIn</a>
+  ·
+  <a href="mailto:connect@wistoworks.com">Contact</a>
+</p>
 
-Repository tooling supports Node 24, npm 11, Python 3.12, and uv. Install the locked JavaScript and core Python development environments from a clean checkout:
+---
+
+## About this repository
+
+This repository powers my technical portfolio: a collection of analytics, automation, business intelligence, operational systems, and interactive experiments built around practical problems.
+
+My professional background spans 7+ years in reporting, analytics, automation, and operations. At IntouchCX, I led reporting and analytics across 27 client programs and helped move reporting toward BigQuery-backed and automated workflows that reduced manual reporting effort by roughly 40%.
+
+The work here extends that experience through hands-on systems and portfolio projects: building metric layers, modeling operational workflows, validating data, designing useful interfaces, automating repeatable processes, and making technical assumptions visible rather than hiding them behind a polished output.
+
+The portfolio itself is also part of the project. It is a static multi-page application with structured project metadata, schema-backed data contracts, deterministic validation, automated testing, build-output checks, and Cloudflare Pages deployment.
+
+**Explore the finished experience at [wistoworks.com](https://wistoworks.com/).**
+
+---
+
+## Selected work
+
+### [Procurement KPI Analysis](https://wistoworks.com/projects/procurement-kpi-analysis.html)
+
+**BI · ETL · KPI design · Data QA**
+
+An interactive supplier-performance case study built around a validated metric layer for savings, delivery reliability, defects, and compliance.
+
+Rather than treating a supplier score as a universal grade, the project exposes the underlying measures, quality rules, and business weights so stakeholders can see how priorities change the result.
+
+`SQL` · `BigQuery` · `Python` · `pandas` · `Looker Studio` · `Data QA`
+
+---
+
+### [Where Revenue Gets Stuck](https://wistoworks.com/projects/quote-to-cash-workflow-audit.html)
+
+**Process analytics · Systems thinking · Data integrity**
+
+A deterministic fictional Quote-to-Cash audit that follows separate CRM, billing, and revenue-recognition entities through the lifecycle.
+
+It keeps duplicate keys, broken handoffs, stalled records, missing stages, and timing exceptions visible before calculating conversion and stage metrics—because incomplete workflows are part of the analysis, not noise to be silently cleaned away.
+
+`Python` · `pandas` · `JavaScript` · `Synthetic data` · `Process analytics`
+
+---
+
+### [Multi-Platform Publishing System](https://wistoworks.com/projects/multi-platform-publishing-system.html)
+
+**Systems · Automation · Content operations**
+
+A sanitized portfolio adaptation of a contract/independent publishing workflow designed for a nontechnical content owner.
+
+The system connects familiar Google tools with a lightweight static frontend so structured content can drive journal entries, photos, mapped locations, and related experiences without requiring a traditional CMS or ongoing source-code editing.
+
+`JavaScript` · `Google Sheets` · `Google Forms` · `Google Drive` · `Apps Script` · `Cloudflare Pages`
+
+---
+
+### [PHX Transit Pulse](https://wistoworks.com/projects/phx-transit-pulse.html)
+
+**Operational UX · Data contracts · Interactive visualization**
+
+A responsive transit-operations dashboard built with deterministic fictional replay data and a real Phoenix-area basemap.
+
+The project explores vehicle movement, service alerts, operational states, filtering, map and non-map inspection, and accessible replay controls while being explicit about where the simulation ends and real transit data begins.
+
+`GTFS-inspired data` · `Static JSON` · `JavaScript` · `SVG` · `MapLibre` · `Data contracts`
+
+---
+
+### [Gravity Fleet Lab](https://wistoworks.com/games/gravity-fleet-lab.html)
+
+**Telemetry · Interactive data visualization · State modeling**
+
+A playable orbital strategy experiment where the interaction itself generates the dataset.
+
+Fleet movement, conquest, wormholes, AI pressure, and match outcomes become structured telemetry that feeds scoring, heatmaps, benchmarks, and post-match analytical views.
+
+`HTML Canvas` · `JavaScript` · `Telemetry` · `Data visualization` · `localStorage`
+
+---
+
+### [Shrinkflation Tracker](https://wistoworks.com/projects/shrinkflation-tracker.html)
+
+**Consumer analytics · Data normalization · Information design**
+
+A consumer-facing analytics prototype that compares package size, shelf price, and price per unit to reveal price increases that ordinary shelf labels can obscure.
+
+The implementation deliberately separates curated demonstration history from source-aware product observations so demo data is not presented as live retail history.
+
+`HTML` · `CSS` · `JavaScript` · `JSON` · `Data modeling` · `Data visualization`
+
+---
+
+### [The Real Cost of Public Charging](https://wistoworks.com/projects/ev-true-cost.html)
+
+**Scenario modeling · Consumer analytics · Data provenance**
+
+An interactive cost-per-mile comparison built around a confirmed EV charging receipt, a gasoline benchmark, and editable assumptions.
+
+Instead of claiming one universal answer, the model shows how the result changes between public fast charging, mostly-home charging, and home-only charging while keeping confirmed, benchmark, owner-provided, and mock inputs distinguishable.
+
+`JavaScript` · `JSON` · `Scenario modeling` · `Data visualization`
+
+---
+
+**[Explore the full project showcase →](https://wistoworks.com/projects/)**
+
+---
+
+## How I approach the work
+
+The projects vary, but the same principles show up repeatedly.
+
+**Start with the decision, not the dashboard.**
+I try to understand what someone needs to know or do before deciding what data, interface, or automation should exist.
+
+**Make definitions visible.**
+Metrics are only useful when their populations, rules, exceptions, and assumptions are understandable.
+
+**Treat data quality as part of the product.**
+Invalid dates, broken joins, missing stages, duplicate records, unavailable feeds, and uncertain inputs should be handled intentionally rather than disappearing during cleanup.
+
+**Automate repeatable work without making it mysterious.**
+A maintainable workflow should make the system easier to operate and reason about—not merely replace a manual process with an opaque one.
+
+**Be explicit about provenance.**
+Projects in this repository distinguish real, anonymized, synthetic, fictional, curated, benchmark, and mock data where those differences matter.
+
+**Build for the person using the result.**
+Accessibility, responsive behavior, fallback states, plain-English explanations, and inspectable details are treated as part of the technical solution.
+
+---
+
+## Technical foundation
+
+The portfolio intentionally stays close to the web platform while using supporting tooling where it creates real value.
+
+### Frontend
+
+* Static multi-page HTML
+* CSS
+* Vanilla JavaScript
+* HTML Canvas and SVG where appropriate
+* JSON-backed project and application data
+* Responsive and print-specific presentation
+
+### Analytics and automation
+
+* Python
+* pandas
+* SQL / BigQuery
+* Google Sheets and Apps Script
+* Deterministic fixture and artifact generation
+* Data validation and audit workflows
+
+### Repository engineering
+
+* JSON Schema contracts
+* Project lifecycle and route validation
+* Automated Python and JavaScript tests
+* Static-route smoke testing
+* Build-output allowlist / denylist validation
+* GitHub Actions CI
+* Cloudflare Pages deployment
+
+The browser-facing application remains intentionally static. Data preparation, validation, analysis, and operational tooling live outside the deployed frontend where appropriate.
+
+---
+
+## Validation philosophy
+
+A portfolio project should not get a free pass just because it is a demo.
+
+This repository includes validation around areas such as:
+
+* project registry lifecycle and public-route consistency;
+* JSON contract compliance;
+* generated Procurement and Quote-to-Cash artifacts;
+* transit fixtures and map behavior;
+* Gravity Fleet behavior and telemetry;
+* Showcase configuration;
+* static build output;
+* route availability;
+* obvious secrets and local-path leakage;
+* contact-function behavior.
+
+The main repository gate is:
+
+```bash
+npm run check
+```
+
+That orchestrates formatting, linting, validation, tests, the production build, distribution validation, and static-output smoke checks.
+
+---
+
+## Run locally
+
+### Requirements
+
+* Node.js 24
+* npm 11
+* Python 3.12
+* [uv](https://docs.astral.sh/uv/)
+
+### Install
 
 ```bash
 npm ci
 uv sync --dev --locked
 ```
 
-Optional Python tool families stay outside the default merge gate:
+### Validate
 
 ```bash
-uv sync --extra capture       # Playwright and Pillow; browser install is separate
-uv sync --extra transit       # GTFS-Realtime inspection tools
-uv sync --extra bigquery      # Optional Procurement BigQuery publishing
-```
-
-The supported root checks are:
-
-```bash
-npm run format:check
-npm run lint
-npm run validate
-npm run test
-npm run build
-npm run validate:dist
-npm run test:dist
 npm run check
 ```
 
-Credentialed Kroger and transit operations, browser capture, BigQuery writes, and deployments are intentionally excluded from the default merge gate.
-
-GitHub Actions runs the same deterministic gate for pull requests and relevant pushes. The Kroger observation workflow remains separate, credential-gated, and unchanged by the general CI workflow.
-
-Initial JSON Schemas live in `schemas/` and are enforced by:
-
-```bash
-python tools/validate_json_contracts.py
-```
-
-The contract validator checks the project registry, Showcase configuration, PHX Transit synthetic fixtures, EV True Cost data, Shrinkflation browser data, and the generated Procurement and Quote-to-Cash artifacts. It also verifies registry/noindex consistency, route existence, public featured Showcase metadata, and obvious secrets or local absolute paths in deployable inputs.
-
-## Local preview
-
-Run a small static server from the repository root when checking source files directly:
+### Preview source directly
 
 ```bash
 python -m http.server 8000
 ```
 
-Then visit:
+Then open:
 
 ```text
 http://localhost:8000
 ```
 
-The production build generates the clean `dist/` artifact that Cloudflare Pages publishes:
+### Build the production artifact
 
 ```bash
 npm run build
@@ -68,168 +257,66 @@ npm run validate:dist
 npm run test:dist
 ```
 
-Serve the generated artifact when validating deployment parity:
+The generated `dist/` directory is the deployment boundary used by Cloudflare Pages.
 
-```bash
-python -m http.server 4173 --bind 127.0.0.1 --directory dist
-python tools/smoke_static_routes.py --base-url http://127.0.0.1:4173
-```
+---
 
-### Showcase Dev Lab saves
-
-Use the dedicated local server only when you need Dev Lab changes to become a repository-backed default:
-
-```bash
-python tools/serve_showcase_dev.py
-```
-
-Open the printed localhost URL, enable or open Showcase Dev Lab through its approved local debug mechanism, adjust controls, select **Save**, review the Git diff for `data/showcase-config.json`, and commit the JSON change through the normal Git workflow. `python -m http.server` can preview the committed saved configuration but cannot process Dev Lab saves. Production remains static and only reads the committed JSON.
-
-Key routes:
-
-- `/` - homepage resume/professional snapshot
-- `/projects/` - project index rendered from `data/projects.json`
-- `/games/colony-ops-lab.html` - hidden, `noindex` playable colony telemetry experiment
-- `/games/gravity-fleet-lab.html` - playable orbital RTS telemetry experiment
-- `/projects/shrinkflation-tracker.html` - consumer analytics prototype for unit-price changes
-- `/projects/ev-true-cost.html` - EV public-charging cost check for public, mostly-home, and home-only charging
-- `/projects/procurement-kpi-analysis.html` - public supplier-priority case study built from a validated procurement metric layer
-- `/projects/quote-to-cash-workflow-audit.html` - public deterministic fictional audit of CRM, billing, and revenue-recognition handoffs
-- `/projects/phx-transit-pulse.html` - public synthetic operations console with a real Phoenix-area basemap, fictional transit overlays, deterministic replay, accessible records, and a schematic fallback; supporting feasibility and implementation documents live under `docs/phx-transit/`.
-- `/projects/multi-platform-publishing-system.html` - public Multi-Platform Publishing System case study
-- `/projects/multi-platform-publishing-system/demo/` - public Postcard Atlas fictional publishing-system demo (`noindex`)
-
-## Project structure
+## Repository guide
 
 ```text
-index.html                         # Portfolio homepage + resume snapshot
-styles.css                         # Futuristic visual system, project cards, case-study pages, print rules
-script.js                          # Print button, reactive panel light, JSON-driven project cards
-data/projects.json                 # Source of truth for project cards
-data/*-sample-runs.json             # Mock benchmark data for interactive game dashboards
-data/ev-true-cost.json              # Public, source-aware EV operating-cost foundation data
-data/procurement-source.csv         # Preserved source input for the Procurement case study
-data/procurement-kpi-analysis.json  # Generated Procurement browser artifact
-data/quote-to-cash-workflow-audit.json # Generated fictional QTC audit artifact
-projects/index.html                # Projects hub
-projects/*.html                    # Individual case-study pages
-projects/multi-platform-publishing-system/demo/ # Self-contained Postcard Atlas demo
-games/*.html/css/js                 # Frontend-only playable portfolio experiments
-assets/docs/                       # Future PDFs or supporting docs
-assets/img/favicon.svg             # Basic favicon
-assets/img/projects/               # Future project imagery
-assets/img/og/                     # Future Open Graph/Twitter preview images
-_headers                           # Cloudflare Pages headers
-_redirects                         # Cloudflare Pages redirects
-package.json / package-lock.json   # Root npm commands and locked JavaScript tooling
-pyproject.toml / uv.lock           # Python dependencies and locked environments
-tools/check_all.py                 # Cross-platform deterministic check orchestration
-tools/validate_json_contracts.py   # Initial JSON Schema and repository contract checks
-tools/build_site.mjs               # Vite multi-page build and reviewed static-copy step
-tools/validate_dist.mjs            # Build-output allowlist, denylist, route, and fetch checks
-docs/architecture/                 # Current route, deployment, and validation baselines
-docs/decisions/                    # Architecture decision records
-schemas/                           # Initial JSON Schemas for browser-readable contract data
+.
+├── index.html            # Portfolio / professional snapshot
+├── projects/             # Analytics, systems, and case-study experiences
+├── games/                # Interactive telemetry experiments
+├── data/                 # Browser data, fixtures, and generated artifacts
+├── schemas/              # JSON Schema contracts
+├── sql/                  # Maintained SQL assets
+├── tools/                # Build, validation, analytics, and operational tooling
+├── tests/                # Python and JavaScript test coverage
+├── docs/                 # Architecture, decisions, methods, QA, and project docs
+├── functions/            # Server-side Cloudflare functionality
+├── AGENTS.md             # Repository guidance for development agents
+└── PORTFOLIO_ROADMAP.md  # Implementation-status source of truth
 ```
 
-## Print-to-PDF resume behavior
+For deeper implementation detail:
 
-Use the **Print / PDF** button or press `Ctrl + P` from the homepage. The print stylesheet keeps the resume-oriented homepage compact, removes ambient effects and navigation, and avoids printing portfolio-only case-study pages.
+* [`PORTFOLIO_ROADMAP.md`](./PORTFOLIO_ROADMAP.md) — current implementation status and planned work
+* [`docs/architecture/`](./docs/architecture/) — architecture and deployment baselines
+* [`docs/decisions/`](./docs/decisions/) — architecture decision records
+* [`tools/README.md`](./tools/README.md) — repository tooling and specialized workflows
+* [`docs/procurement/`](./docs/procurement/) — Procurement data contract and metric definitions
+* [`docs/qtc/`](./docs/qtc/) — Quote-to-Cash methodology and data contract
+* [`docs/phx-transit/`](./docs/phx-transit/) — PHX Transit architecture, data contracts, validation, and design work
 
-## Deployment: Cloudflare Pages
+---
 
-Cloudflare Pages is connected to this repository. `main` is the production branch, automatic deployments and pull-request previews are enabled, and production builds and publishes only the generated `dist/` artifact. The selected future custom domain is `wistoworks.com`; attachment and canonical-host redirect remain open. See `PORTFOLIO_ROADMAP.md` for the current completion status.
+## Data and project boundaries
 
-Repository settings:
+Not every project in the repository is intended for public presentation.
 
-- Framework preset: **None**
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Root directory: repository root
+Public portfolio discovery is controlled through lifecycle metadata in `data/projects.json`. Projects must be both `ready` and `public` before they are treated as publishable portfolio work.
 
-Pass 16.4 completed the production cutover on August 1, 2026. Rollback restores build command `exit 0` and output directory `/`, keeps framework **None** and the repository root, then redeploys the last known-good `main` commit. Do not manually patch generated `dist/` contents.
+Some source files, experiments, fixtures, and in-progress projects remain in the repository for continued development even when they are intentionally absent from the public showcase.
 
-The included `_headers` file adds basic security headers and cache rules. The `_redirects` file preserves simple legacy routes such as `/resume` and `/home`.
+Likewise, portfolio projects demonstrate applied capability but should not automatically be interpreted as employer or client work. Where a project uses fictional, synthetic, sanitized, anonymized, or mock inputs, the public experience and supporting documentation are designed to say so.
 
-## Updating projects
+---
 
-Edit `data/projects.json` to update cards rendered on the homepage and project index. Add or update the matching static case-study HTML file in `projects/` for detailed writeups.
+## Deployment
 
-Every project entry must include:
+The portfolio is deployed through **Cloudflare Pages** from the production build generated by this repository.
 
-- `createdAt` as the original project creation date in `YYYY-MM-DD` format
-- `status` as `ready`, `in-progress`, or `planned`
-- `visibility` as `public` or `hidden`
+**Live site:** https://wistoworks.com/
 
-Only entries with valid lifecycle metadata, `status: "ready"`, and `visibility: "public"` are published. Homepage and Showcase selection also requires `featured: true`. All public consumers use the same newest-first order, with title as the tie-breaker.
+The repository maintains an explicit build/deployment boundary: source files are transformed into a reviewed `dist/` artifact, that artifact is validated, and generated deployment output is not manually patched.
 
-Validate lifecycle metadata, local routes, and `noindex` coverage with Python. When Node is available, also run the dependency-free runtime helper check:
+---
 
-```bash
-python tools/validate_project_registry.py
-node tools/validate_project_registry_runtime.js
-```
+## Connect
 
-## EV true-cost foundation workflow
+If the work here overlaps with a problem you're trying to solve—or you just want to talk systems, analytics, automation, or BI—I'd be glad to connect.
 
-`/projects/ev-true-cost.html` is a static consumer analytics case study for comparing a 2018 Honda Pilot gasoline benchmark with a confirmed 2026 Kia EV9 Light Long Range RWD configuration. It leads with the household story, a confirmed public fast-charging receipt, and a conditional answer: public charging costs more in the seed model, while mostly-home and home-only charging flip the result. Results are derived in-browser from `data/ev-true-cost.json` and current form state; the committed JSON preserves source/provenance metadata for confirmed, owner-reported, benchmark, mock, and planned inputs.
-
-The public charging default is recomputed from the confirmed receipt (`$30.08 / 49.6 kWh`). Home electricity and home-charger installation cost are temporary mock assumptions. Owner-only acquisition/sale context is intentionally excluded from the public browser JSON; keep future sensitive working inputs in local-only files until publication is approved. The foundation release is not live data and does not claim a total ownership model.
-
-Useful command:
-
-```bash
-python tools/validate_ev_true_cost.py
-```
-
-## Legacy analytics modernization workflows
-
-The Procurement case study preserves its retrieved source CSV, applies blocking contract checks plus measured audit exceptions, and generates the static browser artifact from one maintained metric layer:
-
-```bash
-python tools/procurement/build_case_data.py
-python tools/procurement/validate_case_data.py
-```
-
-BigQuery remains an optional documented destination and is not required to view or reproduce the browser output. See `docs/procurement/` for provenance, the data contract, and the metric dictionary.
-
-The Quote-to-Cash case study creates separate fictional CRM, billing, and revenue entities with fixed seed `20250630`, then measures stage-specific conversion, timing, and workflow exceptions:
-
-```bash
-python tools/qtc/build_case_data.py
-python tools/qtc/validate_case_data.py
-```
-
-Optional generated source CSVs can be written with `python tools/qtc/generate_mock_data.py`. See `docs/qtc/` for the entity contract, cohort definitions, audit rules, and scenario limits.
-
-Focused automated coverage for both workflows and the shared dataframe inspector:
-
-```bash
-python -m unittest tests/test_analytics_modernization.py
-```
-
-## Shrinkflation live-data workflow
-
-The Shrinkflation Tracker intentionally separates curated demo history from official Kroger/Fry’s API observations. `quarterlyHistory` remains mock/demo data for the portfolio case-study curves, while `apiMatches` and `observations` accumulate source-aware live records for future trend detection. The frontend is static and only reads committed JSON; Kroger credentials stay local/server-side and are never exposed to browser JavaScript.
-
-Useful commands:
-
-```bash
-python tools/fetch_kroger_products.py --dry-run --limit 3
-python tools/fetch_kroger_products.py --write-staging --limit 3
-python tools/fetch_kroger_products.py --apply-observations
-python tools/fetch_kroger_products.py --from-staging data/shrinkflation-products.kroger-staging.json --apply-observations --dry-run
-python tools/fetch_kroger_products.py --dry-run --limit 3 --review-matches
-python tools/fetch_kroger_products.py --test-merge-fixture
-```
-
-To prevent search-result drift over time, review candidate matches and lock stable products in `data/shrinkflation-api-targets.json` with `preferredProductId` or `preferredUpc`.
-
-## Future roadmap
-
-- Add real project screenshots and OG preview images.
-- Add downloadable resume and project one-pagers under `assets/docs/`.
-- Add richer case-study metrics, diagrams, and links to live demos where appropriate.
-- Keep fixture-based and disabled behaviors truthful while live Sheets, Forms, Drive, and contact delivery remain deferred.
-- Replace the `mailto:` contact form with a verified Cloudflare Worker or form endpoint when backend work is prioritized.
-- Keep the browser application static and multi-page. Preserve the verified Cloudflare `dist/` boundary and rollback procedure for future build changes.
+**Portfolio:** [wistoworks.com](https://wistoworks.com/)
+**LinkedIn:** [linkedin.com/in/joey-wisto](https://www.linkedin.com/in/joey-wisto)
+**Email:** [connect@wistoworks.com](mailto:connect@wistoworks.com)
