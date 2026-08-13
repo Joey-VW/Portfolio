@@ -26,8 +26,8 @@
         <div>
           <p class="eyebrow">BI + ETL CASE STUDY</p>
           <h1>Which supplier is actually delivering the best value?</h1>
-          <p class="hero-title">Low prices only help when the supplier also delivers on time, limits defects, and stays compliant.</p>
-          <p class="hero-summary">I rebuilt a legacy procurement analysis around one transparent metric layer. Change the business priority below and the ranking changes with it.</p>
+          <p class="hero-title">Compare supplier value across cost, delivery, quality, and compliance.</p>
+          <p class="hero-summary">This case study uses a public Kaggle procurement dataset with 777 purchase-order records from 2022–2023, including suppliers, categories, prices, delivery dates, defects, and compliance.</p>
           <div class="hero-actions"><a class="button primary" href="#decision">Try the supplier priorities</a><a class="button" href="#method">See the method</a></div>
         </div>
         <div class="procurement-hero-visual" role="img" aria-label="A purchase order moves through validation and supplier scoring">
@@ -39,7 +39,7 @@
         </div>
       </header>
 
-      <nav class="procurement-subnav" aria-label="Procurement case-study sections"><a href="#data">The data</a><a href="#decision">Supplier priorities</a><a href="#categories">Categories</a><a href="#pipeline">Pipeline</a><a href="#method">Method</a></nav>
+      <nav class="procurement-subnav" aria-label="Procurement case-study sections"><a href="#data">The data</a><a href="#dashboard">Dashboard</a><a href="#decision">Supplier priorities</a><a href="#categories">Categories</a><a href="#pipeline">Pipeline</a><a href="#method">Method</a></nav>
       <div class="procurement-alert" data-error role="alert" hidden></div>
 
       <section class="procurement-section" id="data" aria-labelledby="data-title">
@@ -53,8 +53,33 @@
         <div class="quality-strip" data-quality></div>
       </section>
 
+      <section class="procurement-section procurement-dashboard" id="dashboard" aria-labelledby="dashboard-title">
+        <div class="section-heading"><p class="eyebrow">Interactive dashboard</p><h2 id="dashboard-title">Track procurement performance over time</h2><p>Change the business event or period size, then compare the same selected supplier and category cohort across the range.</p></div>
+        <div class="dashboard-controls">
+          <fieldset class="dashboard-control-group"><legend>Date basis</legend><div role="group" aria-label="Date basis"><button type="button" data-date-basis="order" aria-pressed="true">Order Date</button><button type="button" data-date-basis="delivery" aria-pressed="false">Delivery Date</button></div></fieldset>
+          <fieldset class="dashboard-control-group"><legend>Granularity</legend><div role="group" aria-label="Granularity"><button type="button" data-granularity="month" aria-pressed="true">Month</button><button type="button" data-granularity="week" aria-pressed="false">Week</button></div></fieldset>
+          <label class="dashboard-tooltip" data-tooltip="Show one supplier across every dashboard metric and chart.">Supplier<select data-dashboard-supplier></select></label>
+          <label class="dashboard-tooltip" data-tooltip="Show one purchasing category across every dashboard metric and chart.">Item category<select data-dashboard-category></select></label>
+          <label>From<select data-range-start></select></label>
+          <label>To<select data-range-end></select></label>
+          <button class="dashboard-reset" type="button" data-dashboard-reset>Reset filters</button>
+        </div>
+        <p class="dashboard-helper" data-active-helper aria-live="polite"></p>
+        <div class="dashboard-status-layout" aria-live="polite">
+          <article class="dashboard-callout"><svg class="dashboard-sparkline" data-sparkline="savings" aria-hidden="true"></svg><span>Money saved</span><strong data-dashboard-savings>Loading…</strong></article>
+          <article class="dashboard-callout dashboard-callout-mirrored"><svg class="dashboard-sparkline" data-sparkline="defects" aria-hidden="true"></svg><span>Known defective units</span><strong data-dashboard-defects>Loading…</strong><small data-dashboard-defect-note>Unknown counts are excluded.</small></article>
+          <figure class="dashboard-chart dashboard-donut-chart"><figcaption><span>Order status</span><strong>Orders in the selected range</strong></figcaption><div data-status-donut></div></figure>
+          <article class="dashboard-callout"><svg class="dashboard-sparkline" data-sparkline="leadTime" aria-hidden="true"></svg><span>Average lead time</span><strong data-dashboard-lead-time>Loading…</strong></article>
+          <article class="dashboard-callout dashboard-callout-mirrored"><svg class="dashboard-sparkline" data-sparkline="noncompliance" aria-hidden="true"></svg><span>Non-compliance rate</span><strong data-dashboard-noncompliance>Loading…</strong></article>
+        </div>
+        <div class="dashboard-chart-grid">
+          <figure class="dashboard-chart"><figcaption><span>Orders by supplier and category</span><strong>Filtered purchase-order count</strong></figcaption><div data-supplier-category-chart></div></figure>
+          <figure class="dashboard-chart"><figcaption><span data-purchase-trends-heading>Monthly purchase trends</span><strong data-purchase-trends-title>Spend and quantity by month</strong></figcaption><div data-purchase-trends-chart></div></figure>
+        </div>
+      </section>
+
       <section class="procurement-section decision-section" id="decision" aria-labelledby="decision-title">
-        <div class="section-heading"><p class="eyebrow">The signature interaction</p><h2 id="decision-title">What matters most right now?</h2><p>Each preset applies documented weights to normalized savings, delivery, defect, and compliance measures. Scores compare this supplier set; they are not universal vendor grades.</p></div>
+        <div class="section-heading"><p class="eyebrow">The signature interaction</p><h2 id="decision-title">What matters most right now?</h2><p>A supplier with the lowest price is not automatically the best supplier. These presets change how much the ranking values savings, on-time delivery, defects, and compliance. Choose a priority to see how the supplier order changes. Scores compare this supplier set; they are not universal vendor grades.</p></div>
         <div class="priority-controls" data-priorities role="group" aria-label="Supplier ranking priority">
           <button type="button" data-preset="balanced" aria-pressed="true"><strong>Balanced</strong><small>25% across every signal</small></button>
           <button type="button" data-preset="cost" aria-pressed="false"><strong>Cost first</strong><small>55% savings weight</small></button>
@@ -73,7 +98,7 @@
 
       <section class="procurement-section" id="categories" aria-labelledby="categories-title">
         <div class="section-heading"><p class="eyebrow">Category drill-down</p><h2 id="categories-title">The tradeoff changes by what you buy</h2><p>Choose a category to compare supplier performance inside a more specific purchasing context.</p></div>
-        <label class="category-control">Item category<select data-category aria-controls="category-results"></select></label>
+        <label class="category-control">Item category<select data-category-detail aria-controls="category-results"></select></label>
         <div class="category-results" id="category-results" data-category-results aria-live="polite"></div>
         <details class="trend-details"><summary>View monthly reliability trend</summary><p class="trend-scope" data-trend-scope></p><div class="trend-chart" data-trend></div></details>
       </section>

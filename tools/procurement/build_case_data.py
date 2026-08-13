@@ -122,6 +122,9 @@ def enrich(frame: pd.DataFrame) -> pd.DataFrame:
     result["Order_Month"] = result["Order_Date"].dt.to_period("M").dt.to_timestamp()
     # pandas W-SAT periods end on Saturday and therefore start on Sunday.
     result["Order_Week_Start"] = result["Order_Date"].dt.to_period("W-SAT").dt.start_time
+    valid_delivery_dates = result["Delivery_Date"].where(result["Delivered"])
+    result["Delivery_Month"] = valid_delivery_dates.dt.to_period("M").dt.to_timestamp()
+    result["Delivery_Week_Start"] = valid_delivery_dates.dt.to_period("W-SAT").dt.start_time
     return result
 
 
@@ -218,6 +221,41 @@ def summarize_monthly(group: pd.DataFrame) -> list[dict[str, Any]]:
     ]
 
 
+def temporal_rows(model: pd.DataFrame) -> list[dict[str, Any]]:
+    """Expose the documented date helpers for browser-side dashboard filtering.
+
+    Delivery helpers remain null for missing or impossible deliveries so temporal
+    delivery views cannot accidentally turn those records into a valid period.
+    """
+    helper_fields = (
+        "Order_Month",
+        "Order_Week_Start",
+        "Delivery_Month",
+        "Delivery_Week_Start",
+    )
+
+    def as_date(value: Any) -> str | None:
+        return None if pd.isna(value) else value.strftime("%Y-%m-%d")
+
+    return [
+        {
+            "supplier": row.Supplier,
+            "category": row.Item_Category,
+            "orderStatus": row.Order_Status,
+            **{field: as_date(getattr(row, field)) for field in helper_fields},
+            "spend": round(float(row.Negotiated_Value), 2),
+            "savings": round(float(row.Savings_Value), 2),
+            "delivered": bool(row.Delivered),
+            "onTime": bool(row.On_Time),
+            "leadDays": None if pd.isna(row.Lead_Days) or not row.Delivered else int(row.Lead_Days),
+            "quantity": int(row.Quantity),
+            "defectiveUnits": None if pd.isna(row.Defective_Units) else float(row.Defective_Units),
+            "compliant": row.Compliance == "Yes",
+        }
+        for row in model.itertuples(index=False)
+    ]
+
+
 def build_artifact(frame: pd.DataFrame, source_path: Path) -> dict[str, Any]:
     quality = validate_source(frame)
     model = enrich(frame)
@@ -235,7 +273,7 @@ def build_artifact(frame: pd.DataFrame, source_path: Path) -> dict[str, Any]:
         for name, group in model.groupby("Item_Category", sort=True)
     ]
     monthly = summarize_monthly(model)
-    source_bytes = source_path.read_bytes()
+    source_bytes = source_path.read_text(encoding="utf-8").replace("\r\n", "\n").encode("utf-8")
     return {
         "meta": {
             "title": "Procurement KPI Analysis",
@@ -267,6 +305,7 @@ def build_artifact(frame: pd.DataFrame, source_path: Path) -> dict[str, Any]:
         "suppliers": suppliers,
         "categories": categories,
         "monthly": monthly,
+        "temporalRows": temporal_rows(model),
     }
 
 

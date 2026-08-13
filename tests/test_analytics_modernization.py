@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import unittest
 from pathlib import Path
 
@@ -145,6 +146,30 @@ class ProcurementTests(unittest.TestCase):
                 for category in artifact["categories"]
             )
         )
+
+    def test_temporal_helpers_preserve_delivery_nulls_and_valid_periods(self) -> None:
+        artifact = build_artifact(self.source, self.source_path)
+        rows = artifact["temporalRows"]
+        self.assertEqual(len(rows), 777)
+        self.assertTrue(all(row["Order_Month"] and row["Order_Week_Start"] for row in rows))
+        self.assertEqual(
+            sum(row["Delivery_Month"] is None for row in rows),
+            artifact["quality"]["missingDeliveries"] + artifact["quality"]["impossibleDeliverySequences"],
+        )
+        self.assertTrue(all(
+            (row["Delivery_Month"] is None) == (row["Delivery_Week_Start"] is None)
+            for row in rows
+        ))
+        self.assertTrue(all(row["orderStatus"] for row in rows))
+        self.assertTrue(all(
+            (row["leadDays"] is None) == (not row["delivered"])
+            for row in rows
+        ))
+
+    def test_artifact_source_hash_uses_repository_lf_normalization(self) -> None:
+        artifact = build_artifact(self.source, self.source_path)
+        normalized = self.source_path.read_text(encoding="utf-8").replace("\r\n", "\n").encode("utf-8")
+        self.assertEqual(artifact["meta"]["source"]["sha256"], hashlib.sha256(normalized).hexdigest())
 
 
 class QuoteToCashTests(unittest.TestCase):

@@ -17,12 +17,87 @@
 .section-heading { max-width: 70ch; }
 .section-heading h2 { color: #fff; font-size: clamp(1.7rem, 4vw, 2.8rem); }
 .section-heading p:last-child { color: #aebed0; }
+#data .section-heading { margin-inline: auto; text-align: center; }
 .procurement-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin-top: 1rem; }
-.procurement-kpis article { min-width: 0; padding: 1rem; border: 1px solid rgba(45, 212, 191, .16); border-radius: 20px; background: rgba(2, 6, 23, .42); }
+.procurement-kpis article { min-width: 0; padding: 1.15rem 1rem; border: 1px solid rgba(45, 212, 191, .16); border-radius: 20px; background: rgba(2, 6, 23, .42); text-align: center; }
 .procurement-kpis span, .quality-strip span { color: #94a3b8; font-size: .82rem; }
 .procurement-kpis strong { display: block; margin-top: .25rem; color: #f8fafc; font-size: clamp(1.45rem, 3.4vw, 2.4rem); line-height: 1.05; overflow-wrap: anywhere; }
-.quality-strip { display: flex; gap: .65rem; flex-wrap: wrap; margin-top: .85rem; }
+.quality-strip { display: flex; gap: .65rem; flex-wrap: wrap; justify-content: center; margin-top: .85rem; }
 .quality-strip span { padding: .45rem .65rem; border-radius: 999px; background: rgba(148, 163, 184, .09); }
+.procurement-dashboard { background: linear-gradient(145deg, rgba(15, 23, 42, .9), rgba(8, 47, 73, .35)); }
+.procurement-dashboard .section-heading { max-width: 72rem; margin-inline: auto; text-align: center; }
+.dashboard-controls { display: grid; grid-template-columns: minmax(12.5rem, 1.45fr) minmax(8.5rem, 1fr) repeat(2, minmax(8.5rem, 1.05fr)) repeat(2, minmax(7.5rem, .9fr)) auto; gap: .65rem; align-items: end; margin: 1rem auto 0; padding: .9rem; border-radius: 18px; background: rgba(2, 6, 23, .35); }
+.dashboard-control-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+.dashboard-control-group legend, .dashboard-controls label { display: grid; gap: .35rem; color: #cbd5e1; font-size: .82rem; font-weight: 800; text-align: center; }
+.dashboard-control-group > div { display: flex; flex-wrap: nowrap; justify-content: center; gap: .35rem; }
+.dashboard-control-group button { min-height: 2.65rem; flex: 1 1 auto; padding: .5rem .65rem; border: 1px solid rgba(148, 163, 184, .25); border-radius: 12px; background: rgba(15, 23, 42, .75); color: #dbeafe; cursor: pointer; font: inherit; white-space: nowrap; }
+.dashboard-control-group button[aria-pressed="true"] { border-color: rgba(94, 234, 212, .75); background: rgba(13, 148, 136, .24); color: #f0fdfa; }
+.dashboard-controls select { min-height: 2.65rem; min-width: 0; padding: .5rem .65rem; border: 1px solid rgba(148, 163, 184, .25); border-radius: 12px; background: #0f172a; color: #f8fafc; font: inherit; }
+.dashboard-tooltip { position: relative; }
+.dashboard-tooltip::after { position: absolute; z-index: 3; right: 0; bottom: calc(100% + .45rem); width: max-content; max-width: 15rem; padding: .55rem .65rem; border: 1px solid rgba(148, 163, 184, .25); border-radius: 10px; background: #0f172a; box-shadow: 0 .65rem 1.6rem rgba(2, 6, 23, .35); color: #dbeafe; content: attr(data-tooltip); font-size: .75rem; font-weight: 600; line-height: 1.35; opacity: 0; pointer-events: none; text-align: left; transform: translateY(.2rem); transition: opacity 160ms ease, transform 160ms ease; }
+.dashboard-tooltip:hover::after, .dashboard-tooltip:focus-within::after { opacity: 1; transform: translateY(0); }
+.dashboard-reset { min-height: 2.65rem; justify-self: center; align-self: end; padding: .5rem .75rem; border: 1px solid rgba(148, 163, 184, .22); border-radius: 12px; background: transparent; color: #94a3b8; cursor: pointer; font: inherit; }
+.dashboard-reset:hover, .dashboard-reset:focus-visible { border-color: rgba(148, 163, 184, .55); color: #e2e8f0; }
+.dashboard-helper { margin: .75rem 0 0; color: #99f6e4; font-size: .84rem; font-weight: 700; text-align: center; }
+.dashboard-status-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(17rem, 1.15fr) minmax(0, 1fr); grid-template-areas: "saved donut defects" "lead donut compliance"; gap: .85rem; align-items: stretch; margin-top: 1.15rem; }
+.dashboard-callout { position: relative; display: grid; align-content: end; min-width: 0; min-height: 10.25rem; padding: 1.15rem; overflow: hidden; border-bottom: 1px solid rgba(94, 234, 212, .28); border-radius: 18px 18px 4px 4px; background: linear-gradient(90deg, rgba(45, 212, 191, .08), rgba(15, 23, 42, .22) 72%, transparent); }
+.dashboard-callout:nth-child(1) { grid-area: saved; }
+.dashboard-callout:nth-child(2) { grid-area: defects; }
+.dashboard-callout:nth-child(4) { grid-area: lead; }
+.dashboard-callout:nth-child(5) { grid-area: compliance; }
+.dashboard-callout-mirrored { align-items: end; background: linear-gradient(270deg, rgba(45, 212, 191, .08), rgba(15, 23, 42, .22) 72%, transparent); text-align: right; }
+.dashboard-callout span, .dashboard-callout strong, .dashboard-callout small { position: relative; z-index: 1; }
+.dashboard-callout span { color: #a8b5c8; font-size: .82rem; }
+.dashboard-callout strong { display: block; margin-top: .25rem; color: #f8fafc; font-size: clamp(1.65rem, 2.8vw, 2.4rem); line-height: 1.05; overflow-wrap: anywhere; }
+.dashboard-callout small { margin-top: .4rem; color: #94a3b8; font-size: .73rem; line-height: 1.3; }
+.dashboard-sparkline { position: absolute; inset: 1rem .9rem 3.2rem; width: calc(100% - 1.8rem); height: 4.2rem; opacity: .38; }
+.dashboard-sparkline polyline { fill: none; stroke: rgba(153, 246, 228, .68); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5; }
+.dashboard-chart-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.15rem; margin-top: 1.15rem; }
+.dashboard-chart { min-width: 0; margin: 0; padding: clamp(1rem, 2vw, 1.5rem); border-radius: 22px; background: rgba(2, 6, 23, .43); box-shadow: inset 0 0 0 1px rgba(148, 163, 184, .055); }
+.dashboard-donut-chart { grid-area: donut; display: grid; place-items: center; padding: 1.15rem; text-align: center; }
+.dashboard-chart figcaption { display: grid; gap: .18rem; margin-bottom: 1rem; }
+.dashboard-donut-chart figcaption { width: 100%; }
+.dashboard-chart figcaption span { color: #9aa9bd; font-size: .83rem; text-transform: uppercase; letter-spacing: .1em; }
+.dashboard-chart figcaption strong { color: #f8fafc; font-size: clamp(1.12rem, 2vw, 1.35rem); }
+.dashboard-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.status-donut { display: grid; place-items: center; width: min(14rem, 72vw); aspect-ratio: 1; margin: .55rem auto 1rem; border-radius: 50%; background: conic-gradient(var(--status-segments)); box-shadow: 0 1.25rem 3rem rgba(2, 6, 23, .24); }
+.status-donut::before { content: ""; grid-area: 1 / 1; width: 68%; aspect-ratio: 1; border-radius: 50%; background: #0f172a; box-shadow: inset 0 0 0 1px rgba(148, 163, 184, .1); }
+.status-donut > div { z-index: 1; grid-area: 1 / 1; display: grid; gap: .1rem; text-align: center; }
+.status-donut strong { color: #f8fafc; font-size: clamp(2.1rem, 4vw, 3rem); line-height: 1; }
+.status-donut span { color: #94a3b8; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+.dashboard-legend { display: flex; gap: .55rem 1rem; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; color: #b7c3d5; font-size: .88rem; }
+.dashboard-legend li { display: inline-flex; align-items: center; gap: .35rem; }
+.dashboard-legend li strong { color: #f8fafc; }
+.dashboard-legend i { width: .65rem; height: .65rem; flex: 0 0 auto; border-radius: 50%; background: var(--legend-color); }
+.category-legend { justify-content: center; margin-top: 1rem; }
+.dashboard-legend-filter { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .35rem; border: 1px solid transparent; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; font: inherit; }
+.dashboard-legend-filter:hover, .dashboard-legend-filter:focus-visible, .dashboard-legend-filter.is-active { border-color: rgba(94, 234, 212, .58); background: rgba(45, 212, 191, .12); color: #f0fdfa; }
+.combo-legend { justify-content: center; gap: .65rem; margin-top: 1rem; }
+.combo-legend li { min-height: 2.35rem; padding: .45rem .7rem; border: 1px solid rgba(148, 163, 184, .14); border-radius: 999px; background: rgba(15, 23, 42, .68); }
+.dashboard-legend .line-key { width: 1.5rem; height: 3px; border-radius: 999px; background: #5eead4; }
+.dashboard-legend .projected-key { height: 0; border-top: 3px dashed #7dd3fc; background: transparent; }
+.dashboard-legend .bar-key { width: .75rem; height: 1rem; border-radius: 3px; background: rgba(196, 181, 253, .72); }
+.dashboard-axis { stroke: rgba(148, 163, 184, .3); }
+.dashboard-grid-line { fill: none; stroke: rgba(148, 163, 184, .14); stroke-width: 1; }
+.dashboard-line { fill: none; stroke: #5eead4; stroke-width: 4; pointer-events: none; }
+.dashboard-line-projected { stroke: #7dd3fc; stroke-dasharray: 9 7; stroke-width: 3.5; }
+.dashboard-dot { fill: #ccfbf1; stroke: #2dd4bf; stroke-width: 2; }
+.dashboard-dot-projected { fill: #dbeafe; stroke: #7dd3fc; }
+.dashboard-quantity-bar { fill: rgba(196, 181, 253, .5); }
+.dashboard-trend-hit { fill: transparent; }
+.dashboard-x-label, .dashboard-y-label { fill: #a8b5c8; font-size: 13px; }
+.dashboard-axis-title { fill: #dbeafe; font-size: 13px; font-weight: 800; letter-spacing: .04em; }
+.dashboard-supplier-label { fill: #d4deec; font-size: 15px; font-weight: 700; }
+.dashboard-supplier-total { fill: #f8fafc; font-size: 14px; font-weight: 900; }
+.dashboard-segment-label { fill: #08111f; font-size: 13px; font-weight: 900; pointer-events: none; }
+.dashboard-supplier-bar { cursor: pointer; outline: none; }
+.dashboard-supplier-bar .supplier-category-segment { transition: opacity 160ms ease, filter 160ms ease; }
+.dashboard-supplier-bar:hover .supplier-category-segment, .dashboard-supplier-bar:focus .supplier-category-segment, .dashboard-supplier-bar.is-active .supplier-category-segment { filter: brightness(1.18); stroke: #f0fdfa; stroke-width: 1.5; }
+.dashboard-supplier-bar.is-active .dashboard-supplier-label, .dashboard-supplier-bar.is-active .dashboard-supplier-total { fill: #99f6e4; }
+.dashboard-trend-point { cursor: help; outline: none; }
+.dashboard-trend-point:focus .dashboard-quantity-bar, .dashboard-trend-point:hover .dashboard-quantity-bar { fill: rgba(221, 214, 254, .88); }
+[data-supplier-category-chart], [data-purchase-trends-chart] { overflow-x: auto; scrollbar-color: rgba(94, 234, 212, .35) transparent; }
+.dashboard-empty { min-height: 12rem; display: grid; place-items: center; margin: 0; color: #94a3b8; text-align: center; }
 .priority-controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; margin: 1rem 0; }
 .priority-controls button { min-height: 5.2rem; padding: .85rem; border: 1px solid rgba(148, 163, 184, .23); border-radius: 18px; background: rgba(2, 6, 23, .46); color: #e2e8f0; text-align: left; cursor: pointer; transition: transform 180ms ease, border-color 180ms ease, background 180ms ease; }
 .priority-controls button:hover { transform: translateY(-2px); border-color: rgba(94, 234, 212, .48); }
@@ -68,6 +143,10 @@
 .method-grid h3 { color: #f8fafc; }
 .method-grid ul { padding-left: 1.1rem; color: #aebed0; }
 .procurement-alert { margin: 1rem 0; padding: 1rem; border: 1px solid rgba(248, 113, 113, .45); border-radius: 16px; background: rgba(127, 29, 29, .24); color: #fecaca; }
+@media (max-width: 1180px) {
+  .dashboard-controls { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dashboard-reset { width: 100%; }
+}
 @media (max-width: 980px) {
   .procurement-hero .hero-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 }
@@ -75,13 +154,23 @@
   .procurement-hero { grid-template-columns: 1fr; }
   .procurement-hero-visual { min-height: 16rem; }
   .procurement-kpis, .priority-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-status-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "donut donut" "saved defects" "lead compliance"; }
+  .dashboard-chart-grid { grid-template-columns: 1fr; }
+  [data-supplier-category-chart] svg { min-width: 52rem; }
+  [data-purchase-trends-chart] svg { min-width: 60rem; }
   .pipeline-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 680px) {
   .procurement-hero h1 { font-size: clamp(2.35rem, 13vw, 4rem); }
   .procurement-hero .hero-actions { grid-template-columns: 1fr; }
   .procurement-subnav { border-radius: 22px; }
-  .procurement-kpis, .priority-controls, .category-results, .method-grid, .pipeline-list { grid-template-columns: 1fr; }
+  .procurement-kpis, .priority-controls, .category-results, .method-grid, .pipeline-list, .dashboard-controls, .dashboard-chart-grid { grid-template-columns: 1fr; }
+  .dashboard-status-layout { grid-template-columns: 1fr; grid-template-areas: "donut" "saved" "defects" "lead" "compliance"; }
+  .dashboard-reset { width: 100%; justify-self: stretch; }
+  [data-supplier-category-chart] svg { min-width: 52rem; }
+  [data-purchase-trends-chart] svg { min-width: 60rem; }
+  .dashboard-callout, .dashboard-callout-mirrored { text-align: left; }
   .priority-controls button { min-height: 4.6rem; }
 }
 @media (prefers-reduced-motion: reduce) {
