@@ -48,7 +48,7 @@
 }
 
 
-.shrink-subnav {
+.shrink-shell > .shrink-subnav {
   position: sticky;
   top: 6rem;
   z-index: 10;
@@ -61,7 +61,7 @@
   backdrop-filter: blur(18px);
 }
 
-.shrink-subnav a {
+.shrink-shell > .shrink-subnav a {
   padding: 0.55rem 0.8rem;
   border: 1px solid transparent;
   border-radius: 999px;
@@ -69,8 +69,8 @@
   font-weight: 800;
 }
 
-.shrink-subnav a:hover,
-.shrink-subnav a:focus-visible {
+.shrink-shell > .shrink-subnav a:hover,
+.shrink-shell > .shrink-subnav a:focus-visible {
   color: var(--cyan);
   border-color: rgba(111, 248, 255, 0.28);
   background: rgba(111, 248, 255, 0.06);
@@ -470,7 +470,7 @@
     --shrink-pad: clamp(1rem, 5vw, 1.35rem);
   }
 
-  .shrink-subnav {
+  .shrink-shell > .shrink-subnav {
     position: static;
   }
 
@@ -548,7 +548,7 @@
   .category-card,
   .insight-card,
   .method-card,
-  .shrink-subnav a {
+  .shrink-shell > .shrink-subnav a {
     transition: none;
   }
 }
