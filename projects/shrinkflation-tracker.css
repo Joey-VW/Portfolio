@@ -134,7 +134,7 @@
   color: var(--muted);
 }
 
-.metric-value {
+.shrink-app .metric-value {
   display: block;
   margin: 0.35rem 0;
   font-size: clamp(1.8rem, 4vw, 2.7rem);
@@ -143,9 +143,9 @@
   letter-spacing: -0.06em;
 }
 
-.metric-value.good { color: var(--green); }
-.metric-value.warn { color: var(--orange); }
-.metric-value.cool { color: var(--cyan); }
+.shrink-app .metric-value.good { color: var(--green); }
+.shrink-app .metric-value.warn { color: var(--orange); }
+.shrink-app .metric-value.cool { color: var(--cyan); }
 
 .filter-bar {
   display: flex;

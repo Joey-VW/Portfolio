@@ -682,7 +682,7 @@ h3 {
   justify-content: space-between;
 }
 
-.metric-value {
+.metric .metric-value {
   font-size: clamp(3rem, 6vw, 5.8rem);
   line-height: 0.85;
   font-weight: 950;
