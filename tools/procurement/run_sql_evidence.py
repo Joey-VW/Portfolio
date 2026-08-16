@@ -11,6 +11,7 @@ written under .local/ and are ignored by Git.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.procurement.build_case_data import enrich, read_source  # noqa: E402
+from tools.procurement.build_case_data import enrich, read_source, validate_source  # noqa: E402
 
 DEFAULT_SOURCE = ROOT / "data" / "procurement-source.csv"
 DEFAULT_DATABASE = ROOT / ".local" / "procurement.duckdb"
@@ -35,6 +36,24 @@ MODEL_CHAIN = (
     ("mart_status_delivery_reconciliation", SQL_DIR / "mart_status_delivery_reconciliation.sql"),
     ("mart_supplier_priority_scenarios", SQL_DIR / "mart_supplier_priority_scenarios.sql"),
 )
+
+CANONICAL_SOURCE_SHA256 = "bf9a529c52cd7de254994a55d087f865d3aefc0ba66790e8ee43a26e7beb6e9c"
+CANONICAL_SOURCE_EXPECTATIONS = {
+    "rows": 777,
+    "unique_po_ids": 777,
+    "suppliers": 5,
+    "categories": 5,
+    "supplier_category_pairs": 25,
+    "missing_deliveries": 87,
+    "missing_defects": 136,
+    "impossible_deliveries": 1,
+}
+CANONICAL_STATUS_COUNTS = {
+    "Delivered": 560,
+    "Partially Delivered": 73,
+    "Pending": 81,
+    "Cancelled": 63,
+}
 
 ORDER_RECONCILIATION_COLUMNS = (
     "PO_ID",
@@ -70,7 +89,7 @@ BOOLEAN_COLUMNS = {
 
 
 class ReconciliationError(AssertionError):
-    """Raised when DuckDB output diverges from the maintained pandas reference."""
+    """Raised when DuckDB output diverges from an independent expectation."""
 
 
 def _sql_literal(path: Path) -> str:
@@ -80,6 +99,53 @@ def _sql_literal(path: Path) -> str:
 def _query_frame(database: Path, sql: str) -> pd.DataFrame:
     with duckdb.connect(str(database), read_only=True) as connection:
         return connection.execute(sql).fetchdf()
+
+
+def validate_source_contract(source: Path) -> dict[str, int | str]:
+    """Assert that SQL evidence is running against the locked canonical source snapshot."""
+    frame = read_source(source)
+    quality = validate_source(frame)
+    normalized_source = source.read_text(encoding="utf-8").replace("\r\n", "\n").encode("utf-8")
+    observed_sha256 = hashlib.sha256(normalized_source).hexdigest()
+
+    observed: dict[str, int | str] = {
+        "sha256": observed_sha256,
+        "rows": int(len(frame)),
+        "unique_po_ids": int(frame["PO_ID"].nunique()),
+        "suppliers": int(frame["Supplier"].nunique()),
+        "categories": int(frame["Item_Category"].nunique()),
+        "supplier_category_pairs": int(
+            frame[["Supplier", "Item_Category"]].drop_duplicates().shape[0]
+        ),
+        "missing_deliveries": int(quality["missingDeliveries"]),
+        "missing_defects": int(quality["missingDefectCounts"]),
+        "impossible_deliveries": int(quality["impossibleDeliverySequences"]),
+    }
+
+    mismatches: list[str] = []
+    if observed_sha256 != CANONICAL_SOURCE_SHA256:
+        mismatches.append(
+            f"sha256 expected {CANONICAL_SOURCE_SHA256}, observed {observed_sha256}"
+        )
+    for key, expected in CANONICAL_SOURCE_EXPECTATIONS.items():
+        if observed[key] != expected:
+            mismatches.append(f"{key} expected {expected}, observed {observed[key]}")
+
+    status_counts = {
+        str(status): int(count)
+        for status, count in frame["Order_Status"].value_counts().items()
+    }
+    if status_counts != CANONICAL_STATUS_COUNTS:
+        mismatches.append(
+            f"status counts expected {CANONICAL_STATUS_COUNTS}, observed {status_counts}"
+        )
+
+    if mismatches:
+        raise ReconciliationError(
+            "Canonical procurement source contract mismatch: " + "; ".join(mismatches)
+        )
+
+    return observed
 
 
 def rebuild_database(database: Path, source: Path) -> None:
@@ -503,10 +569,12 @@ def reconcile_quality_exceptions(database: Path, source: Path) -> dict[str, int]
 
 def _status_delivery_reference(source: Path) -> pd.DataFrame:
     model = enrich(read_source(source)).copy()
+
     def observed(row: pd.Series) -> str:
         if row["Impossible_Delivery"]:
             return "impossible_delivery_chronology"
         return "missing_delivery_date" if pd.isna(row["Delivery_Date"]) else "valid_delivery_date"
+
     def classification(row: pd.Series) -> str:
         if row["Impossible_Delivery"]:
             return "impossible_delivery_chronology"
@@ -514,6 +582,7 @@ def _status_delivery_reference(source: Path) -> pd.DataFrame:
         if completion:
             return "completion_status_with_valid_delivery" if row["Delivered"] else "completion_status_missing_delivery"
         return "noncompletion_status_with_valid_delivery" if row["Delivered"] else "noncompletion_status_missing_delivery"
+
     model["Observed_Delivery_State"] = model.apply(observed, axis=1)
     model["Reconciliation_Classification"] = model.apply(classification, axis=1)
     return model.loc[:, [
@@ -529,10 +598,16 @@ def reconcile_status_delivery(database: Path, source: Path) -> dict[str, int]:
     if sql["PO_ID"].duplicated().any():
         raise ReconciliationError("Status/delivery reconciliation mart contains duplicate PO_ID values")
     _assert_frame_match(sql, reference, ["PO_ID"], "Status/delivery reconciliation mart")
+    classifications = sql["Reconciliation_Classification"]
     return {
         "rows": len(sql),
-        "classifications": int(sql["Reconciliation_Classification"].nunique()),
-        "status_delivery_mismatches": int(sql["Reconciliation_Classification"].str.contains("noncompletion_status_with").sum()),
+        "classifications": int(classifications.nunique()),
+        "completion_status_missing_delivery": int(
+            classifications.eq("completion_status_missing_delivery").sum()
+        ),
+        "noncompletion_status_with_valid_delivery": int(
+            classifications.eq("noncompletion_status_with_valid_delivery").sum()
+        ),
     }
 
 
@@ -643,7 +718,13 @@ def main() -> int:
     if not source.exists():
         raise FileNotFoundError(f"Procurement source not found: {source}")
 
+    source_contract = validate_source_contract(source)
     rebuild_database(database, source)
+    print(
+        "Canonical source contract passed: "
+        f"{source_contract['rows']} rows / {source_contract['unique_po_ids']} unique PO_IDs / "
+        f"{source_contract['suppliers']} suppliers / {source_contract['categories']} categories"
+    )
     print(f"Rebuilt DuckDB {duckdb.__version__} model chain: {database}")
     if args.build_only:
         return 0
@@ -682,7 +763,8 @@ def main() -> int:
     print(
         "Status/delivery reconciliation: "
         f"{reconciliation['rows']} rows / {reconciliation['classifications']} classifications / "
-        f"{reconciliation['status_delivery_mismatches']} noncompletion statuses with valid delivery"
+        f"{reconciliation['completion_status_missing_delivery']} completion statuses missing delivery / "
+        f"{reconciliation['noncompletion_status_with_valid_delivery']} noncompletion statuses with valid delivery"
     )
     print(
         "Supplier scenarios reconciled: "
