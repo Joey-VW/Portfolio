@@ -38,7 +38,28 @@ SELECT
         AS Defect_Eligible,
 
     Compliance = 'No'
-        AS Noncompliant
+        AS Noncompliant,
+
+    date_trunc('month', Order_Date)::DATE
+        AS Order_Month,
+
+    -- DuckDB truncates weeks to Monday. Shift one day before/after
+    -- truncation so this matches pandas W-SAT (Sunday week start).
+    (date_trunc('week', Order_Date + INTERVAL 1 DAY) - INTERVAL 1 DAY)::DATE
+        AS Order_Week_Start,
+
+    CASE
+        WHEN Delivery_Date IS NOT NULL AND Delivery_Date >= Order_Date
+            THEN date_trunc('month', Delivery_Date)::DATE
+    END AS Delivery_Month,
+
+    CASE
+        WHEN Delivery_Date IS NOT NULL AND Delivery_Date >= Order_Date
+            THEN (
+                date_trunc('week', Delivery_Date + INTERVAL 1 DAY)
+                - INTERVAL 1 DAY
+            )::DATE
+    END AS Delivery_Week_Start
 
 FROM procurement_orders
 ORDER BY PO_ID;
