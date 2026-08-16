@@ -4,6 +4,7 @@ version = "0.0.0"
 description = "Local validation, data preparation, and capture tooling for the static portfolio."
 requires-python = ">=3.12,<3.13"
 dependencies = [
+  "duckdb>=1.4,<2",
   "pandas>=2.2,<3",
 ]
 

@@ -18,6 +18,10 @@ VALIDATION_COMMANDS = (
     ("PHX Transit map", (sys.executable, "tools/validate_phx_transit_map.py")),
     ("Gravity Fleet", ("node", "tools/validate_gravity_fleet.js")),
     ("Procurement case data", (sys.executable, "tools/procurement/validate_case_data.py")),
+    (
+        "Procurement SQL evidence",
+        (sys.executable, "tools/procurement/run_sql_evidence.py"),
+    ),
     ("Quote-to-Cash case data", (sys.executable, "tools/qtc/validate_case_data.py")),
 )
 
@@ -100,7 +104,17 @@ def lint() -> int:
             "Python byte compilation",
             (sys.executable, "-m", "compileall", "-q", "tools", "tests"),
         ),
-        ("Ruff foundation scope", (sys.executable, "-m", "ruff", "check", "tools/check_all.py")),
+        (
+            "Ruff foundation scope",
+            (
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                "tools/check_all.py",
+                "tools/procurement/run_sql_evidence.py",
+            ),
+        ),
         *javascript_syntax_commands(),
     )
     return run_commands(commands)

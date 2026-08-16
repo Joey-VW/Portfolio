@@ -1,9 +1,8 @@
 -- Supplier/category benchmarking mart.
 -- Grain: one row per Supplier x Item_Category.
 --
--- Slice 3 adds category-relative KPI deltas.
--- Partitioned rankings follow only after these
--- deltas reconcile to the maintained Python layer.
+-- KPI ranks use RANK so exact ties remain ties. A null KPI retains a null rank
+-- rather than appearing as an artificial last-place supplier.
 
 WITH supplier_category_aggregates AS (
     SELECT
@@ -131,78 +130,119 @@ category_baselines AS (
 
     FROM int_procurement_order_metrics
     GROUP BY Item_Category
+),
+
+ranked_supplier_categories AS (
+    SELECT
+        supplier.*,
+        category.*,
+
+        CASE WHEN supplier.Savings_Rate IS NOT NULL THEN
+            RANK() OVER (
+                PARTITION BY supplier.Item_Category
+                ORDER BY supplier.Savings_Rate DESC NULLS LAST
+            )
+        END AS Savings_Rate_Category_Rank,
+
+        CASE WHEN supplier.On_Time_Rate IS NOT NULL THEN
+            RANK() OVER (
+                PARTITION BY supplier.Item_Category
+                ORDER BY supplier.On_Time_Rate DESC NULLS LAST
+            )
+        END AS On_Time_Rate_Category_Rank,
+
+        CASE WHEN supplier.Defect_Rate IS NOT NULL THEN
+            RANK() OVER (
+                PARTITION BY supplier.Item_Category
+                ORDER BY supplier.Defect_Rate ASC NULLS LAST
+            )
+        END AS Defect_Rate_Category_Rank,
+
+        CASE WHEN supplier.Compliance_Rate IS NOT NULL THEN
+            RANK() OVER (
+                PARTITION BY supplier.Item_Category
+                ORDER BY supplier.Compliance_Rate DESC NULLS LAST
+            )
+        END AS Compliance_Rate_Category_Rank
+
+    FROM supplier_category_kpis AS supplier
+    INNER JOIN category_baselines AS category
+        ON supplier.Item_Category = category.Item_Category
 )
 
 SELECT
-    supplier.Supplier,
-    supplier.Item_Category,
+    Supplier,
+    Item_Category,
 
-    supplier.Order_Count,
+    Order_Count,
 
-    supplier.Negotiated_Spend,
-    supplier.Gross_Value,
-    supplier.Savings_Value,
-    supplier.Savings_Rate,
+    Negotiated_Spend,
+    Gross_Value,
+    Savings_Value,
+    Savings_Rate,
 
-    supplier.Delivered_Order_Count,
-    supplier.On_Time_Order_Count,
-    supplier.Avg_Lead_Days,
-    supplier.On_Time_Rate,
+    Delivered_Order_Count,
+    On_Time_Order_Count,
+    Avg_Lead_Days,
+    On_Time_Rate,
 
-    supplier.Defect_Eligible_Order_Count,
-    supplier.Defect_Eligible_Units,
-    supplier.Defective_Units,
-    supplier.Defect_Rate,
+    Defect_Eligible_Order_Count,
+    Defect_Eligible_Units,
+    Defective_Units,
+    Defect_Rate,
 
-    supplier.Compliant_Order_Count,
-    supplier.Compliance_Rate,
+    Compliant_Order_Count,
+    Compliance_Rate,
 
-    category.Category_Supplier_Count,
-    category.Category_Order_Count,
+    Category_Supplier_Count,
+    Category_Order_Count,
 
-    category.Category_Negotiated_Spend,
-    category.Category_Gross_Value,
-    category.Category_Savings_Value,
-    category.Category_Savings_Rate,
+    Category_Negotiated_Spend,
+    Category_Gross_Value,
+    Category_Savings_Value,
+    Category_Savings_Rate,
 
-    supplier.Savings_Rate
-        - category.Category_Savings_Rate
+    Savings_Rate
+        - Category_Savings_Rate
         AS Savings_Rate_vs_Category,
 
-    category.Category_Delivered_Order_Count,
-    category.Category_On_Time_Order_Count,
-    category.Category_Avg_Lead_Days,
+    Category_Delivered_Order_Count,
+    Category_On_Time_Order_Count,
+    Category_Avg_Lead_Days,
 
-    supplier.Avg_Lead_Days
-        - category.Category_Avg_Lead_Days
+    Avg_Lead_Days
+        - Category_Avg_Lead_Days
         AS Avg_Lead_Days_vs_Category,
 
-    category.Category_On_Time_Rate,
+    Category_On_Time_Rate,
 
-    supplier.On_Time_Rate
-        - category.Category_On_Time_Rate
+    On_Time_Rate
+        - Category_On_Time_Rate
         AS On_Time_Rate_vs_Category,
 
-    category.Category_Defect_Eligible_Order_Count,
-    category.Category_Defect_Eligible_Units,
-    category.Category_Defective_Units,
-    category.Category_Defect_Rate,
+    Category_Defect_Eligible_Order_Count,
+    Category_Defect_Eligible_Units,
+    Category_Defective_Units,
+    Category_Defect_Rate,
 
-    supplier.Defect_Rate
-        - category.Category_Defect_Rate
+    Defect_Rate
+        - Category_Defect_Rate
         AS Defect_Rate_vs_Category,
 
-    category.Category_Compliant_Order_Count,
-    category.Category_Compliance_Rate,
+    Category_Compliant_Order_Count,
+    Category_Compliance_Rate,
 
-    supplier.Compliance_Rate
-        - category.Category_Compliance_Rate
-        AS Compliance_Rate_vs_Category
+    Compliance_Rate
+        - Category_Compliance_Rate
+        AS Compliance_Rate_vs_Category,
 
-FROM supplier_category_kpis AS supplier
-INNER JOIN category_baselines AS category
-    ON supplier.Item_Category = category.Item_Category
+    Savings_Rate_Category_Rank,
+    On_Time_Rate_Category_Rank,
+    Defect_Rate_Category_Rank,
+    Compliance_Rate_Category_Rank
+
+FROM ranked_supplier_categories
 
 ORDER BY
-    supplier.Item_Category,
-    supplier.Supplier;
+    Item_Category,
+    Supplier;
