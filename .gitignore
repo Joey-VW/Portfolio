@@ -30,3 +30,6 @@ data/phx-transit/googletransit/
 # Local GTFS-Realtime validator runtime artifacts
 gtfsrthsql.*
 http%3A%2F%2F*
+
+# Local DuckDB databases
+*.duckdb
