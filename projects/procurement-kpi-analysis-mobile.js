@@ -68,17 +68,18 @@
     const first = points[0];
     const latest = points.at(-1);
     const peak = points.reduce((best, point) => parseMoney(point.actual) > parseMoney(best.actual) ? point : best, points[0]);
+    const snapshotStyle = "display:grid;gap:.08rem;min-width:0;padding:.55rem .4rem;border:1px solid rgba(148,163,184,.15);border-radius:12px;background:rgba(15,23,42,.5);text-align:center";
 
-    trendsTarget.innerHTML = `<div class="mobile-trend-summary">
+    trendsTarget.innerHTML = `<div class="mobile-trend-summary" style="min-width:0;max-width:100%;width:100%">
       <svg class="mobile-trend-spark" viewBox="96 52 914 346" preserveAspectRatio="none" role="img" aria-label="Compact purchase trend overview from ${first.period} through ${latest.period}">
         ${bars.map(bar => bar.outerHTML).join("")}
         ${projectedLine ? projectedLine.outerHTML : ""}
         ${actualLine ? actualLine.outerHTML : ""}
       </svg>
-      <div class="mobile-trend-range" aria-label="Trend range and peak negotiated spend">
-        <span><small>Start</small><strong>${first.period}</strong></span>
-        <span><small>Peak negotiated</small><strong>${peak.actual}</strong><em>${peak.period}</em></span>
-        <span><small>Latest</small><strong>${latest.period}</strong></span>
+      <div class="mobile-trend-range" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr);gap:.4rem;width:100%;min-width:0;max-width:100%" aria-label="Trend range and peak negotiated spend">
+        <span style="${snapshotStyle}"><small style="color:#7f8da4;font-size:.64rem;text-transform:uppercase;letter-spacing:.05em">Start</small><strong style="font-size:.78rem;overflow-wrap:anywhere">${first.period}</strong></span>
+        <span style="${snapshotStyle}"><small style="color:#7f8da4;font-size:.64rem;text-transform:uppercase;letter-spacing:.05em">Peak negotiated</small><strong style="color:#99f6e4;font-size:.78rem;overflow-wrap:anywhere">${peak.actual}</strong><em style="color:#94a3b8;font-size:.66rem;font-style:normal">${peak.period}</em></span>
+        <span style="${snapshotStyle}"><small style="color:#7f8da4;font-size:.64rem;text-transform:uppercase;letter-spacing:.05em">Latest</small><strong style="font-size:.78rem;overflow-wrap:anywhere">${latest.period}</strong></span>
       </div>
     </div>${legend ? legend.outerHTML : ""}`;
   }
