@@ -43,6 +43,10 @@ TEST_COMMANDS = (
         (sys.executable, "-m", "unittest", "tests/test_analytics_modernization.py"),
     ),
     (
+        "Visual QA capture tests",
+        (sys.executable, "-m", "unittest", "tests/test_visual_qa_capture.py"),
+    ),
+    (
         "JSON contract negative fixture",
         (sys.executable, "tools/validate_json_contracts.py", "--self-test-invalid-fixture"),
     ),
