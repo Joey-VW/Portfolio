@@ -4,16 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#080b1a" />
-  <meta name="description" content="An interactive supplier decision case study backed by independently reconciled DuckDB SQL, BigQuery/GoogleSQL, and dbt evidence." />
+  <meta name="description" content="An interactive supplier decision case study backed by cross-checked SQL, BigQuery, and dbt work." />
   <title>Procurement KPI Analysis | Joe Wisto Portfolio</title>
   <meta property="og:title" content="Procurement KPI Analysis | Joe Wisto Portfolio" />
-  <meta property="og:description" content="Supplier decision analysis backed by validated SQL across DuckDB, BigQuery, and dbt." />
+  <meta property="og:description" content="Supplier decision analysis with SQL, BigQuery, dbt, and independent checks." />
   <meta property="og:type" content="article" />
   <meta property="og:image" content="/assets/img/og/joe-wisto-portfolio.svg" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/projects/procurement-kpi-analysis.css" />
+  <link rel="stylesheet" href="/projects/procurement-kpi-analysis-responsive.css" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to project content</a>
@@ -24,10 +25,10 @@
     <article class="panel procurement-shell">
       <header class="procurement-hero" id="overview">
         <div>
-          <p class="eyebrow">BI + ANALYTICS ENGINEERING CASE STUDY</p>
+          <p class="eyebrow">BI + SQL CASE STUDY</p>
           <h1>Which supplier is actually delivering the best value?</h1>
           <p class="hero-title">Compare supplier value across cost, delivery, quality, and compliance.</p>
-          <p class="hero-summary">This case study uses a public Kaggle procurement dataset with 777 purchase-order records from 2022–2023. The analytical model is independently reconciled across pandas, DuckDB SQL, BigQuery/GoogleSQL, and a compact dbt-duckdb project.</p>
+          <p class="hero-summary">I used 777 purchase orders to compare suppliers across the tradeoffs that matter. Behind the dashboard, I rebuilt the same metrics in DuckDB SQL, BigQuery, and dbt, then cross-checked the results against Python.</p>
           <div class="hero-actions"><a class="button primary" href="#decision">Try the supplier priorities</a><a class="button" href="#method">See the method</a></div>
         </div>
         <div class="procurement-hero-visual" role="img" aria-label="A purchase order moves through validation and supplier scoring">
@@ -104,13 +105,12 @@
       </section>
 
       <section class="procurement-section" id="pipeline" aria-labelledby="pipeline-title">
-        <div class="section-heading"><p class="eyebrow">Reproducible analytical pipeline</p><h2 id="pipeline-title">One source, multiple checks on the same logic</h2><p>The public case study stays static and credential-free. Separately, the analytical model is rebuilt and reconciled in DuckDB, BigQuery, and dbt so execution claims are backed by actual runs.</p></div>
+        <div class="section-heading"><p class="eyebrow">How I checked the work</p><h2 id="pipeline-title">Build it once. Verify it three ways.</h2><p>I kept one source file and the same business rules, then checked the results in Python, DuckDB, BigQuery, and dbt. The goal is simple: the numbers should agree.</p></div>
         <ol class="pipeline-list">
-          <li><span>01</span><div><strong>Lock the source</strong><p>The retrieved 777-row CSV is identified by SHA-256 and checked for expected populations and exceptions.</p></div></li>
-          <li><span>02</span><div><strong>Model in DuckDB SQL</strong><p>Six analytical relations cover order metrics, supplier/category benchmarks, monthly trends, quality exceptions, status reconciliation, and priority scenarios.</p></div></li>
-          <li><span>03</span><div><strong>Reconcile independently</strong><p>SQL outputs are compared with separately calculated pandas expectations rather than trusted because they run.</p></div></li>
-          <li><span>04</span><div><strong>Validate GoogleSQL in BigQuery</strong><p>The same evidence slice is adapted to GoogleSQL, executed in BigQuery, and reconciled to the independent reference.</p></div></li>
-          <li><span>05</span><div><strong>Structure and test with dbt</strong><p>A compact dbt-duckdb project exposes source → staging → intermediate → marts lineage, documentation, and 35 passing data tests.</p></div></li>
+          <li><span>01</span><div><strong>Keep the source fixed</strong><p>One 777-row file stays unchanged, with known data issues left visible instead of quietly removed.</p></div></li>
+          <li><span>02</span><div><strong>Build the SQL model</strong><p>Turn each order into consistent cost, delivery, quality, and compliance measures.</p></div></li>
+          <li><span>03</span><div><strong>Cross-check the results</strong><p>Compare SQL with an independent Python calculation, then run the GoogleSQL version in BigQuery.</p></div></li>
+          <li><span>04</span><div><strong>Add dbt tests</strong><p>Put the same logic into a small dbt project with lineage, documentation, and 35 passing tests.</p></div></li>
         </ol>
       </section>
 
@@ -121,7 +121,7 @@
           <article><h3>Quality treatment</h3><ul><li>Blocking contract failures stop the build.</li><li>Expected audit exceptions remain measured.</li><li>Impossible deliveries are quarantined from delivery metrics.</li><li>Every browser value comes from maintained code.</li></ul></article>
           <article><h3>Limitations</h3><ul><li>The dataset publisher describes the records as anonymized.</li><li>Supplier labels and outcomes are not independently verified.</li><li>The 10-day target is an analytical assumption.</li><li>Scores are sensitive to the chosen weights and peer set.</li></ul></article>
         </div>
-        <details class="method-details"><summary>Source and implementation notes</summary><p data-provenance>Loading source details…</p><p>Maintained documentation: <a href="/docs/procurement/README.md">technical workflow</a>, <a href="/docs/procurement/data-contract.md">data contract</a>, and <a href="/docs/procurement/metric-dictionary.md">metric dictionary</a>.</p><p>Inspect the applied evidence in GitHub: <a href="https://github.com/Joey-VW/Portfolio/tree/feat/procurement-sql-evidence/sql/procurement" target="_blank" rel="noreferrer">DuckDB SQL</a>, <a href="https://github.com/Joey-VW/Portfolio/tree/feat/procurement-sql-evidence/sql/procurement/bigquery" target="_blank" rel="noreferrer">BigQuery / GoogleSQL</a>, and <a href="https://github.com/Joey-VW/Portfolio/tree/feat/procurement-sql-evidence/dbt/procurement" target="_blank" rel="noreferrer">dbt project</a>. This is recent applied portfolio evidence, not a claim of enterprise production-warehouse ownership.</p></details>
+        <details class="method-details"><summary>Source and implementation notes</summary><p data-provenance>Loading source details…</p><p>Maintained documentation: <a href="/docs/procurement/README.md">technical workflow</a>, <a href="/docs/procurement/data-contract.md">data contract</a>, and <a href="/docs/procurement/metric-dictionary.md">metric dictionary</a>.</p><p class="evidence-links"><span>Technical evidence</span><a href="https://github.com/Joey-VW/Portfolio/tree/feat/procurement-sql-evidence/sql/procurement" target="_blank" rel="noreferrer">DuckDB SQL</a><a href="https://github.com/Joey-VW/Portfolio/tree/feat/procurement-sql-evidence/sql/procurement/bigquery" target="_blank" rel="noreferrer">BigQuery SQL</a><a href="https://github.com/Joey-VW/Portfolio/tree/feat/procurement-sql-evidence/dbt/procurement" target="_blank" rel="noreferrer">dbt project</a></p><p>This is recent hands-on portfolio work, not a claim of owning a production procurement warehouse.</p></details>
       </section>
     </article>
   </main>
@@ -130,5 +130,6 @@
   <footer class="site-footer"><p>A portfolio of practical systems, analytics, automation, and technical projects.</p><p class="footer-links"><a href="/index.html">Home</a><a href="/projects/">Projects</a><a href="https://www.linkedin.com/in/joey-wisto" target="_blank" rel="noreferrer">LinkedIn</a></p></footer>
   <script src="/script.js"></script>
   <script src="/projects/procurement-kpi-analysis.js"></script>
+  <script src="/projects/procurement-kpi-analysis-mobile.js"></script>
 </body>
 </html>
