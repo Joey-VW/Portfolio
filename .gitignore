@@ -38,3 +38,4 @@ http%3A%2F%2F*
 dbt/procurement/target/
 dbt/procurement/logs/
 dbt/procurement/dbt_packages/
+dbt/procurement/.user.yml
