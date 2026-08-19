@@ -37,13 +37,15 @@ def _dbt_executable() -> str:
 
 
 def _run(executable: str, *command: str) -> None:
+    # In dbt Core 1.10, project/profile paths are command options rather than
+    # top-level options, so they must follow the selected subcommand.
     args = [
         executable,
+        *command,
         "--project-dir",
         str(DBT_DIR),
         "--profiles-dir",
         str(DBT_DIR),
-        *command,
     ]
     print(f"\n[{' '.join(command)}]", flush=True)
     subprocess.run(args, cwd=ROOT, check=True)
