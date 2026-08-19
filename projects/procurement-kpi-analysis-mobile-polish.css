@@ -1,0 +1,119 @@
+@media (max-width: 680px) {
+  /* Keep the table caption available to assistive tech without letting it enter card layout. */
+  .supplier-table caption.sr-only {
+    position: absolute !important;
+    inline-size: 1px !important;
+    block-size: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  .dashboard-chart figcaption {
+    gap: .25rem;
+    margin-bottom: .85rem;
+  }
+
+  .dashboard-chart figcaption span {
+    font-size: .74rem;
+    line-height: 1.35;
+  }
+
+  .dashboard-chart figcaption strong {
+    font-size: 1.05rem;
+    line-height: 1.28;
+  }
+
+  .mobile-supplier-chart { gap: .62rem; }
+
+  .mobile-supplier-row {
+    gap: .5rem;
+    padding: .78rem .8rem;
+  }
+
+  .mobile-supplier-label {
+    font-size: .86rem;
+    line-height: 1.35;
+  }
+
+  .mobile-supplier-label strong {
+    font-size: .9rem;
+  }
+
+  .category-legend,
+  .combo-legend {
+    gap: .45rem .65rem;
+    font-size: .8rem;
+  }
+
+  .dashboard-legend-filter {
+    padding: .32rem .4rem;
+  }
+
+  .mobile-trend-spark {
+    height: 10.25rem;
+  }
+
+  .mobile-trend-periods {
+    gap: .65rem;
+  }
+
+  .mobile-trend-period {
+    flex-basis: 12.5rem;
+    gap: .3rem;
+    padding: .8rem;
+    font-size: .82rem;
+    line-height: 1.45;
+  }
+
+  .mobile-trend-period strong {
+    font-size: .93rem;
+  }
+
+  .combo-legend li {
+    font-size: .8rem;
+  }
+
+  .priority-controls button {
+    padding: .86rem .9rem;
+    font-size: .88rem;
+    line-height: 1.25;
+  }
+
+  .priority-controls small {
+    font-size: .76rem;
+    line-height: 1.35;
+  }
+
+  .supplier-summary {
+    font-size: .94rem;
+  }
+
+  .supplier-table tr {
+    gap: .25rem .8rem;
+    padding: .82rem;
+  }
+
+  .supplier-table td {
+    padding: .44rem .35rem;
+    font-size: .86rem;
+    line-height: 1.38;
+  }
+
+  .supplier-table td::before {
+    font-size: .68rem;
+  }
+
+  .supplier-table td:nth-child(2) strong,
+  .score-cell strong {
+    font-size: .96rem;
+  }
+
+  .rank-badge {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+}
