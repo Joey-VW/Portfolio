@@ -33,3 +33,8 @@ http%3A%2F%2F*
 
 # Local DuckDB databases
 *.duckdb
+
+# dbt local build artifacts
+dbt/procurement/target/
+dbt/procurement/logs/
+dbt/procurement/dbt_packages/

@@ -1,0 +1,21 @@
+name: procurement_sql_evidence
+version: "1.0.0"
+config-version: 2
+
+profile: procurement_sql_evidence
+
+model-paths: ["models"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  procurement_sql_evidence:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: table
+    marts:
+      +materialized: table

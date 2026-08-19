@@ -1,0 +1,8 @@
+procurement_sql_evidence:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../../.local/procurement_dbt.duckdb"
+      schema: main
+      threads: 4

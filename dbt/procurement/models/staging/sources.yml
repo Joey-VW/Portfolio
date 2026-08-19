@@ -1,0 +1,57 @@
+version: 2
+
+sources:
+  - name: procurement
+    description: >
+      Locked 777-row procurement CSV used by the Procurement KPI Analysis case study.
+      dbt-duckdb reads the committed file directly; no duplicate seed copy is maintained.
+    tables:
+      - name: procurement_orders
+        description: Canonical order-level procurement source snapshot.
+        config:
+          external_location: >-
+            read_csv(
+              'data/procurement-source.csv',
+              header=true,
+              types={
+                'PO_ID':'VARCHAR',
+                'Supplier':'VARCHAR',
+                'Order_Date':'DATE',
+                'Delivery_Date':'DATE',
+                'Item_Category':'VARCHAR',
+                'Order_Status':'VARCHAR',
+                'Quantity':'BIGINT',
+                'Unit_Price':'DOUBLE',
+                'Negotiated_Price':'DOUBLE',
+                'Defective_Units':'DOUBLE',
+                'Compliance':'VARCHAR'
+              }
+            )
+          formatter: oldstyle
+        columns:
+          - name: PO_ID
+            description: Unique purchase-order identifier in the locked source snapshot.
+            data_tests:
+              - unique
+              - not_null
+          - name: Supplier
+            data_tests:
+              - not_null
+          - name: Order_Date
+            data_tests:
+              - not_null
+          - name: Item_Category
+            data_tests:
+              - not_null
+          - name: Order_Status
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: [Delivered, Partially Delivered, Pending, Cancelled]
+          - name: Compliance
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: ["Yes", "No"]

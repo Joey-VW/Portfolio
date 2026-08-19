@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: stg_procurement_orders
+    description: Typed staging view over the locked procurement CSV with source semantics preserved.
+    columns:
+      - name: PO_ID
+        data_tests: [unique, not_null]
+
+  - name: int_procurement_order_metrics
+    description: One row per PO_ID with canonical values, eligibility flags, date helpers, and exception indicators.
+    columns:
+      - name: PO_ID
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_procurement_orders')
+                field: PO_ID
+      - name: Order_Status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [Delivered, Partially Delivered, Pending, Cancelled]
+      - name: Compliance
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Yes", "No"]
+
+  - name: mart_supplier_category_benchmark
+    description: Supplier-by-category KPIs, weighted baselines, deltas, and partitioned ranks.
+    columns:
+      - name: Supplier
+        data_tests: [not_null]
+      - name: Item_Category
+        data_tests: [not_null]
+
+  - name: mart_supplier_monthly_trends
+    description: Complete supplier-month spine with month-over-month and rolling metrics.
+    columns:
+      - name: Supplier
+        data_tests: [not_null]
+      - name: Order_Month
+        data_tests: [not_null]
+
+  - name: mart_procurement_quality_exceptions
+    description: Inspectable PO-level exception populations and their analytical treatment.
+    columns:
+      - name: PO_ID
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_procurement_order_metrics')
+                field: PO_ID
+      - name: Exception_Code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - missing_delivery_date
+                  - impossible_delivery_chronology
+                  - missing_defect_observation
+                  - pending_order_status
+                  - cancelled_order_status
+                  - completion_status_missing_delivery
+                  - noncompletion_status_with_delivery
+
+  - name: mart_status_delivery_reconciliation
+    description: Source status versus observed delivery evidence at one row per PO_ID.
+    columns:
+      - name: PO_ID
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_procurement_order_metrics')
+                field: PO_ID
+      - name: Reconciliation_Classification
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - impossible_delivery_chronology
+                  - completion_status_with_valid_delivery
+                  - completion_status_missing_delivery
+                  - noncompletion_status_with_valid_delivery
+                  - noncompletion_status_missing_delivery
+
+  - name: mart_supplier_priority_scenarios
+    description: Supplier decision-support scores across four explicit weighting scenarios.
+    columns:
+      - name: Supplier
+        data_tests: [not_null]
+      - name: Decision_Scenario
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - balanced_performance
+                  - cost_savings_priority
+                  - delivery_reliability_priority
+                  - quality_compliance_priority
+      - name: Score_Status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [available, insufficient_data]
