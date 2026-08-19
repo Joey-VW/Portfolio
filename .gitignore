@@ -23,6 +23,7 @@ dist/
 
 
 tools/captures/
+visual-qa-output/
 
 # PHX Transit local source data and raw feed captures
 data/phx-transit/googletransit/
