@@ -12,6 +12,8 @@
     return match ? Number(match[1].replaceAll(",", "")) : 0;
   };
 
+  const parseMoney = value => Number(value.replace(/[$,]/g, "")) || 0;
+
   function enhanceSupplierChart() {
     if (!mobileQuery.matches) return;
     const svg = supplierTarget.querySelector(":scope > svg");
@@ -63,15 +65,20 @@
     const projectedLine = svg.querySelector(".dashboard-line-projected");
     const bars = [...svg.querySelectorAll(".dashboard-quantity-bar")];
     const legend = trendsTarget.querySelector(":scope > .dashboard-legend");
+    const first = points[0];
+    const latest = points.at(-1);
+    const peak = points.reduce((best, point) => parseMoney(point.actual) > parseMoney(best.actual) ? point : best, points[0]);
 
     trendsTarget.innerHTML = `<div class="mobile-trend-summary">
-      <svg class="mobile-trend-spark" viewBox="96 52 914 346" preserveAspectRatio="none" role="img" aria-label="Compact purchase trend overview">
+      <svg class="mobile-trend-spark" viewBox="96 52 914 346" preserveAspectRatio="none" role="img" aria-label="Compact purchase trend overview from ${first.period} through ${latest.period}">
         ${bars.map(bar => bar.outerHTML).join("")}
         ${projectedLine ? projectedLine.outerHTML : ""}
         ${actualLine ? actualLine.outerHTML : ""}
       </svg>
-      <div class="mobile-trend-periods" aria-label="Swipe for period details">
-        ${points.map(point => `<article class="mobile-trend-period"><strong>${point.period}</strong><span>Negotiated ${point.actual}</span><span>Original ${point.projected}</span><span>Quantity ${point.quantity}</span></article>`).join("")}
+      <div class="mobile-trend-range" aria-label="Trend range and peak negotiated spend">
+        <span><small>Start</small><strong>${first.period}</strong></span>
+        <span><small>Peak negotiated</small><strong>${peak.actual}</strong><em>${peak.period}</em></span>
+        <span><small>Latest</small><strong>${latest.period}</strong></span>
       </div>
     </div>${legend ? legend.outerHTML : ""}`;
   }
