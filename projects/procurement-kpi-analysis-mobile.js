@@ -89,5 +89,10 @@
   observer.observe(supplierTarget, { childList: true });
   observer.observe(trendsTarget, { childList: true });
 
+  mobileQuery.addEventListener("change", event => {
+    if (event.matches) requestAnimationFrame(enhance);
+    else window.location.reload();
+  });
+
   enhance();
 })();
