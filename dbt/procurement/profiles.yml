@@ -3,6 +3,6 @@ procurement_sql_evidence:
   outputs:
     dev:
       type: duckdb
-      path: "../../.local/procurement_dbt.duckdb"
+      path: ".local/procurement_dbt.duckdb"
       schema: main
       threads: 4
