@@ -64,6 +64,10 @@ class VisualQACaptureTests(unittest.TestCase):
         self.assertEqual(visual_qa.slice_offsets(2500, 1000, 30), [0, 1000, 1500])
         self.assertEqual(visual_qa.slice_offsets(700, 1000, 30), [0])
 
+    def test_slice_offsets_reject_incomplete_coverage(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "requires 5 viewport slices"):
+            visual_qa.slice_offsets(5000, 1000, 3)
+
     def test_summarize_distinguishes_capture_errors_from_red_flags(self) -> None:
         summary = visual_qa.summarize(
             [
@@ -75,6 +79,12 @@ class VisualQACaptureTests(unittest.TestCase):
         self.assertEqual(summary["captureCount"], 3)
         self.assertEqual(summary["errorCount"], 1)
         self.assertEqual(summary["automaticRedFlagCount"], 2)
+
+    def test_summarize_flags_internal_horizontal_clipping(self) -> None:
+        summary = visual_qa.summarize(
+            [{"status": "ok", "horizontalClippedOverflowCount": 1}]
+        )
+        self.assertEqual(summary["automaticRedFlagCount"], 1)
 
 
 if __name__ == "__main__":

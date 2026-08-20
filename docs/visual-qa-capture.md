@@ -116,4 +116,4 @@ A visual review should use both layers:
 - `manifest.json` and each `diagnostics.json` for objective browser/DOM signals;
 - the viewport slices for actual visual judgment such as clipping, overlap, hierarchy, spacing, wrapping, chart readability, responsive degradation, and visually broken states.
 
-The full-page PNGs provide page context; the slices are the preferred source for pixel-level inspection because they retain native viewport resolution instead of compressing a very tall page into one preview.
+The full-page PNGs provide page context; the slices are the preferred source for pixel-level inspection because they retain native viewport resolution instead of compressing a very tall page into one preview. The default slice safety cap is 60. If a page would require more slices, the capture fails explicitly instead of silently omitting the bottom of the page; raise `--max-slices` and rerun that target.
