@@ -3387,3 +3387,30 @@ body:has(.showcase-overlay:not(.is-collapsed)) {
     padding: 0.55rem;
   }
 }
+
+/* Visual QA remediation — compact desktop homepage header (1024px QA finding). */
+@media (min-width: 981px) and (max-width: 1080px) {
+  .homepage-topbar { gap: 0.55rem; }
+
+  .homepage-topbar .topnav a {
+    padding-inline: 0.72rem;
+  }
+
+  .homepage-topbar .print-button {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  .homepage-topbar .print-button .print-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0;
+  }
+
+  .homepage-topbar .print-button-label { display: none; }
+}

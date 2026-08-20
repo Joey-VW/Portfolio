@@ -1733,3 +1733,24 @@ body.atlas-lightbox-active {
     grid-template-columns: 1fr;
   }
 }
+
+/* Visual QA remediation — contain ambient overflow and expose mobile navigation. */
+.ambient-video-bg {
+  contain: paint;
+  overflow: clip;
+}
+
+@media (max-width: 520px) {
+  .nav-primary-links {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    padding-bottom: 0;
+    scrollbar-width: auto;
+  }
+
+  .nav-primary-links a {
+    flex: 1 1 auto;
+    justify-content: center;
+    white-space: nowrap;
+  }
+}

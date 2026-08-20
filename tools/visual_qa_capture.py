@@ -125,8 +125,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-slices",
         type=int,
-        default=30,
-        help="Safety cap for viewport slices per page/viewport. Default: 30",
+        default=60,
+        help="Safety cap for viewport slices per page/viewport. Default: 60",
     )
     parser.add_argument(
         "--no-zip",
@@ -230,7 +230,7 @@ def install_capture_hooks(context) -> None:
     )
 
 
-def settle_page(page, wait_ms: int) -> None:
+def settle_page(page, wait_ms: int, max_slices: int) -> None:
     try:
         page.wait_for_load_state("networkidle", timeout=8_000)
     except Exception:
@@ -269,7 +269,7 @@ def settle_page(page, wait_ms: int) -> None:
         )
         step = max(1, int(dims.get("viewport") or 800))
         height = max(step, int(dims.get("height") or step))
-        for y in range(0, min(height, step * 30), step):
+        for y in range(0, min(height, step * max_slices), step):
             page.evaluate("y => window.scrollTo(0, y)", y)
             page.wait_for_timeout(60)
         page.evaluate("() => window.scrollTo(0, 0)")
@@ -298,7 +298,10 @@ def collect_dom_diagnostics(page) -> dict[str, Any]:
             const docWidth = Math.max(root.scrollWidth, body?.scrollWidth || 0);
             const docHeight = Math.max(root.scrollHeight, body?.scrollHeight || 0);
             const brokenImages = [...document.images]
-                .filter(img => !img.complete || img.naturalWidth === 0)
+                .filter(img => {
+                    const source = img.currentSrc || img.getAttribute('src') || img.getAttribute('srcset');
+                    return Boolean(source) && (!img.complete || img.naturalWidth === 0);
+                })
                 .slice(0, 50)
                 .map(img => ({ src: img.currentSrc || img.src || null, alt: img.alt || null }));
             const suspicious = [];
@@ -354,6 +357,7 @@ def collect_dom_diagnostics(page) -> dict[str, Any]:
                 brokenImages,
                 suspiciousViewportEscapes: suspicious,
                 clippedOverflowCandidates: overflowing,
+                horizontalClippedOverflowCount: overflowing.filter(item => item.xOverflow).length,
             };
         }"""
     )
@@ -399,7 +403,13 @@ def slice_offsets(page_height: int, viewport_height: int, max_slices: int) -> li
     offsets = list(range(0, max_scroll + 1, viewport_height))
     if not offsets or offsets[-1] != max_scroll:
         offsets.append(max_scroll)
-    return offsets[: max(1, max_slices)]
+    limit = max(1, max_slices)
+    if len(offsets) > limit:
+        raise RuntimeError(
+            f"Page requires {len(offsets)} viewport slices for complete coverage, "
+            f"but --max-slices is {limit}. Increase --max-slices; coverage will not be truncated silently."
+        )
+    return offsets
 
 
 def capture_slices(
@@ -501,7 +511,7 @@ def capture_one(
     try:
         response = page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
         record["httpStatus"] = response.status if response else None
-        settle_page(page, wait_ms)
+        settle_page(page, wait_ms, max_slices)
         diagnostics = collect_dom_diagnostics(page)
         full_path = page_dir / "full.png"
         page.screenshot(path=str(full_path), full_page=True, animations="disabled")
@@ -523,6 +533,9 @@ def capture_one(
                 "title": diagnostics.get("title"),
                 "document": diagnostics.get("document"),
                 "horizontalPageOverflowPx": diagnostics.get("horizontalPageOverflowPx", 0),
+                "horizontalClippedOverflowCount": diagnostics.get(
+                    "horizontalClippedOverflowCount", 0
+                ),
                 "brokenImageCount": len(diagnostics.get("brokenImages", [])),
                 "consoleIssueCount": len(console_messages),
                 "pageErrorCount": len(page_errors),
@@ -572,6 +585,10 @@ def build_report(run_dir: Path, manifest: dict[str, Any]) -> None:
             warnings = []
             if capture.get("horizontalPageOverflowPx", 0):
                 warnings.append(f"horizontal overflow: {capture['horizontalPageOverflowPx']}px")
+            if capture.get("horizontalClippedOverflowCount", 0):
+                warnings.append(
+                    f"horizontal clipped-overflow candidates: {capture['horizontalClippedOverflowCount']}"
+                )
             if capture.get("brokenImageCount", 0):
                 warnings.append(f"broken images: {capture['brokenImageCount']}")
             if capture.get("pageErrorCount", 0):
@@ -654,6 +671,7 @@ def summarize(captures: list[dict[str, Any]]) -> dict[str, int]:
             item.get(key, 0)
             for key in (
                 "horizontalPageOverflowPx",
+                "horizontalClippedOverflowCount",
                 "brokenImageCount",
                 "pageErrorCount",
                 "failedRequestCount",
