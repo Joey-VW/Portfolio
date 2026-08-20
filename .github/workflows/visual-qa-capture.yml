@@ -25,7 +25,7 @@ jobs:
   capture:
     name: Capture public site
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -44,8 +44,10 @@ jobs:
       - name: Install visual QA dependencies
         run: uv sync --extra capture --locked
 
-      - name: Install Chromium
-        run: uv run playwright install --with-deps chromium
+      - name: Install Playwright Chromium
+        # GitHub's Ubuntu runner already ships Chromium/Chrome and their OS libraries.
+        # Download only Playwright's matching browser binary; avoid apt via --with-deps.
+        run: uv run playwright install chromium
 
       - name: Capture site
         shell: bash
