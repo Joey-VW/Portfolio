@@ -92,6 +92,7 @@ uv run python tools/visual_qa_capture.py --route /some-page.html
 ```
 
 Use `--headed` to watch Chromium during a local run. Use `--no-demo` to skip publishing-demo subpages.
+Each screenshot has an explicit 90-second timeout so tall, render-heavy pages do not inherit Playwright's shorter default. Use `--screenshot-timeout-ms` only when a focused troubleshooting run needs a different limit.
 
 ## GitHub Actions handoff
 

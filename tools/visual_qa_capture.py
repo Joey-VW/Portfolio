@@ -89,6 +89,12 @@ def parse_args() -> argparse.Namespace:
         help="Navigation timeout per page. Default: 45000",
     )
     parser.add_argument(
+        "--screenshot-timeout-ms",
+        type=int,
+        default=90_000,
+        help="Timeout for each full-page or viewport screenshot. Default: 90000",
+    )
+    parser.add_argument(
         "--no-demo",
         action="store_true",
         help="Skip the public Multi-Platform Publishing System demo subpages.",
@@ -413,7 +419,11 @@ def slice_offsets(page_height: int, viewport_height: int, max_slices: int) -> li
 
 
 def capture_slices(
-    page, folder: Path, viewport: Viewport, max_slices: int
+    page,
+    folder: Path,
+    viewport: Viewport,
+    max_slices: int,
+    screenshot_timeout_ms: int,
 ) -> list[dict[str, Any]]:
     slices_dir = folder / "slices"
     slices_dir.mkdir(parents=True, exist_ok=True)
@@ -439,7 +449,12 @@ def capture_slices(
         try:
             if hide_fixed:
                 hidden_count = set_fixed_elements_hidden(page, True)
-            page.screenshot(path=str(path), full_page=False, animations="disabled")
+            page.screenshot(
+                path=str(path),
+                full_page=False,
+                animations="disabled",
+                timeout=screenshot_timeout_ms,
+            )
         finally:
             if hide_fixed:
                 set_fixed_elements_hidden(page, False)
@@ -465,6 +480,7 @@ def capture_one(
     dpr: float,
     wait_ms: int,
     timeout_ms: int,
+    screenshot_timeout_ms: int,
     max_slices: int,
 ) -> dict[str, Any]:
     page_dir = run_dir / "pages" / target.slug / viewport.label
@@ -514,8 +530,19 @@ def capture_one(
         settle_page(page, wait_ms, max_slices)
         diagnostics = collect_dom_diagnostics(page)
         full_path = page_dir / "full.png"
-        page.screenshot(path=str(full_path), full_page=True, animations="disabled")
-        slices = capture_slices(page, page_dir, viewport, max_slices)
+        page.screenshot(
+            path=str(full_path),
+            full_page=True,
+            animations="disabled",
+            timeout=screenshot_timeout_ms,
+        )
+        slices = capture_slices(
+            page,
+            page_dir,
+            viewport,
+            max_slices,
+            screenshot_timeout_ms,
+        )
         diagnostics.update(
             {
                 "consoleMessages": console_messages[:100],
@@ -704,6 +731,9 @@ def main() -> int:
     if args.max_slices <= 0:
         print("Error: --max-slices must be greater than zero.", file=sys.stderr)
         return 2
+    if args.screenshot_timeout_ms <= 0:
+        print("Error: --screenshot-timeout-ms must be greater than zero.", file=sys.stderr)
+        return 2
 
     targets = load_targets(include_demo=not args.no_demo, extra_routes=args.route)
     targets = filter_targets(targets, args.only)
@@ -746,6 +776,7 @@ def main() -> int:
                         args.device_scale_factor,
                         args.wait_ms,
                         args.timeout_ms,
+                        args.screenshot_timeout_ms,
                         args.max_slices,
                     )
                     captures.append(record)

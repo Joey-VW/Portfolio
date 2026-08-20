@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,12 @@ import tools.visual_qa_capture as visual_qa
 
 
 class VisualQACaptureTests(unittest.TestCase):
+    def test_default_screenshot_timeout_allows_tall_render_heavy_pages(self) -> None:
+        with mock.patch.object(sys, "argv", ["visual_qa_capture.py"]):
+            args = visual_qa.parse_args()
+
+        self.assertEqual(args.screenshot_timeout_ms, 90_000)
+
     def test_load_targets_uses_public_registry_and_demo_pages(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
