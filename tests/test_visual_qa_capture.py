@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,12 @@ import tools.visual_qa_capture as visual_qa
 
 
 class VisualQACaptureTests(unittest.TestCase):
+    def test_default_screenshot_timeout_allows_tall_render_heavy_pages(self) -> None:
+        with mock.patch.object(sys, "argv", ["visual_qa_capture.py"]):
+            args = visual_qa.parse_args()
+
+        self.assertEqual(args.screenshot_timeout_ms, 90_000)
+
     def test_load_targets_uses_public_registry_and_demo_pages(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -67,6 +74,35 @@ class VisualQACaptureTests(unittest.TestCase):
     def test_slice_offsets_reject_incomplete_coverage(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "requires 5 viewport slices"):
             visual_qa.slice_offsets(5000, 1000, 3)
+
+    def test_stitch_full_page_uses_slice_scroll_offsets(self) -> None:
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest("Pillow is available only with the capture extra")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            folder = Path(temp_dir)
+            slices_dir = folder / "slices"
+            slices_dir.mkdir()
+            records = []
+            for index, (offset, color) in enumerate(
+                ((0, "red"), (10, "green"), (15, "blue")), start=1
+            ):
+                name = f"slice-{index:03d}.png"
+                Image.new("RGB", (10, 10), color).save(slices_dir / name)
+                records.append({"path": name, "actualY": offset})
+
+            destination = folder / "full.png"
+            visual_qa.stitch_full_page_from_slices(
+                folder, destination, page_height=25, viewport_width=10, slices=records
+            )
+
+            with Image.open(destination) as full_image:
+                self.assertEqual(full_image.size, (10, 25))
+                self.assertEqual(full_image.getpixel((0, 0)), (255, 0, 0))
+                self.assertEqual(full_image.getpixel((0, 12)), (0, 128, 0))
+                self.assertEqual(full_image.getpixel((0, 20)), (0, 0, 255))
 
     def test_summarize_distinguishes_capture_errors_from_red_flags(self) -> None:
         summary = visual_qa.summarize(

@@ -34,7 +34,7 @@
 .gas-lane { background: linear-gradient(90deg, rgba(245, 158, 11, .2), rgba(245, 158, 11, .04)); }
 .ev-lane { background: linear-gradient(90deg, rgba(34, 211, 238, .18), rgba(34, 211, 238, .04)); }
 .lane-label { display: block; color: #cbd5e1; font-size: .85rem; }
-.lane strong { display: block; color: #fff; font-size: clamp(2rem, 5vw, 2.65rem); line-height: 1.05; overflow-wrap: anywhere; }
+.lane strong { display: block; color: #fff; font-size: clamp(1.85rem, 3vw, 2.2rem); line-height: 1.05; overflow-wrap: normal; white-space: nowrap; }
 .lane small { color: #d1d5db; }
 .lane-plot { position: relative; }
 .lane-plot::after { content: ""; position: absolute; top: -.35rem; bottom: -.35rem; left: var(--benchmark-position); border-left: 2px dotted rgba(226, 232, 240, .28); pointer-events: none; }
