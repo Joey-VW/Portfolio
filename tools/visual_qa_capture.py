@@ -471,6 +471,55 @@ def capture_slices(
     return records
 
 
+def stitch_full_page_from_slices(
+    folder: Path,
+    destination: Path,
+    page_height: int,
+    viewport_width: int,
+    slices: list[dict[str, Any]],
+) -> None:
+    """Assemble the contextual full-page image from native viewport slices."""
+    try:
+        from PIL import Image
+    except ImportError as exc:
+        raise RuntimeError(
+            "Pillow is required to assemble full-page images from viewport slices. "
+            "Install the capture extra: uv sync --extra capture"
+        ) from exc
+
+    if not slices:
+        raise RuntimeError("Cannot assemble a full-page image without viewport slices.")
+
+    first_path = folder / "slices" / slices[0]["path"]
+    with Image.open(first_path) as first_image:
+        pixel_width = first_image.width
+        pixel_height = first_image.height
+        mode = first_image.mode
+
+    scale = pixel_width / max(1, viewport_width)
+    output_height = max(pixel_height, int(round(page_height * scale)))
+    background = (0, 0, 0, 0) if "A" in mode else 0
+    full_image = Image.new(mode, (pixel_width, output_height), background)
+
+    for item in slices:
+        slice_path = folder / "slices" / item["path"]
+        paste_y = max(0, int(round(item["actualY"] * scale)))
+        remaining_height = output_height - paste_y
+        if remaining_height <= 0:
+            continue
+        with Image.open(slice_path) as slice_image:
+            source = (
+                slice_image.convert(mode)
+                if slice_image.mode != mode
+                else slice_image.copy()
+            )
+        if source.height > remaining_height:
+            source = source.crop((0, 0, source.width, remaining_height))
+        full_image.paste(source, (0, paste_y))
+
+    full_image.save(destination)
+
+
 def capture_one(
     browser,
     target: Target,
@@ -530,18 +579,19 @@ def capture_one(
         settle_page(page, wait_ms, max_slices)
         diagnostics = collect_dom_diagnostics(page)
         full_path = page_dir / "full.png"
-        page.screenshot(
-            path=str(full_path),
-            full_page=True,
-            animations="disabled",
-            timeout=screenshot_timeout_ms,
-        )
         slices = capture_slices(
             page,
             page_dir,
             viewport,
             max_slices,
             screenshot_timeout_ms,
+        )
+        stitch_full_page_from_slices(
+            page_dir,
+            full_path,
+            int(diagnostics.get("document", {}).get("height") or viewport.height),
+            viewport.width,
+            slices,
         )
         diagnostics.update(
             {

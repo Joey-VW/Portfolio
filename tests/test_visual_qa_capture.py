@@ -75,6 +75,35 @@ class VisualQACaptureTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "requires 5 viewport slices"):
             visual_qa.slice_offsets(5000, 1000, 3)
 
+    def test_stitch_full_page_uses_slice_scroll_offsets(self) -> None:
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest("Pillow is available only with the capture extra")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            folder = Path(temp_dir)
+            slices_dir = folder / "slices"
+            slices_dir.mkdir()
+            records = []
+            for index, (offset, color) in enumerate(
+                ((0, "red"), (10, "green"), (15, "blue")), start=1
+            ):
+                name = f"slice-{index:03d}.png"
+                Image.new("RGB", (10, 10), color).save(slices_dir / name)
+                records.append({"path": name, "actualY": offset})
+
+            destination = folder / "full.png"
+            visual_qa.stitch_full_page_from_slices(
+                folder, destination, page_height=25, viewport_width=10, slices=records
+            )
+
+            with Image.open(destination) as full_image:
+                self.assertEqual(full_image.size, (10, 25))
+                self.assertEqual(full_image.getpixel((0, 0)), (255, 0, 0))
+                self.assertEqual(full_image.getpixel((0, 12)), (0, 128, 0))
+                self.assertEqual(full_image.getpixel((0, 20)), (0, 0, 255))
+
     def test_summarize_distinguishes_capture_errors_from_red_flags(self) -> None:
         summary = visual_qa.summarize(
             [
