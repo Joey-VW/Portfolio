@@ -39,6 +39,12 @@
   line-height: 0.88;
 }
 
+@media (min-width: 981px) {
+  .shrink-hero h1 {
+    font-size: clamp(4.6rem, 6vw, 5.4rem);
+  }
+}
+
 .shrink-hero .hero-title {
   max-width: 31ch;
 }
