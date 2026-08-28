@@ -1,0 +1,93 @@
+name: Release readiness live verify
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  verify-production:
+    if: github.head_ref == 'ops/release-readiness-live-verify'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify deployed release baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          verify() {
+            local body status effective
+
+            status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code}' 'https://wistoworks.com/__release-readiness-not-found__')"
+            test "$status" = "404" || return 1
+
+            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/')"
+            grep -Fq '<link rel="canonical" href="https://wistoworks.com/" />' <<<"$body" || return 1
+
+            effective="$(curl --fail --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{url_effective}' 'https://wistoworks.com/index.html')"
+            test "$effective" = "https://wistoworks.com/" || return 1
+
+            effective="$(curl --fail --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{url_effective}' 'https://wistoworks.com/projects/index.html')"
+            test "$effective" = "https://wistoworks.com/projects/" || return 1
+
+            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/')"
+            grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/" />' <<<"$body" || return 1
+            grep -Fq 'connect@wistoworks.com' <<<"$body" || return 1
+            ! grep -Fq 'joey.wisto@gmail.com' <<<"$body" || return 1
+            ! grep -Fq 'joewisto.com' <<<"$body" || return 1
+
+            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis.html')"
+            grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body" || return 1
+            grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement/' <<<"$body" || return 1
+            ! grep -Fq 'feat/procurement-sql-evidence' <<<"$body" || return 1
+
+            for path in \
+              '/projects/phx-transit-pulse.html' \
+              '/projects/shrinkflation-tracker.html' \
+              '/games/gravity-fleet-lab.html' \
+              '/projects/quote-to-cash-workflow-audit.html' \
+              '/projects/multi-platform-publishing-system.html' \
+              '/projects/ev-true-cost.html'; do
+              body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 "https://wistoworks.com${path}")"
+              grep -Fq "<link rel=\"canonical\" href=\"https://wistoworks.com${path}\" />" <<<"$body" || return 1
+              ! grep -Fq 'joey.wisto@gmail.com' <<<"$body" || return 1
+              ! grep -Fq 'joewisto.com' <<<"$body" || return 1
+            done
+
+            for url in 'http://wistoworks.com/' 'https://www.wistoworks.com/' 'http://www.wistoworks.com/'; do
+              effective="$(curl --fail --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{url_effective}' "$url")"
+              test "$effective" = "https://wistoworks.com/" || return 1
+            done
+
+            root_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 'https://wistoworks.com/' | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
+            grep -q '^x-content-type-options: nosniff$' <<<"$root_headers" || return 1
+            grep -q '^referrer-policy: strict-origin-when-cross-origin$' <<<"$root_headers" || return 1
+
+            demo_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/multi-platform-publishing-system/demo/' | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
+            grep -q '^x-robots-tag: noindex, nofollow$' <<<"$demo_headers" || return 1
+          }
+
+          for attempt in $(seq 1 24); do
+            if verify; then
+              echo "Production release verification passed on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Production has not fully converged yet (attempt ${attempt}/24)."
+            sleep 15
+          done
+
+          echo "Production release verification did not converge within the retry window." >&2
+          exit 1
+
+      - name: Remove one-shot verification branch
+        if: success()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" --delete "${GITHUB_HEAD_REF}"
