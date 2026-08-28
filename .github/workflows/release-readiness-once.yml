@@ -1,0 +1,119 @@
+name: Release readiness once
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-patch:
+    if: github.head_ref == 'fix/final-release-readiness'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out release branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Verify production host and canonical redirects
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          probe() {
+            local url="$1"
+            local expected="$2"
+            local result status effective
+            result="$(curl --fail-with-body --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code} %{url_effective}' "$url")"
+            status="${result%% *}"
+            effective="${result#* }"
+            echo "$url -> $status $effective"
+            test "$status" = "200"
+            test "$effective" = "$expected"
+          }
+
+          probe "https://wistoworks.com/" "https://wistoworks.com/"
+          probe "http://wistoworks.com/" "https://wistoworks.com/"
+          probe "https://www.wistoworks.com/" "https://wistoworks.com/"
+          probe "http://www.wistoworks.com/" "https://wistoworks.com/"
+
+          for url in \
+            "https://wistoworks.com/projects/" \
+            "https://wistoworks.com/projects/phx-transit-pulse.html" \
+            "https://wistoworks.com/projects/shrinkflation-tracker.html" \
+            "https://wistoworks.com/games/gravity-fleet-lab.html" \
+            "https://wistoworks.com/projects/procurement-kpi-analysis.html" \
+            "https://wistoworks.com/projects/quote-to-cash-workflow-audit.html" \
+            "https://wistoworks.com/projects/multi-platform-publishing-system.html" \
+            "https://wistoworks.com/projects/ev-true-cost.html" \
+            "https://wistoworks.com/data/projects.json" \
+            "https://wistoworks.com/assets/img/favicon.svg"; do
+            code="$(curl --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code}' "$url")"
+            echo "$url -> $code"
+            test "$code" = "200"
+          done
+
+          not_found="$(curl --silent --show-error --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code}' "https://wistoworks.com/__release-readiness-not-found__")"
+          echo "404 probe -> $not_found"
+          test "$not_found" = "404"
+
+          echo "Root response headers:"
+          curl --silent --show-error --head --connect-timeout 10 --max-time 30 "https://wistoworks.com/" | tr -d '\r'
+          root_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 "https://wistoworks.com/" | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
+          grep -q '^x-content-type-options: nosniff$' <<<"$root_headers"
+          grep -q '^referrer-policy: strict-origin-when-cross-origin$' <<<"$root_headers"
+
+          demo_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 "https://wistoworks.com/projects/multi-platform-publishing-system/demo/" | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
+          grep -q '^x-robots-tag: noindex, nofollow$' <<<"$demo_headers"
+
+          echo "Legacy-domain probe (informational only):"
+          curl --silent --show-error --location --max-redirs 5 --connect-timeout 5 --max-time 15 --output /dev/null --write-out 'joewisto.com -> %{http_code} %{url_effective}\n' "https://joewisto.com/" || echo "joewisto.com is not serving a reachable HTTPS site"
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          uv sync --dev --locked
+
+      - name: Apply bounded release-readiness fixes
+        run: python tools/apply_release_readiness_once.py
+
+      - name: Validate complete repository gate
+        run: |
+          git diff --check
+          npm run check
+
+      - name: Commit durable corrections and remove temporary machinery
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm tools/apply_release_readiness_once.py
+          rm .github/workflows/release-readiness-once.yml
+          git add -A
+          git diff --cached --check
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Finish portfolio release readiness"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
