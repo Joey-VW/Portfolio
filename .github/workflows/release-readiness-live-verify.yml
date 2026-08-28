@@ -19,69 +19,83 @@ jobs:
         run: |
           set -euo pipefail
 
-          verify() {
-            local body status effective
-
-            status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code}' 'https://wistoworks.com/__release-readiness-not-found__')"
-            test "$status" = "404" || return 1
-
-            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/')"
-            grep -Fq '<link rel="canonical" href="https://wistoworks.com/" />' <<<"$body" || return 1
-
-            effective="$(curl --fail --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{url_effective}' 'https://wistoworks.com/index.html')"
-            test "$effective" = "https://wistoworks.com/" || return 1
-
-            effective="$(curl --fail --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{url_effective}' 'https://wistoworks.com/projects/index.html')"
-            test "$effective" = "https://wistoworks.com/projects/" || return 1
-
-            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/')"
-            grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/" />' <<<"$body" || return 1
-            grep -Fq 'connect@wistoworks.com' <<<"$body" || return 1
-            ! grep -Fq 'joey.wisto@gmail.com' <<<"$body" || return 1
-            ! grep -Fq 'joewisto.com' <<<"$body" || return 1
-
-            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis.html')"
-            grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body" || return 1
-            grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement/' <<<"$body" || return 1
-            ! grep -Fq 'feat/procurement-sql-evidence' <<<"$body" || return 1
-
-            for path in \
-              '/projects/phx-transit-pulse.html' \
-              '/projects/shrinkflation-tracker.html' \
-              '/games/gravity-fleet-lab.html' \
-              '/projects/quote-to-cash-workflow-audit.html' \
-              '/projects/multi-platform-publishing-system.html' \
-              '/projects/ev-true-cost.html'; do
-              body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 "https://wistoworks.com${path}")"
-              grep -Fq "<link rel=\"canonical\" href=\"https://wistoworks.com${path}\" />" <<<"$body" || return 1
-              ! grep -Fq 'joey.wisto@gmail.com' <<<"$body" || return 1
-              ! grep -Fq 'joewisto.com' <<<"$body" || return 1
-            done
-
-            for url in 'http://wistoworks.com/' 'https://www.wistoworks.com/' 'http://www.wistoworks.com/'; do
-              effective="$(curl --fail --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{url_effective}' "$url")"
-              test "$effective" = "https://wistoworks.com/" || return 1
-            done
-
-            root_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 'https://wistoworks.com/' | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
-            grep -q '^x-content-type-options: nosniff$' <<<"$root_headers" || return 1
-            grep -q '^referrer-policy: strict-origin-when-cross-origin$' <<<"$root_headers" || return 1
-
-            demo_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/multi-platform-publishing-system/demo/' | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
-            grep -q '^x-robots-tag: noindex, nofollow$' <<<"$demo_headers" || return 1
-          }
-
+          deployed=false
           for attempt in $(seq 1 24); do
-            if verify; then
-              echo "Production release verification passed on attempt ${attempt}."
-              exit 0
+            status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code}' 'https://wistoworks.com/__release-readiness-not-found__')"
+            root="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/')"
+            if grep -Fq '<link rel="canonical" href="https://wistoworks.com/" />' <<<"$root"; then
+              canonical=yes
+            else
+              canonical=no
             fi
-            echo "Production has not fully converged yet (attempt ${attempt}/24)."
+            echo "Deployment marker attempt ${attempt}/24: 404=${status}, root-canonical=${canonical}"
+            if [ "$status" = "404" ] && [ "$canonical" = "yes" ]; then
+              deployed=true
+              break
+            fi
             sleep 15
           done
 
-          echo "Production release verification did not converge within the retry window." >&2
-          exit 1
+          test "$deployed" = "true"
+          echo "PR #66 production baseline is live. Running final checks."
+
+          check_effective() {
+            local url="$1" expected="$2" effective
+            effective="$(curl --fail --silent --show-error --location --max-redirs 8 --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{url_effective}' "$url")"
+            echo "$url -> $effective"
+            test "$effective" = "$expected"
+          }
+
+          check_effective 'https://wistoworks.com/' 'https://wistoworks.com/'
+          check_effective 'http://wistoworks.com/' 'https://wistoworks.com/'
+          check_effective 'https://www.wistoworks.com/' 'https://wistoworks.com/'
+          check_effective 'http://www.wistoworks.com/' 'https://wistoworks.com/'
+          check_effective 'https://wistoworks.com/index.html' 'https://wistoworks.com/'
+          check_effective 'https://wistoworks.com/projects/index.html' 'https://wistoworks.com/projects/'
+
+          body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/')"
+          grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/" />' <<<"$body"
+          grep -Fq 'connect@wistoworks.com' <<<"$body"
+          ! grep -Fq 'joey.wisto@gmail.com' <<<"$body"
+          ! grep -Fq 'joewisto.com' <<<"$body"
+          echo "Projects hub canonical/contact checks passed."
+
+          body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis.html')"
+          grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body"
+          grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement/' <<<"$body"
+          ! grep -Fq 'feat/procurement-sql-evidence' <<<"$body"
+          echo "Procurement canonical/evidence links passed."
+
+          for path in \
+            '/projects/phx-transit-pulse.html' \
+            '/projects/shrinkflation-tracker.html' \
+            '/games/gravity-fleet-lab.html' \
+            '/projects/quote-to-cash-workflow-audit.html' \
+            '/projects/multi-platform-publishing-system.html' \
+            '/projects/ev-true-cost.html'; do
+            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 "https://wistoworks.com${path}")"
+            grep -Fq "<link rel=\"canonical\" href=\"https://wistoworks.com${path}\" />" <<<"$body"
+            ! grep -Fq 'joey.wisto@gmail.com' <<<"$body"
+            ! grep -Fq 'joewisto.com' <<<"$body"
+            echo "$path canonical/domain check passed."
+          done
+
+          root_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 'https://wistoworks.com/' | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
+          grep -q '^x-content-type-options: nosniff$' <<<"$root_headers"
+          grep -q '^referrer-policy: strict-origin-when-cross-origin$' <<<"$root_headers"
+          grep -q '^permissions-policy: camera=(), microphone=(), geolocation=()$' <<<"$root_headers"
+          echo "Root security headers passed."
+
+          demo_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/multi-platform-publishing-system/demo/' | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
+          grep -q '^x-robots-tag: noindex, nofollow$' <<<"$demo_headers"
+          echo "Postcard Atlas noindex header passed."
+
+          not_found_body="$(curl --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/__release-readiness-not-found__')"
+          grep -Fq '<meta name="robots" content="noindex, nofollow" />' <<<"$not_found_body"
+          grep -Fq 'This route doesn'"'"'t exist.' <<<"$not_found_body"
+          echo "404 body/status checks passed."
+
+          echo "Production release verification passed."
 
       - name: Remove one-shot verification branch
         if: success()
