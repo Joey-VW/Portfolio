@@ -60,7 +60,7 @@ jobs:
 
           body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis.html')"
           grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body"
-          grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement/' <<<"$body"
+          grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement' <<<"$body"
           ! grep -Fq 'feat/procurement-sql-evidence' <<<"$body"
           echo "Procurement canonical/evidence links passed."
 
