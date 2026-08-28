@@ -30,6 +30,7 @@ class PublicReleaseMetadataTests(unittest.TestCase):
                 text = (ROOT / relative_path).read_text(encoding="utf-8")
                 canonical_tag = f'<link rel="canonical" href="{canonical}" />'
                 og_url = f'<meta property="og:url" content="{canonical}" />'
+                self.assertTrue(canonical.startswith("https://wistoworks.com/"))
                 self.assertEqual(text.count(canonical_tag), 1)
                 self.assertEqual(text.count(og_url), 1)
 
@@ -62,6 +63,7 @@ class PublicReleaseMetadataTests(unittest.TestCase):
         text = (ROOT / "404.html").read_text(encoding="utf-8")
         self.assertIn('<meta name="robots" content="noindex, nofollow" />', text)
         self.assertIn('href="/"', text)
+        self.assertNotIn('rel="canonical"', text)
         self.assertNotIn("joey.wisto@gmail.com", text)
         self.assertNotIn("joewisto.com", text)
 
