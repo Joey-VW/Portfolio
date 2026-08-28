@@ -38,7 +38,7 @@ Status labels:
 | 08. Faithful publishing-system integration | DONE | Postcard Atlas was structurally integrated beneath its final project-scoped routes and is public/ready. | PR #3 merged July 19, 2026 |
 | 09. Mobile layout corrections and responsive bug fixes | DONE | Source corrections merged through PRs #6-#12; Pass 09.7 regression and deployment verification closed through PR #47. | Pass 08 structural integration |
 | 10. Gravity Fleet modernization | DONE | Passes 10.0-10.8 are merged and approved, including integrated QA and the approved legacy-shell cleanup. Comprehensive physical frame-pacing and fairness work remains deferred to Pass 12. | Pass 06, Pass 07, merged PRs #13, #15-#21, #23, #25, and Pass 09 shared-header coordination |
-| 11. Production deployment and custom-domain release | CURRENT | The working Cloudflare `pages.dev` deployment is the acceptable public release. `wistoworks.com` is the selected future custom domain; attachment, canonical-host redirects, and contact delivery are deferred. | Cloudflare Pages connection |
+| 11. Production deployment and custom-domain release | DONE | `wistoworks.com` is the primary production destination; HTTPS, canonical-host behavior, and final public-route checks are verified. | Cloudflare Pages connection |
 | 12. Final repository validation and release QA | LATER | Comprehensive repository and production validation remains explicitly deferred; targeted publication QA continues per project. | Future release scope |
 | 13. PHX Transit Pulse | IN REVIEW | Pass 13.1a mapped-build regression and Cloudflare preview QA are complete. Later PHX Transit work remains gated; live ingestion is still blocked by provider terms. | Provider terms only for live ingestion or provider replay |
 | 14. Legacy analytics modernization | IN REVIEW | Passes 14.0-14.3 are implemented. Procurement KPI Analysis and Where Revenue Gets Stuck passed targeted publication QA and are public/ready; legacy-repository retirement remains gated. | Pass 14.4 disposition |
@@ -1127,21 +1127,23 @@ Possible later options are modular Canvas 2D, a PixiJS renderer prototype behind
 
 ## Pass 11 - Production deployment and custom-domain release
 
-**Status: CURRENT RELEASE.** Cloudflare Pages is already connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments are enabled, pull-request previews are enabled, and the working `pages.dev` deployment is the acceptable current public release. `wistoworks.com` is the selected future custom domain; attachment and canonical-host work are deferred and do not block this release.
+**Status: DONE.** Cloudflare Pages is connected to `Joey-VW/Portfolio`; `main` is the production branch, automatic deployments and pull-request previews are enabled, and `https://wistoworks.com/` is the primary public portfolio destination. Final canonical-host, HTTPS, public-route, metadata, and link checks were closed on August 28, 2026.
 
 ### 11.1 Complete remaining production release work
 
 - [x] Connect `Joey-VW/Portfolio` to Cloudflare Pages.
 - [x] Use `main` as the production branch.
 - [x] Enable automatic deployments and pull-request previews.
-- [ ] Attach `wistoworks.com`, confirm HTTPS, choose a canonical hostname, and add the redirect from the other host.
-- [ ] Verify final production routes, `_headers`, `_redirects`, caching, deep links, JSON fetches, metadata, favicon, 404 behavior, and Postcard Atlas deployment-only behavior.
+- [x] Attach `wistoworks.com`, confirm HTTPS, choose the apex hostname as canonical, and verify the alternate-host redirect.
+- [x] Verify final production routes, `_headers`, `_redirects`, caching, deep links, JSON fetches, metadata, favicon, 404 behavior, and Postcard Atlas deployment-only behavior.
 
 Acceptance criteria:
 
 - The custom domain and canonical-host redirect work in production.
 - Every public route loads directly and after refresh on the final production host.
 - Final metadata and 404 behavior are verified without exposing credentials or internal tracking details.
+
+Release-readiness closeout (August 28, 2026): the final public-facing audit normalized canonical metadata and branded contact links, retired stale feature-branch evidence URLs, restored a real production 404 response, verified the production host/HTTPS redirect chain, and added deterministic regression coverage. Deferred Procurement layout polish remains intentionally out of scope.
 
 ### 11.2 Deferred backend and live-service work - LATER
 

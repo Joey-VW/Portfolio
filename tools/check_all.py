@@ -43,6 +43,10 @@ TEST_COMMANDS = (
         (sys.executable, "-m", "unittest", "tests/test_showcase_dev_server.py"),
     ),
     (
+        "Public release metadata tests",
+        (sys.executable, "-m", "unittest", "tests/test_public_release_metadata.py"),
+    ),
+    (
         "Analytics modernization unit tests",
         (sys.executable, "-m", "unittest", "tests/test_analytics_modernization.py"),
     ),
