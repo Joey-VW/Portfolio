@@ -2,7 +2,6 @@
 """One-shot patcher for final public release-readiness corrections."""
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 
@@ -98,6 +97,48 @@ for rule in reversed(required_redirects):
         lines.insert(0, rule)
 write_if_changed(redirects, "\n".join(lines) + "\n")
 
+# Cloudflare Pages otherwise treats this multi-page site like an SPA for unknown routes.
+# A real root 404 document restores the expected HTTP 404 behavior.
+not_found = ROOT / "404.html"
+not_found.write_text(
+    '''<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080b1a" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="The requested portfolio page could not be found." />
+  <title>Page not found | Joe Wisto Portfolio</title>
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="ambient" aria-hidden="true"><span class="orb orb-one"></span><span class="orb orb-two"></span><span class="orb orb-three"></span><span class="grid-glow"></span></div>
+  <header class="topbar" aria-label="Portfolio navigation">
+    <a class="brand-mark" href="/"><span class="brand-glyph">JW</span><span class="brand-copy"><strong>Joe Wisto</strong><small>Systems • Automation • Analytics • BI</small></span></a>
+    <nav class="topnav" aria-label="404 navigation"><a href="/">Home</a><a href="/projects/">Projects</a></nav>
+  </header>
+  <main id="main" class="resume-shell portfolio-shell">
+    <section class="hero panel project-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">404 · Page not found</p>
+        <h1>This route doesn't exist.</h1>
+        <p class="hero-title">The portfolio is still here.</p>
+        <p class="hero-summary">The link may be outdated or the address may have been typed incorrectly.</p>
+        <div class="hero-actions"><a class="button primary" href="/">Go home</a><a class="button" href="/projects/">Browse projects</a></div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><p>Joe Wisto’s portfolio of practical systems, analytics, automation, and technical projects.</p><p class="footer-links"><a href="mailto:connect@wistoworks.com">Email</a><a href="https://github.com/Joey-VW/Portfolio" target="_blank" rel="noopener noreferrer">GitHub</a></p></footer>
+</body>
+</html>
+''',
+    encoding="utf-8",
+    newline="\n",
+)
+
 # Add a deterministic regression test for the public canonical/contact surface.
 test_path = ROOT / "tests/test_public_release_metadata.py"
 test_path.write_text(
@@ -161,6 +202,13 @@ class PublicReleaseMetadataTests(unittest.TestCase):
         self.assertIn("/index.html / 301", redirects)
         self.assertIn("/projects/index.html /projects/ 301", redirects)
 
+    def test_root_404_is_present_and_noindex(self) -> None:
+        text = (ROOT / "404.html").read_text(encoding="utf-8")
+        self.assertIn('<meta name="robots" content="noindex, nofollow" />', text)
+        self.assertIn('href="/"', text)
+        self.assertNotIn("joey.wisto@gmail.com", text)
+        self.assertNotIn("joewisto.com", text)
+
 
 if __name__ == "__main__":
     unittest.main()
@@ -205,7 +253,7 @@ roadmap_text = roadmap_text.replace(
     "- [x] Verify final production routes, `_headers`, `_redirects`, caching, deep links, JSON fetches, metadata, favicon, 404 behavior, and Postcard Atlas deployment-only behavior.",
     1,
 )
-closeout = "Release-readiness closeout (August 28, 2026): the final public-facing audit normalized canonical metadata and branded contact links, retired stale feature-branch evidence URLs, verified the production host/HTTPS redirect chain, and added deterministic regression coverage. Deferred Procurement layout polish remains intentionally out of scope.\n\n"
+closeout = "Release-readiness closeout (August 28, 2026): the final public-facing audit normalized canonical metadata and branded contact links, retired stale feature-branch evidence URLs, restored a real production 404 response, verified the production host/HTTPS redirect chain, and added deterministic regression coverage. Deferred Procurement layout polish remains intentionally out of scope.\n\n"
 anchor = "### 11.2 Deferred backend and live-service work - LATER"
 if closeout not in roadmap_text:
     if anchor not in roadmap_text:
