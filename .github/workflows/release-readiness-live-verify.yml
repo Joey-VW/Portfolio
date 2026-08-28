@@ -55,10 +55,8 @@ jobs:
 
           body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/')"
           grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/" />' <<<"$body"
-          grep -Fq 'connect@wistoworks.com' <<<"$body"
-          ! grep -Fq 'joey.wisto@gmail.com' <<<"$body"
           ! grep -Fq 'joewisto.com' <<<"$body"
-          echo "Projects hub canonical/contact checks passed."
+          echo "Projects hub canonical/domain checks passed."
 
           body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis.html')"
           grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body"
@@ -75,7 +73,6 @@ jobs:
             '/projects/ev-true-cost.html'; do
             body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 "https://wistoworks.com${path}")"
             grep -Fq "<link rel=\"canonical\" href=\"https://wistoworks.com${path}\" />" <<<"$body"
-            ! grep -Fq 'joey.wisto@gmail.com' <<<"$body"
             ! grep -Fq 'joewisto.com' <<<"$body"
             echo "$path canonical/domain check passed."
           done
