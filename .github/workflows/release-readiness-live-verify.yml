@@ -59,10 +59,25 @@ jobs:
           echo "Projects hub canonical/domain checks passed."
 
           body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis.html')"
-          grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body"
-          grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement' <<<"$body"
-          ! grep -Fq 'feat/procurement-sql-evidence' <<<"$body"
-          echo "Procurement canonical/evidence links passed."
+          if grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body"; then
+            echo "Procurement canonical assertion passed."
+          else
+            echo "::error::Procurement canonical assertion failed."
+            grep -oE '<link rel="canonical"[^>]*>' <<<"$body" || true
+            exit 1
+          fi
+          if grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement' <<<"$body"; then
+            echo "Procurement durable evidence-link assertion passed."
+          else
+            echo "::error::Procurement durable evidence-link assertion failed."
+            grep -oE 'https://github.com/Joey-VW/Portfolio[^"< ]+' <<<"$body" || true
+            exit 1
+          fi
+          if grep -Fq 'feat/procurement-sql-evidence' <<<"$body"; then
+            echo "::error::Stale Procurement feature-branch reference is still live."
+            exit 1
+          fi
+          echo "Procurement stale-branch assertion passed."
 
           for path in \
             '/projects/phx-transit-pulse.html' \
