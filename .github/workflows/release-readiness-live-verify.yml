@@ -23,16 +23,9 @@ jobs:
           for attempt in $(seq 1 24); do
             status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code}' 'https://wistoworks.com/__release-readiness-not-found__')"
             root="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/')"
-            if grep -Fq '<link rel="canonical" href="https://wistoworks.com/" />' <<<"$root"; then
-              canonical=yes
-            else
-              canonical=no
-            fi
+            if grep -Fq '<link rel="canonical" href="https://wistoworks.com/" />' <<<"$root"; then canonical=yes; else canonical=no; fi
             echo "Deployment marker attempt ${attempt}/24: 404=${status}, root-canonical=${canonical}"
-            if [ "$status" = "404" ] && [ "$canonical" = "yes" ]; then
-              deployed=true
-              break
-            fi
+            if [ "$status" = "404" ] && [ "$canonical" = "yes" ]; then deployed=true; break; fi
             sleep 15
           done
 
@@ -58,26 +51,25 @@ jobs:
           ! grep -Fq 'joewisto.com' <<<"$body"
           echo "Projects hub canonical/domain checks passed."
 
-          body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis.html')"
+          procurement_url='https://wistoworks.com/projects/procurement-kpi-analysis.html'
+          body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 "$procurement_url")"
           if grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body"; then
-            echo "Procurement canonical assertion passed."
+            echo "Procurement canonical assertion passed on ordinary URL."
           else
-            echo "::error::Procurement canonical assertion failed."
-            grep -oE '<link rel="canonical"[^>]*>' <<<"$body" || true
+            fresh_url="${procurement_url}?release-readiness=$(date +%s)"
+            fresh_body="$(curl --fail --silent --show-error --header 'Cache-Control: no-cache' --header 'Pragma: no-cache' --connect-timeout 10 --max-time 30 "$fresh_url")"
+            if grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$fresh_body"; then
+              echo "::error::Procurement canonical exists on cache-busted response but is missing on ordinary URL; this is a stale edge-cache/freshness defect."
+            else
+              echo "::error::Procurement canonical is missing from both ordinary and cache-busted responses; deployed artifact/origin does not match main."
+            fi
+            echo "Ordinary response headers:"
+            curl --silent --show-error --head --connect-timeout 10 --max-time 30 "$procurement_url" | tr -d '\r'
             exit 1
           fi
-          if grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement' <<<"$body"; then
-            echo "Procurement durable evidence-link assertion passed."
-          else
-            echo "::error::Procurement durable evidence-link assertion failed."
-            grep -oE 'https://github.com/Joey-VW/Portfolio[^"< ]+' <<<"$body" || true
-            exit 1
-          fi
-          if grep -Fq 'feat/procurement-sql-evidence' <<<"$body"; then
-            echo "::error::Stale Procurement feature-branch reference is still live."
-            exit 1
-          fi
-          echo "Procurement stale-branch assertion passed."
+          grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement' <<<"$body"
+          ! grep -Fq 'feat/procurement-sql-evidence' <<<"$body"
+          echo "Procurement evidence-link checks passed."
 
           for path in \
             '/projects/phx-transit-pulse.html' \
