@@ -19,18 +19,19 @@ jobs:
         run: |
           set -euo pipefail
 
+          expected_procurement='<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis" />'
           deployed=false
           for attempt in $(seq 1 24); do
             status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code}' 'https://wistoworks.com/__release-readiness-not-found__')"
-            root="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/')"
-            if grep -Fq '<link rel="canonical" href="https://wistoworks.com/" />' <<<"$root"; then canonical=yes; else canonical=no; fi
-            echo "Deployment marker attempt ${attempt}/24: 404=${status}, root-canonical=${canonical}"
+            procurement="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis')"
+            if grep -Fq "$expected_procurement" <<<"$procurement"; then canonical=yes; else canonical=no; fi
+            echo "Deployment marker attempt ${attempt}/24: 404=${status}, procurement-clean-canonical=${canonical}"
             if [ "$status" = "404" ] && [ "$canonical" = "yes" ]; then deployed=true; break; fi
             sleep 15
           done
 
           test "$deployed" = "true"
-          echo "PR #66 production baseline is live. Running final checks."
+          echo "PR #69 production baseline is live. Running final checks."
 
           check_effective() {
             local url="$1" expected="$2" effective
@@ -48,41 +49,44 @@ jobs:
 
           body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/')"
           grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/" />' <<<"$body"
+          grep -Fq '<meta property="og:url" content="https://wistoworks.com/projects/" />' <<<"$body"
           ! grep -Fq 'joewisto.com' <<<"$body"
           echo "Projects hub canonical/domain checks passed."
 
-          procurement_url='https://wistoworks.com/projects/procurement-kpi-analysis.html'
-          body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 "$procurement_url")"
-          if grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$body"; then
-            echo "Procurement canonical assertion passed on ordinary URL."
-          else
-            fresh_url="${procurement_url}?release-readiness=$(date +%s)"
-            fresh_body="$(curl --fail --silent --show-error --header 'Cache-Control: no-cache' --header 'Pragma: no-cache' --connect-timeout 10 --max-time 30 "$fresh_url")"
-            if grep -Fq '<link rel="canonical" href="https://wistoworks.com/projects/procurement-kpi-analysis.html" />' <<<"$fresh_body"; then
-              echo "::error::Procurement canonical exists on cache-busted response but is missing on ordinary URL; this is a stale edge-cache/freshness defect."
-            else
-              echo "::error::Procurement canonical is missing from both ordinary and cache-busted responses; deployed artifact/origin does not match main."
-            fi
-            echo "Ordinary response headers:"
-            curl --silent --show-error --head --connect-timeout 10 --max-time 30 "$procurement_url" | tr -d '\r'
-            exit 1
-          fi
-          grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement' <<<"$body"
-          ! grep -Fq 'feat/procurement-sql-evidence' <<<"$body"
-          echo "Procurement evidence-link checks passed."
+          source_paths=(
+            '/projects/phx-transit-pulse.html'
+            '/projects/shrinkflation-tracker.html'
+            '/games/gravity-fleet-lab.html'
+            '/projects/procurement-kpi-analysis.html'
+            '/projects/quote-to-cash-workflow-audit.html'
+            '/projects/multi-platform-publishing-system.html'
+            '/projects/ev-true-cost.html'
+          )
+          clean_paths=(
+            '/projects/phx-transit-pulse'
+            '/projects/shrinkflation-tracker'
+            '/games/gravity-fleet-lab'
+            '/projects/procurement-kpi-analysis'
+            '/projects/quote-to-cash-workflow-audit'
+            '/projects/multi-platform-publishing-system'
+            '/projects/ev-true-cost'
+          )
 
-          for path in \
-            '/projects/phx-transit-pulse.html' \
-            '/projects/shrinkflation-tracker.html' \
-            '/games/gravity-fleet-lab.html' \
-            '/projects/quote-to-cash-workflow-audit.html' \
-            '/projects/multi-platform-publishing-system.html' \
-            '/projects/ev-true-cost.html'; do
-            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 "https://wistoworks.com${path}")"
-            grep -Fq "<link rel=\"canonical\" href=\"https://wistoworks.com${path}\" />" <<<"$body"
+          for i in "${!source_paths[@]}"; do
+            source="${source_paths[$i]}"
+            clean="${clean_paths[$i]}"
+            check_effective "https://wistoworks.com${source}" "https://wistoworks.com${clean}"
+            body="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 "https://wistoworks.com${clean}")"
+            grep -Fq "<link rel=\"canonical\" href=\"https://wistoworks.com${clean}\" />" <<<"$body"
+            grep -Fq "<meta property=\"og:url\" content=\"https://wistoworks.com${clean}\" />" <<<"$body"
             ! grep -Fq 'joewisto.com' <<<"$body"
-            echo "$path canonical/domain check passed."
+            echo "$clean canonical/og:url/domain checks passed."
           done
+
+          procurement="$(curl --fail --silent --show-error --connect-timeout 10 --max-time 30 'https://wistoworks.com/projects/procurement-kpi-analysis')"
+          grep -Fq 'https://github.com/Joey-VW/Portfolio/tree/main/sql/procurement' <<<"$procurement"
+          ! grep -Fq 'feat/procurement-sql-evidence' <<<"$procurement"
+          echo "Procurement durable evidence-link checks passed."
 
           root_headers="$(curl --silent --show-error --head --connect-timeout 10 --max-time 30 'https://wistoworks.com/' | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
           grep -q '^x-content-type-options: nosniff$' <<<"$root_headers"
