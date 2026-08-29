@@ -1,0 +1,65 @@
+name: Clean production canonicals once
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    if: github.head_ref == 'fix/clean-production-canonicals'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          uv sync --dev --locked
+
+      - name: Apply clean canonical metadata
+        run: python tools/apply_clean_canonical_once.py
+
+      - name: Validate repository gate
+        run: |
+          git add -A
+          git diff --cached --check
+          npm run check
+
+      - name: Commit durable changes and remove temporary machinery
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm tools/apply_clean_canonical_once.py
+          rm .github/workflows/clean-production-canonicals-once.yml
+          git add -A
+          git diff --cached --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Align canonicals with clean production URLs"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
