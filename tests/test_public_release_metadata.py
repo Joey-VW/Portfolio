@@ -21,6 +21,7 @@ class PublicReleaseMetadataTests(unittest.TestCase):
         for project in self.registry:
             if project.get("status") == "ready" and project.get("visibility") == "public":
                 href = project["href"]
+                # Cloudflare Pages redirects tracked *.html source files to clean public URLs.
                 canonical_path = href.removesuffix(".html")
                 pages[href.lstrip("/")] = f"{ORIGIN}{canonical_path}"
         return pages
